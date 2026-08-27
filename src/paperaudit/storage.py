@@ -68,6 +68,20 @@ class SavedLearningProject:
     codebase: ParsedCodebase | None
     paper_history: list[PaperAnswer]
     joint_history: list[JointAnswer]
+    conversations: list["ConversationRecord"]
+    active_conversation_id: str
+
+
+@dataclass(frozen=True)
+class ConversationRecord:
+    """One saved, project-scoped conversation."""
+
+    conversation_id: str
+    title: str
+    created_at: str
+    updated_at: str
+    paper_history: list[PaperAnswer]
+    joint_history: list[JointAnswer]
 
 
 @dataclass(frozen=True)
@@ -253,6 +267,73 @@ def _record_id(prefix: str) -> str:
     return f"{prefix}-{timestamp}-{secrets.token_hex(3)}"
 
 
+def make_conversation(title: str = "新对话") -> ConversationRecord:
+    now = _utc_now()
+    return ConversationRecord(
+        conversation_id=_record_id("conversation"),
+        title=title.strip() or "新对话",
+        created_at=now,
+        updated_at=now,
+        paper_history=[],
+        joint_history=[],
+    )
+
+
+def _conversation_to_dict(record: ConversationRecord) -> dict[str, Any]:
+    return {
+        "conversation_id": record.conversation_id,
+        "title": record.title,
+        "created_at": record.created_at,
+        "updated_at": record.updated_at,
+        "paper_qa_history": [item.model_dump(mode="json") for item in record.paper_history],
+        "joint_qa_history": [item.model_dump(mode="json") for item in record.joint_history],
+    }
+
+
+def _conversation_has_content(record: ConversationRecord) -> bool:
+    return bool(record.paper_history or record.joint_history)
+
+
+def _load_conversations(
+    session: dict[str, Any],
+    legacy_paper_history: list[PaperAnswer],
+    legacy_joint_history: list[JointAnswer],
+) -> list[ConversationRecord]:
+    raw_records = session.get("conversations")
+    if not isinstance(raw_records, list) or not raw_records:
+        if not legacy_paper_history and not legacy_joint_history:
+            return []
+        conversation = make_conversation("默认对话")
+        return [
+            replace(
+                conversation,
+                paper_history=legacy_paper_history,
+                joint_history=legacy_joint_history,
+            )
+        ]
+    records: list[ConversationRecord] = []
+    for item in raw_records:
+        if not isinstance(item, dict):
+            raise ValueError("invalid conversation")
+        records.append(
+            ConversationRecord(
+                conversation_id=str(item["conversation_id"]),
+                title=str(item.get("title", "新对话")),
+                created_at=str(item.get("created_at", _utc_now())),
+                updated_at=str(item.get("updated_at", _utc_now())),
+                paper_history=[
+                    PaperAnswer.model_validate(answer)
+                    for answer in item.get("paper_qa_history", [])
+                ],
+                joint_history=[
+                    JointAnswer.model_validate(answer)
+                    for answer in item.get("joint_qa_history", [])
+                ],
+            )
+        )
+    return records
+
+
 def _validate_record_id(value: str, prefix: str, label: str) -> str:
     if (
         not value.startswith(f"{prefix}-")
@@ -380,6 +461,52 @@ class ProjectStore:
             except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
                 raise StorageError("项目元数据已损坏，无法更新保存时间。") from exc
 
+    def save_conversations(
+        self,
+        project_id: str,
+        conversations: Sequence[ConversationRecord],
+        active_conversation_id: str | None = None,
+    ) -> None:
+        """Persist the conversation list while keeping legacy history keys."""
+        project_dir = self._project_dir(project_id)
+        if not project_dir.exists():
+            raise StorageError("需要保存的项目不存在。")
+        records = [item for item in conversations if _conversation_has_content(item)]
+        active_source = next(
+            (item for item in conversations if item.conversation_id == active_conversation_id),
+            None,
+        )
+        if not records:
+            # Keep an empty session compatible with older builds, but do not
+            # persist a visible empty conversation.
+            active = active_source or make_conversation("新对话")
+            _atomic_write_json(
+                project_dir / "session.json",
+                {
+                    "schema_version": PROJECT_SCHEMA_VERSION,
+                    "paper_qa_history": [item.model_dump(mode="json") for item in active.paper_history],
+                    "joint_qa_history": [item.model_dump(mode="json") for item in active.joint_history],
+                },
+            )
+            return
+        active = next(
+            (item for item in records if item.conversation_id == active_conversation_id),
+            records[0],
+        )
+        changed = _atomic_write_json(
+            project_dir / "session.json",
+            {
+                "schema_version": PROJECT_SCHEMA_VERSION,
+                "active_conversation_id": active.conversation_id,
+                "conversations": [_conversation_to_dict(item) for item in records],
+                # Keep these keys so older builds can still open the project.
+                "paper_qa_history": [item.model_dump(mode="json") for item in active.paper_history],
+                "joint_qa_history": [item.model_dump(mode="json") for item in active.joint_history],
+            },
+        )
+        if changed:
+            self._touch_project(self._project_dir(project_id))
+
     @staticmethod
     def _save_session(
         project_dir: Path,
@@ -444,6 +571,16 @@ class ProjectStore:
                 JointAnswer.model_validate(item)
                 for item in session.get("joint_qa_history", [])
             ]
+            conversations = _load_conversations(session, paper_history, joint_history)
+            if not conversations:
+                conversations = [make_conversation("新对话")]
+            active_id = str(session.get("active_conversation_id", ""))
+            active_conversation = next(
+                (item for item in conversations if item.conversation_id == active_id),
+                conversations[0],
+            )
+            paper_history = list(active_conversation.paper_history)
+            joint_history = list(active_conversation.joint_history)
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
             raise StorageError("项目文件不完整或已损坏，无法恢复。") from exc
         return SavedLearningProject(
@@ -454,6 +591,8 @@ class ProjectStore:
             codebase=codebase,
             paper_history=paper_history,
             joint_history=joint_history,
+            conversations=conversations,
+            active_conversation_id=active_conversation.conversation_id,
         )
 
     def list_projects(self) -> list[ProjectMetadata]:

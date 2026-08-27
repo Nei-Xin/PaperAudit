@@ -274,6 +274,8 @@ def _restore_learning_project(store: ProjectStore, project_id: str) -> None:
     st.session_state["parsed_codebase"] = saved.codebase
     st.session_state["paper_qa_history"] = saved.paper_history
     st.session_state["joint_qa_history"] = saved.joint_history
+    st.session_state["project_conversations"] = saved.conversations
+    st.session_state["active_conversation_id"] = saved.active_conversation_id
     st.session_state["project_original_filename"] = saved.metadata.original_filename
     st.session_state["active_project_id"] = saved.metadata.project_id
     if saved.report is not None:
@@ -329,6 +331,8 @@ _PROJECT_SESSION_KEYS = (
     "learning_switch_to_qa",
     "learning_pdf_focus",
     "joint_qa_history",
+    "project_conversations",
+    "active_conversation_id",
     "joint_qa_pending",
     "joint_paper_selection",
     "joint_active_paper_citation",
@@ -361,14 +365,26 @@ def _clear_project_session() -> None:
     st.query_params.pop("project", None)
 
 
+def _save_active_conversations(store: ProjectStore, project_id: str) -> None:
+    conversations = st.session_state.get("project_conversations")
+    if isinstance(conversations, list) and conversations:
+        store.save_conversations(
+            project_id,
+            conversations,
+            str(st.session_state.get("active_conversation_id", "")),
+        )
+        return
+    store.save_histories(
+        project_id,
+        st.session_state.get("paper_qa_history", []),
+        st.session_state.get("joint_qa_history", []),
+    )
+
+
 def _open_saved_project(store: ProjectStore, project_id: str) -> None:
     current_id = st.session_state.get("active_project_id")
     if current_id and current_id != project_id:
-        store.save_histories(
-            str(current_id),
-            st.session_state.get("paper_qa_history", []),
-            st.session_state.get("joint_qa_history", []),
-        )
+        _save_active_conversations(store, str(current_id))
     _clear_project_session()
     _restore_learning_project(store, project_id)
 
@@ -442,11 +458,7 @@ with st.sidebar:
         current_project_id = st.session_state.get("active_project_id")
         try:
             if current_project_id:
-                project_store.save_histories(
-                    str(current_project_id),
-                    st.session_state.get("paper_qa_history", []),
-                    st.session_state.get("joint_qa_history", []),
-                )
+                _save_active_conversations(project_store, str(current_project_id))
         except StorageError as exc:
             st.error(f"保存当前项目失败：{exc}")
         else:
@@ -653,6 +665,7 @@ if (
         )
         st.session_state["active_project_id"] = metadata.project_id
         st.session_state["project_original_filename"] = metadata.original_filename
+        _save_active_conversations(project_store, metadata.project_id)
         st.query_params["project"] = metadata.project_id
     except StorageError as exc:
         st.session_state["project_save_error"] = str(exc)
@@ -660,11 +673,7 @@ if (
 active_project_id = st.session_state.get("active_project_id")
 if active_project_id and st.session_state.get("result_mode") == "learning":
     try:
-        project_store.save_histories(
-            str(active_project_id),
-            st.session_state.get("paper_qa_history", []),
-            st.session_state.get("joint_qa_history", []),
-        )
+        _save_active_conversations(project_store, str(active_project_id))
         st.session_state.pop("project_save_error", None)
     except StorageError as exc:
         st.session_state["project_save_error"] = str(exc)
@@ -1322,6 +1331,8 @@ if run_clicked and pdf_file is not None:
             st.session_state.pop("qa_pdf_anchor_sync", None)
             st.session_state.pop("qa_focus_evidence", None)
             st.session_state["paper_qa_history"] = []
+            st.session_state.pop("project_conversations", None)
+            st.session_state.pop("active_conversation_id", None)
             st.session_state.pop("paper_text_selection", None)
             st.session_state.pop("learning_workspace_mode", None)
             st.session_state.pop("learning_switch_to_qa", None)

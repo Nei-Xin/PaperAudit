@@ -38,6 +38,10 @@ from paperaudit.service import (
 from paperaudit.ui.pdf_selector import get_pdf_page_count, render_selectable_pdf_page
 from paperaudit.ui.code_workspace import render_code_workspace
 from paperaudit.storage import AuditRecordMetadata
+from paperaudit.ui.conversation_controls import (
+    render_conversation_controls,
+    rename_from_question,
+)
 
 
 _CONVERSATIONAL_INPUTS = {
@@ -952,6 +956,12 @@ def _render_qa_tab(
 
     def render_conversation() -> None:
         pending = st.session_state.get("paper_qa_pending")
+        render_conversation_controls(
+            key_prefix="paper-qa",
+            paper_history_key="paper_qa_history",
+            joint_history_key="joint_qa_history",
+        )
+        history = st.session_state["paper_qa_history"]
         action_left, action_right = st.columns([4, 1])
         action_left.caption(f"保留最近 {min(len(history), 10)} 轮对话")
         if action_right.button(
@@ -1137,6 +1147,7 @@ def _render_qa_tab(
                 st.session_state.pop("paper_qa_pending", None)
                 history.append(answer)
                 del history[:-10]
+                rename_from_question(str(pending.get("question", "")))
                 if answer.citations:
                     st.session_state["qa_selected_evidence"] = None
                     st.session_state["qa_evidence_group"] = []
@@ -1611,6 +1622,8 @@ def render_learning_workspace(
                     "qa_pdf_anchor_sync",
                     "qa_focus_evidence",
                     "paper_qa_history",
+                    "project_conversations",
+                    "active_conversation_id",
                     "paper_text_selection",
                     "learning_workspace_mode",
                     "learning_switch_to_qa",
