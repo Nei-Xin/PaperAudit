@@ -23,6 +23,10 @@ from paperaudit.models import (
 from paperaudit.service import match_selected_chunks
 from paperaudit.ui.code_selector import render_selectable_code
 from paperaudit.ui.pdf_selector import render_selectable_pdf_page
+from paperaudit.ui.conversation_controls import (
+    render_conversation_controls,
+    rename_from_question,
+)
 
 
 _SCOPE_LABELS = {
@@ -487,13 +491,29 @@ def _render_current_context(
     if not labels:
         return
     with st.container(key="joint_current_context"):
-        st.markdown(
+        selected_keys = []
+        if isinstance(selection, dict) and selection.get("text"):
+            selected_keys.append("joint_paper_selection")
+        if isinstance(selected_code, dict):
+            selected_keys.append("joint_code_selection")
+        title_col, remove_col = st.columns([5, 1], vertical_alignment="center")
+        title_col.markdown(
             '<div class="pa-context-title">当前上下文</div>'
             '<div class="pa-context-chips">'
             + "".join(f'<span>{escape(label)}</span>' for label in labels)
             + "</div>",
             unsafe_allow_html=True,
         )
+        if selected_keys and remove_col.button(
+            "移除选中",
+            key="remove-joint-selected-context",
+            type="tertiary",
+            width="stretch",
+            help="仅移除当前选中的论文或代码片段，不清空对话历史。",
+        ):
+            for key in selected_keys:
+                st.session_state.pop(key, None)
+            st.rerun()
         if isinstance(selected_code, dict):
             try:
                 active_selection = CodeSelection.model_validate(selected_code)
@@ -539,6 +559,12 @@ def _render_conversation(
         f'<span>最近 {min(len(history), 10)} 轮</span></div>',
         unsafe_allow_html=True,
     )
+    render_conversation_controls(
+        key_prefix="joint-qa",
+        paper_history_key="paper_qa_history",
+        joint_history_key="joint_qa_history",
+    )
+    history = st.session_state["joint_qa_history"]
     if clear_context_col.button(
         "清除上下文",
         key="clear-joint-context",
@@ -722,6 +748,7 @@ def _render_conversation(
             st.session_state.pop("joint_qa_pending", None)
             history.append(answer)
             del history[:-10]
+            rename_from_question(str(pending.get("question", "")))
             if validated_selection is not None:
                 st.session_state.pop("joint_code_selection", None)
             if answer.paper_citations:
