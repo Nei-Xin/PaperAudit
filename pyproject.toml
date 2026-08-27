@@ -1,0 +1,30 @@
+[project]
+name = "hy3-paperaudit"
+version = "0.1.0"
+description = "Claim-level evidence auditing for AI paper reports using Hy3"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.99,<3",
+    "pydantic>=2.11,<3",
+    "pymupdf>=1.26,<2",
+    "python-pptx>=1.0,<2",
+    "python-dotenv>=1.1,<2",
+    "streamlit>=1.48,<2",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/paperaudit"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4,<10",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
