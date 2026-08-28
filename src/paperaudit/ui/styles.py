@@ -11,12 +11,13 @@ def inject_custom_styles() -> None:
             max-width:1900px;padding:3.1rem 1.25rem 2rem;
         }
         .block-container:has(.st-key-learning_primary_nav) {
-            padding-top:.85rem;
+            max-width:none;width:calc(100% - 32px);height:100vh;max-height:100vh;
+            margin:0 auto;padding:0;overflow:hidden;
         }
         /* Keep Streamlit's native header available so a collapsed project sidebar
            can always be reopened. The learning header remains the visual header. */
         body:has(.st-key-learning_primary_nav) header[data-testid="stHeader"] {
-            height:2.35rem;background:transparent;
+            height:2.35rem;background:transparent;z-index:1;
         }
         body:has(.st-key-learning_primary_nav) header[data-testid="stHeader"] button {
             opacity:.72;
@@ -27,10 +28,12 @@ def inject_custom_styles() -> None:
             background: #ffffff;
         }
         section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
-            width:260px !important;min-width:260px !important;
+            width:clamp(128px,8vw,136px) !important;
+            min-width:clamp(128px,8vw,136px) !important;
         }
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-            padding:.9rem .82rem 1rem;background:#fbfcfe;border-right:1px solid #e5eaf0;
+            height:100vh;max-height:100vh;overflow-y:auto;
+            padding:1rem .625rem .75rem;background:#fbfcfe;border-right:1px solid #e5eaf0;
         }
         .pa-sidebar-library-title {
             margin:.08rem 0 .72rem;color:#172033;font-size:1rem;font-weight:780;
@@ -46,12 +49,12 @@ def inject_custom_styles() -> None:
             font-size:.63rem;font-weight:700;
         }
         .st-key-sidebar_project_list {
-            max-height:38vh;min-height:4.5rem;margin-top:.12rem;padding:0;
+            max-height:calc(100vh - 22rem);min-height:8rem;margin-top:.12rem;padding:0;
             overflow-y:auto;scrollbar-gutter:stable;border:1px solid #e4e9ef;
             border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(15,23,42,.035);
         }
         div[class*="st-key-sidebar_project_"] {
-            position:relative;margin:0;padding:.34rem .45rem .46rem .68rem;
+            position:relative;margin:0;padding:.3rem .3rem .4rem .5rem;
             border-radius:0;border-bottom:1px solid #edf1f5;
         }
         div[class*="st-key-sidebar_project_"]:last-child {
@@ -456,14 +459,18 @@ def inject_custom_styles() -> None:
         .pa-learning-title {color:#172033; font-size:1.25rem; font-weight:700; line-height:1.4;}
         .pa-learning-summary {color:#475569; margin-top:.5rem; line-height:1.6;}
         .st-key-learning_primary_nav {
-            position:relative;top:auto;z-index:12;min-height:56px;padding:.2rem 0;
-            margin:0;border-bottom:1px solid #e5e7eb;background:rgba(255,255,255,.97);
+            position:relative;top:auto;z-index:999991;height:56px;min-height:56px;
+            /* Reserve the native Streamlit toolbar's right corner so Deploy
+               and the overflow menu never sit on top of our controls. */
+            padding:0 72px 0 0;
+            box-sizing:border-box;width:min(100%,1580px);margin:0 auto;
+            border-bottom:1px solid #e5e7eb;background:rgba(255,255,255,.97);
             backdrop-filter:blur(10px);overflow:visible;
         }
         .st-key-learning_primary_nav [data-testid="stHorizontalBlock"] {overflow:visible;}
         .st-key-learning_primary_nav {gap:0 !important;}
         .st-key-learning_primary_nav > [data-testid="stLayoutWrapper"]
-        > [data-testid="stHorizontalBlock"] {gap:1rem;align-items:center;}
+        > [data-testid="stHorizontalBlock"] {gap:.75rem;align-items:center;height:100%;}
         .st-key-learning_primary_nav > [data-testid="stLayoutWrapper"]
         > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
             flex:1 1 420px !important;min-width:0 !important;
@@ -477,24 +484,24 @@ def inject_custom_styles() -> None:
             flex:0 0 140px !important;width:140px !important;max-width:140px;
         }
         .st-key-learning_primary_nav [role="radiogroup"] {
-            min-height:40px;border-color:#dbe4ee;border-radius:8px;background:#fff;
+            min-height:32px;border:0;border-radius:7px;background:#f8fafc;
         }
         .st-key-learning_primary_nav [role="radio"] {
-            min-height:40px;border-radius:0;color:#334155;font-size:.8rem;
+            min-height:32px;border-radius:6px;color:#475569;font-size:.75rem;
         }
         .st-key-learning_primary_nav [data-testid="stPopover"] button {
-            min-height:40px;border-radius:8px;font-size:.8rem;
+            min-height:32px;border-radius:6px;font-size:.75rem;
         }
         .st-key-learning_primary_nav [role="radio"][aria-checked="true"] {
-            background:#178b55 !important;color:#fff !important;border-color:#178b55 !important;
+            background:#e8f7ef !important;color:#087443 !important;border-color:transparent !important;
         }
         .pa-workspace-header {
             display:flex;align-items:center;gap:.7rem;min-width:0;padding:.06rem 0;
         }
         .pa-workspace-brand-icon {
-            display:grid;place-items:center;flex:0 0 34px;width:34px;height:38px;
-            border:2px solid #15803d;border-radius:4px;color:#15803d;
-            font-size:1.12rem;font-weight:800;line-height:1;
+            display:grid;place-items:center;flex:0 0 22px;width:22px;height:22px;
+            border:0;border-radius:4px;background:#e5faf0;color:#0d8c54;
+            font-size:.8rem;font-weight:800;line-height:1;
         }
         .pa-workspace-copy {flex:1 1 auto;min-width:0;}
         .pa-workspace-title-row {min-width:0;}
@@ -521,7 +528,8 @@ def inject_custom_styles() -> None:
             box-shadow:0 0 0 3px #dcfce7;flex:0 0 auto;
         }
         .st-key-audit_activity_strip {
-            margin:.35rem 0 .2rem;padding:.35rem .65rem;border:1px solid #dbeafe;
+            box-sizing:border-box;width:min(100%,1580px);margin:0 auto;padding:.25rem .625rem;
+            border:1px solid #dbeafe;
             border-radius:8px;background:#f8fbff;
         }
         .st-key-audit_activity_strip [data-testid="stProgress"] {margin:0;}
@@ -544,17 +552,17 @@ def inject_custom_styles() -> None:
         .pa-learning-nav-link:hover {color:#1d4ed8 !important; background:#eff6ff;}
         .pa-learning-section-anchor {scroll-margin-top:4rem;}
         .st-key-learning_section_bar {
-            height:42px;padding:0;margin:0 0 .45rem;border:0;border-bottom:1px solid #e5e7eb;
+            height:40px;padding:0;margin:0;border:0;border-bottom:1px solid #e5e7eb;
             border-radius:0;background:rgba(255,255,255,.97);position:relative;top:auto;z-index:11;
             box-shadow:none;backdrop-filter:blur(10px);
         }
         .st-key-learning_section_bar [role="radiogroup"] {
-            height:42px;gap:0 !important;border:0 !important;border-radius:0 !important;
+            height:40px;gap:0 !important;border:0 !important;border-radius:0 !important;
             background:transparent !important;
         }
         .st-key-learning_section_bar [role="radio"],
         .st-key-learning_section_bar button {
-            height:42px;min-height:42px;padding:.15rem .75rem !important;
+            height:40px;min-height:40px;padding:.1rem .625rem !important;
             border:0 !important;border-radius:0 !important;background:transparent !important;
             box-shadow:none !important;color:#475569 !important;font-weight:560;
         }
@@ -564,7 +572,7 @@ def inject_custom_styles() -> None:
         }
         .st-key-learning_section_bar [data-testid="stCaptionContainer"] {display:none;}
         .st-key-learning_explanation_header {
-            min-height:42px;padding:.22rem 1rem;margin:0;border-bottom:1px solid #e5e7eb;
+            min-height:42px;padding:.22rem .9rem;margin:0;border-bottom:1px solid #e5e7eb;
             background:#fff;box-sizing:border-box;
         }
         .st-key-learning_explanation_header > [data-testid="stVerticalBlock"] {gap:0;}
@@ -640,7 +648,7 @@ def inject_custom_styles() -> None:
             color:#1d4ed8;background:#f8fafc;
         }
         .st-key-learning_section_followup {
-            position:relative;z-index:6;flex:0 0 auto;padding:.45rem 1rem .7rem;
+            position:relative;z-index:6;flex:0 0 auto;padding:.35rem .75rem .55rem;
             background:linear-gradient(to bottom,rgba(255,255,255,.72),#fff 28%);
         }
         div[data-testid="stForm"]:has(.pa-learning-followup-form-marker) {
@@ -686,6 +694,90 @@ def inject_custom_styles() -> None:
         }
         [class*="st-key-learning_report_scroll_"] p,
         [class*="st-key-learning_page_context_scroll_"] p {line-height:1.65;}
+
+        /* The optimized lecture workspace uses a fixed-width detail rail and
+           lets the PDF reader fill the remaining main-column width.  The
+           keyed containers below are Streamlit's wrappers around the two
+           columns; constraining both levels keeps long reports from expanding
+           the whole page. */
+        body:has(.st-key-learning_primary_nav) .stApp,
+        body:has(.st-key-learning_primary_nav) [data-testid="stAppViewContainer"],
+        body:has(.st-key-learning_primary_nav) [data-testid="stMain"] {
+            height:100vh !important;max-height:100vh !important;
+            overflow:hidden !important;
+        }
+        .block-container:has(.st-key-learning_primary_nav) > [data-testid="stVerticalBlock"] {
+            height:100%;min-height:0;display:flex;flex-direction:column;
+            gap:8px !important;overflow:hidden;
+        }
+        .block-container:has(.st-key-learning_primary_nav) > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"]:has(.st-key-learning_primary_nav),
+        .block-container:has(.st-key-learning_primary_nav) > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"]:has(.st-key-audit_activity_strip) {
+            flex:0 0 auto !important;min-height:0 !important;
+        }
+        .block-container:has(.st-key-learning_primary_nav) > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"]:has(.st-key-learning_source_panel) {
+            flex:1 1 0 !important;min-height:0 !important;overflow:hidden;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel) {
+            align-items:stretch !important;min-height:0 !important;height:100% !important;
+            max-height:none !important;gap:1rem !important;
+            width:min(100%, 1580px) !important;margin-inline:auto;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has(.st-key-learning_source_panel) {
+            flex:1 1 0 !important;width:auto !important;min-width:0 !important;
+            min-height:0 !important;height:100% !important;max-height:none !important;
+            align-self:stretch !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has([class*="st-key-learning_report_scroll_"]),
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has([class*="st-key-learning_page_context_scroll_"]) {
+            flex:0 1 clamp(360px,22vw,420px) !important;
+            width:clamp(360px,22vw,420px) !important;
+            max-width:420px !important;min-width:360px !important;
+            min-height:0 !important;height:100% !important;max-height:none !important;
+            align-self:stretch !important;
+            display:flex !important;flex-direction:column;overflow:hidden;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has([class*="st-key-learning_report_scroll_"]) > [data-testid="stVerticalBlock"],
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has([class*="st-key-learning_page_context_scroll_"]) > [data-testid="stVerticalBlock"] {
+            display:flex !important;flex-direction:column;min-height:0 !important;
+            height:100% !important;overflow:hidden;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        [class*="st-key-learning_report_scroll_"],
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        [class*="st-key-learning_page_context_scroll_"] {
+            flex:1 1 0 !important;height:auto !important;min-height:0 !important;
+            overflow-y:auto !important;overflow-x:hidden;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        .st-key-learning_section_followup {
+            flex:0 0 auto !important;position:sticky;bottom:0;z-index:6;
+            margin-top:auto;padding-bottom:.7rem;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has(.st-key-learning_source_panel) > [data-testid="stVerticalBlock"] {
+            min-height:0 !important;height:100% !important;display:flex !important;
+            flex-direction:column;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has(.st-key-learning_source_panel)
+        > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"]:has(.st-key-learning_section_bar) {
+            flex:0 0 auto !important;min-height:0 !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        > [data-testid="stColumn"]:has(.st-key-learning_source_panel)
+        > [data-testid="stVerticalBlock"] > [data-testid="stLayoutWrapper"]:has(.st-key-learning_source_panel) {
+            flex:1 1 0 !important;min-height:0 !important;overflow:hidden;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+        .st-key-learning_source_panel {min-height:0;}
         .pa-page-relation {
             display:flex;flex-direction:column;gap:.28rem;padding:.72rem .8rem;margin:.3rem 0 .7rem;
             border-left:3px solid #2563eb;border-radius:0 8px 8px 0;background:#f8fafc;
@@ -718,16 +810,74 @@ def inject_custom_styles() -> None:
             position:relative;top:auto;align-self:flex-start;
         }
         .st-key-learning_source_panel {
-            padding:.45rem;border:1px solid #dbe4ee;background:#eef1f5;border-radius:10px;
+            padding:.5rem;border:1px solid #dee5ed;background:#f5f7fa;border-radius:6px;
+            height:100% !important;min-height:0 !important;overflow:hidden;
+            gap:.5rem !important;
         }
         .st-key-learning_pdf_toolbar,.st-key-qa_pdf_toolbar {
-            position:sticky;top:6.7rem;z-index:8;padding:.28rem .35rem;
+            position:sticky;top:0;z-index:8;padding:.2rem .25rem;
+            min-height:40px;flex:0 0 auto;
             border-bottom:1px solid #e2e8f0;background:rgba(255,255,255,.96);
             backdrop-filter:blur(8px);
         }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"],
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] {
+            gap:.5rem !important;align-items:center;justify-content:flex-start;
+            flex-wrap:nowrap !important;overflow:visible;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"],
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+            flex:0 0 auto !important;width:auto !important;min-width:0 !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child,
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
+            flex:0 1 clamp(9rem, 16vw, 14rem) !important;
+            min-width:9rem !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2),
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(4),
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(5),
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(7),
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2),
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(4),
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(5),
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(7) {
+            flex-basis:2.5rem !important;width:2.5rem !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3),
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(3) {
+            flex-basis:7rem !important;width:7rem !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(6),
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(6) {
+            flex-basis:3.5rem !important;width:3.5rem !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child,
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
+            flex-basis:7.5rem !important;width:7.5rem !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"],
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] {
+            display:flex !important;gap:.25rem !important;align-items:center;
+            width:100% !important;min-width:0 !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"],
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+            flex:0 0 auto !important;width:auto !important;min-width:0 !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child,
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
+            flex:1 1 0 !important;min-width:0 !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child,
+        .st-key-qa_pdf_toolbar [data-testid="stHorizontalBlock"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
+            flex:0 0 2.5rem !important;width:2.5rem !important;
+        }
+        .st-key-learning_pdf_toolbar [data-testid="stColumn"],
+        .st-key-qa_pdf_toolbar [data-testid="stColumn"] {min-width:0 !important;}
         .st-key-learning_pdf_toolbar button,
         .st-key-qa_pdf_toolbar button {
-            min-height:2rem;padding:.18rem .3rem;white-space:nowrap;
+            min-height:1.8rem;height:1.8rem;padding:.1rem .25rem;white-space:nowrap;
         }
         .st-key-learning_pdf_toolbar button p,
         .st-key-qa_pdf_toolbar button p {font-size:.7rem;white-space:nowrap;}
@@ -744,6 +894,90 @@ def inject_custom_styles() -> None:
         .st-key-qa_source_panel [data-testid="stImage"] img {
             width:100%;max-height:min(72vh,900px);object-fit:contain;
             border:1px solid #e2e8f0;border-radius:7px;background:#fff;
+        }
+        .st-key-learning_source_panel > .st-key-learning-selectable-pdf {
+            flex:1 1 0 !important;min-height:0 !important;overflow:hidden;
+            display:flex;flex-direction:column;
+        }
+        .st-key-learning_source_panel .st-key-learning-selectable-pdf,
+        .st-key-learning_source_panel .st-key-learning-selectable-pdf [data-testid="stBidiComponent"],
+        .st-key-learning_source_panel .st-key-learning-selectable-pdf [data-testid="stBidiComponentRegular"] {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;
+            max-height:none !important;overflow:hidden;
+        }
+        .st-key-learning_source_panel .st-key-learning-selectable-pdf
+        [data-testid="stBidiComponentRegular"] > div,
+        .st-key-learning_source_panel .st-key-learning-selectable-pdf
+        [data-testid="stBidiComponentRegular"] > div > div {
+            height:100% !important;min-height:0 !important;overflow:hidden;
+        }
+        .st-key-learning_source_panel .pa-selectable-pdf {
+            height:100% !important;min-height:0 !important;max-height:none !important;
+            overflow-y:auto !important;overflow-x:auto;
+        }
+        .block-container:has(.st-key-learning_primary_nav) > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"]:has(.st-key-qa_source_panel) {
+            flex:1 1 0 !important;min-height:0 !important;overflow:hidden;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel) {
+            align-items:stretch !important;min-height:0 !important;height:100% !important;
+            width:min(100%,1580px) !important;margin-inline:auto;gap:1rem !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel)
+        > [data-testid="stColumn"] {
+            min-width:0 !important;min-height:0 !important;height:100% !important;
+            display:flex !important;flex-direction:column;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel)
+        > [data-testid="stColumn"]:has(.st-key-qa_source_panel) {
+            flex:1 1 0 !important;width:auto !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel)
+        > [data-testid="stColumn"]:has(.st-key-qa_conversation_panel) {
+            flex:0 1 clamp(420px,26vw,520px) !important;
+            width:clamp(420px,26vw,520px) !important;
+            min-width:420px !important;max-width:520px !important;
+        }
+        .st-key-qa_source_panel {
+            display:flex !important;flex-direction:column;flex:1 1 0 !important;
+            height:100% !important;min-height:0 !important;overflow:hidden;
+        }
+        .st-key-qa_source_panel > .st-key-qa-selectable-pdf {
+            display:flex !important;flex:1 1 0 !important;min-height:0 !important;
+            overflow:hidden;
+        }
+        .st-key-qa_source_panel .st-key-qa-selectable-pdf,
+        .st-key-qa_source_panel .st-key-qa-selectable-pdf [data-testid="stBidiComponent"],
+        .st-key-qa_source_panel .st-key-qa-selectable-pdf [data-testid="stBidiComponentRegular"] {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;
+            max-height:none !important;overflow:hidden;
+        }
+        .st-key-qa_source_panel .st-key-qa-selectable-pdf
+        [data-testid="stBidiComponentRegular"] > div,
+        .st-key-qa_source_panel .st-key-qa-selectable-pdf
+        [data-testid="stBidiComponentRegular"] > div > div {
+            height:100% !important;min-height:0 !important;overflow:hidden;
+        }
+        .st-key-qa_source_panel .pa-selectable-pdf {
+            height:100% !important;min-height:0 !important;max-height:none !important;
+            overflow-y:auto !important;overflow-x:auto;
+        }
+        [data-testid="stLayoutWrapper"]:has(> .st-key-qa_source_panel),
+        [data-testid="stLayoutWrapper"]:has(> .st-key-qa_conversation_panel) {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;
+            display:flex !important;flex-direction:column;
+        }
+        .st-key-qa_conversation_panel > [data-testid="stLayoutWrapper"]:has(.st-key-qa_history_scroll) {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;
+            overflow:hidden;display:flex;flex-direction:column;
+        }
+        .st-key-qa_conversation_panel {
+            display:flex !important;flex-direction:column;height:100% !important;
+            min-height:0 !important;overflow:hidden;
+        }
+        .st-key-qa_conversation_panel .st-key-qa_history_scroll {
+            flex:1 1 0 !important;height:auto !important;max-height:none !important;
+            min-height:0 !important;overflow-y:auto !important;overflow-x:hidden;
         }
         .st-key-qa_history_scroll {
             max-height:calc(100vh - 25rem);min-height:14rem;
@@ -801,19 +1035,170 @@ def inject_custom_styles() -> None:
             border:1px solid #dbe4ee;padding:.55rem;background:#fff;
             border-radius:10px;box-shadow:0 -6px 18px rgba(15,23,42,.06);
         }
-        .st-key-joint_pdf_panel,.st-key-joint_code_panel,.st-key-joint_conversation_panel {
-            align-self:flex-start;padding:.1rem .65rem .45rem;min-width:0;
+        /* Paper + code is a viewport-sized workspace. The outer row stretches,
+           while each panel owns its own scroll position. */
+        /* Streamlit inserts a layout wrapper between keyed containers and
+           their children. Constrain both layers so the workspace is truly
+           viewport-sized instead of being expanded by the longest panel. */
+        section.main:has(.st-key-joint_workspace) {height:auto;min-height:100vh;overflow:visible;}
+        .block-container:has(.st-key-joint_workspace) {
+            height:auto;min-height:calc(100vh + 2.5rem);overflow:visible;
         }
-        .st-key-joint_code_panel,.st-key-joint_conversation_panel {border-left:1px solid #e2e8f0;}
-        .st-key-joint_pdf_panel,.st-key-joint_conversation_panel {
-            max-height:min(80vh,1020px);overflow-y:auto;overscroll-behavior:contain;
+        /* Keep a page-level vertical scroll available as a fallback when the
+           pointer is outside an individual panel.  The PDF, code, file-tree,
+           and Assistant regions still keep their own scroll positions. */
+        body:has(.st-key-joint_workspace) .stApp,
+        body:has(.st-key-joint_workspace) [data-testid="stAppViewContainer"] {
+            overflow-y:auto !important;overflow-x:hidden !important;
+        }
+        body:has(.st-key-joint_workspace) [data-testid="stMain"],
+        body:has(.st-key-joint_workspace) .stMain {
+            overflow:visible !important;
+        }
+        .st-key-joint_workspace {
+            box-sizing:border-box;height:calc(100vh - 14.75rem) !important;
+            min-height:420px !important;max-height:calc(100vh - 14.75rem) !important;
+            width:min(100%,1580px);margin:0 auto;padding:0;
+            flex:0 0 auto !important;overflow:hidden;
+        }
+        .st-key-joint_workspace > [data-testid="stLayoutWrapper"] {
+            height:100%;min-height:0;display:flex;flex:1 1 auto;
+        }
+        .st-key-joint_workspace > [data-testid="stLayoutWrapper"]
+        > [data-testid="stVerticalBlock"] {
+            height:100%;min-height:0;display:flex;flex:1 1 auto;flex-direction:column;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel) {
+            align-items:stretch !important;min-height:0 !important;height:100%;
+            gap:1rem !important;width:100%;margin:0;
+        }
+        .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel),
+        .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_code_panel) {
+            min-height:100% !important;height:100% !important;align-items:stretch !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+        > [data-testid="stColumn"] {
+            min-width:0 !important;min-height:0 !important;height:100%;
+            display:flex;flex-direction:column;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+        > [data-testid="stColumn"]:has(.st-key-joint_pdf_panel) {
+            flex:1 1 0 !important;width:auto !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+        > [data-testid="stColumn"]:has(.st-key-joint_conversation_panel) {
+            flex:0 1 clamp(420px,26vw,520px) !important;
+            width:clamp(420px,26vw,520px) !important;
+            min-width:420px !important;max-width:520px !important;
+        }
+        [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+        > [data-testid="stColumn"] > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"] {
+            flex:1 1 0 !important;min-height:0 !important;height:100%;
+            display:flex;flex-direction:column;
+        }
+        .st-key-joint_pdf_panel,.st-key-joint_code_panel,.st-key-joint_conversation_panel {
+            align-self:stretch;padding:.1rem .45rem .35rem;min-width:0;min-height:0;
+            height:auto !important;max-height:none;overflow:hidden;overscroll-behavior:contain;
+            scrollbar-gutter:stable;
+            display:flex !important;flex:1 1 0 !important;flex-direction:column;
+        }
+        .st-key-joint_pdf_panel > [data-testid="stLayoutWrapper"],
+        .st-key-joint_code_panel > [data-testid="stLayoutWrapper"],
+        .st-key-joint_conversation_panel > [data-testid="stLayoutWrapper"] {
+            min-height:0;display:flex;flex:0 0 auto;flex-direction:column;
+        }
+        /* In the paper-only and code-only layouts Streamlit adds one more
+           wrapper around each keyed panel.  Stretch that parent as well;
+           otherwise the keyed panel falls back to its intrinsic height
+           (roughly one line) while its viewer overflows outside the workspace
+           and gets clipped by the viewport-sized shell. */
+        [data-testid="stLayoutWrapper"]:has(> .st-key-joint_pdf_panel),
+        [data-testid="stLayoutWrapper"]:has(> .st-key-joint_code_panel),
+        [data-testid="stLayoutWrapper"]:has(> .st-key-joint_conversation_panel) {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;
+            display:flex;flex-direction:column;
+        }
+        .st-key-joint_pdf_panel > [data-testid="stLayoutWrapper"]:has(.pa-selectable-pdf),
+        .st-key-joint_code_panel > [data-testid="stLayoutWrapper"]:has(.pa-selectable-code) {
+            flex:1 1 0;min-height:0;overflow:hidden;
+        }
+        .st-key-joint_code_panel > [data-testid="stLayoutWrapper"]:has(.pa-selectable-code)
+        > [data-testid="stVerticalBlock"] {
+            height:100%;min-height:0;overflow:hidden;display:flex;flex-direction:column;
+        }
+        /* The code-focus layout nests a second horizontal row for the file
+           tree and editor.  Without an explicit height on that nested row,
+           the tree's long list determines the row height and the workspace
+           cannot receive the mouse wheel outside the editor. */
+        .st-key-joint_code_panel [data-testid="stHorizontalBlock"]:has(.st-key-joint_code_file_tree) {
+            height:100% !important;min-height:0 !important;align-items:stretch !important;
+            overflow:hidden;
+        }
+        .st-key-joint_code_panel [data-testid="stHorizontalBlock"]:has(.st-key-joint_code_file_tree)
+        > [data-testid="stColumn"] {
+            height:100% !important;min-height:0 !important;display:flex;flex-direction:column;
+            overflow:hidden;
+        }
+        .st-key-joint_code_panel [data-testid="stHorizontalBlock"]:has(.st-key-joint_code_file_tree)
+        > [data-testid="stColumn"] > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"] {
+            height:100% !important;min-height:0 !important;display:flex;flex-direction:column;
+        }
+        .st-key-joint_code_file_tree {
+            height:100% !important;min-height:0 !important;max-height:none !important;
+            overflow-y:auto !important;overflow-x:hidden !important;overscroll-behavior:contain;
             scrollbar-gutter:stable;
         }
-        .st-key-joint_conversation_panel {
-            padding-bottom:.3rem;
+        .st-key-joint_code_panel [class*="st-key-joint-selectable-code-"] {
+            flex:1 1 0 !important;height:auto !important;min-height:0 !important;overflow:hidden;
+        }
+        .st-key-joint_code_panel [class*="st-key-joint-selectable-code-"]
+        [data-testid="stBidiComponent"],
+        .st-key-joint_code_panel [class*="st-key-joint-selectable-code-"]
+        [data-testid="stBidiComponentRegular"] {
+            height:100% !important;min-height:0 !important;overflow:hidden;
+        }
+        .st-key-joint_code_panel [class*="st-key-joint-selectable-code-"]
+        [data-testid="stBidiComponentRegular"] > div,
+        .st-key-joint_code_panel [class*="st-key-joint-selectable-code-"]
+        [data-testid="stBidiComponentRegular"] > div > div {
+            height:100% !important;min-height:0 !important;overflow:visible;
+        }
+        .st-key-joint_pdf_panel .pa-selectable-pdf,
+        .st-key-joint_code_panel .pa-selectable-code {
+            height:100% !important;min-height:0 !important;max-height:none !important;
+        }
+        .st-key-joint_pdf_panel,.st-key-joint_conversation_panel {overflow-y:auto;}
+        .st-key-joint_code_panel {overflow:hidden;border-left:1px solid #e2e8f0;}
+        .st-key-joint_conversation_panel {border-left:1px solid #e2e8f0;padding-bottom:.3rem;}
+        .st-key-joint_assistant_scroll {
+            flex:1 1 0 !important;height:100% !important;min-height:0;overflow-y:auto;overflow-x:hidden;
+            overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:.35rem;
+        }
+        .st-key-joint_conversation_panel > [data-testid="stLayoutWrapper"]:has(.st-key-joint_assistant_scroll) {
+            flex:1 1 0;min-height:0;overflow:hidden;
+        }
+        .st-key-joint_assistant_scroll > [data-testid="stLayoutWrapper"] {
+            min-height:100%;display:flex;flex-direction:column;
+        }
+        .st-key-joint_pdf_toolbar {
+            flex:0 0 auto;min-height:42px;padding:.18rem .2rem;
+            border-bottom:1px solid #e2e8f0;background:#fbfcfe;
+        }
+        .st-key-joint_pdf_toolbar [data-testid="stHorizontalBlock"] {
+            gap:.3rem !important;align-items:center;
+        }
+        .st-key-joint_pdf_toolbar [data-testid="stColumn"] {min-width:0 !important;}
+        .st-key-joint_pdf_toolbar button {
+            min-height:1.9rem;height:1.9rem;padding:.12rem .28rem;white-space:nowrap;
+        }
+        .st-key-joint_pdf_toolbar button p {font-size:.7rem;white-space:nowrap;}
+        .st-key-joint_pdf_toolbar [data-testid="stNumberInput"] input {
+            min-height:1.9rem;height:1.9rem;padding:.12rem .2rem;text-align:center;
         }
         .pa-code-viewer {
-            height:clamp(360px,calc(78vh - 9.5rem),780px);
+            height:max(320px,calc(100vh - 16.2rem));max-height:none;
             overflow:auto;overscroll-behavior:contain;
             border:1px solid #dbe4ee;border-radius:8px;background:#0f172a;
             padding:.6rem 0;font:12px/1.62 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -1093,14 +1478,40 @@ def inject_custom_styles() -> None:
             }
             .st-key-learning_primary_nav > [data-testid="stLayoutWrapper"]
             > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(2) {
-                flex:0 1 360px !important;width:360px !important;
+                /* Keep the native Streamlit toolbar clear on compact screens. */
+                flex:0 0 360px !important;width:360px !important;min-width:0 !important;
             }
             .st-key-learning_primary_nav > [data-testid="stLayoutWrapper"]
             > [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
-                flex:0 0 120px !important;width:120px !important;
+                flex:0 0 120px !important;width:120px !important;min-width:0 !important;
             }
+            .st-key-joint_workspace {height:calc(100vh - 13.8rem);min-height:480px;}
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel) {
+                gap:.25rem !important;
+            }
+            .st-key-joint_pdf_panel,.st-key-joint_code_panel,
+            .st-key-joint_conversation_panel {padding-left:.25rem;padding-right:.25rem;}
+            .st-key-joint_pdf_toolbar button {font-size:.68rem;}
+        }
+        @media (max-width:1100px) and (min-width:701px) {
+            .st-key-joint_workspace {height:calc(100vh - 13.2rem);min-height:440px;}
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+            > [data-testid="stColumn"]:nth-child(1),
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+            > [data-testid="stColumn"]:nth-child(2) {flex:1 1 0 !important;min-width:0 !important;}
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+            > [data-testid="stColumn"]:nth-child(3) {flex:0 0 320px !important;width:320px !important;}
+            .st-key-joint_conversation_panel {font-size:.88rem;}
         }
         @media (max-width:700px) {
+            /* The desktop workspace is viewport-locked; release that lock on
+               phones so the natural single-column flow remains scrollable. */
+            section.main:has(.st-key-joint_workspace) {height:auto;overflow:visible;}
+            .block-container:has(.st-key-joint_workspace) {height:auto;min-height:0;overflow:visible;}
+            .st-key-joint_workspace {
+                height:auto !important;max-height:none !important;min-height:0 !important;
+                overflow:visible;
+            }
             .pa-audit-summary {align-items:flex-start;gap:.6rem;padding:.65rem;}
             .pa-audit-summary-grade {
                 flex:1 1 100%;min-width:0;padding:0 0 .5rem;border-right:0;
@@ -1160,6 +1571,14 @@ def inject_custom_styles() -> None:
                 position:static;
             }
             [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+            > [data-testid="stColumn"]:has(.st-key-learning_source_panel),
+            [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+            > [data-testid="stColumn"]:has([class*="st-key-learning_report_scroll_"]),
+            [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+            > [data-testid="stColumn"]:has([class*="st-key-learning_page_context_scroll_"]) {
+                height:auto !important;max-height:none !important;min-height:0 !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
             > [data-testid="stColumn"]:has([class*="st-key-learning_report_scroll_"])
             > [data-testid="stVerticalBlock"],
             [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
@@ -1173,7 +1592,7 @@ def inject_custom_styles() -> None:
             }
             .pa-code-viewer {height:62vh;}
             .st-key-joint_pdf_panel,.st-key-joint_conversation_panel {
-                max-height:none;overflow:visible;
+                height:auto;max-height:none;overflow:visible;
             }
             .st-key-joint_pdf_panel,.st-key-joint_code_panel,.st-key-joint_conversation_panel {
                 border-left:0;padding:.15rem 0 .45rem;
@@ -1185,6 +1604,7 @@ def inject_custom_styles() -> None:
                 min-width:0 !important;
             }
             .pa-workspace-title,.pa-workspace-summary {white-space:normal;}
+            .st-key-learning_primary_nav {padding-right:0;}
             section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
                 width:260px !important;min-width:260px !important;
             }
@@ -1214,6 +1634,79 @@ def inject_custom_styles() -> None:
                 flex-wrap:nowrap !important;overflow-x:auto;justify-content:flex-start !important;
             }
             .st-key-learning_section_bar [role="radio"] {flex:0 0 auto !important;}
+
+            /* Release the desktop-centered shell on narrow screens. The
+               learning workspace then flows from the viewport edge instead
+               of centering a wide desktop row off-screen. */
+            body:has(.st-key-learning_primary_nav) .stApp,
+            body:has(.st-key-learning_primary_nav) [data-testid="stAppViewContainer"],
+            body:has(.st-key-learning_primary_nav) [data-testid="stMain"] {
+                height:auto !important;max-height:none !important;overflow:visible !important;
+            }
+            .block-container:has(.st-key-learning_primary_nav) {
+                width:100% !important;max-width:none !important;height:auto !important;
+                min-height:0 !important;padding:0 .75rem !important;overflow:visible !important;
+            }
+            .block-container:has(.st-key-learning_primary_nav) > [data-testid="stVerticalBlock"] {
+                height:auto !important;min-height:0 !important;overflow:visible !important;
+            }
+            .st-key-learning_primary_nav,.st-key-audit_activity_strip {
+                width:100% !important;max-width:none !important;margin:0 !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel) {
+                width:100% !important;max-width:none !important;margin:0 !important;
+                height:auto !important;min-height:0 !important;flex-wrap:wrap !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+            > [data-testid="stColumn"]:has(.st-key-learning_source_panel),
+            [data-testid="stHorizontalBlock"]:has(.st-key-learning_source_panel)
+            > [data-testid="stColumn"]:has([class*="st-key-learning_report_scroll_"]) {
+                flex:1 1 100% !important;width:100% !important;min-width:0 !important;
+                height:auto !important;max-height:none !important;
+            }
+            .st-key-learning_source_panel {
+                height:auto !important;max-height:none !important;overflow:visible !important;
+            }
+            .st-key-learning_source_panel .st-key-learning-selectable-pdf,
+            .st-key-learning_source_panel .st-key-learning-selectable-pdf [data-testid="stBidiComponent"],
+            .st-key-learning_source_panel .st-key-learning-selectable-pdf [data-testid="stBidiComponentRegular"] {
+                height:auto !important;min-height:0 !important;max-height:none !important;
+            }
+            .st-key-learning_source_panel .pa-selectable-pdf {
+                height:62vh !important;min-height:360px !important;max-height:none !important;
+            }
+            .st-key-joint_workspace {
+                width:100% !important;max-width:none !important;height:auto !important;
+                min-height:0 !important;max-height:none !important;overflow:visible !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel) {
+                width:100% !important;max-width:none !important;height:auto !important;
+                min-height:0 !important;flex-wrap:wrap !important;gap:.75rem !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+            > [data-testid="stColumn"]:has(.st-key-joint_pdf_panel),
+            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
+            > [data-testid="stColumn"]:has(.st-key-joint_conversation_panel) {
+                flex:1 1 100% !important;width:100% !important;min-width:0 !important;
+                max-width:none !important;height:auto !important;max-height:none !important;
+            }
+            .st-key-joint_pdf_panel,.st-key-joint_conversation_panel {
+                height:auto !important;max-height:none !important;overflow:visible !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel) {
+                width:100% !important;max-width:none !important;height:auto !important;
+                min-height:0 !important;flex-wrap:wrap !important;gap:.75rem !important;
+            }
+            [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel)
+            > [data-testid="stColumn"]:has(.st-key-qa_source_panel),
+            [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel)
+            > [data-testid="stColumn"]:has(.st-key-qa_conversation_panel) {
+                flex:1 1 100% !important;width:100% !important;min-width:0 !important;
+                max-width:none !important;height:auto !important;max-height:none !important;
+            }
+            .st-key-qa_source_panel,.st-key-qa_conversation_panel {
+                height:auto !important;max-height:none !important;overflow:visible !important;
+            }
         }
         @media (max-height:760px) {
             .st-key-qa_history_scroll {height:auto;max-height:none;overflow:visible;}

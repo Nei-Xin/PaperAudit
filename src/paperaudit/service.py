@@ -492,27 +492,35 @@ def _validated_evidence_quote(requested: str, source: str) -> str | None:
     return quote
 
 
-def _quote_rects(chunk: PaperChunk, quote: str | None) -> list[PageRect]:
+def _quote_rects(chunk: PaperChunk, quote: str | None) -> list[dict[str, float]]:
+    """Return PDF rectangles in a form accepted by strict Pydantic models.
+
+    Parsed chunks expose ``PageRect`` model instances, while ``EvidenceAnchor``
+    is built with strict validation.  Passing those instances through directly
+    fails on rerender (and made the UI appear inconsistently across layouts), so
+    normalize them to plain dictionaries at this boundary.
+    """
+    source_rects = [rect.model_dump() for rect in chunk.rects]
     if not quote:
-        return chunk.rects
+        return source_rects
     lines = [re.sub(r"\s+", " ", line).strip() for line in chunk.content.splitlines()]
     lines = [line for line in lines if line]
-    if not lines or len(lines) != len(chunk.rects):
-        return chunk.rects
+    if not lines or len(lines) != len(source_rects):
+        return source_rects
     joined = " ".join(lines)
     start = joined.casefold().find(quote.casefold())
     if start < 0:
-        return chunk.rects
+        return source_rects
     end = start + len(quote)
-    selected_rects: list[PageRect] = []
+    selected_rects: list[dict[str, float]] = []
     cursor = 0
-    for line, rect in zip(lines, chunk.rects, strict=True):
+    for line, rect in zip(lines, source_rects, strict=True):
         line_start = cursor
         line_end = cursor + len(line)
         if line_start < end and line_end > start:
             selected_rects.append(rect)
         cursor = line_end + 1
-    return selected_rects or chunk.rects
+    return selected_rects or source_rects
 
 
 def _evidence_locator(

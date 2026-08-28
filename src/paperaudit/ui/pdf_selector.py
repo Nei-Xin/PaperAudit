@@ -19,7 +19,9 @@ _PDF_SELECTOR_CSS = """
 .pa-selectable-pdf {
   position: relative;
   width: 100%;
-  min-height: 120px;
+  height: max(420px, calc(100vh - 17.4rem));
+  min-height: 420px;
+  max-height: none;
   overflow: auto;
   padding: 14px;
   box-sizing: border-box;
@@ -29,7 +31,9 @@ _PDF_SELECTOR_CSS = """
 .pa-pdf-frame {
   position: relative;
   width: 100%;
-  margin: 0 auto;
+  /* Keep the reading edge stable on the left; any spare width remains on
+     the far side of the reader instead of splitting into two gutters. */
+  margin: 0;
   overflow: hidden;
   border: 0;
   border-radius: 2px;
@@ -128,7 +132,15 @@ export default function(component) {
   const frame = document.createElement('div');
   frame.className = 'pa-pdf-frame';
   frame.style.aspectRatio = `${data.page_width} / ${data.page_height}`;
-  frame.style.width = `${Math.max(100, Math.min(Number(data.zoom_percent || 100), 180))}%`;
+  const zoom = Math.max(50, Math.min(Number(data.zoom_percent || 100), 180));
+   // Fit the page to the reader on ordinary screens, while capping the page
+   // width on very wide displays so more of the document remains visible.
+   // Zoom levels above 100% can still grow beyond the cap and scroll.
+   const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || .92), 1.08));
+   const availableWidth = Math.max(120, host.clientWidth - 28);
+   const fitWidth = Math.min(availableWidth * fitScale, 1120);
+   const pageWidth = fitWidth * zoom / 100;
+  frame.style.width = `${Math.max(120, pageWidth)}px`;
 
   const image = document.createElement('img');
   image.src = data.image_url;
@@ -308,8 +320,25 @@ export default function(component) {
     textLayer.addEventListener('dblclick', handleWordPick);
     document.addEventListener('selectionchange', selectionChanged);
   }
-  const resizeObserver = new ResizeObserver(positionWords);
-  resizeObserver.observe(frame);
+  const resizePage = () => {
+    const currentZoom = Math.max(50, Math.min(Number(data.zoom_percent || 100), 180));
+    const availableWidth = Math.max(120, host.clientWidth - 28);
+    const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || .92), 1.08));
+    const fitWidth = Math.min(availableWidth * fitScale, 1120);
+    const pageWidth = fitWidth * currentZoom / 100;
+    frame.style.width = `${Math.max(120, pageWidth)}px`;
+    positionWords();
+  };
+  // Switching among balanced / paper / code changes the panel width without
+  // resizing the browser window. Observe the actual PDF host as well, or the
+  // frame can keep the width measured in the previous layout and appear at a
+  // different scale when the user returns to the same mode.
+  const frameResizeObserver = new ResizeObserver(positionWords);
+  frameResizeObserver.observe(frame);
+  const hostResizeObserver = new ResizeObserver(resizePage);
+  hostResizeObserver.observe(host);
+  window.addEventListener('resize', resizePage);
+  resizePage();
   positionWords();
   if (data.focus_highlight && highlightNodes.length) {
     requestAnimationFrame(() => {
@@ -340,7 +369,9 @@ export default function(component) {
   }
 
   return () => {
-    resizeObserver.disconnect();
+    frameResizeObserver.disconnect();
+    hostResizeObserver.disconnect();
+    window.removeEventListener('resize', resizePage);
     button.removeEventListener('click', submitSelection);
     textLayer.removeEventListener('mouseup', handleSelection);
     textLayer.removeEventListener('pointerup', handleSelection);
@@ -401,6 +432,7 @@ def render_selectable_pdf_page(
     selection_enabled: bool = True,
     zoom_percent: int = 100,
     focus_highlight: bool = False,
+    fit_scale: float = 0.92,
 ) -> dict[str, Any] | None:
     """Render one selectable page and return a user-confirmed selection event."""
     payload = _page_payload(pdf_bytes, page_number)
@@ -411,6 +443,7 @@ def render_selectable_pdf_page(
             "selection_enabled": selection_enabled,
             "zoom_percent": zoom_percent,
             "focus_highlight": focus_highlight,
+            "fit_scale": fit_scale,
         }
     )
     result = _pdf_selector(

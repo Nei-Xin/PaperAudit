@@ -449,6 +449,7 @@ def _render_source_panel(
                 key=f"{key_prefix}-selectable-pdf",
                 zoom_percent=int(st.session_state[zoom_state_key]),
                 focus_highlight=focus_highlight,
+                fit_scale=1.0,
             )
             if focus_highlight:
                 st.session_state.pop(focus_state_key, None)
@@ -516,16 +517,31 @@ def _render_report_tab(
     if st.session_state.get("learning_active_section") not in section_values:
         st.session_state["learning_active_section"] = section_values[0]
 
-    with st.container(key="learning_section_bar"):
-        active_section_value = st.segmented_control(
-            "阅读章节",
-            section_values,
-            format_func=section_labels.get,
-            key="learning_active_section",
-            required=True,
-            label_visibility="collapsed",
-            width="stretch",
-        )
+    def render_section_bar() -> str:
+        """Render the chapter tabs in the reader column and return the selection."""
+        with st.container(key="learning_section_bar"):
+            return st.segmented_control(
+                "阅读章节",
+                section_values,
+                format_func=section_labels.get,
+                key="learning_active_section",
+                required=True,
+                label_visibility="collapsed",
+                width="stretch",
+            )
+
+    if focus_pdf:
+        active_section_value = render_section_bar()
+        source_col = report_col = None
+    else:
+        # Keep the reader/explanation split close to the reference workspace:
+        # a slightly wider reader, while preserving enough room for readable
+        # explanations and the follow-up composer on the right.
+        # The chapter tabs live inside the reader column so the assistant starts
+        # on the same horizontal rhythm as the PDF panel.
+        source_col, report_col = st.columns([1.38, 1], gap="small")
+        with source_col:
+            active_section_value = render_section_bar()
 
     active_section = next(
         section
@@ -869,7 +885,6 @@ def _render_report_tab(
         _render_source_panel(anchors, selected_id, pdf_bytes, paper, "learning")
         return
 
-    source_col, report_col = st.columns([1.38, 1], gap="medium")
     with source_col:
         _render_source_panel(anchors, selected_id, pdf_bytes, paper, "learning")
     with report_col:
@@ -1468,7 +1483,6 @@ def render_learning_workspace(
         st.session_state["learning_workspace_mode"] = "code"
     if st.session_state.get("learning_workspace_mode") not in workspace_options:
         st.session_state["learning_workspace_mode"] = "lecture"
-
     with st.container(key="learning_primary_nav"):
         header_left, header_mode, header_right = st.columns(
             [4.5, 2.8, 1], vertical_alignment="center"
