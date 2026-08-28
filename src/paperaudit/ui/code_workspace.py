@@ -241,6 +241,8 @@ def _render_pdf(
     paper: ParsedPaper,
     pdf_bytes: bytes,
     anchors: dict[str, EvidenceAnchor],
+    *,
+    fit_scale: float = 0.92,
 ) -> None:
     active_id = st.session_state.get("joint_active_paper_citation")
     active = anchors.get(active_id)
@@ -251,44 +253,82 @@ def _render_pdf(
     st.session_state["joint_pdf_page"] = min(
         max(int(st.session_state["joint_pdf_page"]), 1), paper.page_count
     )
+    st.session_state.setdefault("joint_pdf_zoom", 100)
+    st.session_state["joint_pdf_zoom"] = min(
+        max(int(st.session_state["joint_pdf_zoom"]), 50), 150
+    )
 
     def change_page(delta: int) -> None:
         current = int(st.session_state.get("joint_pdf_page", 1))
         st.session_state["joint_pdf_page"] = min(max(current + delta, 1), paper.page_count)
 
-    title_col, previous, page_input, next_page = st.columns(
-        [2.8, 1, 1.25, 1], vertical_alignment="center"
-    )
-    title_col.markdown(
-        f'<div class="pa-panel-title">论文原文 '
-        f'<span>{st.session_state["joint_pdf_page"]} / {paper.page_count}</span></div>',
-        unsafe_allow_html=True,
-    )
-    previous.button(
-        "‹",
-        key="joint-pdf-previous",
-        disabled=st.session_state["joint_pdf_page"] <= 1,
-        width="stretch",
-        on_click=change_page,
-        args=(-1,),
-    )
-    with page_input:
-        st.number_input(
-            "PDF 页码",
-            min_value=1,
-            max_value=paper.page_count,
-            step=1,
-            key="joint_pdf_page",
-            label_visibility="collapsed",
+    with st.container(key="joint_pdf_toolbar"):
+        title_col, previous, page_input, total_page, next_page, zoom_out, zoom, zoom_in, fit = st.columns(
+            [2.55, .7, 1.05, .7, .7, .7, .9, .7, 1.35],
+            vertical_alignment="center",
         )
-    next_page.button(
-        "›",
-        key="joint-pdf-next",
-        disabled=st.session_state["joint_pdf_page"] >= paper.page_count,
-        width="stretch",
-        on_click=change_page,
-        args=(1,),
-    )
+        title_col.markdown(
+            f'<div class="pa-panel-title">论文原文 '
+            f'<span>{st.session_state["joint_pdf_page"]} / {paper.page_count}</span></div>',
+            unsafe_allow_html=True,
+        )
+        previous.button(
+            "‹",
+            key="joint-pdf-previous",
+            disabled=st.session_state["joint_pdf_page"] <= 1,
+            width="stretch",
+            on_click=change_page,
+            args=(-1,),
+        )
+        with page_input:
+            st.number_input(
+                "PDF 页码",
+                min_value=1,
+                max_value=paper.page_count,
+                step=1,
+                key="joint_pdf_page",
+                label_visibility="collapsed",
+            )
+        total_page.markdown(
+            f'<div class="pa-pdf-page-total">/ {paper.page_count}</div>',
+            unsafe_allow_html=True,
+        )
+        next_page.button(
+            "›",
+            key="joint-pdf-next",
+            disabled=st.session_state["joint_pdf_page"] >= paper.page_count,
+            width="stretch",
+            on_click=change_page,
+            args=(1,),
+        )
+        zoom_out.button(
+            "−",
+            key="joint-pdf-zoom-out",
+            disabled=st.session_state["joint_pdf_zoom"] <= 50,
+            width="stretch",
+            on_click=lambda: st.session_state.__setitem__(
+                "joint_pdf_zoom", max(50, int(st.session_state.get("joint_pdf_zoom", 100)) - 10)
+            ),
+        )
+        zoom.markdown(
+            f'<div class="pa-pdf-zoom">{st.session_state["joint_pdf_zoom"]}%</div>',
+            unsafe_allow_html=True,
+        )
+        zoom_in.button(
+            "+",
+            key="joint-pdf-zoom-in",
+            disabled=st.session_state["joint_pdf_zoom"] >= 150,
+            width="stretch",
+            on_click=lambda: st.session_state.__setitem__(
+                "joint_pdf_zoom", min(150, int(st.session_state.get("joint_pdf_zoom", 100)) + 10)
+            ),
+        )
+        fit.button(
+            "智能适应",
+            key="joint-pdf-fit",
+            width="stretch",
+            on_click=lambda: st.session_state.__setitem__("joint_pdf_zoom", 100),
+        )
     display_page = int(st.session_state["joint_pdf_page"])
     highlights = active.rects if active and active.page == display_page else []
     selection = render_selectable_pdf_page(
@@ -296,6 +336,8 @@ def _render_pdf(
         display_page,
         highlights,
         key="joint-selectable-pdf",
+        zoom_percent=int(st.session_state["joint_pdf_zoom"]),
+        fit_scale=fit_scale,
     )
     if selection:
         selected_text = str(selection.get("text", "")).strip()
@@ -586,98 +628,99 @@ def _render_conversation(
         st.session_state.pop("joint_qa_pending", None)
         st.rerun()
 
-    if not history and not pending:
-        st.caption("可以询问代码实现，也可以比较论文描述与代码是否一致。")
-    for answer_index, answer in enumerate(history):
-        _render_answer(answer, answer_index, codebase)
-    if isinstance(pending, dict):
-        with st.container(key="joint_pending_message"):
-            st.markdown('<div class="pa-joint-pending-marker"></div>', unsafe_allow_html=True)
-            raw_pending_selection = pending.get("selected_code")
-            if isinstance(raw_pending_selection, dict):
-                try:
-                    pending_selection = CodeSelection.model_validate(raw_pending_selection)
-                except ValueError:
-                    pending_selection = None
-                if pending_selection is not None:
-                    _render_selection_snapshot(
-                        pending_selection,
-                        key="joint_pending_selection",
-                    )
-            st.markdown(
-                f'<div class="pa-assistant-user">{escape(str(pending.get("question", "")))}</div>',
-                unsafe_allow_html=True,
+    with st.container(key="joint_assistant_scroll"):
+        if not history and not pending:
+            st.caption("可以询问代码实现，也可以比较论文描述与代码是否一致。")
+        for answer_index, answer in enumerate(history):
+            _render_answer(answer, answer_index, codebase)
+        if isinstance(pending, dict):
+            with st.container(key="joint_pending_message"):
+                st.markdown('<div class="pa-joint-pending-marker"></div>', unsafe_allow_html=True)
+                raw_pending_selection = pending.get("selected_code")
+                if isinstance(raw_pending_selection, dict):
+                    try:
+                        pending_selection = CodeSelection.model_validate(raw_pending_selection)
+                    except ValueError:
+                        pending_selection = None
+                    if pending_selection is not None:
+                        _render_selection_snapshot(
+                            pending_selection,
+                            key="joint_pending_selection",
+                        )
+                st.markdown(
+                    f'<div class="pa-assistant-user">{escape(str(pending.get("question", "")))}</div>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown('<div class="pa-assistant-meta">正在检索论文与代码并生成回答…</div>', unsafe_allow_html=True)
+
+        if not isinstance(pending, dict):
+            _render_current_context(
+                history,
+                selection,
+                show_code_context=show_code_context,
             )
-            st.markdown('<div class="pa-assistant-meta">正在检索论文与代码并生成回答…</div>', unsafe_allow_html=True)
 
-    if not isinstance(pending, dict):
-        _render_current_context(
-            history,
-            selection,
-            show_code_context=show_code_context,
-        )
+            if isinstance(selected_code, dict):
+                try:
+                    active_selection = CodeSelection.model_validate(selected_code)
+                except ValueError:
+                    active_selection = None
+                if active_selection is not None:
+                    explain_col, relate_col = st.columns(2)
+                    if explain_col.button(
+                        "解释选中内容",
+                        key="explain-current-code-selection",
+                        type="primary",
+                        width="stretch",
+                    ):
+                        question, scope = _selection_question("explain", active_selection)
+                        st.session_state["joint_qa_pending"] = {
+                            "question": question,
+                            "scope": scope.value,
+                            "selected_chunk_ids": [],
+                            "selected_text": None,
+                            "selected_code": active_selection.model_dump(),
+                        }
+                        st.rerun()
+                    if relate_col.button(
+                        "对应论文",
+                        key="relate-current-code-selection",
+                        width="stretch",
+                    ):
+                        question, scope = _selection_question("relate", active_selection)
+                        st.session_state["joint_qa_pending"] = {
+                            "question": question,
+                            "scope": scope.value,
+                            "selected_chunk_ids": [],
+                            "selected_text": None,
+                            "selected_code": active_selection.model_dump(),
+                        }
+                        st.rerun()
 
-        if isinstance(selected_code, dict):
-            try:
-                active_selection = CodeSelection.model_validate(selected_code)
-            except ValueError:
-                active_selection = None
-            if active_selection is not None:
-                explain_col, relate_col = st.columns(2)
-                if explain_col.button(
-                    "解释选中内容",
-                    key="explain-current-code-selection",
-                    type="primary",
-                    width="stretch",
-                ):
-                    question, scope = _selection_question("explain", active_selection)
-                    st.session_state["joint_qa_pending"] = {
-                        "question": question,
-                        "scope": scope.value,
-                        "selected_chunk_ids": [],
-                        "selected_text": None,
-                        "selected_code": active_selection.model_dump(),
-                    }
-                    st.rerun()
-                if relate_col.button(
-                    "对应论文",
-                    key="relate-current-code-selection",
-                    width="stretch",
-                ):
-                    question, scope = _selection_question("relate", active_selection)
-                    st.session_state["joint_qa_pending"] = {
-                        "question": question,
-                        "scope": scope.value,
-                        "selected_chunk_ids": [],
-                        "selected_text": None,
-                        "selected_code": active_selection.model_dump(),
-                    }
-                    st.rerun()
-
-        if isinstance(selection, dict) and selection.get("text"):
-            with st.container(key="joint_selected_context"):
-                st.caption(f"已选论文原文 · 第 {selection.get('page', 1)} 页")
-                st.markdown(f"> {escape(str(selection['text']))}")
-                find_col, cancel_col = st.columns([4, 1])
-                if find_col.button(
-                    "查找这段内容对应的代码",
-                    type="primary",
-                    width="stretch",
-                    disabled=service is None,
-                ):
-                    st.session_state["joint_qa_pending"] = {
-                        "question": "这段论文内容在代码中如何实现？请说明对应关系。",
-                        "scope": AnswerScope.JOINT.value,
-                        "selected_chunk_ids": list(selection.get("chunk_ids", [])),
-                        "selected_text": str(selection.get("text", "")),
-                        "selected_code": (
-                            selected_code if isinstance(selected_code, dict) else None
-                        ),
-                    }
-                    st.rerun()
-                if cancel_col.button("取消", width="stretch", key="clear-joint-selection"):
-                    st.session_state.pop("joint_paper_selection", None)
-                    st.rerun()
+            if isinstance(selection, dict) and selection.get("text"):
+                with st.container(key="joint_selected_context"):
+                    st.caption(f"已选论文原文 · 第 {selection.get('page', 1)} 页")
+                    st.markdown(f"> {escape(str(selection['text']))}")
+                    find_col, cancel_col = st.columns([4, 1])
+                    if find_col.button(
+                        "查找这段内容对应的代码",
+                        type="primary",
+                        width="stretch",
+                        disabled=service is None,
+                    ):
+                        st.session_state["joint_qa_pending"] = {
+                            "question": "这段论文内容在代码中如何实现？请说明对应关系。",
+                            "scope": AnswerScope.JOINT.value,
+                            "selected_chunk_ids": list(selection.get("chunk_ids", [])),
+                            "selected_text": str(selection.get("text", "")),
+                            "selected_code": (
+                                selected_code if isinstance(selected_code, dict) else None
+                            ),
+                        }
+                        st.rerun()
+                    if cancel_col.button("取消", width="stretch", key="clear-joint-selection"):
+                        st.session_state.pop("joint_paper_selection", None)
+                        st.rerun()
 
     submitted = False
     question = ""
@@ -808,7 +851,15 @@ def render_code_workspace(
 
     def render_pdf_panel() -> None:
         with st.container(key="joint_pdf_panel"):
-            _render_pdf(paper, pdf_bytes, anchors)
+            # Balanced mode gives the PDF a little more width so its portrait
+            # page uses the available reading area instead of leaving a large
+            # empty band below it. Paper-focus keeps the original fit scale.
+            _render_pdf(
+                paper,
+                pdf_bytes,
+                anchors,
+                fit_scale=1.0 if layout_mode == "balanced" else 0.92,
+            )
 
     def render_code_panel(*, show_file_tree: bool = False) -> None:
         with st.container(key="joint_code_panel"):
@@ -845,7 +896,24 @@ def render_code_workspace(
                 previous_path = st.session_state.get("joint_code_rendered_path")
                 if previous_path is not None and previous_path != active_path:
                     st.session_state.pop("joint_code_selection", None)
+                    # A citation is also rendered in the Assistant as the
+                    # current code context. Clear it together with the
+                    # selection so changing files cannot leave a stale
+                    # setup.py (or other file) context beside the new file.
+                    st.session_state.pop("joint_active_code_citation", None)
                 st.session_state["joint_code_rendered_path"] = active_path
+
+                # Streamlit can restore widget/session state without passing
+                # through the file-change branch above (for example after a
+                # reload or switching between balanced and code layouts).
+                # Never show a selection/citation that belongs to another
+                # file than the one currently visible in the editor.
+                raw_selection = st.session_state.get("joint_code_selection")
+                if isinstance(raw_selection, dict) and raw_selection.get("path") != active_path:
+                    st.session_state.pop("joint_code_selection", None)
+                raw_citation = st.session_state.get("joint_active_code_citation")
+                if isinstance(raw_citation, dict) and raw_citation.get("path") != active_path:
+                    st.session_state.pop("joint_active_code_citation", None)
                 raw_citation = st.session_state.get("joint_active_code_citation")
                 citation = None
                 if isinstance(raw_citation, dict):
@@ -883,23 +951,31 @@ def render_code_workspace(
                 show_code_context=show_code_context,
             )
 
-    if layout_mode == "paper":
-        main_col, conversation_col = st.columns([1.85, 1], gap="medium")
-        with main_col:
-            render_pdf_panel()
-        with conversation_col:
-            render_conversation_panel(show_code_context=False)
-    elif layout_mode == "code":
-        main_col, conversation_col = st.columns([1.85, 1], gap="medium")
-        with main_col:
-            render_code_panel(show_file_tree=True)
-        with conversation_col:
-            render_conversation_panel()
-    else:
-        pdf_col, code_col, conversation_col = st.columns([1.25, 1, 0.9], gap="medium")
-        with pdf_col:
-            render_pdf_panel()
-        with code_col:
-            render_code_panel(show_file_tree=False)
-        with conversation_col:
-            render_conversation_panel()
+    # Match the Figma workspace proportions. The panels themselves own their
+    # scrolling, so answer length cannot grow the page or push the composer below
+    # the viewport in any of the three modes.
+    with st.container(key="joint_workspace"):
+        if layout_mode == "paper":
+            main_col, conversation_col = st.columns([1.85, 1], gap="small")
+            with main_col:
+                render_pdf_panel()
+            with conversation_col:
+                render_conversation_panel(show_code_context=False)
+        elif layout_mode == "code":
+            main_col, conversation_col = st.columns([1.85, 1], gap="small")
+            with main_col:
+                render_code_panel(show_file_tree=True)
+            with conversation_col:
+                render_conversation_panel()
+        else:
+            # Give the paper the dominant share in balanced mode.  The code
+            # and Assistant panes remain wide enough for normal reading, while
+            # the larger PDF viewport reduces the unused band below portrait
+            # pages.
+            pdf_col, code_col, conversation_col = st.columns([1.28, 1.08, 0.9], gap="small")
+            with pdf_col:
+                render_pdf_panel()
+            with code_col:
+                render_code_panel(show_file_tree=False)
+            with conversation_col:
+                render_conversation_panel()

@@ -16,7 +16,8 @@ _CODE_SELECTOR_HTML = """
 _CODE_SELECTOR_CSS = """
 .pa-selectable-code {
   position: relative;
-  height: clamp(360px, calc(78vh - 9.5rem), 780px);
+  height: max(320px, calc(100vh - 16.2rem));
+  max-height: none;
   overflow: auto;
   overscroll-behavior: contain;
   border: 1px solid #dbe4ee;
