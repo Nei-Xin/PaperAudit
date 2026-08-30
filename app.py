@@ -494,12 +494,7 @@ with st.sidebar:
         for metadata in visible_projects:
             is_active = metadata.project_id == st.session_state.get("active_project_id")
             with st.container(key=f"sidebar_project_{metadata.project_id}"):
-                marker_class = " is-active" if is_active else ""
-                st.markdown(
-                    f'<span class="pa-sidebar-project-marker{marker_class}"></span>',
-                    unsafe_allow_html=True,
-                )
-                title_col, menu_col = st.columns([6, 1], gap="small", vertical_alignment="center")
+                title_col, menu_col = st.columns([6, 1], gap="small", vertical_alignment="top")
                 if title_col.button(
                     metadata.title,
                     key=f"sidebar-open-{metadata.project_id}",
@@ -521,16 +516,18 @@ with st.sidebar:
                     help="删除论文项目",
                 ):
                     _confirm_project_deletion(metadata.project_id, metadata.title)
-                project_kind = (
-                    "论文与代码"
-                    if metadata.has_code
-                    else "论文"
-                    if metadata.has_learning_report
-                    else "审计"
-                )
+                if metadata.has_code:
+                    kind_badge = '<span class="pa-project-chip chip-code">💻 论文与代码</span>'
+                elif metadata.has_learning_report:
+                    kind_badge = '<span class="pa-project-chip chip-paper">📄 论文精读</span>'
+                else:
+                    kind_badge = '<span class="pa-project-chip chip-audit">🔍 报告审计</span>'
+
+                marker_class = " is-active" if is_active else ""
                 st.markdown(
-                    f'<div class="pa-sidebar-project-meta">{project_kind} · '
-                    f'{escape(metadata.original_filename)}</div>',
+                    f'<span class="pa-sidebar-project-marker{marker_class}"></span>'
+                    f'<div class="pa-sidebar-project-meta">{kind_badge}'
+                    f'<span class="pa-sidebar-filename" title="{escape(metadata.original_filename)}">{escape(metadata.original_filename)}</span></div>',
                     unsafe_allow_html=True,
                 )
 

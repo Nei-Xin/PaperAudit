@@ -19,26 +19,23 @@ _PDF_SELECTOR_CSS = """
 .pa-selectable-pdf {
   position: relative;
   width: 100%;
-  height: max(420px, calc(100vh - 17.4rem));
-  min-height: 420px;
-  max-height: none;
-  overflow: auto;
-  padding: 14px;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible;
+  padding: 0;
   box-sizing: border-box;
-  background: #eef1f5;
+  background: white;
   color: var(--st-text-color);
 }
 .pa-pdf-frame {
   position: relative;
   width: 100%;
-  /* Keep the reading edge stable on the left; any spare width remains on
-     the far side of the reader instead of splitting into two gutters. */
   margin: 0;
   overflow: hidden;
   border: 0;
-  border-radius: 2px;
+  border-radius: 0;
   background: white;
-  box-shadow: 0 3px 16px rgba(15, 23, 42, .12);
+  box-shadow: none;
 }
 .pa-pdf-frame img {
   position: absolute;
@@ -322,11 +319,15 @@ export default function(component) {
   }
   const resizePage = () => {
     const currentZoom = Math.max(50, Math.min(Number(data.zoom_percent || 100), 180));
-    const availableWidth = Math.max(120, host.clientWidth - 28);
-    const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || .92), 1.08));
-    const fitWidth = Math.min(availableWidth * fitScale, 1120);
+    const availableWidth = Math.max(120, host.clientWidth);
+    const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || 1.0), 1.25));
+    const fitWidth = availableWidth * fitScale;
     const pageWidth = fitWidth * currentZoom / 100;
+    const aspectRatio = data.page_height > 0 ? (data.page_height / data.page_width) : 1.414;
+    const pageHeight = pageWidth * aspectRatio;
+
     frame.style.width = `${Math.max(120, pageWidth)}px`;
+    frame.style.height = `${Math.max(160, pageHeight)}px`;
     positionWords();
   };
   // Switching among balanced / paper / code changes the panel width without

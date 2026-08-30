@@ -20,7 +20,7 @@ from paperaudit.models import (
     ParsedCodebase,
     ParsedPaper,
 )
-from paperaudit.service import match_selected_chunks
+from paperaudit.service import AuditService, match_selected_chunks
 from paperaudit.ui.code_selector import render_selectable_code
 from paperaudit.ui.pdf_selector import render_selectable_pdf_page
 from paperaudit.ui.conversation_controls import (
@@ -151,11 +151,16 @@ def _render_file_tree(
     """Render a small searchable tree and return the selected file path."""
     query = st.text_input(
         "搜索文件",
-        placeholder="搜索文件…",
+        placeholder="🔍 搜索文件名/路径…",
         key=f"{key_prefix}-query",
         label_visibility="collapsed",
     ).strip().casefold()
     visible = [path for path in paths if not query or query in path.casefold()]
+    st.markdown(
+        f'<div class="pa-tree-header"><span>文件结构</span>'
+        f'<span class="pa-tree-count">{len(visible)} / {len(paths)}</span></div>',
+        unsafe_allow_html=True,
+    )
     if not visible:
         st.caption("没有匹配的文件")
         return active_path
@@ -268,8 +273,7 @@ def _render_pdf(
             vertical_alignment="center",
         )
         title_col.markdown(
-            f'<div class="pa-panel-title">论文原文 '
-            f'<span>{st.session_state["joint_pdf_page"]} / {paper.page_count}</span></div>',
+            '<div class="pa-panel-title">论文原文</div>',
             unsafe_allow_html=True,
         )
         previous.button(
@@ -356,9 +360,15 @@ def _render_pdf(
         }
         st.rerun()
     if active and active.page == display_page:
-        st.caption("黄色区域是回答引用的论文原文；也可以直接拖选文字查找对应代码。")
+        st.markdown(
+            '<div class="pa-pdf-footer-note">黄色区域是回答引用的论文原文；也可拖选文字查找代码。</div>',
+            unsafe_allow_html=True,
+        )
     else:
-        st.caption("拖选论文文字后，可直接查找对应代码实现。")
+        st.markdown(
+            '<div class="pa-pdf-footer-note">拖选论文文字后，可直接查找对应代码实现。</div>',
+            unsafe_allow_html=True,
+        )
 
 
 def _set_code_citation(citation: CodeCitation) -> None:
@@ -384,10 +394,13 @@ def _valid_code_citation(citation: CodeCitation, codebase: ParsedCodebase) -> bo
 
 def _render_selection_snapshot(selection: CodeSelection, *, key: str) -> None:
     with st.container(key=key):
+        filename = selection.path.rsplit("/", 1)[-1]
         st.markdown(
-            '<div class="pa-message-selection-title"><strong>选中内容</strong>'
-            f'<span>{escape(selection.path.rsplit("/", 1)[-1])} · '
-            f'L{selection.start_line}—{selection.end_line}</span></div>',
+            f'<div class="pa-code-snapshot-card">'
+            f'<div class="pa-message-selection-title">'
+            f'<span>📄 <strong>{escape(filename)}</strong> · L{selection.start_line}—{selection.end_line}</span>'
+            f'<span class="pa-code-snapshot-tag">代码块</span></div>'
+            f'</div>',
             unsafe_allow_html=True,
         )
         st.code(
@@ -415,16 +428,15 @@ def _render_answer(
             unsafe_allow_html=True,
         )
         if answer.status == AnswerStatus.ANSWERED:
-            status = "✓ 已用本地证据回答"
+            status = "✓ 已思考完成 · 本地证据校验"
         elif answer.paper_citations or answer.code_citations:
-            status = "△ 已定位候选证据，结论需复核"
+            status = "✓ 已思考完成 · 结论需复核"
         else:
             status = "⚠️ 当前证据不足"
         scope = _SCOPE_LABELS.get(answer.scope, answer.scope.value)
-        relation = _RELATION_LABELS.get(answer.relation.value, "") if answer.relation else ""
-        meta = " · ".join(item for item in (status, scope, relation) if item)
+        meta = f"{status} · {scope}"
         st.markdown(
-            f'<div class="pa-assistant-meta">{escape(meta)}</div>',
+            f'<div class="pa-assistant-meta-badge">{escape(meta)}</div>',
             unsafe_allow_html=True,
         )
         with st.container(key=f"joint_answer_body_{answer_index}"):
@@ -593,12 +605,9 @@ def _render_conversation(
         "joint_code_selection",
     )
     has_context = any(st.session_state.get(key) is not None for key in context_keys)
-    action_left, clear_context_col, clear_history_col = st.columns(
-        [4.6, 1.15, 1], vertical_alignment="center"
-    )
+    action_left, clear_context_col = st.columns([3.5, 1.5], vertical_alignment="center")
     action_left.markdown(
-        f'<div class="pa-panel-title">Assistant '
-        f'<span>最近 {min(len(history), 10)} 轮</span></div>',
+        f'<div class="pa-assistant-subhead">基于 {len(history)} 轮对话</div>',
         unsafe_allow_html=True,
     )
     render_conversation_controls(
@@ -616,16 +625,6 @@ def _render_conversation(
     ):
         for key in context_keys:
             st.session_state.pop(key, None)
-        st.rerun()
-    if clear_history_col.button(
-        "清空对话",
-        key="clear-joint-history",
-        disabled=not history and not pending,
-        type="tertiary",
-        width="stretch",
-    ):
-        history.clear()
-        st.session_state.pop("joint_qa_pending", None)
         st.rerun()
 
     with st.container(key="joint_assistant_scroll"):
@@ -749,6 +748,10 @@ def _render_conversation(
                 disabled=service is None,
                 help="发送问题",
             )
+            st.markdown(
+                '<div class="pa-composer-disclaimer">内容由 AI 生成，仅供参考</div>',
+                unsafe_allow_html=True,
+            )
 
     if service is None:
         st.warning("请先配置 Hy3 API，才能进行论文与代码追问。")
@@ -812,6 +815,7 @@ def render_code_workspace(
     pdf_bytes: bytes,
     codebase: ParsedCodebase,
     service: CodeLearningService | None,
+    paper_service: AuditService | None = None,
 ) -> None:
     history: list[JointAnswer] = st.session_state.setdefault("joint_qa_history", [])
     pending_path = st.session_state.pop("joint_code_path_pending", None)
@@ -828,21 +832,24 @@ def render_code_workspace(
         st.session_state["joint_layout_mode"] = pending_layout
     if st.session_state.get("joint_layout_mode") not in layout_options:
         st.session_state["joint_layout_mode"] = "balanced"
-    status_col, layout_col = st.columns([4, 3], vertical_alignment="center")
-    status_col.markdown(
-        '<div class="pa-workspace-status"><span></span>论文与代码均在本地解析，引用经过本地校验</div>',
-        unsafe_allow_html=True,
-    )
-    with layout_col:
-        layout_mode = st.segmented_control(
-            "工作区布局",
-            layout_options,
-            format_func=_LAYOUT_LABELS.get,
-            key="joint_layout_mode",
-            required=True,
-            label_visibility="collapsed",
-            width="stretch",
+    with st.container(key="joint_workspace_nav"):
+        status_col, layout_col = st.columns([6.4, 1.8], vertical_alignment="center")
+        status_col.markdown(
+            '<div class="pa-workspace-status"><span></span>'
+            '<strong>本地解析已就绪</strong>'
+            '<em>论文与代码均已解析，引用经过本地校验</em></div>',
+            unsafe_allow_html=True,
         )
+        with layout_col:
+            layout_mode = st.segmented_control(
+                "工作区布局",
+                layout_options,
+                format_func=_LAYOUT_LABELS.get,
+                key="joint_layout_mode",
+                required=True,
+                label_visibility="collapsed",
+                width="stretch",
+            )
     if codebase.warnings:
         with st.expander(f"代码解析提示（{len(codebase.warnings)}）"):
             for warning in codebase.warnings:
@@ -858,7 +865,7 @@ def render_code_workspace(
                 paper,
                 pdf_bytes,
                 anchors,
-                fit_scale=1.0 if layout_mode == "balanced" else 0.92,
+                fit_scale=1.0,
             )
 
     def render_code_panel(*, show_file_tree: bool = False) -> None:
@@ -889,8 +896,9 @@ def render_code_workspace(
                 )
             with editor_col:
                 st.markdown(
-                    f'<div class="pa-code-breadcrumb">segment-anything-main / '
-                    f'<strong>{escape(active_path)}</strong></div>',
+                    f'<div class="pa-code-breadcrumb"><span>segment-anything-main / '
+                    f'<strong>{escape(active_path)}</strong></span>'
+                    f'<span style="color:#64748b;font-size:.7rem;font-weight:600;">📄 CODE</span></div>',
                     unsafe_allow_html=True,
                 )
                 previous_path = st.session_state.get("joint_code_rendered_path")
@@ -951,6 +959,35 @@ def render_code_workspace(
                 show_code_context=show_code_context,
             )
 
+    def render_paper_conversation_panel() -> None:
+        # Import lazily because learning.py owns this workspace entry point.
+        # At render time the module is fully initialized, so this avoids a
+        # module-level circular import while reusing the regular paper QA UI.
+        from paperaudit.ui.learning import _render_qa_tab
+
+        _render_qa_tab(
+            paper,
+            pdf_bytes,
+            paper_service,
+            conversation_only=True,
+        )
+
+    def render_paper_source_panel() -> None:
+        # Use the same source panel as the standalone paper QA page so that
+        # citation navigation and text selection share the qa_* session state.
+        from paperaudit.ui.learning import _qa_anchors, _render_source_panel
+
+        history = st.session_state.setdefault("paper_qa_history", [])
+        anchors = _qa_anchors(history, paper)
+        _render_source_panel(
+            anchors,
+            st.session_state.get("qa_selected_evidence"),
+            pdf_bytes,
+            paper,
+            "qa",
+            title="论文原文 · 回答依据",
+        )
+
     # Match the Figma workspace proportions. The panels themselves own their
     # scrolling, so answer length cannot grow the page or push the composer below
     # the viewport in any of the three modes.
@@ -958,9 +995,9 @@ def render_code_workspace(
         if layout_mode == "paper":
             main_col, conversation_col = st.columns([1.85, 1], gap="small")
             with main_col:
-                render_pdf_panel()
+                render_paper_source_panel()
             with conversation_col:
-                render_conversation_panel(show_code_context=False)
+                render_paper_conversation_panel()
         elif layout_mode == "code":
             main_col, conversation_col = st.columns([1.85, 1], gap="small")
             with main_col:
@@ -972,7 +1009,7 @@ def render_code_workspace(
             # and Assistant panes remain wide enough for normal reading, while
             # the larger PDF viewport reduces the unused band below portrait
             # pages.
-            pdf_col, code_col, conversation_col = st.columns([1.28, 1.08, 0.9], gap="small")
+            pdf_col, code_col, conversation_col = st.columns([1.65, 1.05, 0.95], gap="small")
             with pdf_col:
                 render_pdf_panel()
             with code_col:

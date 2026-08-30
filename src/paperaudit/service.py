@@ -7,6 +7,14 @@ from difflib import SequenceMatcher
 import re
 
 from .config import Settings
+from .audit_rules import (
+    calibrate_judgment,
+    choose_majority,
+    judgment_signature,
+    needs_evidence_retry,
+    needs_second_pass,
+    validate_judgment_references,
+)
 from .hy3_client import Hy3Client, Hy3ResponseError
 from .models import (
     AtomicClaim,
@@ -1214,18 +1222,85 @@ class AuditService:
                 )
 
         judgments: dict[str, ClaimJudgment] = {}
+        judgment_votes: dict[str, list[ClaimJudgment]] = {}
         auditable = [claim for claim in claims if candidates_by_claim[claim.claim_id]]
         batch_size = max(1, self.settings.judge_batch_size)
         for start in range(0, len(auditable), batch_size):
             batch = auditable[start : start + batch_size]
             progress_value = 0.35 + 0.5 * min((start + len(batch)) / max(len(auditable), 1), 1.0)
             notify("正在判断证据支持关系", progress_value)
-            response = self.client.judge_claims(
-                [(claim, candidates_by_claim[claim.claim_id]) for claim in batch],
-                paper.page_count,
-            )
+            try:
+                response = self.client.judge_claims(
+                    [(claim, candidates_by_claim[claim.claim_id]) for claim in batch],
+                    paper.page_count,
+                )
+            except Hy3ResponseError:
+                fallback = []
+                for claim in batch:
+                    try:
+                        single = self.client.adjudicate_claim(
+                            claim, candidates_by_claim[claim.claim_id], paper.page_count
+                        )
+                        fallback.extend(single.judgments)
+                    except Hy3ResponseError:
+                        continue
+                response = JudgmentBatch(judgments=fallback)
             for judgment in response.judgments:
                 judgments[judgment.claim_id] = judgment
+                judgment_votes[judgment.claim_id] = [judgment]
+
+        retry_claims = [
+            claim
+            for claim in auditable
+            if claim.claim_id in judgments
+            and needs_second_pass(judgments[claim.claim_id], claim.text + " " + claim.query_en)
+        ]
+        for claim in retry_claims:
+            try:
+                response = self.client.adjudicate_claim(
+                    claim, candidates_by_claim[claim.claim_id], paper.page_count
+                )
+            except Hy3ResponseError:
+                response = None
+            if response and response.judgments:
+                judgment_votes.setdefault(claim.claim_id, []).append(response.judgments[0])
+                judgments[claim.claim_id] = choose_majority(judgment_votes[claim.claim_id])
+
+        stabilize_claims = [
+            claim
+            for claim in retry_claims
+            if len(judgment_votes.get(claim.claim_id, [])) == 2
+            and judgment_signature(judgment_votes[claim.claim_id][0])
+            != judgment_signature(judgment_votes[claim.claim_id][1])
+        ]
+        for claim in stabilize_claims:
+            try:
+                response = self.client.adjudicate_claim(
+                    claim, candidates_by_claim[claim.claim_id], paper.page_count
+                )
+            except Hy3ResponseError:
+                response = None
+            if response and response.judgments:
+                judgment_votes[claim.claim_id].append(response.judgments[0])
+                judgments[claim.claim_id] = choose_majority(judgment_votes[claim.claim_id])
+
+        evidence_retry_claims = [
+            claim
+            for claim in auditable
+            if needs_evidence_retry(
+                judgments.get(claim.claim_id), candidates_by_claim[claim.claim_id]
+            )
+        ]
+        for claim in evidence_retry_claims:
+            try:
+                response = self.client.adjudicate_claim(
+                    claim, candidates_by_claim[claim.claim_id], paper.page_count
+                )
+            except Hy3ResponseError:
+                response = None
+            if response and response.judgments:
+                judgment_votes.setdefault(claim.claim_id, []).append(response.judgments[0])
+                judgments[claim.claim_id] = response.judgments[0]
 
         audits: list[ClaimAudit] = []
         for claim in claims:
@@ -1246,24 +1321,8 @@ class AuditService:
                     severity=Severity.NONE,
                 )
             else:
-                allowed_ids = {candidate.evidence_id for candidate in candidates}
-                returned_ids = set(judgment.evidence_ids)
-                requires_evidence = judgment.label in {
-                    AutoLabel.SUPPORTED,
-                    AutoLabel.PARTIALLY_SUPPORTED,
-                    AutoLabel.CONTRADICTED,
-                }
-                if not returned_ids.issubset(allowed_ids) or (requires_evidence and not returned_ids):
-                    judgment = judgment.model_copy(
-                        update={
-                            "label": AutoLabel.ABSTAIN,
-                            "evidence_ids": [],
-                            "explanation": "Hy3 返回的证据编号无效，已转为人工复核。",
-                            "claim_error_type": None,
-                            "evidence_error_type": None,
-                            "severity": Severity.NONE,
-                        }
-                    )
+                judgment = validate_judgment_references(judgment, candidates)
+            judgment = calibrate_judgment(judgment)
             audits.append(ClaimAudit(claim=claim, candidates=candidates, judgment=judgment))
 
         notify("正在生成审计摘要", 0.95)
