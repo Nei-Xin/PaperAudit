@@ -531,16 +531,13 @@ def _render_report_tab(
             )
 
     if focus_pdf:
-        active_section_value = render_section_bar()
+        active_section_value = st.session_state.get(
+            "learning_active_section", section_values[0]
+        )
         source_col = report_col = None
     else:
-        # Keep the reader/explanation split close to the reference workspace:
-        # a slightly wider reader, while preserving enough room for readable
-        # explanations and the follow-up composer on the right.
-        # The chapter tabs live inside the reader column so the assistant starts
-        # on the same horizontal rhythm as the PDF panel.
         source_col, report_col = st.columns([1.38, 1], gap="small")
-        with source_col:
+        with report_col:
             active_section_value = render_section_bar()
 
     active_section = next(
@@ -752,17 +749,10 @@ def _render_report_tab(
             border=False,
         ):
             st.markdown(
-                f'<div class="pa-learning-section-kicker">{escape(section_label)}</div>'
-                f'<h2 class="pa-learning-section-title">{escape(display_title)}</h2>',
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                f'<div class="pa-learning-section-overview">'
-                f'{escape(active_section.overview)}</div>',
-                unsafe_allow_html=True,
-            )
-            st.markdown(
-                '<div class="pa-learning-block-heading">关键知识点</div>',
+                f'<div class="pa-learning-topic-card">'
+                f'<h3 class="pa-learning-topic-title">{escape(display_title)}</h3>'
+                f'<div class="pa-learning-section-overview">{escape(active_section.overview)}</div>'
+                f'</div>',
                 unsafe_allow_html=True,
             )
             section_index = report.sections.index(active_section)
@@ -771,15 +761,14 @@ def _render_report_tab(
                 point_active = st.session_state.get("learning_active_point") == point_id
                 with st.container(key=f"learning_point_{section_index}_{point_index}"):
                     active_class = " is-active" if point_active else ""
-                    marker = '<span class="pa-learning-key">核心</span>' if point.key_point else ""
                     st.markdown(
+                        f'<div class="pa-learning-bullet-item{active_class}">'
                         f'<div class="pa-learning-point-marker{active_class}"></div>'
-                        + marker
-                        + f'<div class="pa-learning-point-title{active_class}">'
-                        f'{escape(point.title)}</div>',
+                        f'<div class="pa-learning-bullet-title{active_class}">'
+                        f'<span class="pa-bullet-dot">•</span> {escape(point.title)}</div>'
+                        f'<div class="pa-learning-bullet-text">{escape(point.explanation)}</div></div>',
                         unsafe_allow_html=True,
                     )
-                    st.write(point.explanation)
                     if point.evidence:
                         columns = st.columns(1)
                         citation_groups = _group_learning_citations(point.evidence)
@@ -933,6 +922,7 @@ def _render_qa_tab(
     pdf_bytes: bytes,
     service: AuditService | None,
     focus_pdf: bool = False,
+    conversation_only: bool = False,
 ) -> None:
     st.markdown(
         '<div class="pa-qa-intro">💬 回答仅使用当前论文检索到的原文证据；'
@@ -1174,6 +1164,11 @@ def _render_qa_tab(
                 st.session_state.pop("paper_qa_pending", None)
                 st.error(f"追问失败：{exc}")
 
+    if conversation_only:
+        with st.container(key="qa_conversation_panel"):
+            render_conversation()
+        return
+
     if focus_pdf:
         render_source()
         return
@@ -1354,6 +1349,8 @@ def _render_task_item(
 def _render_audit_activity(
     load_jobs: Callable[[], list[AuditJob]],
     on_open_audit: Callable[[str], None],
+    *,
+    compact: bool = False,
 ) -> None:
     try:
         jobs = load_jobs()
@@ -1370,7 +1367,12 @@ def _render_audit_activity(
             (job for job in active if job.status == AuditJobStatus.RUNNING),
             active[-1],
         )
-        with st.container(key="audit_activity_strip"):
+        container = (
+            st.container(key="audit_activity_compact")
+            if compact
+            else st.container(key="audit_activity_strip")
+        )
+        with container:
             left, right = st.columns([5, 1], vertical_alignment="center")
             left.caption(
                 f"后台审计 · {current.source_label} · {current.stage}"
@@ -1380,13 +1382,29 @@ def _render_audit_activity(
         return
     latest = jobs[0] if jobs else None
     if latest is not None and latest.status == AuditJobStatus.SUCCEEDED and latest.audit_id:
-        with st.container(key="audit_activity_strip"):
-            message_col, action_col = st.columns([6, 1], vertical_alignment="center")
-            message_col.caption(f"最近审计已完成 · {latest.source_label}")
+        container = (
+            st.container(key="audit_activity_compact")
+            if compact
+            else st.container(key="audit_activity_strip")
+        )
+        with container:
+            message_col, action_col = st.columns(
+                [2.2, 1.8] if compact else [6, 1],
+                vertical_alignment="center",
+                gap=None if compact else "small",
+            )
+            if compact:
+                message_col.markdown(
+                    f'<div class="pa-audit-compact-message">'
+                    f'{escape(f"最近审计已完成 · {latest.source_label}")}</div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                message_col.caption(f"最近审计已完成 · {latest.source_label}")
             if action_col.button(
                 "查看结果",
                 key=f"open-latest-audit-{latest.job_id}",
-                width="stretch",
+                width="content" if compact else "stretch",
             ):
                 try:
                     on_open_audit(latest.audit_id)
@@ -1488,15 +1506,20 @@ def render_learning_workspace(
             [4.5, 2.8, 1], vertical_alignment="center"
         )
         with header_left:
-            st.markdown(
-                f'<div class="pa-workspace-header">'
-                f'<div class="pa-workspace-brand-icon" aria-hidden="true">▤</div>'
-                f'<div class="pa-workspace-copy"><div class="pa-workspace-title-row">'
-                f'<div class="pa-workspace-title">{escape(report.paper_title)}</div>'
-                f'<div class="pa-workspace-summary" title="{escape(report.one_sentence_summary)}">'
-                f'{escape(report.one_sentence_summary)}</div></div></div></div>',
-                unsafe_allow_html=True,
-            )
+            title_col, activity_col = st.columns([3, 2], gap="small", vertical_alignment="center")
+            with title_col:
+                st.markdown(
+                    f'<div class="pa-workspace-header">'
+                    f'<div class="pa-workspace-brand-icon" aria-hidden="true">▤</div>'
+                    f'<div class="pa-workspace-copy"><div class="pa-workspace-title-row">'
+                    f'<div class="pa-workspace-title">{escape(report.paper_title)}</div>'
+                    f'<div class="pa-workspace-summary" title="{escape(report.one_sentence_summary)}">'
+                    f'{escape(report.one_sentence_summary)}</div></div></div></div>',
+                    unsafe_allow_html=True,
+                )
+            with activity_col:
+                if load_audit_jobs is not None and on_open_audit is not None:
+                    _render_audit_activity(load_audit_jobs, on_open_audit, compact=True)
         with header_mode:
             workspace_mode = st.segmented_control(
                 "学习工作区",
@@ -1669,8 +1692,6 @@ def render_learning_workspace(
     notice = st.session_state.pop("audit_submit_notice", None)
     if notice:
         st.success(str(notice))
-    if load_audit_jobs is not None and on_open_audit is not None:
-        _render_audit_activity(load_audit_jobs, on_open_audit)
     if workspace_mode == "lecture":
         _render_report_tab(
             report,
@@ -1688,6 +1709,7 @@ def render_learning_workspace(
             pdf_bytes,
             codebase,
             code_service,
+            qa_service,
         )
     else:
         _render_qa_tab(paper, pdf_bytes, qa_service, focus_pdf)

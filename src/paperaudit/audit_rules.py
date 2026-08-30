@@ -1,0 +1,171 @@
+from __future__ import annotations
+
+from collections.abc import Sequence
+
+from .models import AutoLabel, ClaimErrorType, ClaimJudgment, EvidenceCandidate, Severity
+
+
+_HIGH_RISK_ERRORS = {
+    ClaimErrorType.CONTRADICTION,
+    ClaimErrorType.EXTERNAL_HALLUCINATION,
+    ClaimErrorType.NUMERIC_OR_METRIC_MISMATCH,
+    ClaimErrorType.WRONG_ATTRIBUTION,
+}
+_MEDIUM_RISK_ERRORS = {
+    ClaimErrorType.MISSING_CONDITION,
+    ClaimErrorType.OVERGENERALIZATION,
+}
+
+
+def judgment_signature(judgment: ClaimJudgment) -> tuple[str, str | None]:
+    return (
+        judgment.label.value,
+        judgment.claim_error_type.value if judgment.claim_error_type else None,
+    )
+
+
+def choose_majority(judgments: Sequence[ClaimJudgment]) -> ClaimJudgment:
+    """Choose the most frequent label/error pair, preserving its evidence details."""
+
+    if not judgments:
+        raise ValueError("至少需要一个裁决结果。")
+    counts: dict[tuple[str, str | None], int] = {}
+    for judgment in judgments:
+        key = judgment_signature(judgment)
+        counts[key] = counts.get(key, 0) + 1
+    winner = max(counts, key=lambda key: (counts[key], -next(
+        index for index, judgment in enumerate(judgments) if judgment_signature(judgment) == key
+    )))
+    return next(judgment for judgment in judgments if judgment_signature(judgment) == winner)
+
+
+def needs_evidence_retry(
+    judgment: ClaimJudgment | None, candidates: list[EvidenceCandidate]
+) -> bool:
+    """Retry unresolved or structurally invalid model output once automatically."""
+
+    if not candidates:
+        return False
+    if judgment is None or judgment.label == AutoLabel.ABSTAIN:
+        return True
+    allowed_ids = {candidate.evidence_id for candidate in candidates}
+    returned_ids = set(judgment.evidence_ids)
+    requires_evidence = judgment.label in {
+        AutoLabel.SUPPORTED,
+        AutoLabel.PARTIALLY_SUPPORTED,
+        AutoLabel.CONTRADICTED,
+    }
+    return not returned_ids.issubset(allowed_ids) or (requires_evidence and not returned_ids)
+
+
+def validate_judgment_references(
+    judgment: ClaimJudgment | None, candidates: list[EvidenceCandidate]
+) -> ClaimJudgment:
+    """Ensure model evidence references belong to the supplied candidate list."""
+
+    if judgment is None:
+        claim_id = candidates[0].evidence_id.rsplit("_e", 1)[0] if candidates else "unknown"
+        return ClaimJudgment(
+            claim_id=claim_id,
+            label=AutoLabel.ABSTAIN,
+            explanation="Hy3 未返回该论断的结构化判断。",
+            severity=Severity.NONE,
+        )
+    if not candidates:
+        return judgment
+    allowed_ids = {candidate.evidence_id for candidate in candidates}
+    returned_ids = set(judgment.evidence_ids)
+    requires_evidence = judgment.label in {
+        AutoLabel.SUPPORTED,
+        AutoLabel.PARTIALLY_SUPPORTED,
+        AutoLabel.CONTRADICTED,
+    }
+    if not returned_ids.issubset(allowed_ids) or (requires_evidence and not returned_ids):
+        return judgment.model_copy(
+            update={
+                "label": AutoLabel.ABSTAIN,
+                "evidence_ids": [],
+                "explanation": "自动裁决未返回有效证据编号，暂时无法可靠判断。",
+                "claim_error_type": None,
+                "evidence_error_type": None,
+                "severity": Severity.NONE,
+            }
+        )
+    return judgment
+
+
+def needs_second_pass(judgment: ClaimJudgment, claim_text: str = "") -> bool:
+    """Flag only internally inconsistent judgments for a focused retry."""
+
+    error = judgment.claim_error_type
+    lowered = claim_text.casefold()
+    if any(
+        marker in lowered
+        for marker in (
+            "all tasks",
+            "所有任务",
+            "所有",
+            "全部",
+            "every",
+            "always",
+            "任何训练资源",
+            "不需要",
+            "无需",
+            "不依赖",
+            "without training",
+        )
+    ):
+        return True
+    if "days" in lowered or "天" in lowered:
+        return True
+    if error is None:
+        return False
+    if judgment.label == AutoLabel.SUPPORTED:
+        return True
+    if judgment.label == AutoLabel.CONTRADICTED and error in _MEDIUM_RISK_ERRORS:
+        return True
+    if judgment.label == AutoLabel.PARTIALLY_SUPPORTED and error in _HIGH_RISK_ERRORS:
+        return True
+    if judgment.label == AutoLabel.NO_SUPPORT_FOUND and error in _HIGH_RISK_ERRORS:
+        return True
+    if judgment.label == AutoLabel.PARTIALLY_SUPPORTED and error == ClaimErrorType.MISSING_CONDITION:
+        return True
+    return False
+
+
+def calibrate_severity(judgment: ClaimJudgment) -> ClaimJudgment:
+    """Apply the deterministic project risk rubric after Hy3's judgment."""
+
+    if judgment.label in {AutoLabel.SUPPORTED, AutoLabel.ABSTAIN}:
+        target = Severity.NONE
+    elif judgment.claim_error_type in _HIGH_RISK_ERRORS or judgment.label == AutoLabel.CONTRADICTED:
+        target = Severity.HIGH
+    elif judgment.claim_error_type in _MEDIUM_RISK_ERRORS:
+        target = Severity.MEDIUM
+    else:
+        return judgment
+    return judgment if judgment.severity == target else judgment.model_copy(update={"severity": target})
+
+
+def calibrate_judgment(judgment: ClaimJudgment) -> ClaimJudgment:
+    """Align labels and severity with the project's error taxonomy."""
+
+    if judgment.label == AutoLabel.ABSTAIN:
+        return calibrate_severity(judgment)
+    error = judgment.claim_error_type
+    if error == ClaimErrorType.EXTERNAL_HALLUCINATION:
+        target_label = AutoLabel.NO_SUPPORT_FOUND
+    elif error in _HIGH_RISK_ERRORS:
+        target_label = AutoLabel.CONTRADICTED
+    elif error in _MEDIUM_RISK_ERRORS:
+        target_label = AutoLabel.PARTIALLY_SUPPORTED
+    elif error is None:
+        target_label = AutoLabel.SUPPORTED
+    else:
+        target_label = judgment.label
+    aligned = (
+        judgment
+        if judgment.label == target_label
+        else judgment.model_copy(update={"label": target_label})
+    )
+    return calibrate_severity(aligned)

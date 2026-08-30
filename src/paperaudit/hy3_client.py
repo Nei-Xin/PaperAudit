@@ -526,13 +526,66 @@ Label rules:
 - SUPPORTED: evidence supports subject, relation, conditions, values, and conclusion strength.
 - PARTIALLY_SUPPORTED: only part is supported or a necessary condition is omitted.
 - CONTRADICTED: evidence states the opposite or gives conflicting values/attribution.
+- Distinguish CONTRADICTED from external_hallucination: use CONTRADICTED only when the
+  evidence directly negates the same subject and setting. If the claim adds an application,
+  dataset, mechanism, or result that the evidence does not discuss, use NO_SUPPORT_FOUND with
+  external_hallucination even when the evidence describes a related method.
+- Distinguish missing_condition from overgeneralization: use missing_condition when the paper
+  states a necessary setup/applicability condition that the claim omits; use overgeneralization
+  when evidence covers only a bounded subset of tasks, datasets, or settings but the claim
+  expands it with all/every/always language.
+- For attribution claims, if the evidence explicitly credits a different person/team (for
+  example, the paper lists its own authors while the report credits another team), use
+  CONTRADICTED with error type wrong_attribution; do not use NO_SUPPORT_FOUND.
 - NO_SUPPORT_FOUND: candidates were searched but none support the claim.
 - ABSTAIN: candidates are ambiguous, incomplete, or parsing quality prevents a reliable decision.
 
 Use only evidence_id values supplied for that claim. An original report anchor outside pages
 1..{page_count} is fabricated_evidence. Evidence that exists but does not support the claim is
-evidence_mismatch. Assign the smallest applicable severity. Give a concise Chinese explanation
+evidence_mismatch. Severity rubric: use NONE for a fully supported claim; use MEDIUM for
+missing_condition or overgeneralization; use HIGH for contradiction, numeric_or_metric_mismatch,
+wrong_attribution, or external_hallucination. Apply this mapping even when the label is
+PARTIALLY_SUPPORTED or NO_SUPPORT_FOUND. Give a concise Chinese explanation
 and a corrected Chinese suggestion when the claim is not fully supported.
+
+<untrusted_audit_payload>
+{json.dumps(payload, ensure_ascii=False)}
+</untrusted_audit_payload>"""
+        return self._json_call(prompt, JudgmentBatch, self.settings.reasoning_effort)
+
+    def adjudicate_claim(
+        self,
+        claim: AtomicClaim,
+        candidates: Sequence[EvidenceCandidate],
+        page_count: int,
+    ) -> JudgmentBatch:
+        """Rejudge one internally inconsistent result with focused boundary rules."""
+
+        payload = {
+            "claim": claim.model_dump(mode="json"),
+            "candidate_evidence": [candidate.model_dump(mode="json") for candidate in candidates],
+        }
+        prompt = f"""Adjudicate this single paper-audit claim using only its candidate evidence.
+
+Resolve these boundaries carefully:
+- If the core fact is supported but a necessary condition is omitted, use PARTIALLY_SUPPORTED
+  with missing_condition.
+- If evidence supports only some tasks/settings but the claim says all, always, or strictly all,
+  use PARTIALLY_SUPPORTED with overgeneralization.
+- Use CONTRADICTED only when the same subject and setting have an opposite statement, conflicting
+  value, or different attribution.
+- If the evidence describes a related method but does not address the claim's added application,
+  dataset, mechanism, or result, use NO_SUPPORT_FOUND with external_hallucination rather than
+  CONTRADICTED.
+- Use missing_condition for an omitted necessary setup or applicability condition; use
+  overgeneralization when a bounded experiment is expanded to all/every/always settings.
+- Use NO_SUPPORT_FOUND with external_hallucination when the claimed subject, dataset, or result is
+  absent; do not call an absent setting a numeric mismatch merely because another number appears.
+- An exact supported fact remains SUPPORTED when evidence includes extra context that is not a
+  logically necessary condition.
+
+Use only supplied evidence_id values. Page anchors outside 1..{page_count} are invalid. Return one
+JudgmentBatch entry with a concise Chinese explanation and correction when needed.
 
 <untrusted_audit_payload>
 {json.dumps(payload, ensure_ascii=False)}
