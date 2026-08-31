@@ -80,6 +80,62 @@ DIMENSION_NAMES = {
     "conclusion_boundary": "结论边界",
 }
 
+PEER_REVIEW_VENUE_OPTIONS = {
+    PeerReviewVenue.GENERAL.value: "通用 AI/ML",
+    PeerReviewVenue.IJCAI.value: "IJCAI",
+    PeerReviewVenue.NEURIPS.value: "NeurIPS",
+    PeerReviewVenue.ICLR.value: "ICLR",
+    PeerReviewVenue.AAAI.value: "AAAI",
+    PeerReviewVenue.CUSTOM.value: "自定义标准",
+}
+PEER_REVIEW_WEIGHT_LABELS = {
+    "significance": "研究价值",
+    "novelty": "创新性",
+    "soundness": "技术可靠性",
+    "experimental_rigor": "实验充分性",
+    "clarity": "表达清晰度",
+    "reproducibility": "可复现性",
+}
+
+
+def _render_peer_review_rubric_controls() -> None:
+    """Render the venue/rubric selector used before a peer-review job starts."""
+    venue_value = st.session_state.get(
+        "peer_review_venue", PeerReviewVenue.GENERAL.value
+    )
+    if venue_value not in PEER_REVIEW_VENUE_OPTIONS:
+        st.session_state["peer_review_venue"] = PeerReviewVenue.GENERAL.value
+    st.selectbox(
+        "评审标准",
+        list(PEER_REVIEW_VENUE_OPTIONS),
+        format_func=PEER_REVIEW_VENUE_OPTIONS.get,
+        key="peer_review_venue",
+        help="选择会议标准；自定义标准可调整六个评审维度的权重。",
+    )
+    if st.session_state.get("peer_review_venue") == PeerReviewVenue.CUSTOM.value:
+        custom_weights: dict[str, float] = {}
+        with st.expander("自定义维度权重", expanded=True):
+            for weight_name, weight_label in PEER_REVIEW_WEIGHT_LABELS.items():
+                custom_weights[weight_name] = st.slider(
+                    weight_label,
+                    min_value=0.0,
+                    max_value=2.0,
+                    value=1.0,
+                    step=0.1,
+                    key=f"peer-review-weight-{weight_name}",
+                )
+        total_weight = sum(custom_weights.values())
+        st.session_state["peer_review_rubric_weights"] = (
+            {
+                name: value / total_weight
+                for name, value in custom_weights.items()
+            }
+            if total_weight > 0
+            else {}
+        )
+    else:
+        st.session_state["peer_review_rubric_weights"] = {}
+
 
 @st.cache_data(show_spinner=False, max_entries=4)
 def _parse_uploaded_code(zip_bytes: bytes, filename: str) -> ParsedCodebase:
@@ -1324,6 +1380,11 @@ with st.container(key=launch_shell_key):
             )
 
     if pdf_file is None:
+        if mode == "peer_review":
+            with st.container(border=True, key="peer_review_rubric_empty"):
+                st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
+                _render_peer_review_rubric_controls()
+                st.caption("上传论文后将按所选标准生成五档投稿预审建议。")
         with st.expander("高级选项", expanded=False):
             if mode == "learn":
                 st.markdown(
@@ -1433,6 +1494,8 @@ with st.container(key=launch_shell_key):
                         '<span>贡献 · 方法 · 实验 · 清晰度 · 可复现性 · 投稿建议</span></div>',
                         unsafe_allow_html=True,
                     )
+                    st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
+                    _render_peer_review_rubric_controls()
                     st.caption("结果为 Strong Accept / Weak Accept / Borderline / Weak Reject / Strong Reject 的预审建议，不代表真实录用决定。")
                     st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
                     privacy_ack = st.checkbox(
