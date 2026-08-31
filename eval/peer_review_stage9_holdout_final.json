@@ -1,0 +1,19 @@
+{
+  "evaluation_version": "peer-review-stage9-holdout-final-v1",
+  "status": "completed_once",
+  "freeze_manifest": "eval/peer_review_stage9_freeze.json",
+  "holdout_manifest": "eval/peer_review_holdout_papers.json",
+  "holdout_run_dir": "eval/stage9_holdout_real",
+  "report": "eval/peer_review_stage9_holdout_report.json",
+  "run_count": 1,
+  "policy": "holdout 仅运行一次；结果用于最终质量报告，不反向调整 Prompt、严重度规则或 rubric。",
+  "paper_count": 3,
+  "decision_accuracy": 0.3333333333333333,
+  "mean_abs_score_error": 2.0,
+  "p1_paper_recall": 1.0,
+  "evidence_rate": 0.8888888888888888,
+  "unsupported_high_risk_count": 0,
+  "actionability_rate": 1.0,
+  "mean_warning_count": 4.0,
+  "interpretation": "holdout 建议一致率偏低，主要表现为 Critical Phase 被评为 Weak Accept 而金标为 Weak Reject、GeoPlant 被评为 Weak Accept 而金标为 Strong Accept；该结果只作为冻结版本的泛化报告，不据此继续调参。"
+}

@@ -1,0 +1,10 @@
+{
+  "dataset_version": "peer-review-regression-v1.3-holdout-pdfs",
+  "source_policy": "fixed public arXiv versions; paper PDFs only",
+  "downloaded_at": "2026-08-31",
+  "papers": [
+    {"paper_key":"2412.08907","title":"Towards Interactive Global Geolocation Assistant","source_url":"https://arxiv.org/pdf/2412.08907v1","metadata_url":"https://arxiv.org/abs/2412.08907","local_pdf":"eval/papers/peer_review_holdout/geolocation_v1.pdf","version":"v1","sha256":"fb01ed6af59840a63107ac927ac3818aa23a6273a8d0c3fe2042287738875048","page_count":15,"meeting":"ICLR"},
+    {"paper_key":"2408.13928","title":"GeoPlant: Spatial Plant Species Prediction Dataset","source_url":"https://arxiv.org/pdf/2408.13928v1","metadata_url":"https://arxiv.org/abs/2408.13928","local_pdf":"eval/papers/peer_review_holdout/geoplant_v1.pdf","version":"v1","sha256":"2e378033f2085fd74da8eb7e6f1cc0976cdbba467c9cd807008c4e2dbe9f0b0d","page_count":13,"meeting":"NeurIPS"},
+    {"paper_key":"2406.05335","title":"Critical Phase Transition in a Large Language Model","source_url":"https://arxiv.org/pdf/2406.05335v1","metadata_url":"https://arxiv.org/abs/2406.05335","local_pdf":"eval/papers/peer_review_holdout/critical_phase_v1.pdf","version":"v1","sha256":"904f52689298a8de00b2ae65c4fb9bb92b8d696a14d41f181d9ad3dc3ee3de6f","page_count":33,"meeting":"ICLR"}
+  ]
+}

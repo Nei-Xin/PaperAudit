@@ -1,0 +1,108 @@
+{
+  "review_version": "peer-review-stage9-dev-extension-high-risk-ai-review-v1",
+  "reviewer": "AI",
+  "status": "finalized",
+  "finalized_at": "2026-08-31",
+  "policy": "仅复核扩展 dev 重复运行中出现或消失的 P0/P1；依据论文 PDF 证据和三次模型输出合并同一底层问题；不修改原始评审产物，不把本文件当作 holdout gold。",
+  "items": [
+    {
+      "paper_key": "2306.07915",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "evaluation",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p5_b10 明确给出 CLIP* 使用 pre-logits、CapPa 使用 GAP 的不同读取协议，p15_b3 又说明解码器使用完整序列；该差异会影响视觉表示质量归因，属于有引文支持的中心实验风险。",
+      "evidence_chunks": ["p5_b10", "p15_b3"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2310.01798",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "correctness",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p3_b10 明确限定模型、采样规模、最多两轮纠错和不同温度设置；据此对标题中全称式结论提出范围边界是可复核的 inference，而非凭空断言。",
+      "evidence_chunks": ["p3_b10"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2406.09413",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "evaluation",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p5_b15/p26_b2 说明身份空间由 CelebA 条件生成的合成身份构成，p8_b42 说明使用 100 张 FFHQ 做反演；这支持对真实分布泛化范围的实质性质疑。两次运行的标题不同，但指向同一底层风险。",
+      "evidence_chunks": ["p5_b15", "p26_b2", "p8_b42"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "lee25w",
+      "status": "finalized",
+      "decision": "downgrade_to_p2",
+      "category": "reproducibility",
+      "recommended_support_type": "fact",
+      "recommended_severity": "P2",
+      "rationale": "p37_b42/p38_b37 确实说明部分不等式通过计算机代数和数值端点检查确认，但文本没有证明该做法导致结论错误；更合适的是要求补充可审计细节，而不是 P1 拒稿阻碍。",
+      "evidence_chunks": ["p37_b42", "p38_b37"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2412.00974",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "correctness",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p12_b12 与 p12_b31 对自适应搜索置信度参数、每个 tester 的正确率及 union bound 的关系存在记号/方向不一致，直接影响定理保证的可验证性。p17_b10 的 O/Ω 数量级表述属于同一证明一致性问题的次级证据，不另拆为独立 P1。",
+      "evidence_chunks": ["p12_b12", "p12_b31", "p17_b10"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2505.20142",
+      "status": "finalized",
+      "decision": "downgrade_to_p2",
+      "category": "evaluation",
+      "recommended_support_type": "fact",
+      "recommended_severity": "P2",
+      "rationale": "p16_b18 主动披露 ViT-Base identity stitching sanity check 未能检索到最优变换。这是应补充敏感性实验或收窄跨架构表述的重要限制，但没有证据表明该局部失败击穿论文整体主张，因此不保留为 P1。",
+      "evidence_chunks": ["p16_b18"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2410.11397",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "correctness",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p6_b2/p6_b3 显示 OOD 检测规则依赖 OUT 样本总处于低密度区域的较强假设；p7_b5 进一步表明理论保证依赖 score model 达到最优及全局混合分布 score 聚合关系。三次运行的不同标题指向同一理论适用范围风险，合并为一个主要 P1；基线公平性和个别指标波动降为 P2。",
+      "evidence_chunks": ["p6_b2", "p6_b3", "p7_b5"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2406.00529",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "evaluation",
+      "recommended_support_type": "fact",
+      "recommended_severity": "P1",
+      "rationale": "p2_b17 声称不产生额外训练或推理开销，而 p18_b12 显示 ImageNet 配方为 300 对 330 个 epoch。该直接矛盾影响训练成本声明和比较公平性，属于应在投稿前解决的 P1；shortcut 机制缺少直接因果验证降为 P2。",
+      "evidence_chunks": ["p2_b17", "p18_b12"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "Ma0993KZlq",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "correctness",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p15_b14/p15_b19 暗示 TSQ 定义与 lower-bound reduction 对查询函数 φ 的限制不一致，p3_b10/p13_b57 又显示 persistent Massart noise 的概率空间与集中不等式适用范围需要澄清。三次运行的不同证明疑点合并为一个影响主要定理的 correctness P1，不拆分为多个高风险问题。",
+      "evidence_chunks": ["p3_b10", "p13_b57", "p15_b14", "p15_b19"],
+      "needs_human_confirmation": false
+    }
+  ]
+}

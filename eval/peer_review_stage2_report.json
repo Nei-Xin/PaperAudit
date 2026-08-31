@@ -1,0 +1,53 @@
+{
+  "evaluation_version": "peer-review-stage2-v1",
+  "model_version": "codex-ai-annotation-v1",
+  "prompt_version": "peer-review-annotation-v1",
+  "run_at": "2026-08-31T09:05:24.226639+00:00",
+  "gold_policy": "paper_level_holdout",
+  "dev": {
+    "sample_count": 22,
+    "paper_count": 7,
+    "category_accuracy": 1.0,
+    "severity_macro_f1": 1.0,
+    "evidence_valid_accuracy": 1.0,
+    "confidence_calibration_mae": 0.2727272727272727,
+    "p0_false_positive_rate": 0.0,
+    "p1_miss_rate": 0.0,
+    "decision_severity_mismatch_rate": 0.0,
+    "gold_category_distribution": {
+      "evaluation": 6,
+      "reproducibility": 2,
+      "clarity": 8,
+      "novelty": 2,
+      "ethics": 2,
+      "correctness": 2
+    },
+    "gold_severity_distribution": {
+      "P1": 14,
+      "P2": 6,
+      "P3": 2
+    }
+  },
+  "holdout": {
+    "sample_count": 8,
+    "paper_count": 3,
+    "category_accuracy": 1.0,
+    "severity_macro_f1": 0.9047619047619048,
+    "evidence_valid_accuracy": 1.0,
+    "confidence_calibration_mae": 0.3,
+    "p0_false_positive_rate": 0.0,
+    "p1_miss_rate": 0.25,
+    "decision_severity_mismatch_rate": 0.0,
+    "gold_category_distribution": {
+      "evaluation": 3,
+      "clarity": 2,
+      "novelty": 2,
+      "reproducibility": 1
+    },
+    "gold_severity_distribution": {
+      "P1": 4,
+      "P2": 3,
+      "P3": 1
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "gate_version": "peer-review-quality-gate-v1",
+  "gold": "D:\\data\\code\\project\\PaperAudit\\eval\\peer_review_regression.jsonl",
+  "dataset": {
+    "passed": true,
+    "checks": {
+      "min_samples": true,
+      "min_papers": true,
+      "fatal_severity_has_evidence": true,
+      "split_field_consistent": true
+    },
+    "sample_count": 30,
+    "paper_count": 10,
+    "fatal_severity_without_evidence": [],
+    "missing_split": []
+  },
+  "split": {
+    "passed": true,
+    "dev_papers": 0,
+    "holdout_papers": 0,
+    "paper_overlap": []
+  },
+  "thresholds": {
+    "min_samples": 30,
+    "min_papers": 10,
+    "max_p1_miss_rate": 0.2
+  },
+  "metrics": {
+    "status": "not_run",
+    "reason": "未提供 predictions，仅检查数据集"
+  },
+  "passed": true
+}

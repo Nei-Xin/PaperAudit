@@ -1,0 +1,25 @@
+{
+  "freeze_version": "peer-review-stage9-freeze-v1",
+  "frozen_at": "2026-08-31",
+  "status": "frozen_before_holdout",
+  "prompt_version": "peer-review-v5",
+  "score_calculation_version": "weighted-v1",
+  "rubric_catalog_version": "catalog-v1",
+  "rubric_versions": ["general_ai_ml@1.0", "ijcai@1.0", "neurips@1.0", "iclr@1.0", "aaai@1.0", "custom@1.0+<weights-digest>"],
+  "model": "gpt-5.6-luna",
+  "reasoning_effort": "high",
+  "temperature": 0.0,
+  "dev_manifest": "eval/peer_review_dev_papers.json",
+  "holdout_manifest": "eval/peer_review_holdout_papers.json",
+  "dev_stability_report": "eval/peer_review_stage9_dev_stability.json",
+  "high_risk_adjudication": "eval/peer_review_stage9_dev_high_risk_review.json",
+  "source_hashes": {
+    "src/paperaudit/hy3_client.py": "909faa2b8da0ea92ac40c0dc2d3bdc68f08c02d51cddf15814dedfa17c849ca1",
+    "src/paperaudit/service.py": "6a042ab902eadb15c64d25737408164ffb1906c0e71faa293761e3a2813bd007",
+    "src/paperaudit/models.py": "431af43bf1ccb98bc9fc058e1a43fde034bcde3d0ca4177a082ed5d8254fd39e",
+    "eval/evaluate_peer_review_dev_stability.py": "33bda98f6a26da85621c97b6aa086d258306b0e2a102fd1b6085f20d6518a82c",
+    "eval/peer_review_stage9_dev_high_risk_review.json": "53827d14e578a3c05a5179ef762953beedbde0c246fc6d6f7b059ff3b95c94d3",
+    "eval/peer_review_stage9_dev_stability.json": "019db828d3521bcc36ba438c7cc6fd5db8dac08ba825713607a405aebcbc415e"
+  },
+  "holdout_policy": "只运行一次；结果仅用于最终报告，不得反向调 Prompt、规则或 rubric；不输出真实录用概率。"
+}

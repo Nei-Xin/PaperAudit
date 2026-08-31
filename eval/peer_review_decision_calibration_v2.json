@@ -1,0 +1,41 @@
+{
+  "calibration_version": "peer-review-decision-calibration-v2",
+  "scope": "dev_only",
+  "created_at": "2026-08-31",
+  "policy": {
+    "primary_signal": "公开 reviewer recommendation 的均值与评审正文中的证据支持问题",
+    "score_bands": {
+      "STRONG_ACCEPT": "9-10",
+      "WEAK_ACCEPT": "7-8",
+      "BORDERLINE": "5-6",
+      "WEAK_REJECT": "3-4",
+      "STRONG_REJECT": "1-2"
+    },
+    "adjudication": "评审正文中存在证据支持的 P0/P1 时可以向弱一档调整；仅有 P2/P3 或不可核验缺口时不降到 Borderline。",
+    "venue_decision_signal": "spotlight/oral/accept 只用于检查样本覆盖，不直接转换为 gold recommendation，也不用于预测真实录用概率。",
+    "holdout_policy": "既有 holdout 标签、运行结果和冻结配置保持不变。"
+  },
+  "adjudications": [
+    {
+      "paper_key": "2411.03840",
+      "reviewer_recommendations": [8, 8, 6],
+      "mean_recommendation": 7.33,
+      "decision": "WEAK_ACCEPT",
+      "reason": "总体评价积极，但公开评审仍指出任务正交性、真实场景外推和脑科学主张证据范围等可修复问题，不满足无实质疑虑的 Strong Accept。"
+    },
+    {
+      "paper_key": "2406.00529",
+      "reviewer_recommendations": [7, 7, 8, 8],
+      "mean_recommendation": 7.5,
+      "decision": "WEAK_ACCEPT",
+      "reason": "实证结果充分且评价积极，但缺少非 anchoring SOTA 对照、参考集设置说明和跨领域验证，属于 Weak Accept 而非 Strong Accept。"
+    },
+    {
+      "paper_key": "Ma0993KZlq",
+      "reviewer_recommendations": [7, 7, 7, 7],
+      "mean_recommendation": 7.0,
+      "decision": "WEAK_ACCEPT",
+      "reason": "理论贡献获得一致正面评价，同时存在 TSQ 实践成本、假设范围和表达完整性问题，维持 Weak Accept。"
+    }
+  ]
+}

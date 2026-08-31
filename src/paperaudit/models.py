@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class StrictModel(BaseModel):
@@ -119,6 +119,236 @@ class LearningReport(StrictModel):
     one_sentence_summary: str
     sections: list[ReportSection]
     suggested_pages: list[int] = Field(default_factory=list)
+
+
+class ReviewDecision(str, Enum):
+    STRONG_ACCEPT = "STRONG_ACCEPT"
+    WEAK_ACCEPT = "WEAK_ACCEPT"
+    BORDERLINE = "BORDERLINE"
+    WEAK_REJECT = "WEAK_REJECT"
+    STRONG_REJECT = "STRONG_REJECT"
+
+    # Compatibility aliases for callers that used the former three-way scale.
+    ACCEPT = "WEAK_ACCEPT"
+    REJECT = "WEAK_REJECT"
+
+
+class PeerReviewVenue(str, Enum):
+    GENERAL = "general_ai_ml"
+    IJCAI = "ijcai"
+    NEURIPS = "neurips"
+    ICLR = "iclr"
+    AAAI = "aaai"
+    CUSTOM = "custom"
+
+
+class ReviewSeverity(str, Enum):
+    MAJOR = "major"
+    MINOR = "minor"
+
+
+class IssueSeverity(str, Enum):
+    """Product-facing issue priority, independent from the legacy major/minor label."""
+
+    FATAL = "P0"
+    MAJOR = "P1"
+    MINOR = "P2"
+    EDITORIAL = "P3"
+
+
+class IssueCategory(str, Enum):
+    CORRECTNESS = "correctness"
+    EVIDENCE = "evidence"
+    EVALUATION = "evaluation"
+    NOVELTY = "novelty"
+    REPRODUCIBILITY = "reproducibility"
+    ETHICS = "ethics"
+    CLARITY = "clarity"
+    OTHER = "other"
+
+
+class IssueStatus(str, Enum):
+    OPEN = "open"
+    AUTHOR_REPLIED = "author_replied"
+    PARTIAL = "partially_resolved"
+    RESOLVED = "resolved"
+    UNRESOLVED = "unresolved"
+    NEEDS_REVIEW = "needs_manual_review"
+    IGNORED = "ignored"
+
+
+class IssueSupportType(str, Enum):
+    """How a review issue relates to the paper evidence."""
+
+    FACT = "fact"
+    INFERENCE = "inference"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+
+
+class HumanReviewDecision(str, Enum):
+    """Human disposition recorded independently from the AI assessment."""
+
+    UNREVIEWED = "unreviewed"
+    CONFIRMED = "confirmed"
+    PARTIAL = "partial"
+    FALSE_POSITIVE = "false_positive"
+    INSUFFICIENT_EVIDENCE = "insufficient_evidence"
+
+
+class RebuttalResolution(str, Enum):
+    OPEN = "open"
+    RESOLVED = "resolved"
+    PARTIAL = "partial"
+    UNRESOLVED = "unresolved"
+
+
+class ReviewDimension(StrictModel):
+    name: str
+    score: int = Field(ge=1, le=5)
+    rationale: str
+    confidence: int = Field(default=3, ge=1, le=5)
+    evidence: list[EvidenceAnchor] = Field(default_factory=list)
+
+
+class ReviewConcern(StrictModel):
+    issue_id: str = ""
+    category: IssueCategory = IssueCategory.OTHER
+    severity_level: IssueSeverity | None = None
+    status: IssueStatus = IssueStatus.OPEN
+    confidence: int = Field(default=3, ge=1, le=5)
+    support_type: IssueSupportType = IssueSupportType.INFERENCE
+    ai_severity_level: IssueSeverity | None = None
+    ai_category: IssueCategory | None = None
+    human_reviewed: bool = False
+    human_note: str = ""
+    human_decision: HumanReviewDecision = HumanReviewDecision.UNREVIEWED
+    title: str
+    # Kept for compatibility with older prompts; the product-facing
+    # ``severity_level`` is authoritative when the legacy field is omitted.
+    severity: ReviewSeverity = ReviewSeverity.MINOR
+    description: str
+    why_it_matters: str
+    suggestion: str
+    evidence: list[EvidenceAnchor] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _set_legacy_severity_level(self) -> "ReviewConcern":
+        if self.severity_level is None:
+            self.severity_level = (
+                IssueSeverity.MAJOR if self.severity == ReviewSeverity.MAJOR else IssueSeverity.MINOR
+            )
+        if self.ai_severity_level is None:
+            self.ai_severity_level = self.severity_level
+        if self.ai_category is None:
+            self.ai_category = self.category
+        if self.severity_level in {IssueSeverity.FATAL, IssueSeverity.MAJOR}:
+            self.severity = ReviewSeverity.MAJOR
+        elif self.severity_level in {IssueSeverity.MINOR, IssueSeverity.EDITORIAL}:
+            self.severity = ReviewSeverity.MINOR
+        return self
+
+
+class RebuttalItem(StrictModel):
+    issue_id: str = ""
+    concern_title: str
+    response: str = ""
+    resolution: RebuttalResolution = RebuttalResolution.OPEN
+    assessment: str = ""
+
+
+class RebuttalAssessmentDraft(StrictModel):
+    resolution: RebuttalResolution
+    assessment: str
+
+
+class RelatedWorkReference(StrictModel):
+    """A user-supplied related-work record; URLs are metadata, not fetched instructions."""
+
+    citation: str
+    year: int | None = Field(default=None, ge=1900, le=2100)
+    url: str = ""
+    distinction: str = ""
+
+
+class RelatedWorkComparison(StrictModel):
+    references: list[RelatedWorkReference] = Field(default_factory=list)
+    assessment: str = ""
+    distinctions: list[str] = Field(default_factory=list)
+    gaps: list[str] = Field(default_factory=list)
+    confidence: int = Field(default=1, ge=1, le=5)
+    warning: str = ""
+
+
+class PeerReviewReport(StrictModel):
+    paper_title: str
+    venue: PeerReviewVenue = PeerReviewVenue.GENERAL
+    rubric_version: str = "general_ai_ml@1.0"
+    rubric_updated_at: str = ""
+    rubric_change_note: str = ""
+    decision: ReviewDecision
+    overall_score: float = Field(ge=1, le=10)
+    # The model's suggested score is retained for auditability; ``overall_score``
+    # is the deterministic system result calculated from the six dimensions.
+    model_raw_score: float | None = Field(default=None, ge=1, le=10)
+    rubric_weights: dict[str, float] = Field(default_factory=dict)
+    score_breakdown: dict[str, float] = Field(default_factory=dict)
+    score_calculation_version: str = "weighted-v1"
+    confidence: int = Field(default=3, ge=1, le=5)
+    summary: str
+    core_contributions: list[str] = Field(default_factory=list)
+    strengths: list[str] = Field(default_factory=list)
+    major_concerns: list[ReviewConcern] = Field(default_factory=list)
+    minor_concerns: list[ReviewConcern] = Field(default_factory=list)
+    questions_for_authors: list[str] = Field(default_factory=list)
+    dimensions: list[ReviewDimension] = Field(default_factory=list)
+    decision_rationale: str
+    why_not_adjacent: str = ""
+    acceptance_blockers: list[str] = Field(default_factory=list)
+    fatal_flaws: list[str] = Field(default_factory=list)
+    confidence_rationale: str = ""
+    review_limitations: list[str] = Field(default_factory=list)
+    required_changes: list[str] = Field(default_factory=list)
+    suggested_changes: list[str] = Field(default_factory=list)
+    top_priorities: list[str] = Field(default_factory=list)
+    rebuttals: list[RebuttalItem] = Field(default_factory=list)
+    post_rebuttal_decision: ReviewDecision | None = None
+    post_rebuttal_score: float | None = Field(default=None, ge=1, le=10)
+    rebuttal_summary: str = ""
+    parse_warnings: list[str] = Field(default_factory=list)
+    related_work_comparison: RelatedWorkComparison | None = None
+    run_id: str = ""
+    generated_at: str = ""
+    model_name: str = ""
+    reasoning_effort: str = ""
+    prompt_version: str = "peer-review-v5"
+    elapsed_seconds: float | None = Field(default=None, ge=0)
+
+
+class RevisionDiff(StrictModel):
+    added_chunks: int = Field(default=0, ge=0)
+    removed_chunks: int = Field(default=0, ge=0)
+    changed_chunks: int = Field(default=0, ge=0)
+    added_samples: list[str] = Field(default_factory=list)
+    removed_samples: list[str] = Field(default_factory=list)
+    changed_samples: list[str] = Field(default_factory=list)
+    summary: str = ""
+
+
+class PeerReviewRevision(StrictModel):
+    revision_id: str
+    created_at: str
+    original_filename: str
+    paper_title: str
+    page_count: int = Field(ge=1)
+    diff: RevisionDiff
+    report: PeerReviewReport
+    resolved_concerns: list[str] = Field(default_factory=list)
+    remaining_concerns: list[str] = Field(default_factory=list)
+    resolved_issue_ids: list[str] = Field(default_factory=list)
+    remaining_issue_ids: list[str] = Field(default_factory=list)
+    new_concerns: list[str] = Field(default_factory=list)
+    ambiguous_matches: list[str] = Field(default_factory=list)
+    match_confirmed: bool = False
 
 
 class QuestionQuery(StrictModel):
@@ -404,3 +634,22 @@ class LearningJob(StrictModel):
     stage: str = "等待生成"
     error: str | None = None
     runtime: AuditRuntimeSnapshot
+
+
+class PeerReviewJob(StrictModel):
+    """Persisted status for generating a simulated peer review."""
+
+    schema_version: int = 2
+    job_id: str
+    project_id: str
+    created_at: str
+    started_at: str | None = None
+    completed_at: str | None = None
+    status: AuditJobStatus = AuditJobStatus.QUEUED
+    progress: float = Field(default=0.0, ge=0.0, le=1.0)
+    stage: str = "等待评审"
+    error: str | None = None
+    runtime: AuditRuntimeSnapshot
+    venue: PeerReviewVenue = PeerReviewVenue.GENERAL
+    rubric_version: str = "general_ai_ml@1.0"
+    rubric_weights: dict[str, float] = Field(default_factory=dict)

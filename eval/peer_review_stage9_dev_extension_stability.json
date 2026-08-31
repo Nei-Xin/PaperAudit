@@ -1,0 +1,353 @@
+{
+  "evaluation_version": "peer-review-stage9-dev-stability-v1",
+  "run_dirs": [
+    "eval\\stage9_dev_extension_real",
+    "eval\\stage9_dev_extension_real_repeat1",
+    "eval\\stage9_dev_extension_real_repeat2"
+  ],
+  "paper_count": 10,
+  "repeat_count": 3,
+  "passed": true,
+  "policy": "同一论文重复运行允许最多一档建议漂移、评分最多 1.5 分；任何无证据 P0/P1 都必须人工复核后才能进入 holdout。",
+  "papers": [
+    {
+      "paper_key": "2306.07915",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        8.0,
+        7.0,
+        8.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 1.0,
+      "high_risk_counts": [
+        0,
+        1,
+        1
+      ],
+      "stable_high_risk_title_count": 0,
+      "unstable_high_risk_title_count": 1,
+      "adjudication": {
+        "decision": "retain_p1_candidate",
+        "recommended_severity": "P1"
+      },
+      "passed": true
+    },
+    {
+      "paper_key": "2412.00974",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "BORDERLINE",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        6.0,
+        7.0
+      ],
+      "decision_span_bands": 1,
+      "score_span": 1.0,
+      "high_risk_counts": [
+        2,
+        1,
+        0
+      ],
+      "stable_high_risk_title_count": 0,
+      "unstable_high_risk_title_count": 2,
+      "adjudication": {
+        "decision": "retain_p1_candidate",
+        "recommended_severity": "P1"
+      },
+      "passed": true
+    },
+    {
+      "paper_key": "2505.20142",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        7.0,
+        7.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 0.0,
+      "high_risk_counts": [
+        0,
+        0,
+        1
+      ],
+      "stable_high_risk_title_count": 0,
+      "unstable_high_risk_title_count": 1,
+      "adjudication": {
+        "decision": "downgrade_to_p2",
+        "recommended_severity": "P2"
+      },
+      "passed": true
+    },
+    {
+      "paper_key": "2410.11397",
+      "decisions": [
+        "BORDERLINE",
+        "BORDERLINE",
+        "BORDERLINE"
+      ],
+      "scores": [
+        6.0,
+        6.0,
+        6.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 0.0,
+      "high_risk_counts": [
+        3,
+        3,
+        1
+      ],
+      "stable_high_risk_title_count": 1,
+      "unstable_high_risk_title_count": 2,
+      "adjudication": {
+        "decision": "retain_p1_candidate",
+        "recommended_severity": "P1"
+      },
+      "passed": true
+    },
+    {
+      "paper_key": "2310.01798",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        7.0,
+        7.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 0.0,
+      "high_risk_counts": [
+        0,
+        0,
+        0
+      ],
+      "stable_high_risk_title_count": 0,
+      "unstable_high_risk_title_count": 0,
+      "adjudication": null,
+      "passed": true
+    },
+    {
+      "paper_key": "2406.09413",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        7.0,
+        7.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 0.0,
+      "high_risk_counts": [
+        2,
+        1,
+        2
+      ],
+      "stable_high_risk_title_count": 1,
+      "unstable_high_risk_title_count": 1,
+      "adjudication": {
+        "decision": "retain_p1_candidate",
+        "recommended_severity": "P1"
+      },
+      "passed": true
+    },
+    {
+      "paper_key": "lee25w",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        8.0,
+        7.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 1.0,
+      "high_risk_counts": [
+        1,
+        1,
+        1
+      ],
+      "stable_high_risk_title_count": 1,
+      "unstable_high_risk_title_count": 0,
+      "adjudication": null,
+      "passed": true
+    },
+    {
+      "paper_key": "2411.03840",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        7.0,
+        7.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 0.0,
+      "high_risk_counts": [
+        1,
+        1,
+        1
+      ],
+      "stable_high_risk_title_count": 1,
+      "unstable_high_risk_title_count": 0,
+      "adjudication": null,
+      "passed": true
+    },
+    {
+      "paper_key": "2406.00529",
+      "decisions": [
+        "BORDERLINE",
+        "BORDERLINE",
+        "BORDERLINE"
+      ],
+      "scores": [
+        6.0,
+        6.0,
+        6.0
+      ],
+      "decision_span_bands": 0,
+      "score_span": 0.0,
+      "high_risk_counts": [
+        2,
+        2,
+        1
+      ],
+      "stable_high_risk_title_count": 1,
+      "unstable_high_risk_title_count": 1,
+      "adjudication": {
+        "decision": "retain_p1_candidate",
+        "recommended_severity": "P1"
+      },
+      "passed": true
+    },
+    {
+      "paper_key": "Ma0993KZlq",
+      "decisions": [
+        "WEAK_ACCEPT",
+        "BORDERLINE",
+        "WEAK_ACCEPT"
+      ],
+      "scores": [
+        7.0,
+        6.0,
+        7.0
+      ],
+      "decision_span_bands": 1,
+      "score_span": 1.0,
+      "high_risk_counts": [
+        1,
+        1,
+        2
+      ],
+      "stable_high_risk_title_count": 1,
+      "unstable_high_risk_title_count": 1,
+      "adjudication": {
+        "decision": "retain_p1_candidate",
+        "recommended_severity": "P1"
+      },
+      "passed": true
+    }
+  ],
+  "high_risk_review_queue": [],
+  "resolved_high_risk_reviews": [
+    {
+      "paper_key": "2306.07915",
+      "decision": "retain_p1_candidate",
+      "recommended_severity": "P1",
+      "adjudicated_high_risk_count": 1,
+      "evidence_chunks": [
+        "p5_b10",
+        "p15_b3"
+      ]
+    },
+    {
+      "paper_key": "2412.00974",
+      "decision": "retain_p1_candidate",
+      "recommended_severity": "P1",
+      "adjudicated_high_risk_count": 1,
+      "evidence_chunks": [
+        "p12_b12",
+        "p12_b31",
+        "p17_b10"
+      ]
+    },
+    {
+      "paper_key": "2505.20142",
+      "decision": "downgrade_to_p2",
+      "recommended_severity": "P2",
+      "adjudicated_high_risk_count": 0,
+      "evidence_chunks": [
+        "p16_b18"
+      ]
+    },
+    {
+      "paper_key": "2410.11397",
+      "decision": "retain_p1_candidate",
+      "recommended_severity": "P1",
+      "adjudicated_high_risk_count": 1,
+      "evidence_chunks": [
+        "p6_b2",
+        "p6_b3",
+        "p7_b5"
+      ]
+    },
+    {
+      "paper_key": "2406.09413",
+      "decision": "retain_p1_candidate",
+      "recommended_severity": "P1",
+      "adjudicated_high_risk_count": 1,
+      "evidence_chunks": [
+        "p5_b15",
+        "p26_b2",
+        "p8_b42"
+      ]
+    },
+    {
+      "paper_key": "2406.00529",
+      "decision": "retain_p1_candidate",
+      "recommended_severity": "P1",
+      "adjudicated_high_risk_count": 1,
+      "evidence_chunks": [
+        "p2_b17",
+        "p18_b12"
+      ]
+    },
+    {
+      "paper_key": "Ma0993KZlq",
+      "decision": "retain_p1_candidate",
+      "recommended_severity": "P1",
+      "adjudicated_high_risk_count": 1,
+      "evidence_chunks": [
+        "p3_b10",
+        "p13_b57",
+        "p15_b14",
+        "p15_b19"
+      ]
+    }
+  ],
+  "review_file": "eval\\peer_review_stage9_dev_extension_high_risk_review.json"
+}

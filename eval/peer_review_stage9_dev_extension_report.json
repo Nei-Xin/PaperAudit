@@ -1,0 +1,297 @@
+{
+  "evaluation_version": "peer-review-stage9-dev-paper-v1",
+  "gold_policy": "paper_level_only; no fabricated issue semantic alignment",
+  "paper_count": 10,
+  "decision_accuracy": 0.7,
+  "mean_abs_score_error": 0.883,
+  "p1_paper_recall": 0.7,
+  "category_coverage": 0.7583333333333333,
+  "evidence_rate": 0.9416666666666667,
+  "actionability_rate": 1.0,
+  "unsupported_high_risk_count": 0,
+  "mean_warning_count": 4.9,
+  "details": [
+    {
+      "paper_key": "2306.07915",
+      "gold_decision": "WEAK_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": true,
+      "gold_score": 6.0,
+      "generated_score": 8.0,
+      "score_abs_error": 2.0,
+      "gold_p1": true,
+      "generated_high_risk": false,
+      "p1_risk_covered": false,
+      "gold_categories": [
+        "clarity",
+        "ethics",
+        "evaluation",
+        "reproducibility"
+      ],
+      "generated_categories": [
+        "clarity",
+        "evaluation",
+        "reproducibility"
+      ],
+      "category_coverage": 0.75,
+      "concern_count": 5,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 6
+    },
+    {
+      "paper_key": "2310.01798",
+      "gold_decision": "WEAK_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": true,
+      "gold_score": 6.0,
+      "generated_score": 7.0,
+      "score_abs_error": 1.0,
+      "gold_p1": true,
+      "generated_high_risk": false,
+      "p1_risk_covered": false,
+      "gold_categories": [
+        "clarity",
+        "evaluation"
+      ],
+      "generated_categories": [
+        "evaluation"
+      ],
+      "category_coverage": 0.5,
+      "concern_count": 2,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 2
+    },
+    {
+      "paper_key": "2406.00529",
+      "gold_decision": "STRONG_ACCEPT",
+      "generated_decision": "BORDERLINE",
+      "decision_match": false,
+      "gold_score": 7.5,
+      "generated_score": 6.0,
+      "score_abs_error": 1.5,
+      "gold_p1": true,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "evaluation",
+        "reproducibility"
+      ],
+      "generated_categories": [
+        "clarity",
+        "correctness",
+        "evaluation",
+        "evidence",
+        "reproducibility"
+      ],
+      "category_coverage": 1.0,
+      "concern_count": 5,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 6
+    },
+    {
+      "paper_key": "2406.09413",
+      "gold_decision": "WEAK_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": true,
+      "gold_score": 6.0,
+      "generated_score": 7.0,
+      "score_abs_error": 1.0,
+      "gold_p1": true,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "evaluation",
+        "novelty"
+      ],
+      "generated_categories": [
+        "correctness",
+        "ethics",
+        "evaluation",
+        "reproducibility"
+      ],
+      "category_coverage": 0.5,
+      "concern_count": 6,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 7
+    },
+    {
+      "paper_key": "2410.11397",
+      "gold_decision": "BORDERLINE",
+      "generated_decision": "BORDERLINE",
+      "decision_match": true,
+      "gold_score": 5.0,
+      "generated_score": 6.0,
+      "score_abs_error": 1.0,
+      "gold_p1": true,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "clarity",
+        "ethics",
+        "evaluation",
+        "reproducibility"
+      ],
+      "generated_categories": [
+        "clarity",
+        "correctness",
+        "evaluation"
+      ],
+      "category_coverage": 0.5,
+      "concern_count": 5,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 10
+    },
+    {
+      "paper_key": "2411.03840",
+      "gold_decision": "STRONG_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": false,
+      "gold_score": 7.33,
+      "generated_score": 7.0,
+      "score_abs_error": 0.33000000000000007,
+      "gold_p1": true,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "clarity",
+        "evaluation",
+        "evidence"
+      ],
+      "generated_categories": [
+        "clarity",
+        "evaluation",
+        "evidence",
+        "novelty"
+      ],
+      "category_coverage": 1.0,
+      "concern_count": 4,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 1
+    },
+    {
+      "paper_key": "2412.00974",
+      "gold_decision": "WEAK_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": true,
+      "gold_score": 6.0,
+      "generated_score": 7.0,
+      "score_abs_error": 1.0,
+      "gold_p1": true,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "clarity",
+        "evaluation"
+      ],
+      "generated_categories": [
+        "clarity",
+        "correctness",
+        "evaluation"
+      ],
+      "category_coverage": 1.0,
+      "concern_count": 4,
+      "evidence_rate": 0.75,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 6
+    },
+    {
+      "paper_key": "2505.20142",
+      "gold_decision": "WEAK_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": true,
+      "gold_score": 7.0,
+      "generated_score": 7.0,
+      "score_abs_error": 0.0,
+      "gold_p1": true,
+      "generated_high_risk": false,
+      "p1_risk_covered": false,
+      "gold_categories": [
+        "clarity",
+        "correctness",
+        "novelty"
+      ],
+      "generated_categories": [
+        "clarity",
+        "correctness",
+        "evaluation",
+        "evidence"
+      ],
+      "category_coverage": 0.6666666666666666,
+      "concern_count": 4,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 2
+    },
+    {
+      "paper_key": "Ma0993KZlq",
+      "gold_decision": "WEAK_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": true,
+      "gold_score": 7.0,
+      "generated_score": 7.0,
+      "score_abs_error": 0.0,
+      "gold_p1": false,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "clarity",
+        "correctness",
+        "evaluation"
+      ],
+      "generated_categories": [
+        "clarity",
+        "correctness"
+      ],
+      "category_coverage": 0.6666666666666666,
+      "concern_count": 3,
+      "evidence_rate": 1.0,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 5
+    },
+    {
+      "paper_key": "lee25w",
+      "gold_decision": "STRONG_ACCEPT",
+      "generated_decision": "WEAK_ACCEPT",
+      "decision_match": false,
+      "gold_score": 8.0,
+      "generated_score": 7.0,
+      "score_abs_error": 1.0,
+      "gold_p1": false,
+      "generated_high_risk": true,
+      "p1_risk_covered": true,
+      "gold_categories": [
+        "clarity",
+        "correctness"
+      ],
+      "generated_categories": [
+        "clarity",
+        "correctness",
+        "reproducibility"
+      ],
+      "category_coverage": 1.0,
+      "concern_count": 3,
+      "evidence_rate": 0.6666666666666666,
+      "actionability_rate": 1.0,
+      "unsupported_high_risk_count": 0,
+      "warning_count": 4
+    }
+  ],
+  "limitations": [
+    "当前回归集未保存 reviewer 原文，因此不计算伪造的逐条 issue 语义匹配 Macro-F1。"
+  ]
+}

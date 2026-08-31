@@ -1,0 +1,53 @@
+{
+  "review_version": "peer-review-stage9-dev-high-risk-ai-review-v2",
+  "reviewer": "AI",
+  "status": "finalized",
+  "finalized_at": "2026-08-31",
+  "policy": "仅复核重复运行中出现或消失的 P0/P1；不修改原始评审产物，不把本文件当作 holdout gold。",
+  "items": [
+    {
+      "paper_key": "2306.07915",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "evaluation",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p5_b10 明确给出 CLIP* 使用 pre-logits、CapPa 使用 GAP 的不同读取协议，p15_b3 又说明解码器使用完整序列；该差异会影响视觉表示质量归因，属于有引文支持的中心实验风险。",
+      "evidence_chunks": ["p5_b10", "p15_b3"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2310.01798",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "correctness",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p3_b10 明确限定模型、采样规模、最多两轮纠错和不同温度设置；据此对标题中全称式结论提出范围边界是可复核的 inference，而非凭空断言。",
+      "evidence_chunks": ["p3_b10"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "2406.09413",
+      "status": "finalized",
+      "decision": "retain_p1_candidate",
+      "category": "evaluation",
+      "recommended_support_type": "inference",
+      "recommended_severity": "P1",
+      "rationale": "p5_b15/p26_b2 说明身份空间由 CelebA 条件生成的合成身份构成，p8_b42 说明使用 100 张 FFHQ 做反演；这支持对真实分布泛化范围的实质性质疑。两次运行的标题不同，但指向同一底层风险。",
+      "evidence_chunks": ["p5_b15", "p26_b2", "p8_b42"],
+      "needs_human_confirmation": false
+    },
+    {
+      "paper_key": "lee25w",
+      "status": "finalized",
+      "decision": "downgrade_to_p2",
+      "category": "reproducibility",
+      "recommended_support_type": "fact",
+      "recommended_severity": "P2",
+      "rationale": "p37_b42/p38_b37 确实说明部分不等式通过计算机代数和数值端点检查确认，但文本没有证明该做法导致结论错误；更合适的是要求补充可审计细节，而不是 P1 拒稿阻碍。",
+      "evidence_chunks": ["p37_b42", "p38_b37"],
+      "needs_human_confirmation": false
+    }
+  ]
+}

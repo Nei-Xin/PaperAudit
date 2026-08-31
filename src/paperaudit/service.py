@@ -4,6 +4,9 @@ from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from difflib import SequenceMatcher
+import hashlib
+import json
+import math
 import re
 
 from .config import Settings
@@ -28,12 +31,27 @@ from .models import (
     EvidenceAnchor,
     EvidenceCandidate,
     LearningReport,
+    PeerReviewReport,
+    PeerReviewRevision,
+    RevisionDiff,
+    RebuttalItem,
+    ReviewConcern,
+    IssueCategory,
+    IssueSeverity,
+    IssueStatus,
+    IssueSupportType,
+    HumanReviewDecision,
     LearningSectionType,
     PageRect,
     PaperAnswer,
     PaperChunk,
     ParsedPaper,
     ReportSection,
+    ReviewDecision,
+    PeerReviewVenue,
+    RelatedWorkComparison,
+    RelatedWorkReference,
+    ReviewSeverity,
     Severity,
 )
 from .pdf_parser import parse_pdf
@@ -42,6 +60,335 @@ from .scoring import build_summary
 
 
 ProgressCallback = Callable[[str, float], None]
+
+_PEER_SCORE_BANDS = {
+    ReviewDecision.STRONG_ACCEPT: (9.0, 10.0),
+    ReviewDecision.WEAK_ACCEPT: (7.0, 8.0),
+    ReviewDecision.BORDERLINE: (5.0, 6.0),
+    ReviewDecision.WEAK_REJECT: (3.0, 4.0),
+    ReviewDecision.STRONG_REJECT: (1.0, 2.0),
+}
+
+PEER_REVIEW_SCORE_CALCULATION_VERSION = "weighted-v1"
+PEER_REVIEW_RUBRIC_CATALOG_VERSION = "catalog-v1"
+PEER_REVIEW_RUBRIC_UPDATED_AT = "2026-08-31"
+_PEER_REVIEW_RUBRIC_NOTES = {
+    "general_ai_ml": "通用 AI/ML：均衡关注研究价值、创新性、技术可靠性和实验充分性。",
+    "ijcai": "IJCAI：强调 AI 贡献、广泛意义、技术可靠性和完整评估。",
+    "neurips": "NeurIPS：强调技术创新、严谨实验、强基线和统计可靠性。",
+    "iclr": "ICLR：强调学习设定、方法/概念创新、清晰度和可复现性。",
+    "aaai": "AAAI：强调有意义的 AI 贡献、完整评估和应用或理论相关性。",
+}
+
+
+def peer_review_rubric_metadata(
+    venue: PeerReviewVenue | str,
+    weights: dict[str, float] | None = None,
+) -> tuple[str, str, str]:
+    """Return a stable rubric version, update date and human-readable change note."""
+    venue_value = getattr(venue, "value", str(venue))
+    normalized = normalize_peer_review_weights(weights)
+    if venue_value == PeerReviewVenue.CUSTOM.value:
+        digest = hashlib.sha256(
+            json.dumps(normalized, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()[:8]
+        return f"custom@1.0+{digest}", PEER_REVIEW_RUBRIC_UPDATED_AT, "自定义六维权重（已归一化）"
+    note = _PEER_REVIEW_RUBRIC_NOTES.get(venue_value, _PEER_REVIEW_RUBRIC_NOTES["general_ai_ml"])
+    return f"{venue_value}@1.0", PEER_REVIEW_RUBRIC_UPDATED_AT, note
+DEFAULT_PEER_REVIEW_WEIGHTS: dict[str, float] = {
+    "significance": 0.20,
+    "novelty": 0.20,
+    "soundness": 0.20,
+    "experimental_rigor": 0.20,
+    "clarity": 0.10,
+    "reproducibility": 0.10,
+}
+
+_DIMENSION_ALIASES = {
+    "研究价值": "significance",
+    "significance": "significance",
+    "创新性": "novelty",
+    "novelty": "novelty",
+    "技术可靠性": "soundness",
+    "soundness": "soundness",
+    "实验充分性": "experimental_rigor",
+    "experimental_rigor": "experimental_rigor",
+    "clarity": "clarity",
+    "表达清晰度": "clarity",
+    "reproducibility": "reproducibility",
+    "可复现性": "reproducibility",
+}
+
+
+def normalize_peer_review_weights(weights: dict[str, float] | None = None) -> dict[str, float]:
+    """Validate and normalize rubric weights while keeping all six dimensions explicit."""
+    values = dict(DEFAULT_PEER_REVIEW_WEIGHTS)
+    if weights:
+        for name, value in weights.items():
+            canonical = _DIMENSION_ALIASES.get(str(name).strip())
+            if canonical is None:
+                raise ValueError(f"未知评审维度权重：{name}")
+            try:
+                number = float(value)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"评审维度权重必须是数字：{name}") from exc
+            if not math.isfinite(number) or number < 0:
+                raise ValueError(f"评审维度权重必须是非负有限数字：{name}")
+            values[canonical] = number
+    total = sum(values.values())
+    if total <= 0:
+        raise ValueError("评审维度权重总和必须大于 0。")
+    return {name: round(value / total, 6) for name, value in values.items()}
+
+
+def calculate_peer_review_score(
+    dimensions: Sequence[object],
+    concerns: Sequence[ReviewConcern] = (),
+    rubric_weights: dict[str, float] | None = None,
+) -> tuple[float, ReviewDecision, dict[str, float], dict[str, float]]:
+    """Calculate a reproducible 1-10 score and five-level recommendation."""
+    weights = normalize_peer_review_weights(rubric_weights)
+    weighted_sum = 0.0
+    weight_sum = 0.0
+    breakdown: dict[str, float] = {}
+    for dimension in dimensions:
+        raw_name = str(getattr(dimension, "name", "")).strip()
+        canonical = _DIMENSION_ALIASES.get(raw_name)
+        if canonical is None or canonical in breakdown:
+            continue
+        score = float(getattr(dimension, "score", 0))
+        if not 1 <= score <= 5:
+            continue
+        weight = weights[canonical]
+        weighted_sum += score * weight
+        weight_sum += weight
+        # Store each present dimension's effective contribution after
+        # renormalizing when a legacy/model response omits a dimension.
+        breakdown[canonical] = round(score * weight, 4)
+    if weight_sum <= 0:
+        raise ValueError("评审缺少可识别的六维评分。")
+    weighted_mean = weighted_sum / weight_sum
+    if weight_sum != 1.0:
+        breakdown = {
+            name: round(value / weight_sum, 4) for name, value in breakdown.items()
+        }
+    mapped_score = 1 + (weighted_mean - 1) * 9 / 4
+    # Integer scores keep the public five bands (1-2, 3-4, …) unambiguous.
+    score = float(max(1, min(10, math.floor(mapped_score + 0.5))))
+    active_p0 = any(
+        item.severity_level == IssueSeverity.FATAL
+        and item.human_decision != HumanReviewDecision.FALSE_POSITIVE
+        for item in concerns
+    )
+    if active_p0:
+        score = min(score, 4.0)
+    if score >= 9:
+        decision = ReviewDecision.STRONG_ACCEPT
+    elif score >= 7:
+        decision = ReviewDecision.WEAK_ACCEPT
+    elif score >= 5:
+        decision = ReviewDecision.BORDERLINE
+    elif score >= 3:
+        decision = ReviewDecision.WEAK_REJECT
+    else:
+        decision = ReviewDecision.STRONG_REJECT
+    metadata = {"weighted_mean": round(weighted_mean, 4), "mapped_score": round(mapped_score, 4)}
+    return score, decision, breakdown, metadata
+
+
+def recalculate_peer_review(report: PeerReviewReport, rubric_weights: dict[str, float] | None = None) -> PeerReviewReport:
+    """Recompute the system score after human concern edits or legacy loading."""
+    weights = normalize_peer_review_weights(rubric_weights or report.rubric_weights or None)
+    concerns = [*report.major_concerns, *report.minor_concerns]
+    score, decision, breakdown, _ = calculate_peer_review_score(report.dimensions, concerns, weights)
+    return report.model_copy(update={
+        "overall_score": score,
+        "decision": decision,
+        "rubric_weights": weights,
+        "score_breakdown": breakdown,
+        "score_calculation_version": PEER_REVIEW_SCORE_CALCULATION_VERSION,
+    })
+
+
+def peer_review_consistency_warnings(report: PeerReviewReport) -> list[str]:
+    """Return actionable warnings when a generated review is internally inconsistent."""
+    warnings: list[str] = []
+    low, high = _PEER_SCORE_BANDS[report.decision]
+    if not low <= report.overall_score <= high:
+        warnings.append(
+            f"综合评分 {report.overall_score:.1f} 不在 {report.decision.value} 建议区间 {low:.0f}-{high:.0f} 内。"
+        )
+    if report.confidence <= 2 and not report.confidence_rationale.strip():
+        warnings.append("评审置信度较低，但没有说明导致不确定的证据缺口。")
+    if report.decision in {ReviewDecision.WEAK_REJECT, ReviewDecision.STRONG_REJECT}:
+        if not report.acceptance_blockers:
+            warnings.append("拒稿建议缺少明确的接收阻碍。")
+    if report.decision == ReviewDecision.STRONG_REJECT and not report.fatal_flaws:
+        warnings.append("Strong Reject 建议缺少致命问题说明。")
+    if report.decision == ReviewDecision.STRONG_ACCEPT and report.fatal_flaws:
+        warnings.append("Strong Accept 不应同时列出致命问题，请复核结论。")
+    if not report.why_not_adjacent.strip():
+        warnings.append("缺少与相邻投稿建议档位的比较说明。")
+    for concern in [*report.major_concerns, *report.minor_concerns]:
+        severity = concern.severity_level
+        if severity == IssueSeverity.FATAL and concern.severity.value != "major":
+            warnings.append(f"问题“{concern.title}”标记为 P0，但未归入主要问题。")
+        if severity in {IssueSeverity.FATAL, IssueSeverity.MAJOR} and not concern.evidence:
+            warnings.append(f"问题“{concern.title}”为 {severity.value}，但没有可定位原文依据。")
+        if concern.confidence <= 2 and not concern.evidence:
+            warnings.append(f"问题“{concern.title}”置信度较低且缺少证据，请人工复核。")
+        if concern.support_type == IssueSupportType.FACT and not concern.evidence:
+            warnings.append(f"问题“{concern.title}”标记为事实判断，但没有可定位原文依据。")
+        # An evidence-gap concern may legitimately cite a nearby passage as
+        # context.  Do not warn merely because ``insufficient_evidence`` and a
+        # quote coexist; the support type describes the claim, not the absence
+        # of a useful locator.
+        if severity in {IssueSeverity.FATAL, IssueSeverity.MAJOR} and concern.confidence <= 2:
+            warnings.append(f"问题“{concern.title}”为 {severity.value} 且置信度不高，不应直接作为确定性拒稿依据。")
+    return warnings
+
+
+def _dedupe_review_concerns(concerns: Sequence[ReviewConcern]) -> list[ReviewConcern]:
+    """Collapse duplicate critiques without hiding distinct evidence or actions.
+
+    Models often return the same issue twice with slightly different wording.  A
+    title-only key is too aggressive (the same topic may have different evidence),
+    so we require either identical evidence, or the same normalized claim *and*
+    remediation.  This is intentionally lexical and deterministic; it is not an
+    embedding-based semantic merge.
+    """
+
+    def normalize(value: object) -> str:
+        text = str(value or "").casefold()
+        text = re.sub(r"[^\w\u4e00-\u9fff]+", " ", text)
+        return " ".join(text.split())
+
+    def token_set(value: object) -> set[str]:
+        return {token for token in normalize(value).split() if len(token) >= 2}
+
+    result: list[ReviewConcern] = []
+    seen_evidence_titles: set[tuple[tuple[str, ...], str, str]] = set()
+    seen_claim_actions: set[tuple[str, str, str]] = set()
+    for concern in concerns:
+        evidence_key = tuple(sorted(anchor.chunk_id for anchor in concern.evidence))
+        title_key = normalize(concern.title)
+        claim_text = " ".join(
+            part
+            for part in (concern.title, concern.description, concern.why_it_matters)
+            if part
+        )
+        claim_tokens = token_set(claim_text)
+        action_key = normalize(concern.suggestion)
+        category_key = normalize(getattr(concern.category, "value", concern.category))
+        # A compact claim fingerprint keeps common Chinese stop-words from making
+        # unrelated concerns collide while still catching paraphrased duplicates.
+        claim_key = " ".join(sorted(claim_tokens))
+        fingerprint = (category_key, claim_key, action_key)
+        if evidence_key and (evidence_key, category_key, title_key) in seen_evidence_titles:
+            continue
+        if claim_key and action_key and fingerprint in seen_claim_actions:
+            continue
+        if evidence_key:
+            seen_evidence_titles.add((evidence_key, category_key, title_key))
+        if claim_key and action_key:
+            seen_claim_actions.add(fingerprint)
+        result.append(concern)
+    return result
+
+
+_CONCERN_NUMBER_PATTERN = re.compile(r"(?<![A-Za-z])\d+(?:\.\d+)?\s*%?")
+_CONCERN_METRIC_PATTERN = re.compile(
+    r"\b(?:accuracy|precision|recall|f1|bleu|rouge|auc|rmse|mae|sota)\b|"
+    r"准确率|精确率|召回率|宏平均|微平均|指标|数据集|模型|baseline|基线",
+    re.IGNORECASE,
+)
+_CONCERN_ENTITY_PATTERN = re.compile(
+    r"\b(?:[A-Z][A-Za-z0-9-]{1,}|[A-Za-z][A-Za-z0-9-]*(?:dataset|bench|net|bert|gpt|llama))\b"
+)
+
+
+def _concern_consistency_warnings(concern: ReviewConcern) -> list[str]:
+    """Check that concrete numeric/metric assertions occur in cited quotes."""
+    # ``insufficient_evidence`` deliberately describes an unverified gap.  Its
+    # prose often mentions the numbers/entities that would need checking; those
+    # are not asserted paper facts and should not trigger numeric mismatch
+    # warnings or force a second downgrade.
+    if concern.support_type == IssueSupportType.INSUFFICIENT_EVIDENCE:
+        return []
+    if not concern.evidence:
+        warnings: list[str] = []
+        if concern.support_type == IssueSupportType.FACT:
+            warnings.append(f"问题“{concern.title}”标记为事实判断，但没有可逐字核验的引用。")
+        return warnings
+    narrative = " ".join(
+        part for part in (concern.title, concern.description, concern.why_it_matters) if part
+    )
+    # The quote is the preferred citation, while the locally enriched anchor
+    # text is a second verification surface for long numeric/table passages.
+    # Checking both avoids downgrading a valid issue merely because the model
+    # selected a shorter quote from the same verified chunk.
+    evidence_text = " ".join(
+        part for anchor in concern.evidence for part in (anchor.quote or "", anchor.text or "") if part
+    )
+    warnings: list[str] = []
+    narrative_numbers = {
+        re.sub(r"\s+", "", match)
+        for match in _CONCERN_NUMBER_PATTERN.findall(narrative)
+    }
+    evidence_numbers = {
+        re.sub(r"\s+", "", match)
+        for match in _CONCERN_NUMBER_PATTERN.findall(evidence_text)
+    }
+    missing_numbers = sorted(narrative_numbers - evidence_numbers)
+    if missing_numbers:
+        warnings.append(
+            f"问题“{concern.title}”中的数字 {', '.join(missing_numbers)} 未出现在引用原文中。"
+        )
+    # A metric assertion without any metric-bearing text in the quote is a useful
+    # signal for review, but do not reject ordinary qualitative concerns.
+    if _CONCERN_METRIC_PATTERN.search(narrative) and not _CONCERN_METRIC_PATTERN.search(evidence_text):
+        warnings.append(f"问题“{concern.title}”的指标/数据集/模型表述无法在引用原文中核验。")
+    narrative_entities = {token.casefold() for token in _CONCERN_ENTITY_PATTERN.findall(narrative)}
+    quoted_entities = {token.casefold() for token in _CONCERN_ENTITY_PATTERN.findall(evidence_text)}
+    # Only flag distinctive ASCII entity names (e.g. GPT-4, ImageNet, BLEU), not
+    # ordinary prose words, so this remains a conservative consistency check.
+    missing_entities = sorted(narrative_entities - quoted_entities)
+    if missing_entities:
+        warnings.append(
+            f"问题“{concern.title}”中的模型/数据集名称 {', '.join(missing_entities[:4])} 未出现在引用原文中。"
+        )
+    return warnings
+
+
+def build_revision_diff(old: ParsedPaper, new: ParsedPaper) -> RevisionDiff:
+    """Build a compact, paragraph-level diff between two parsed paper versions."""
+    old_texts = [chunk.content.strip() for chunk in old.chunks if chunk.content.strip()]
+    new_texts = [chunk.content.strip() for chunk in new.chunks if chunk.content.strip()]
+    matcher = SequenceMatcher(a=old_texts, b=new_texts, autojunk=False)
+    added = removed = changed = 0
+    added_samples: list[str] = []
+    removed_samples: list[str] = []
+    changed_samples: list[str] = []
+    for tag, old_start, old_end, new_start, new_end in matcher.get_opcodes():
+        if tag == "insert":
+            added += new_end - new_start
+            added_samples.extend(new_texts[new_start:new_end][:2])
+        elif tag == "delete":
+            removed += old_end - old_start
+            removed_samples.extend(old_texts[old_start:old_end][:2])
+        elif tag == "replace":
+            changed += max(old_end - old_start, new_end - new_start)
+            changed_samples.extend(new_texts[new_start:new_end][:2])
+    summary = f"新增 {added} 段，删除 {removed} 段，修改 {changed} 段；页数 {old.page_count} → {new.page_count}。"
+    return RevisionDiff(
+        added_chunks=added,
+        removed_chunks=removed,
+        changed_chunks=changed,
+        added_samples=added_samples[:4],
+        removed_samples=removed_samples[:4],
+        changed_samples=changed_samples[:4],
+        summary=summary,
+    )
 
 _LOCATION_QUESTION_PATTERN = re.compile(
     r"第\s*几\s*页|哪(?:些|几)?\s*页|在(?:哪|哪里|哪儿)|位于|位置|"
@@ -1016,6 +1363,215 @@ class AuditService:
                 "sections": enriched_sections,
                 "suggested_pages": suggested_pages,
             }
+        )
+
+    def generate_peer_review(
+        self,
+        paper: ParsedPaper,
+        *,
+        venue: PeerReviewVenue = PeerReviewVenue.GENERAL,
+        rubric_weights: dict[str, float] | None = None,
+    ) -> PeerReviewReport:
+        """Generate a venue-agnostic simulated peer review with locally verified evidence."""
+        normalized_weights = normalize_peer_review_weights(rubric_weights)
+        if venue == PeerReviewVenue.GENERAL and not rubric_weights:
+            generated = self.client.generate_peer_review(paper.title, paper.chunks)
+        else:
+            generated = self.client.generate_peer_review(
+                paper.title,
+                paper.chunks,
+                venue=venue,
+                rubric_weights=normalized_weights,
+            )
+        rubric_version, rubric_updated_at, rubric_change_note = peer_review_rubric_metadata(
+            venue, normalized_weights
+        )
+        chunk_map = {chunk.chunk_id: chunk for chunk in paper.chunks}
+        chunk_positions = {chunk.chunk_id: index for index, chunk in enumerate(paper.chunks)}
+        invalid_evidence_count = 0
+
+        def enrich(anchors: Sequence[EvidenceAnchor]) -> list[EvidenceAnchor]:
+            nonlocal invalid_evidence_count
+            result: list[EvidenceAnchor] = []
+            seen: set[str] = set()
+            for anchor in anchors[:3]:
+                if anchor.chunk_id in seen:
+                    continue
+                chunk = chunk_map.get(anchor.chunk_id)
+                if chunk is None:
+                    continue
+                quote = _validated_evidence_quote(anchor.quote, chunk.content) if anchor.quote else None
+                if not quote:
+                    invalid_evidence_count += 1
+                    continue
+                result.append(
+                    EvidenceAnchor(
+                        chunk_id=chunk.chunk_id,
+                        page=chunk.page,
+                        text=chunk.content,
+                        quote=quote,
+                        locator=_evidence_locator(chunk.chunk_id, paper.chunks, chunk_positions),
+                        rects=_quote_rects(chunk, quote),
+                        context_text=_neighbor_context(chunk.chunk_id, paper.chunks, chunk_positions),
+                    )
+                )
+                seen.add(anchor.chunk_id)
+            return result
+
+        dimensions = [item.model_copy(update={"evidence": enrich(item.evidence)}) for item in generated.dimensions[:6]]
+
+        def normalize_concern(item: ReviewConcern) -> tuple[ReviewConcern, list[str]]:
+            evidence = enrich(item.evidence)
+            updates: dict[str, object] = {"evidence": evidence}
+            raw_category = getattr(item, "category", IssueCategory.OTHER)
+            try:
+                category = raw_category if isinstance(raw_category, IssueCategory) else IssueCategory(str(raw_category))
+            except (TypeError, ValueError):
+                category = IssueCategory.OTHER
+                updates["ai_category"] = IssueCategory.OTHER
+                updates["status"] = IssueStatus.NEEDS_REVIEW
+            updates["category"] = category
+            raw_level = getattr(item, "severity_level", None)
+            try:
+                level = raw_level if isinstance(raw_level, IssueSeverity) else IssueSeverity(str(raw_level))
+            except (TypeError, ValueError):
+                level = IssueSeverity.MAJOR if item.severity == ReviewSeverity.MAJOR else IssueSeverity.MINOR
+                updates["status"] = IssueStatus.NEEDS_REVIEW
+            updates["severity_level"] = level
+            try:
+                confidence = int(item.confidence)
+            except (TypeError, ValueError):
+                confidence = 2
+                updates["status"] = IssueStatus.NEEDS_REVIEW
+            confidence = max(1, min(5, confidence))
+            updates["confidence"] = confidence
+            checked = item.model_copy(update={
+                "evidence": evidence,
+                "category": category,
+                "severity_level": level,
+                "confidence": confidence,
+            })
+            concern_warnings = _concern_consistency_warnings(checked)
+            if concern_warnings:
+                updates.update({
+                    "status": IssueStatus.NEEDS_REVIEW,
+                    "confidence": min(confidence, 2),
+                    "support_type": IssueSupportType.INSUFFICIENT_EVIDENCE,
+                })
+            # A claim labelled as an evidence gap is never strong enough to be
+            # an acceptance blocker, even when the model attached a nearby
+            # context quote.  Keep the original AI level for auditability but
+            # expose a conservative product-facing level.
+            if item.support_type == IssueSupportType.INSUFFICIENT_EVIDENCE and not evidence and level in {
+                IssueSeverity.FATAL,
+                IssueSeverity.MAJOR,
+            }:
+                updates.update({
+                    "severity_level": IssueSeverity.MAJOR if level == IssueSeverity.FATAL else IssueSeverity.MINOR,
+                    "severity": ReviewSeverity.MAJOR if level == IssueSeverity.FATAL else ReviewSeverity.MINOR,
+                    "confidence": min(confidence, 2),
+                    "status": IssueStatus.NEEDS_REVIEW,
+                })
+                level = IssueSeverity.MAJOR if level == IssueSeverity.FATAL else IssueSeverity.MINOR
+            elif not evidence and level in {IssueSeverity.FATAL, IssueSeverity.MAJOR}:
+                updates.update({
+                    # An unverified P0 remains a review-required P1 for safety;
+                    # an unverified P1 is conservatively capped at P2.
+                    "severity_level": IssueSeverity.MAJOR if level == IssueSeverity.FATAL else IssueSeverity.MINOR,
+                    "severity": ReviewSeverity.MAJOR if level == IssueSeverity.FATAL else ReviewSeverity.MINOR,
+                    "confidence": min(confidence, 2),
+                    "status": IssueStatus.NEEDS_REVIEW,
+                    "support_type": IssueSupportType.INSUFFICIENT_EVIDENCE,
+                })
+            return item.model_copy(update=updates), concern_warnings
+
+        normalized_major: list[ReviewConcern] = []
+        normalized_minor: list[ReviewConcern] = []
+        concern_warnings: list[str] = []
+        for item in generated.major_concerns[:6]:
+            normalized, warnings = normalize_concern(item)
+            normalized_major.append(normalized)
+            concern_warnings.extend(warnings)
+        for item in generated.minor_concerns[:6]:
+            normalized, warnings = normalize_concern(item)
+            normalized_minor.append(normalized)
+            concern_warnings.extend(warnings)
+        major = _dedupe_review_concerns(normalized_major)
+        minor = _dedupe_review_concerns(normalized_minor)
+        if not dimensions:
+            raise Hy3ResponseError("模拟评审缺少维度评分。")
+        enriched = generated.model_copy(
+            update={
+                "paper_title": paper.title,
+                "venue": venue,
+                "dimensions": dimensions,
+                "major_concerns": major,
+                "minor_concerns": minor,
+                "rubric_version": rubric_version,
+                "rubric_updated_at": rubric_updated_at,
+                "rubric_change_note": rubric_change_note,
+                "rubric_weights": normalized_weights,
+                "model_raw_score": generated.overall_score,
+                "questions_for_authors": [],
+                "review_limitations": list(dict.fromkeys([
+                    *generated.review_limitations,
+                    "本评审仅基于上传论文文本；代码、完整附录、数据泄漏和未报告实验无法独立验证。",
+                ])),
+                "parse_warnings": [
+                    *paper.warnings,
+                    *concern_warnings,
+                    *(["部分评审证据缺少可逐字核验的原文引文，已移除并标记为需人工复核。"] if invalid_evidence_count else []),
+                ],
+            }
+        )
+        enriched = recalculate_peer_review(enriched, normalized_weights)
+        consistency_warnings = peer_review_consistency_warnings(enriched)
+        return enriched.model_copy(
+            update={
+                "parse_warnings": list(dict.fromkeys(
+                    [*enriched.parse_warnings, *consistency_warnings]
+                ))
+            }
+        )
+
+    def compare_related_work(
+        self,
+        paper: ParsedPaper,
+        references: Sequence[RelatedWorkReference],
+    ) -> RelatedWorkComparison:
+        """Compare novelty only against references explicitly supplied by the user."""
+        if not references:
+            raise ValueError("请至少提供一条相关工作记录。")
+        if len(references) > 5:
+            raise ValueError("最多支持 5 条相关工作记录。")
+        payload = [item.model_dump(mode="json") for item in references]
+        result = self.client.compare_related_work(paper.title, paper.chunks, payload)
+        return result.model_copy(update={"references": list(references)})
+
+    def assess_rebuttal(
+        self,
+        report: PeerReviewReport,
+        concern: ReviewConcern,
+        response: str,
+    ) -> RebuttalItem:
+        """Ask Hy3 to classify one author response against the cited concern evidence."""
+        evidence = "\n".join(
+            anchor.quote or anchor.text[:600]
+            for anchor in concern.evidence[:3]
+        )
+        draft = self.client.assess_rebuttal(
+            report.paper_title,
+            concern.title,
+            concern.description,
+            response.strip(),
+            evidence,
+        )
+        return RebuttalItem(
+            issue_id=concern.issue_id,
+            concern_title=concern.title,
+            response=response.strip(),
+            resolution=draft.resolution,
+            assessment=draft.assessment,
         )
 
     def answer_question(

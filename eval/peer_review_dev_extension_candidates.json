@@ -1,0 +1,83 @@
+{
+  "dataset_version": "peer-review-regression-v1.4-dev-extension",
+  "status": "partially_verified_three_added_one_pending",
+  "policy": "仅将具备版本化公开评审来源、固定 PDF 和结构化标签的候选加入 dev；未核验 reviewer 正文的候选继续保持 pending，不进入 Prompt、指标或 holdout。",
+  "collection_date": "2026-08-31",
+  "candidates": [
+    {
+      "paper_key": "2411.03840",
+      "title": "Flexible task abstractions emerge in linear networks with fast and bounded units",
+      "paper_url": "https://arxiv.org/abs/2411.03840",
+      "pdf_url": "https://arxiv.org/pdf/2411.03840v1",
+      "review_url": "https://openreview.net/forum?id=AbTpJl7vN6",
+      "meeting": "NeurIPS",
+      "year": 2024,
+      "public_decision_signal": "spotlight",
+      "coverage_target": ["WEAK_ACCEPT", "theory", "claim_scope"],
+      "status": "verified_via_cc_by_archive",
+      "verification": {
+        "archive_url": "https://huggingface.co/datasets/djroytburg/NeurIPS-2023-2025",
+        "archive_commit": "6ddf7468c69eb82995df5b8468fa367be438e3cf",
+        "license": "CC-BY-4.0",
+        "review_indices": [1, 2, 3],
+        "local_pdf": "eval/papers/peer_review_dev_extension/flexible_task_abstractions_v1.pdf",
+        "sha256": "c45eac7cd90e4013de6ff285d04c282237141b6987725387c9d16a8d62d6eb14",
+        "page_count": 34
+      }
+    },
+    {
+      "paper_key": "2406.00529",
+      "title": "On the Use of Anchoring for Training Vision Models",
+      "paper_url": "https://arxiv.org/abs/2406.00529",
+      "pdf_url": "https://arxiv.org/pdf/2406.00529v1",
+      "review_url": "https://openreview.net/forum?id=xymhWyiZOp",
+      "meeting": "NeurIPS",
+      "year": 2024,
+      "public_decision_signal": "spotlight",
+      "coverage_target": ["WEAK_ACCEPT", "empirical", "baseline_fairness", "safety"],
+      "status": "verified_via_cc_by_archive",
+      "verification": {
+        "archive_url": "https://huggingface.co/datasets/djroytburg/NeurIPS-2023-2025",
+        "archive_commit": "6ddf7468c69eb82995df5b8468fa367be438e3cf",
+        "license": "CC-BY-4.0",
+        "review_indices": [1, 2, 3, 4],
+        "local_pdf": "eval/papers/peer_review_dev_extension/anchoring_v1.pdf",
+        "sha256": "44f02dbfcbd8d25fb2f0752a2adb198ecbd6f4fd93a84a43b96e1fda6ab009a9",
+        "page_count": 19
+      }
+    },
+    {
+      "paper_key": "kMxdV4Blhn",
+      "title": "Rethinking 3D Convolution in ℓp-norm Space",
+      "paper_url": "https://openreview.net/forum?id=kMxdV4Blhn",
+      "pdf_url": "https://openreview.net/pdf?id=kMxdV4Blhn",
+      "review_url": "https://openreview.net/forum?id=kMxdV4Blhn",
+      "meeting": "NeurIPS",
+      "year": 2024,
+      "public_decision_signal": "spotlight",
+      "coverage_target": ["STRONG_ACCEPT", "theory", "empirical", "method_scope"],
+      "status": "pending_reviewer_note_verification"
+    },
+    {
+      "paper_key": "Ma0993KZlq",
+      "title": "Active Classification with Few Queries under Misspecification",
+      "paper_url": "https://papers.nips.cc/paper_files/paper/2024/hash/5c6bcabf220f35df0b90f3d1d0ac1ad0-Abstract-Conference.html",
+      "pdf_url": "https://papers.nips.cc/paper_files/paper/2024/file/5c6bcabf220f35df0b90f3d1d0ac1ad0-Paper-Conference.pdf",
+      "review_url": "https://openreview.net/forum?id=Ma0993KZlq",
+      "meeting": "NeurIPS",
+      "year": 2024,
+      "public_decision_signal": "main_conference",
+      "coverage_target": ["WEAK_ACCEPT", "theory", "noise_assumptions", "complexity"],
+      "status": "verified_via_cc_by_archive",
+      "verification": {
+        "archive_url": "https://huggingface.co/datasets/djroytburg/NeurIPS-2023-2025",
+        "archive_commit": "6ddf7468c69eb82995df5b8468fa367be438e3cf",
+        "license": "CC-BY-4.0",
+        "review_indices": [1, 2, 3, 4],
+        "local_pdf": "eval/papers/peer_review_dev_extension/active_classification_conference.pdf",
+        "sha256": "d49a715cf4936495708df632eade6da16d4db17e72aab06f7706e62cfad5b59c",
+        "page_count": 24
+      }
+    }
+  ]
+}

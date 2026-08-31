@@ -1482,6 +1482,7 @@ def render_learning_workspace(
     load_audit_jobs: Callable[[], list[AuditJob]] | None = None,
     load_audit_records: Callable[[], list[AuditRecordMetadata]] | None = None,
     on_open_audit: Callable[[str], None] | None = None,
+    submit_peer_review: Callable[[], object] | None = None,
 ) -> None:
     if paper is not None:
         report = refresh_learning_report_evidence(report, paper)
@@ -1578,6 +1579,63 @@ def render_learning_workspace(
                     render_report_audit_dialog(submit_audit_job)
                 if submit_audit_job is None:
                     st.caption("配置并连接 Hy3 API 后可审计当前讲解。")
+                venue_options = {
+                    "general_ai_ml": "通用 AI/ML",
+                    "ijcai": "IJCAI",
+                    "neurips": "NeurIPS",
+                    "iclr": "ICLR",
+                    "aaai": "AAAI",
+                    "custom": "自定义标准",
+                }
+                st.selectbox(
+                    "评审标准",
+                    list(venue_options),
+                    format_func=venue_options.get,
+                    key="peer_review_venue",
+                    help="选择会议标准；自定义标准可调整六个评审维度的权重。",
+                )
+                if st.session_state.get("peer_review_venue") == "custom":
+                    custom_weights: dict[str, float] = {}
+                    weight_labels = {
+                        "significance": "研究价值",
+                        "novelty": "创新性",
+                        "soundness": "技术可靠性",
+                        "experimental_rigor": "实验充分性",
+                        "clarity": "表达清晰度",
+                        "reproducibility": "可复现性",
+                    }
+                    with st.expander("自定义维度权重", expanded=True):
+                        for weight_name, weight_label in weight_labels.items():
+                            custom_weights[weight_name] = st.slider(
+                                weight_label,
+                                min_value=0.0,
+                                max_value=2.0,
+                                value=1.0,
+                                step=0.1,
+                                key=f"peer-review-weight-{weight_name}",
+                            )
+                    total_weight = sum(custom_weights.values())
+                    st.session_state["peer_review_rubric_weights"] = (
+                        {name: value / total_weight for name, value in custom_weights.items()}
+                        if total_weight > 0 else {}
+                    )
+                else:
+                    st.session_state["peer_review_rubric_weights"] = {}
+                if st.button(
+                    "进行模拟投稿评审",
+                    width="stretch",
+                    disabled=submit_peer_review is None or paper is None,
+                    help="按选定会议标准在后台生成五档投稿预审建议，并保存到左侧项目。",
+                ) and submit_peer_review is not None:
+                    try:
+                        submit_peer_review()
+                    except (ValueError, RuntimeError) as exc:
+                        st.error(f"任务提交失败：{exc}")
+                    else:
+                        st.session_state["peer_review"] = None
+                        st.session_state["result_mode"] = "peer_review"
+                        st.rerun()
+                st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
                 jobs: list[AuditJob] = []
                 records: list[AuditRecordMetadata] = []
                 if load_audit_jobs is not None:
