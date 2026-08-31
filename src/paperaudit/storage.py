@@ -23,11 +23,21 @@ from paperaudit.models import (
     ClaimCategory,
     JointAnswer,
     LearningJob,
+    PeerReviewJob,
     LearningReport,
     PaperAnswer,
     ParsedCodebase,
     ParsedPaper,
+    PeerReviewReport,
+    PeerReviewRevision,
+    RevisionDiff,
+    PeerReviewVenue,
+    ReviewConcern,
+    IssueSeverity,
+    IssueStatus,
+    IssueSupportType,
 )
+from paperaudit.service import recalculate_peer_review
 
 
 SETTINGS_SCHEMA_VERSION = 1
@@ -35,6 +45,7 @@ PROJECT_SCHEMA_VERSION = 1
 AUDIT_SCHEMA_VERSION = 1
 AUDIT_JOB_SCHEMA_VERSION = 1
 LEARNING_JOB_SCHEMA_VERSION = 1
+PEER_REVIEW_JOB_SCHEMA_VERSION = 2
 AUDIT_SOURCE_TYPES = {"generated_learning_report", "uploaded_report"}
 
 
@@ -57,6 +68,7 @@ class ProjectMetadata:
     updated_at: str
     has_code: bool = False
     has_learning_report: bool = True
+    has_peer_review: bool = False
 
 
 @dataclass(frozen=True)
@@ -237,6 +249,7 @@ def _metadata_from_dict(data: dict[str, Any]) -> ProjectMetadata:
         updated_at=str(data["updated_at"]),
         has_code=bool(data.get("has_code", False)),
         has_learning_report=bool(data.get("has_learning_report", True)),
+        has_peer_review=bool(data.get("has_peer_review", False)),
     )
 
 
@@ -265,6 +278,90 @@ def _audit_metadata_from_dict(data: dict[str, Any]) -> AuditRecordMetadata:
 def _record_id(prefix: str) -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return f"{prefix}-{timestamp}-{secrets.token_hex(3)}"
+
+
+def _stable_issue_id(severity: str, title: str) -> str:
+    digest = sha256(f"{severity}:{title.strip()}".encode("utf-8")).hexdigest()[:12]
+    return f"issue-{digest}"
+
+
+def _normalize_review_concerns(concerns: Sequence[ReviewConcern]) -> list[ReviewConcern]:
+    normalized: list[ReviewConcern] = []
+    for concern in concerns:
+        if concern.issue_id:
+            normalized.append(concern)
+            continue
+        normalized.append(
+            concern.model_copy(
+                update={
+                    "issue_id": _stable_issue_id(concern.severity.value, concern.title),
+                }
+            )
+        )
+    return normalized
+
+
+def _sanitize_peer_review_evidence(review: PeerReviewReport) -> PeerReviewReport:
+    """Remove legacy anchors that have a page/chunk but no verifiable quote."""
+    invalid = 0
+
+    def clean(items: Sequence[Any], *, concerns: bool = False) -> list[Any]:
+        nonlocal invalid
+        cleaned: list[Any] = []
+        for item in items:
+            evidence = []
+            for anchor in item.evidence:
+                if not anchor.quote or not anchor.quote.strip():
+                    invalid += 1
+                    continue
+                evidence.append(anchor)
+            updates: dict[str, Any] = {"evidence": evidence}
+            # Historical records may have had only a page locator. Once those
+            # anchors are removed, surface the same manual-review state used by
+            # newly generated reports instead of presenting the critique as
+            # fully supported.
+            if concerns and not evidence and item.severity_level in {
+                IssueSeverity.FATAL,
+                IssueSeverity.MAJOR,
+            }:
+                updates.update(
+                    {
+                        "severity_level": IssueSeverity.MAJOR,
+                        "confidence": min(item.confidence, 2),
+                        "status": IssueStatus.NEEDS_REVIEW,
+                        "support_type": IssueSupportType.INSUFFICIENT_EVIDENCE,
+                    }
+                )
+            cleaned.append(item.model_copy(update=updates))
+        return cleaned
+
+    major = clean(review.major_concerns, concerns=True)
+    minor = clean(review.minor_concerns, concerns=True)
+    dimensions = clean(review.dimensions)
+    warnings = list(review.parse_warnings)
+    if invalid:
+        warnings.append("部分历史评审证据缺少可逐字核验的原文引文，已移除并需人工复核。")
+    return review.model_copy(update={
+        "major_concerns": major,
+        "minor_concerns": minor,
+        "dimensions": dimensions,
+        "parse_warnings": list(dict.fromkeys(warnings)),
+    })
+
+
+def _normalize_review_rebuttals(review: PeerReviewReport) -> PeerReviewReport:
+    issue_by_title = {
+        concern.title: concern.issue_id
+        for concern in [*review.major_concerns, *review.minor_concerns]
+        if concern.issue_id
+    }
+    rebuttals = [
+        item.model_copy(update={"issue_id": issue_by_title.get(item.concern_title, item.issue_id)})
+        if not item.issue_id and item.concern_title in issue_by_title
+        else item
+        for item in review.rebuttals
+    ]
+    return review.model_copy(update={"rebuttals": rebuttals})
 
 
 def make_conversation(title: str = "新对话") -> ConversationRecord:
@@ -381,6 +478,7 @@ class ProjectStore:
             updated_at=_utc_now(),
             has_code=codebase is not None or (project_dir / "codebase.json").exists(),
             has_learning_report=True,
+            has_peer_review=bool(getattr(metadata, "has_peer_review", False)),
         )
         _atomic_write(project_dir / "learning-report.json", report.model_dump_json(indent=2).encode("utf-8"))
         if codebase is not None:
@@ -404,6 +502,7 @@ class ProjectStore:
         created_at = _utc_now()
         has_code = (project_dir / "codebase.json").exists()
         has_learning_report = (project_dir / "learning-report.json").exists()
+        has_peer_review = (project_dir / "peer-review.json").exists()
         if metadata_path.exists():
             try:
                 existing = _metadata_from_dict(
@@ -411,6 +510,7 @@ class ProjectStore:
                 )
                 created_at = existing.created_at
                 has_code = existing.has_code or has_code
+                has_peer_review = existing.has_peer_review or has_peer_review
             except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
                 pass
         metadata = ProjectMetadata(
@@ -421,6 +521,7 @@ class ProjectStore:
             updated_at=_utc_now(),
             has_code=has_code,
             has_learning_report=has_learning_report,
+            has_peer_review=has_peer_review,
         )
         _atomic_write(project_dir / "paper.pdf", pdf_bytes)
         _atomic_write(
@@ -456,6 +557,7 @@ class ProjectStore:
                     updated_at=_utc_now(),
                     has_code=metadata.has_code,
                     has_learning_report=metadata.has_learning_report,
+                    has_peer_review=metadata.has_peer_review,
                 )
                 _atomic_write_json(metadata_path, updated.__dict__)
             except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
@@ -595,6 +697,212 @@ class ProjectStore:
             active_conversation_id=active_conversation.conversation_id,
         )
 
+    def save_peer_review(self, project_id: str, review: PeerReviewReport) -> None:
+        project_dir = self._require_project_dir(project_id)
+        review = _sanitize_peer_review_evidence(review)
+        review = review.model_copy(update={
+            "major_concerns": _normalize_review_concerns(review.major_concerns),
+            "minor_concerns": _normalize_review_concerns(review.minor_concerns),
+        })
+        review = _normalize_review_rebuttals(review)
+        _atomic_write(project_dir / "peer-review.json", review.model_dump_json(indent=2).encode("utf-8"))
+        metadata_path = project_dir / "metadata.json"
+        try:
+            metadata = _metadata_from_dict(json.loads(metadata_path.read_text(encoding="utf-8")))
+            updated = ProjectMetadata(
+                project_id=metadata.project_id, title=metadata.title,
+                original_filename=metadata.original_filename, created_at=metadata.created_at,
+                updated_at=_utc_now(), has_code=metadata.has_code,
+                has_learning_report=metadata.has_learning_report, has_peer_review=True,
+            )
+            _atomic_write_json(metadata_path, updated.__dict__)
+        except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise StorageError("项目元数据已损坏，无法保存模拟评审状态。") from exc
+
+    def load_peer_review(self, project_id: str) -> PeerReviewReport | None:
+        project_dir = self._require_project_dir(project_id)
+        path = project_dir / "peer-review.json"
+        if not path.exists():
+            return None
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            # Migrate the former three-way recommendation scale to the new
+            # five-way scale while keeping existing projects readable.
+            legacy_decisions = {"ACCEPT": "WEAK_ACCEPT", "REJECT": "WEAK_REJECT"}
+            if isinstance(payload, dict) and payload.get("decision") in legacy_decisions:
+                payload["decision"] = legacy_decisions[payload["decision"]]
+            review = PeerReviewReport.model_validate(payload)
+            normalized = _sanitize_peer_review_evidence(review)
+            normalized = normalized.model_copy(update={
+                "major_concerns": _normalize_review_concerns(normalized.major_concerns),
+                "minor_concerns": _normalize_review_concerns(normalized.minor_concerns),
+            })
+            normalized = _normalize_review_rebuttals(normalized)
+            # Best-effort migration for reports generated before deterministic
+            # scoring. Keep legacy records readable if their dimensions are
+            # incomplete or use unknown names.
+            if not normalized.score_breakdown:
+                try:
+                    normalized = recalculate_peer_review(normalized)
+                except ValueError:
+                    normalized = normalized.model_copy(update={
+                        "parse_warnings": list(dict.fromkeys([
+                            *normalized.parse_warnings,
+                            "历史评审缺少可识别的维度评分，暂未重算系统结论。",
+                        ]))
+                    })
+            if normalized != review:
+                _atomic_write(path, normalized.model_dump_json(indent=2).encode("utf-8"))
+            return normalized
+        except (OSError, TypeError, ValueError):
+            raise StorageError("模拟评审记录不存在、已损坏或版本不受支持。")
+
+    def save_peer_review_revision(
+        self,
+        project_id: str,
+        *,
+        pdf_bytes: bytes,
+        original_filename: str,
+        paper: ParsedPaper,
+        diff: RevisionDiff,
+        report: PeerReviewReport,
+        resolved_concerns: Sequence[str] = (),
+        remaining_concerns: Sequence[str] = (),
+        resolved_issue_ids: Sequence[str] = (),
+        remaining_issue_ids: Sequence[str] = (),
+        new_concerns: Sequence[str] = (),
+        ambiguous_matches: Sequence[str] = (),
+    ) -> PeerReviewRevision:
+        project_dir = self._require_project_dir(project_id)
+        revision_id = _record_id("peer-review-revision")
+        revision = PeerReviewRevision(
+            revision_id=revision_id,
+            created_at=_utc_now(),
+            original_filename=original_filename,
+            paper_title=paper.title,
+            page_count=paper.page_count,
+            diff=diff,
+            report=report,
+            resolved_concerns=list(resolved_concerns),
+            remaining_concerns=list(remaining_concerns),
+            resolved_issue_ids=list(resolved_issue_ids),
+            remaining_issue_ids=list(remaining_issue_ids),
+            new_concerns=list(new_concerns),
+            ambiguous_matches=list(ambiguous_matches),
+        )
+        revisions_dir = project_dir / "peer-review-revisions"
+        revisions_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write(revisions_dir / f"{revision_id}.pdf", pdf_bytes)
+        _atomic_write(revisions_dir / f"{revision_id}.index.json", paper.model_dump_json(indent=2).encode("utf-8"))
+        _atomic_write(revisions_dir / f"{revision_id}.json", revision.model_dump_json(indent=2).encode("utf-8"))
+        return revision
+
+    def list_peer_review_revisions(self, project_id: str) -> list[PeerReviewRevision]:
+        self._require_project_dir(project_id)
+        revisions_dir = self._project_dir(project_id) / "peer-review-revisions"
+        if not revisions_dir.exists():
+            return []
+        revisions: list[PeerReviewRevision] = []
+        for path in revisions_dir.glob("peer-review-revision-*.json"):
+            try:
+                revisions.append(PeerReviewRevision.model_validate_json(path.read_text(encoding="utf-8")))
+            except (OSError, TypeError, ValueError):
+                continue
+        return sorted(revisions, key=lambda item: item.created_at, reverse=True)
+
+    def load_peer_review_revision_pdf(self, project_id: str, revision_id: str) -> bytes:
+        """Load a stored revision PDF after validating the revision identifier."""
+        self._require_project_dir(project_id)
+        _validate_record_id(revision_id, "peer-review-revision", "修改稿版本")
+        path = self._project_dir(project_id) / "peer-review-revisions" / f"{revision_id}.pdf"
+        try:
+            return path.read_bytes()
+        except OSError as exc:
+            raise StorageError("修改稿文件不存在或无法读取。") from exc
+
+    def update_peer_review_revision(self, project_id: str, revision: PeerReviewRevision) -> None:
+        self._require_project_dir(project_id)
+        _validate_record_id(revision.revision_id, "peer-review-revision", "修改稿版本")
+        _atomic_write(
+            self._project_dir(project_id) / "peer-review-revisions" / f"{revision.revision_id}.json",
+            revision.model_dump_json(indent=2).encode("utf-8"),
+        )
+
+    def create_peer_review_job(
+        self,
+        project_id: str,
+        *,
+        runtime: AuditRuntimeSnapshot | dict[str, Any],
+        venue: PeerReviewVenue = PeerReviewVenue.GENERAL,
+        rubric_version: str | None = None,
+        rubric_weights: dict[str, float] | None = None,
+    ) -> PeerReviewJob:
+        self._require_project_dir(project_id)
+        for existing in self.list_peer_review_jobs(project_id):
+            if existing.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
+                raise StorageError("当前论文已有模拟评审任务正在执行。")
+        job = PeerReviewJob(
+            schema_version=PEER_REVIEW_JOB_SCHEMA_VERSION,
+            job_id=_record_id("peer-review-job"), project_id=project_id,
+            created_at=_utc_now(), runtime=AuditRuntimeSnapshot.model_validate(runtime),
+            venue=venue,
+            rubric_version=rubric_version or f"{venue.value}@1.0",
+            rubric_weights=rubric_weights or {},
+        )
+        jobs_dir = self._project_dir(project_id) / "peer-review-jobs"
+        jobs_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write(jobs_dir / f"{job.job_id}.json", job.model_dump_json(indent=2).encode("utf-8"))
+        return job
+
+    def load_peer_review_job(self, project_id: str, job_id: str) -> PeerReviewJob:
+        self._require_project_dir(project_id)
+        _validate_record_id(job_id, "peer-review-job", "模拟评审任务")
+        try:
+            job = PeerReviewJob.model_validate_json(
+                (self._project_dir(project_id) / "peer-review-jobs" / f"{job_id}.json").read_text(encoding="utf-8")
+            )
+            if job.schema_version != PEER_REVIEW_JOB_SCHEMA_VERSION or job.project_id != project_id or job.job_id != job_id:
+                raise ValueError("peer review job identity mismatch")
+            return job
+        except (OSError, TypeError, ValueError) as exc:
+            raise StorageError("模拟评审任务不存在、已损坏或版本不受支持。") from exc
+
+    def list_peer_review_jobs(self, project_id: str) -> list[PeerReviewJob]:
+        self._require_project_dir(project_id)
+        jobs_dir = self._project_dir(project_id) / "peer-review-jobs"
+        if not jobs_dir.exists():
+            return []
+        jobs: list[PeerReviewJob] = []
+        for path in jobs_dir.glob("peer-review-job-*.json"):
+            try:
+                job = PeerReviewJob.model_validate_json(path.read_text(encoding="utf-8"))
+                _validate_record_id(job.job_id, "peer-review-job", "模拟评审任务")
+                if job.schema_version == PEER_REVIEW_JOB_SCHEMA_VERSION and job.project_id == project_id:
+                    jobs.append(job)
+            except (OSError, TypeError, ValueError):
+                continue
+        return sorted(jobs, key=lambda item: item.created_at, reverse=True)
+
+    def update_peer_review_job(self, project_id: str, job: PeerReviewJob) -> None:
+        self._require_project_dir(project_id)
+        _validate_record_id(job.job_id, "peer-review-job", "模拟评审任务")
+        if job.project_id != project_id:
+            raise StorageError("模拟评审任务不属于当前项目。")
+        _atomic_write(self._project_dir(project_id) / "peer-review-jobs" / f"{job.job_id}.json", job.model_dump_json(indent=2).encode("utf-8"))
+
+    def mark_interrupted_peer_review_jobs(self) -> int:
+        interrupted = 0
+        for metadata in self.list_projects():
+            for job in self.list_peer_review_jobs(metadata.project_id):
+                if job.status not in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
+                    continue
+                self.update_peer_review_job(metadata.project_id, job.model_copy(update={
+                    "status": AuditJobStatus.INTERRUPTED, "completed_at": _utc_now(),
+                    "stage": "任务已中断", "error": "应用在评审完成前退出，请重新执行。",
+                }))
+                interrupted += 1
+        return interrupted
+
     def list_projects(self) -> list[ProjectMetadata]:
         projects: list[ProjectMetadata] = []
         for metadata_path in self.projects_dir.glob("*/metadata.json"):
@@ -617,6 +925,8 @@ class ProjectStore:
             raise StorageError("当前论文仍有审计任务正在执行，完成后才能删除。")
         if any(job.status in active_statuses for job in self.list_learning_jobs(project_id)):
             raise StorageError("当前论文仍在生成讲解，完成后才能删除。")
+        if any(job.status in active_statuses for job in self.list_peer_review_jobs(project_id)):
+            raise StorageError("当前论文仍在生成模拟评审，完成后才能删除。")
 
         projects_root = self.projects_dir.resolve()
         target = project_dir.resolve()
@@ -665,6 +975,7 @@ class ProjectStore:
                 updated_at=_utc_now(),
                 has_code=metadata.has_code,
                 has_learning_report=metadata.has_learning_report,
+                has_peer_review=metadata.has_peer_review,
             )
             _atomic_write_json(metadata_path, updated.__dict__)
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:

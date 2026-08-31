@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime
+from difflib import SequenceMatcher
 from hashlib import sha256
 from html import escape
 
@@ -14,17 +15,26 @@ from paperaudit.code_parser import CodeParseError, parse_code_zip
 from paperaudit.code_service import CodeLearningService
 from paperaudit.hy3_client import Hy3ConfigurationError, Hy3ResponseError
 from paperaudit.learning_jobs import LearningJobManager
+from paperaudit.peer_review_jobs import PeerReviewJobManager
 from paperaudit.models import (
     AuditJob,
     AuditJobStatus,
     AuditRuntimeSnapshot,
     ClaimCategory,
     ParsedCodebase,
+    PeerReviewJob,
+    PeerReviewVenue,
+    RelatedWorkReference,
 )
 from paperaudit.pdf_parser import PDFParseError
 from paperaudit.report_input import parse_report_file
 from paperaudit.reporting import render_markdown
-from paperaudit.service import AuditService
+from paperaudit.service import (
+    AuditService,
+    build_revision_diff,
+    peer_review_rubric_metadata,
+    recalculate_peer_review,
+)
 from paperaudit.storage import (
     ProjectStore,
     StorageError,
@@ -40,6 +50,7 @@ from paperaudit.ui.learning import (
     render_report_audit_dialog,
 )
 from paperaudit.ui.pdf_selector import get_pdf_page_count, render_selectable_pdf_page
+from paperaudit.ui.peer_review import render_peer_review
 from paperaudit.ui.styles import inject_custom_styles
 
 
@@ -83,6 +94,11 @@ def _get_audit_job_manager(storage_root: str) -> AuditJobManager:
 @st.cache_resource(show_spinner=False)
 def _get_learning_job_manager(storage_root: str) -> LearningJobManager:
     return LearningJobManager(ProjectStore(storage_root))
+
+
+@st.cache_resource(show_spinner=False)
+def _get_peer_review_job_manager(storage_root: str) -> PeerReviewJobManager:
+    return PeerReviewJobManager(ProjectStore(storage_root))
 
 
 @st.dialog("PDF 原文预览", width="large")
@@ -269,6 +285,12 @@ def _restore_learning_project(store: ProjectStore, project_id: str) -> None:
         else None
     )
     st.session_state["learning_report"] = restored_report
+    saved_review = store.load_peer_review(project_id)
+    st.session_state["peer_review"] = (
+        saved_review.model_copy(update={"paper_title": restored_title})
+        if saved_review is not None
+        else None
+    )
     st.session_state["learning_pdf_bytes"] = saved.pdf_bytes
     st.session_state["learning_paper"] = restored_paper
     st.session_state["parsed_codebase"] = saved.codebase
@@ -280,6 +302,8 @@ def _restore_learning_project(store: ProjectStore, project_id: str) -> None:
     st.session_state["active_project_id"] = saved.metadata.project_id
     if saved.report is not None:
         st.session_state["result_mode"] = "learning"
+    elif st.session_state.get("peer_review") is not None:
+        st.session_state["result_mode"] = "peer_review"
     else:
         records = store.list_audit_runs(saved.metadata.project_id)
         if records:
@@ -297,6 +321,7 @@ def _restore_learning_project(store: ProjectStore, project_id: str) -> None:
 
 _PROJECT_SESSION_KEYS = (
     "learning_report",
+    "peer_review",
     "learning_pdf_bytes",
     "learning_paper",
     "parsed_codebase",
@@ -308,6 +333,7 @@ _PROJECT_SESSION_KEYS = (
     "audit_submit_notice",
     "launch_audit_job_id",
     "learning_job_id",
+    "peer_review_job_id",
     "result_mode",
     "learning_selected_evidence",
     "learning_evidence_group",
@@ -404,6 +430,7 @@ try:
     project_store = ProjectStore(storage_settings.storage_root)
     audit_job_manager = _get_audit_job_manager(str(storage_settings.storage_root))
     learning_job_manager = _get_learning_job_manager(str(storage_settings.storage_root))
+    peer_review_job_manager = _get_peer_review_job_manager(str(storage_settings.storage_root))
 except StorageError as exc:
     _render_storage_setup(str(exc))
     st.stop()
@@ -518,10 +545,12 @@ with st.sidebar:
                     _confirm_project_deletion(metadata.project_id, metadata.title)
                 if metadata.has_code:
                     kind_badge = '<span class="pa-project-chip chip-code">💻 论文与代码</span>'
+                elif metadata.has_peer_review:
+                    kind_badge = '<span class="pa-project-chip chip-audit">📝 投稿评审</span>'
                 elif metadata.has_learning_report:
                     kind_badge = '<span class="pa-project-chip chip-paper">📄 论文精读</span>'
                 else:
-                    kind_badge = '<span class="pa-project-chip chip-audit">🔍 报告审计</span>'
+                    kind_badge = '<span class="pa-project-chip chip-audit">🔍 论文检查</span>'
 
                 marker_class = " is-active" if is_active else ""
                 st.markdown(
@@ -595,6 +624,14 @@ with st.sidebar:
             label_visibility="collapsed",
             help="每次送入模型进行事实核验的论断数量",
         )
+
+    if st.button(
+        "清除读取缓存",
+        width="stretch",
+        help="清除 PDF 页面和代码解析的内存缓存，不删除项目文件或后台任务。",
+    ):
+        st.cache_data.clear()
+        st.success("读取缓存已清除。")
 
     api_ready = bool(api_base.strip() and api_key.strip() and model.strip())
     if api_ready:
@@ -726,6 +763,151 @@ def _submit_active_project_learning() -> None:
     st.session_state["learning_job_id"] = job.job_id
 
 
+def _submit_active_project_peer_review() -> PeerReviewJob:
+    project_id = st.session_state.get("active_project_id")
+    if not project_id:
+        raise StorageError("请先打开一个已保存的论文项目。")
+    if not active_settings.is_configured:
+        raise ValueError("请先配置并连接 Hy3 API。")
+    runtime = AuditRuntimeSnapshot(
+        model=active_settings.model,
+        reasoning_effort=active_settings.reasoning_effort,
+        retrieval_top_k=active_settings.retrieval_top_k,
+        judge_batch_size=active_settings.judge_batch_size,
+    )
+    venue_value = st.session_state.get("peer_review_venue", PeerReviewVenue.GENERAL.value)
+    try:
+        venue = PeerReviewVenue(str(venue_value))
+    except ValueError:
+        venue = PeerReviewVenue.GENERAL
+    rubric_weights = st.session_state.get("peer_review_rubric_weights", {})
+    rubric_version, _, _ = peer_review_rubric_metadata(venue, rubric_weights)
+    job = project_store.create_peer_review_job(
+        str(project_id), runtime=runtime, venue=venue,
+        rubric_version=rubric_version, rubric_weights=rubric_weights
+    )
+    peer_review_job_manager.submit(str(project_id), job.job_id, active_settings)
+    st.session_state["peer_review_job_id"] = job.job_id
+    return job
+
+
+def _submit_active_project_revision(pdf_bytes: bytes, filename: str):
+    project_id = st.session_state.get("active_project_id")
+    if not project_id:
+        raise StorageError("请先打开一个已保存的论文项目。")
+    if not active_settings.is_configured:
+        raise ValueError("请先配置并连接 Hy3 API。")
+    saved = project_store.load_learning_project(str(project_id))
+    previous = project_store.load_peer_review(str(project_id))
+    if previous is None:
+        raise StorageError("当前项目没有基准评审记录。")
+    revised_paper = parse_pdf(pdf_bytes)
+    diff = build_revision_diff(saved.paper, revised_paper)
+    revised_report = AuditService(active_settings).generate_peer_review(
+        revised_paper,
+        venue=previous.venue,
+        rubric_weights=previous.rubric_weights,
+    )
+    old_items = [*previous.major_concerns, *previous.minor_concerns]
+    new_items = [*revised_report.major_concerns, *revised_report.minor_concerns]
+
+    def match_score(old_item, new_item) -> float:
+        title_score = SequenceMatcher(
+            None, " ".join(old_item.title.casefold().split()), " ".join(new_item.title.casefold().split())
+        ).ratio()
+        old_evidence = {anchor.chunk_id for anchor in old_item.evidence}
+        new_evidence = {anchor.chunk_id for anchor in new_item.evidence}
+        evidence_score = len(old_evidence & new_evidence) / max(len(old_evidence), 1)
+        category_score = 0.15 if old_item.category == new_item.category else 0.0
+        return 0.65 * title_score + 0.2 * evidence_score + category_score
+
+    matched_new: dict[str, object] = {}
+    used_new_ids: set[int] = set()
+    ambiguous_matches: list[str] = []
+    for old_item in old_items:
+        candidates = sorted(
+            ((match_score(old_item, item), index, item)
+             for index, item in enumerate(new_items)
+             if index not in used_new_ids),
+            key=lambda pair: pair[0], reverse=True,
+        )
+        if candidates and candidates[0][0] >= 0.48:
+            _, new_index, new_item = candidates[0]
+            matched_new[old_item.issue_id or old_item.title] = new_item
+            used_new_ids.add(new_index)
+            if len(candidates) > 1 and candidates[1][0] >= 0.48 and candidates[0][0] - candidates[1][0] < 0.08:
+                ambiguous_matches.append(old_item.title)
+    resolved_concerns = sorted(item.title for item in old_items if (item.issue_id or item.title) not in matched_new)
+    remaining_concerns = sorted(item.title for item in old_items if (item.issue_id or item.title) in matched_new)
+    old_by_title = {item.title: item for item in old_items}
+    resolved_issue_ids = sorted(
+        old_by_title[title].issue_id for title in resolved_concerns if old_by_title[title].issue_id
+    )
+    remaining_issue_ids = sorted(
+        old_by_title[title].issue_id for title in remaining_concerns if old_by_title[title].issue_id
+    )
+    matched_new_ids = {id(item) for item in matched_new.values()}
+    new_concerns = sorted(item.title for item in new_items if id(item) not in matched_new_ids)
+    return project_store.save_peer_review_revision(
+        str(project_id),
+        pdf_bytes=pdf_bytes,
+        original_filename=filename,
+        paper=revised_paper,
+        diff=diff,
+        report=revised_report,
+        resolved_concerns=resolved_concerns,
+        remaining_concerns=remaining_concerns,
+        resolved_issue_ids=resolved_issue_ids,
+        remaining_issue_ids=remaining_issue_ids,
+        new_concerns=new_concerns,
+        ambiguous_matches=sorted(set(ambiguous_matches)),
+    )
+
+
+def _load_active_project_revisions():
+    project_id = st.session_state.get("active_project_id")
+    return project_store.list_peer_review_revisions(str(project_id)) if project_id else []
+
+
+def _save_active_peer_review(report):
+    project_id = st.session_state.get("active_project_id")
+    if not project_id:
+        raise StorageError("请先打开一个已保存的论文项目。")
+    # Human concern edits must update the system-computed score and decision.
+    report = recalculate_peer_review(report)
+    project_store.save_peer_review(str(project_id), report)
+    st.session_state["peer_review"] = report
+
+
+def _compare_active_related_work(references: list[RelatedWorkReference]):
+    paper = st.session_state.get("learning_paper")
+    if paper is None:
+        raise StorageError("当前没有已加载的论文。")
+    if not active_settings.is_configured:
+        raise ValueError("请先配置并连接 Hy3 API。")
+    comparison = AuditService(active_settings).compare_related_work(paper, references)
+    report = project_store.load_peer_review(str(st.session_state.get("active_project_id")))
+    if report is None:
+        raise StorageError("当前项目没有基准评审记录。")
+    updated = report.model_copy(update={"related_work_comparison": comparison})
+    _save_active_peer_review(updated)
+    return comparison
+
+
+def _load_active_project_revision_pdf(revision_id: str) -> bytes:
+    project_id = st.session_state.get("active_project_id")
+    if not project_id:
+        raise StorageError("请先打开一个已保存的论文项目。")
+    return project_store.load_peer_review_revision_pdf(str(project_id), revision_id)
+
+
+def _save_active_project_revision(revision):
+    project_id = st.session_state.get("active_project_id")
+    if not project_id:
+        raise StorageError("当前没有已打开的论文项目。")
+    project_store.update_peer_review_revision(str(project_id), revision)
+
+
 def _load_active_audit_jobs() -> list[AuditJob]:
     project_id = st.session_state.get("active_project_id")
     return project_store.list_audit_jobs(str(project_id)) if project_id else []
@@ -791,7 +973,7 @@ if st.session_state.get("result_mode") == "audit_project":
         )
         st.session_state["learning_job_id"] = learning_job.job_id
     title_col, learning_col, action_col, history_col, export_col = st.columns(
-        [2.7, 1, 1, 1, 1], vertical_alignment="center"
+        [3.3, 1.15, 1.15, 1.05, 1.05], vertical_alignment="center"
     )
     with title_col:
         st.markdown(f"### {escape(str(project_title))}")
@@ -808,16 +990,16 @@ if st.session_state.get("result_mode") == "audit_project":
     )
     if learning_succeeded:
         if learning_col.button(
-            "查看论文讲解",
+            "查看讲解",
             type="primary",
             width="stretch",
         ):
             _restore_learning_project(project_store, str(project_id))
             st.rerun()
     elif learning_active:
-        learning_col.button("正在生成讲解", disabled=True, width="stretch")
+        learning_col.button("讲解生成中", disabled=True, width="stretch")
     elif learning_col.button(
-        "生成论文讲解",
+        "生成讲解",
         type="primary",
         width="stretch",
         disabled=not api_ready or not project_id,
@@ -829,13 +1011,13 @@ if st.session_state.get("result_mode") == "audit_project":
         else:
             st.rerun()
     if action_col.button(
-        "审计另一份报告",
+        "审计报告",
         type="primary",
         width="stretch",
         disabled=not api_ready or not project_id,
     ):
         render_report_audit_dialog(_submit_active_project_audit)
-    with history_col.popover("审计记录", width="stretch"):
+    with history_col.popover("记录", width="stretch"):
         records = _load_active_audit_records() if project_id else []
         active_jobs = [
             job
@@ -866,7 +1048,7 @@ if st.session_state.get("result_mode") == "audit_project":
                 st.rerun()
     current_export_run = st.session_state.get("audit_run")
     export_col.download_button(
-        "导出报告",
+        "导出",
         render_markdown(current_export_run) if current_export_run is not None else "",
         file_name="paperaudit-report.md",
         mime="text/markdown",
@@ -922,7 +1104,20 @@ if st.session_state.get("result_mode") == "audit_project":
     audit_run = st.session_state.get("audit_run")
     if audit_run is None:
         if not active_jobs:
-            st.info("该论文尚无已完成的审计记录，可以上传第一份报告开始审计。")
+            empty_pdf = st.session_state.get("learning_pdf_bytes")
+            empty_paper = st.session_state.get("learning_paper")
+            if empty_pdf and empty_paper:
+                preview_col, empty_col = st.columns([1.65, 1], gap="large")
+                with preview_col:
+                    st.markdown("### 论文原文")
+                    _render_uploaded_pdf_preview(empty_pdf, st.session_state.get("project_original_filename") or "paper.pdf")
+                with empty_col:
+                    st.markdown("### 开始论文检查")
+                    st.info("该论文还没有审计记录。上传一份解读报告后，系统会逐条核验其中的事实、数字与结论。")
+                    if st.button("上传第一份报告", type="primary", width="stretch", key="empty_start_audit"):
+                        render_report_audit_dialog(_submit_active_project_audit)
+            else:
+                st.info("该论文尚无已完成的审计记录，可以上传第一份报告开始审计。")
     else:
         render_audit_results(
             audit_run,
@@ -1003,8 +1198,64 @@ if st.session_state.get("result_mode") == "learning":
             on_open_audit=(
                 _open_active_audit if active_project_id else None
             ),
+            submit_peer_review=(
+                _submit_active_project_peer_review
+                if api_ready and active_project_id
+                else None
+            ),
         )
         st.stop()
+
+if st.session_state.get("result_mode") == "peer_review":
+    project_id = st.session_state.get("active_project_id")
+    peer_review = st.session_state.get("peer_review")
+    review_pdf_bytes = st.session_state.get("learning_pdf_bytes")
+    peer_job = None
+    if project_id:
+        peer_jobs = project_store.list_peer_review_jobs(str(project_id))
+        peer_job_id = st.session_state.get("peer_review_job_id")
+        peer_job = next((job for job in peer_jobs if job.job_id == peer_job_id), None)
+        if peer_job is None and peer_jobs:
+            peer_job = peer_jobs[0]
+            st.session_state["peer_review_job_id"] = peer_job.job_id
+        if peer_review is None:
+            peer_review = project_store.load_peer_review(str(project_id))
+            st.session_state["peer_review"] = peer_review
+    if peer_review is not None:
+        st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
+        render_peer_review(
+            peer_review,
+            review_pdf_bytes,
+            on_submit_revision=_submit_active_project_revision,
+            on_update_report=_save_active_peer_review,
+            on_compare_related_work=_compare_active_related_work,
+            load_revisions=_load_active_project_revisions,
+            load_revision_pdf=_load_active_project_revision_pdf,
+            on_update_revision=_save_active_project_revision,
+        )
+    elif peer_job is not None and peer_job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
+        st.markdown("## 模拟投稿评审")
+        st.info("评审正在后台进行，完成后会自动保存到左侧论文项目。")
+        st.progress(peer_job.progress, text=peer_job.stage)
+        if st.button("刷新评审状态", type="primary", key="peer_review_refresh"):
+            st.rerun()
+    elif peer_job is not None and peer_job.status in {AuditJobStatus.FAILED, AuditJobStatus.INTERRUPTED}:
+        st.error(peer_job.error or "模拟评审任务未能完成。")
+        if st.button("重新开始评审", type="primary", key="peer_review_retry"):
+            try:
+                # Retry with the exact rubric snapshot used by the failed job;
+                # changing the sidebar controls must not silently change the
+                # meaning of a retry.
+                st.session_state["peer_review_venue"] = peer_job.venue.value
+                st.session_state["peer_review_rubric_weights"] = dict(peer_job.rubric_weights)
+                _submit_active_project_peer_review()
+            except (StorageError, ValueError) as exc:
+                st.error(str(exc))
+            else:
+                st.rerun()
+    else:
+        st.info("当前项目还没有模拟评审记录。")
+    st.stop()
 
 report_text = ""
 report_source_label = "粘贴报告"
@@ -1019,7 +1270,7 @@ progress_bar = None
 upload_has_value = st.session_state.get("paper_pdf_upload") is not None
 launch_shell_key = "launch_shell_ready" if upload_has_value else "launch_shell_empty"
 with st.container(key=launch_shell_key):
-    if st.session_state.get("launch_mode") not in ("生成论文讲解", "审计已有报告"):
+    if st.session_state.get("launch_mode") not in ("生成论文讲解", "审计已有报告", "模拟投稿评审"):
         st.session_state["launch_mode"] = "生成论文讲解"
     launch_title_col, launch_mode_col = st.columns([1.55, 1], vertical_alignment="center")
     with launch_title_col:
@@ -1027,13 +1278,17 @@ with st.container(key=launch_shell_key):
     with launch_mode_col:
         mode_label = st.segmented_control(
             "选择工作模式",
-            ["生成论文讲解", "审计已有报告"],
+            ["生成论文讲解", "审计已有报告", "模拟投稿评审"],
             key="launch_mode",
             required=True,
             label_visibility="collapsed",
             width="stretch",
         )
-    mode = "learn" if mode_label == "生成论文讲解" else "audit_existing"
+    mode = (
+        "learn" if mode_label == "生成论文讲解"
+        else "peer_review" if mode_label == "模拟投稿评审"
+        else "audit_existing"
+    )
 
     if not upload_has_value:
         with st.container(key="launch_pdf_upload_empty"):
@@ -1074,11 +1329,13 @@ with st.container(key=launch_shell_key):
                 st.markdown(
                     "标准讲解包含研究问题、核心贡献、方法、实验、结果、局限与关键术语。"
                 )
+                st.caption("隐私提示：生成讲解会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
                 st.caption("上传论文后可继续关联开源代码 ZIP。")
-            else:
+            elif mode == "audit_existing":
                 st.markdown(
                     "上传论文后，可粘贴中文报告或上传 `.txt` / `.md` / `.pptx` 文件。"
                 )
+                st.caption("隐私提示：报告审计会将论文文本和你提供的报告发送至当前配置的 Hy3 模型服务。")
                 st.caption("审计会逐条检索论文原文并给出证据定位。")
         st.markdown(
             '<div class="pa-launch-hint">上传 PDF 后进入论文准备页</div>',
@@ -1169,6 +1426,19 @@ with st.container(key=launch_shell_key):
                             for category, label in CATEGORY_LABELS.items()
                             if label in selected_labels
                         ]
+                elif mode == "peer_review":
+                    st.markdown(
+                        '<div class="pa-setup-title">评审模式</div>'
+                        '<div class="pa-setup-mode"><strong>通用 AI 会议模拟评审</strong>'
+                        '<span>贡献 · 方法 · 实验 · 清晰度 · 可复现性 · 投稿建议</span></div>',
+                        unsafe_allow_html=True,
+                    )
+                    st.caption("结果为 Strong Accept / Weak Accept / Borderline / Weak Reject / Strong Reject 的预审建议，不代表真实录用决定。")
+                    st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
+                    privacy_ack = st.checkbox(
+                        "我确认可以将该论文发送至当前 Hy3 服务",
+                        key="peer-review-privacy-ack",
+                    )
                 else:
                     st.markdown(
                         '<div class="pa-setup-title">讲解模式</div>'
@@ -1201,8 +1471,10 @@ with st.container(key=launch_shell_key):
 
                 can_run = bool(
                     api_ready
-                    and (mode == "learn" or (scope and report_text.strip()))
+                    and (mode in {"learn", "peer_review"} or (scope and report_text.strip()))
                 )
+                if mode == "peer_review" and not st.session_state.get("peer-review-privacy-ack", False):
+                    can_run = False
                 launch_job = None
                 launch_job_id = st.session_state.get("launch_audit_job_id")
                 active_launch_project_id = st.session_state.get("active_project_id")
@@ -1223,6 +1495,8 @@ with st.container(key=launch_shell_key):
                 tips = []
                 if not api_ready:
                     tips.append("请先在侧栏配置 API")
+                if mode == "peer_review" and not st.session_state.get("peer-review-privacy-ack", False):
+                    tips.append("请先确认论文数据发送范围")
                 if mode == "audit_existing" and not report_text.strip():
                     tips.append("请提供中文报告")
                 if tips:
@@ -1266,7 +1540,11 @@ with st.container(key=launch_shell_key):
                             st.session_state.pop("launch_audit_job_id", None)
                             st.rerun()
                     else:
-                        button_label = "生成论文讲解 →" if mode == "learn" else "开始审计 →"
+                        button_label = (
+                            "生成论文讲解 →" if mode == "learn"
+                            else "开始模拟评审 →" if mode == "peer_review"
+                            else "开始审计 →"
+                        )
                         run_clicked = st.button(
                             button_label,
                             type="primary",
@@ -1366,6 +1644,24 @@ if run_clicked and pdf_file is not None:
             status.update(label="论文讲解生成完成", state="complete", expanded=False)
             progress_bar.progress(1.0, text="讲解生成完成")
             st.rerun()
+        elif mode == "peer_review":
+            progress_bar.progress(0.3, text="正在保存论文并创建后台评审任务")
+            metadata = project_store.save_paper_project(pdf_bytes, pdf_file.name, paper)
+            st.session_state["active_project_id"] = metadata.project_id
+            st.session_state["project_original_filename"] = metadata.original_filename
+            st.session_state["learning_pdf_bytes"] = pdf_bytes
+            st.session_state["learning_paper"] = paper
+            st.session_state["peer_review"] = None
+            job = _submit_active_project_peer_review()
+            st.session_state["peer_review_job_id"] = job.job_id
+            st.session_state["learning_report"] = None
+            st.session_state["parsed_codebase"] = None
+            st.session_state["result_mode"] = "peer_review"
+            st.session_state.pop("project_save_error", None)
+            st.query_params["project"] = metadata.project_id
+            status.update(label="已在后台开始模拟评审", state="complete", expanded=False)
+            progress_bar.progress(1.0, text="评审已提交，页面可继续使用")
+            st.rerun()
         else:
             progress_bar.progress(0.25, text="正在保存论文并创建后台任务")
             metadata = project_store.save_paper_project(
@@ -1417,6 +1713,11 @@ if result_mode == "learning":
             qa_service=qa_service,
             codebase=parsed_codebase,
             code_service=code_service,
+            submit_peer_review=(
+                _submit_active_project_peer_review
+                if api_ready and active_project_id
+                else None
+            ),
         )
 
 if result_mode == "audit":
