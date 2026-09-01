@@ -85,6 +85,13 @@ _PEER_DECISION_MENTION_PATTERN = re.compile(
     r"(?:（按当前评分标准重算）)?",
     re.IGNORECASE,
 )
+_PEER_DECISION_ALIASES = {
+    ReviewDecision.STRONG_ACCEPT: ("STRONG_ACCEPT", "Strong Accept", "强接收"),
+    ReviewDecision.WEAK_ACCEPT: ("WEAK_ACCEPT", "Weak Accept", "弱接收"),
+    ReviewDecision.BORDERLINE: ("BORDERLINE", "Borderline", "边缘"),
+    ReviewDecision.WEAK_REJECT: ("WEAK_REJECT", "Weak Reject", "弱拒稿"),
+    ReviewDecision.STRONG_REJECT: ("STRONG_REJECT", "Strong Reject", "强拒稿"),
+}
 
 PEER_REVIEW_SCORE_CALCULATION_VERSION = "weighted-v1"
 PEER_REVIEW_RUBRIC_CATALOG_VERSION = "catalog-v1"
@@ -229,6 +236,26 @@ def _synchronize_peer_review_decision_text(text: str, decision: ReviewDecision) 
     return _PEER_DECISION_MENTION_PATTERN.sub(replace, text)
 
 
+def _synchronize_adjacent_decision_explanation(
+    text: str, decision: ReviewDecision
+) -> str:
+    """Discard an adjacent-band explanation that explicitly rejects the final band."""
+    if not text:
+        return text
+    aliases = _PEER_DECISION_ALIASES[decision]
+    negative = r"(?:不建议|不推荐|不应|不宜|不是|并非|not\s+(?:a\s+)?)"
+    if any(
+        re.search(negative + r"\s*" + re.escape(alias), text, flags=re.IGNORECASE)
+        for alias in aliases
+    ):
+        label = _PEER_DECISION_TEXT[decision]
+        return (
+            f"当前六维评分按所选评审标准重算为 {label}；原始相邻档位说明与重算结果不一致，"
+            "请结合各维度评分和已列原文证据进行人工复核。"
+        )
+    return text
+
+
 def recalculate_peer_review(report: PeerReviewReport, rubric_weights: dict[str, float] | None = None) -> PeerReviewReport:
     """Recompute the system score after human concern edits or legacy loading."""
     weights = normalize_peer_review_weights(rubric_weights or report.rubric_weights or None)
@@ -240,6 +267,9 @@ def recalculate_peer_review(report: PeerReviewReport, rubric_weights: dict[str, 
         "summary": _synchronize_peer_review_decision_text(report.summary, decision),
         "decision_rationale": _synchronize_peer_review_decision_text(
             report.decision_rationale, decision
+        ),
+        "why_not_adjacent": _synchronize_adjacent_decision_explanation(
+            report.why_not_adjacent, decision
         ),
         "rubric_weights": weights,
         "score_breakdown": breakdown,
