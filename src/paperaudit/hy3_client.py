@@ -247,6 +247,9 @@ Dimension weights (only use these to prioritize discussion, not to override evid
 All narrative fields (summary, rationales, concerns, questions, and priorities) must be written in
 concise Chinese. Use these exact Chinese dimension names: 研究价值、创新性、技术可靠性、实验充分性、
 表达清晰度、可复现性.
+The summary and decision_rationale must explain the evidence-based judgment without repeating any
+five-level decision label. Return the recommendation only in the structured decision field; the
+application deterministically recalculates the final label from the six dimension scores.
 
 Decision rules:
 - STRONG_ACCEPT: unusually strong, well-supported work with no material unresolved concern.
