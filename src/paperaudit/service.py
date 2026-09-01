@@ -69,6 +69,23 @@ _PEER_SCORE_BANDS = {
     ReviewDecision.STRONG_REJECT: (1.0, 2.0),
 }
 
+_PEER_DECISION_TEXT = {
+    ReviewDecision.STRONG_ACCEPT: "Strong Accept",
+    ReviewDecision.WEAK_ACCEPT: "Weak Accept",
+    ReviewDecision.BORDERLINE: "Borderline",
+    ReviewDecision.WEAK_REJECT: "Weak Reject",
+    ReviewDecision.STRONG_REJECT: "Strong Reject",
+}
+_PEER_DECISION_MENTION_PATTERN = re.compile(
+    r"(?P<prefix>(?:最终|当前|综合|总体|投稿|评审|模拟|初步|因此|故|系统|\s)*"
+    r"(?:建议|结论|推荐)(?:\s*(?:为|是|：|:|→|->))?\s*)"
+    r"(?P<label>STRONG[ _]?ACCEPT|WEAK[ _]?ACCEPT|BORDERLINE|"
+    r"WEAK[ _]?REJECT|STRONG[ _]?REJECT|Strong\s*Accept|Weak\s*Accept|"
+    r"Borderline|Weak\s*Reject|Strong\s*Reject|强接收|弱接收|边缘|弱拒稿|强拒稿)"
+    r"(?:（按当前评分标准重算）)?",
+    re.IGNORECASE,
+)
+
 PEER_REVIEW_SCORE_CALCULATION_VERSION = "weighted-v1"
 PEER_REVIEW_RUBRIC_CATALOG_VERSION = "catalog-v1"
 PEER_REVIEW_RUBRIC_UPDATED_AT = "2026-08-31"
@@ -196,6 +213,22 @@ def calculate_peer_review_score(
     return score, decision, breakdown, metadata
 
 
+def _synchronize_peer_review_decision_text(text: str, decision: ReviewDecision) -> str:
+    """Replace stale explicit recommendation mentions after deterministic rescoring."""
+    if not text:
+        return text
+    final_label = _PEER_DECISION_TEXT[decision]
+
+    def replace(match: re.Match[str]) -> str:
+        raw_label = re.sub(r"[ _]", "", match.group("label")).casefold()
+        expected = re.sub(r"[ _]", "", final_label).casefold()
+        if raw_label == expected:
+            return match.group(0)
+        return f"{match.group('prefix')}{final_label}（按当前评分标准重算）"
+
+    return _PEER_DECISION_MENTION_PATTERN.sub(replace, text)
+
+
 def recalculate_peer_review(report: PeerReviewReport, rubric_weights: dict[str, float] | None = None) -> PeerReviewReport:
     """Recompute the system score after human concern edits or legacy loading."""
     weights = normalize_peer_review_weights(rubric_weights or report.rubric_weights or None)
@@ -204,6 +237,10 @@ def recalculate_peer_review(report: PeerReviewReport, rubric_weights: dict[str, 
     return report.model_copy(update={
         "overall_score": score,
         "decision": decision,
+        "summary": _synchronize_peer_review_decision_text(report.summary, decision),
+        "decision_rationale": _synchronize_peer_review_decision_text(
+            report.decision_rationale, decision
+        ),
         "rubric_weights": weights,
         "score_breakdown": breakdown,
         "score_calculation_version": PEER_REVIEW_SCORE_CALCULATION_VERSION,
