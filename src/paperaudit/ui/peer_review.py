@@ -411,35 +411,15 @@ def render_peer_review(
     on_update_revision: Callable[[PeerReviewRevision], object] | None = None,
 ) -> None:
     label, _, decision_class = _DECISION_LABELS[report.decision]
-    with st.container(key="peer_review_header"):
-        title_col, result_col = st.columns(
-            [3.5, 2.5], vertical_alignment="center"
-        )
-        with title_col:
-            st.markdown(
-                f'<div class="pa-workspace-header">'
-                f'<div class="pa-workspace-brand-icon" aria-hidden="true">✎</div>'
-                f'<div class="pa-workspace-copy"><div class="pa-workspace-title-row">'
-                f'<div class="pa-workspace-title">{escape(report.paper_title)}</div>'
-                f'<div class="pa-workspace-summary">模拟投稿评审 · {_VENUE_LABELS.get(report.venue, "通用 AI/ML")}</div>'
-                f'</div></div></div>',
-                unsafe_allow_html=True,
-            )
-        with result_col:
-            st.markdown(
-                f'<div class="pa-peer-readonly-result pa-peer-decision-{decision_class}">'
-                f'<span>模拟评审结果</span><strong>{escape(label)}</strong>'
-                f'<b>{report.overall_score:.1f} / 10</b><small>置信度 {report.confidence} / 5</small></div>',
-                unsafe_allow_html=True,
-            )
     rubric_meta = f"标准 {report.rubric_version}"
     if report.rubric_updated_at:
         rubric_meta += f"（更新于 {report.rubric_updated_at}）"
-    st.caption(
+    meta_items = [
         f"基于当前论文原文的 AI 辅助预审 · {rubric_meta} · 不代表真实会议录用决定。"
-    )
+    ]
     if report.rubric_change_note:
-        st.caption(f"标准说明：{report.rubric_change_note}")
+        meta_items.append(f"标准说明：{report.rubric_change_note}")
+    run_details: list[str] = []
     if report.run_id or report.generated_at:
         run_details = [
             item for item in (
@@ -450,24 +430,42 @@ def render_peer_review(
                 f"耗时 {report.elapsed_seconds:.1f}s" if report.elapsed_seconds is not None else "",
             ) if item
         ]
+    with st.container(key="peer_review_overview"):
+        with st.container(key="peer_review_header"):
+            title_col, result_col = st.columns(
+                [3.5, 2.5], vertical_alignment="center"
+            )
+            with title_col:
+                st.markdown(
+                    f'<div class="pa-workspace-header">'
+                    f'<div class="pa-workspace-brand-icon" aria-hidden="true">✎</div>'
+                    f'<div class="pa-workspace-copy"><div class="pa-workspace-title-row">'
+                    f'<div class="pa-workspace-title">{escape(report.paper_title)}</div>'
+                    f'<div class="pa-workspace-summary">模拟投稿评审 · {_VENUE_LABELS.get(report.venue, "通用 AI/ML")}</div>'
+                    f'</div></div></div>',
+                    unsafe_allow_html=True,
+                )
+            with result_col:
+                st.markdown(
+                    f'<div class="pa-peer-readonly-result pa-peer-decision-{decision_class}">'
+                    f'<span>模拟评审结果</span><strong>{escape(label)}</strong>'
+                    f'<b>{report.overall_score:.1f} / 10</b><small>置信度 {report.confidence} / 5</small></div>',
+                    unsafe_allow_html=True,
+                )
+        meta_html = "".join(f"<span>{escape(item)}</span>" for item in meta_items)
         if run_details:
-            st.caption(" · ".join(run_details))
-    decision_scale = "".join(
-        f'<div class="pa-peer-scale-step pa-peer-decision-{item_class}'
-        f'{" is-active" if decision is report.decision else ""}">'
-        f'<strong>{escape(item_label)}</strong><span>{escape(item_cn)}</span></div>'
-        for decision, (item_label, item_cn, item_class) in _DECISION_LABELS.items()
-    )
-    st.markdown(
-        f'<div class="pa-peer-decision-scale" aria-label="五档投稿建议">{decision_scale}</div>',
-        unsafe_allow_html=True,
-    )
-    if pdf_bytes:
+            meta_html += f'<small>{escape(" · ".join(run_details))}</small>'
         st.markdown(
-            f'<div class="pa-peer-summary-strip"><strong>当前主要拒稿风险</strong>'
-            f'<span>{escape(_main_rejection_risk(report))}</span></div>',
+            f'<div class="pa-peer-meta-line">{meta_html}</div>',
             unsafe_allow_html=True,
         )
+        if pdf_bytes:
+            st.markdown(
+                f'<div class="pa-peer-summary-strip"><strong>当前主要拒稿风险</strong>'
+                f'<span>{escape(_main_rejection_risk(report))}</span></div>',
+                unsafe_allow_html=True,
+            )
+    if pdf_bytes:
         with st.container(key="peer_review_workspace"):
             paper_col, review_col = st.columns([1.6, 1], gap="medium")
             with paper_col:
