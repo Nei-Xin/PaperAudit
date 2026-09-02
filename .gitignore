@@ -7,5 +7,39 @@ __pycache__/
 data/runtime/
 output/
 tmp/
-docs/
-tests/
+tmp_figma_code/
+tmp_epikt.txt
+Browser_Actual_*.png
+
+# Keep the submission-facing documents visible to Git while leaving internal
+# design notes out of the public release by default.
+docs/*
+!docs/deployment.md
+!docs/direction_one_final_report.md
+!docs/evaluation.md
+!docs/final_acceptance_report.md
+!docs/final_submission_checklist.md
+!docs/release_v1.md
+!docs/typical_cases.md
+!docs/demo_script.md
+
+# Evaluation source, manifests and fixed JSONL samples remain visible. Large
+# paper PDFs and exploratory/generated runs are local-only; only the compact
+# frozen release artifacts below are kept as submission candidates.
+eval/papers/
+eval/v2_diagnostics/
+eval/predictions/
+eval/production_observations_v1/
+eval/production_batch_*_result.json
+eval/epikt_stage9_real*.json
+eval/stage9_*_real*/
+eval/results*/
+!eval/results_final_holdout_actual/
+!eval/results_final_holdout_actual/**
+!eval/results_regression_v1_release/
+!eval/results_regression_v1_release/**
+eval/validation*/
+!eval/validation_full/
+!eval/validation_full/**
+!eval/validation_adversarial/
+!eval/validation_adversarial/**

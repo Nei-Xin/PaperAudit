@@ -1817,14 +1817,61 @@ def inject_custom_styles() -> None:
         .st-key-joint_code_panel {overflow:hidden;border-left:1px solid var(--pa-border);}
         .st-key-joint_conversation_panel {border-left:1px solid var(--pa-border);padding-bottom:.3rem;}
         .st-key-joint_assistant_scroll {
-            flex:1 1 0 !important;height:100% !important;min-height:0;overflow-y:auto;overflow-x:hidden;
+            flex:0 1 auto !important;height:auto !important;min-height:0;max-height:100%;
+            overflow-y:auto;overflow-x:hidden;
             overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:.35rem;
         }
         .st-key-joint_conversation_panel > [data-testid="stLayoutWrapper"]:has(.st-key-joint_assistant_scroll) {
-            flex:1 1 0;min-height:0;overflow:hidden;
+            flex:0 1 auto;min-height:0;max-height:100%;overflow:hidden;
         }
         .st-key-joint_assistant_scroll > [data-testid="stLayoutWrapper"] {
-            min-height:100%;display:flex;flex-direction:column;
+            min-height:0;display:flex;flex-direction:column;
+        }
+        /* Streamlit gives keyed vertical containers a flex-grow default when
+           they sit inside the Assistant stack. Keep each message/context card
+           in normal document flow so its content cannot overlap the next row;
+           the outer Assistant container remains the only scroll owner. */
+        .st-key-joint_assistant_scroll div[class*="st-key-joint_message_"],
+        .st-key-joint_assistant_scroll div[class*="st-key-joint_pending_message"],
+        .st-key-joint_assistant_scroll div[class*="st-key-joint_answer_body_"],
+        .st-key-joint_assistant_scroll .st-key-joint_current_context,
+        .st-key-joint_assistant_scroll .st-key-joint_selected_context,
+        .st-key-joint_assistant_scroll .st-key-joint_context_actions {
+            flex:0 0 auto !important;height:auto !important;min-height:0 !important;
+        }
+        /* The composer context is a compact two-line reminder, not a second
+           copy of the selected code. Keep it immediately above the input. */
+        .st-key-joint_composer_context,
+        .st-key-joint_composer_context > [data-testid="stLayoutWrapper"],
+        .st-key-joint_composer_context > [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            flex:0 0 auto !important;height:auto !important;min-height:0 !important;
+        }
+        .st-key-joint_composer_context .st-key-joint_current_context {
+            margin:.25rem 0 .35rem;padding:.3rem .45rem .35rem;
+            border-radius:7px;background:var(--pa-surface-alt);
+        }
+        .st-key-joint_composer_context .st-key-joint_current_context [data-testid="stCaptionContainer"] {
+            margin:0 0 .15rem;font-size:.64rem;line-height:1.25;
+        }
+        .pa-compact-code-preview,
+        .pa-compact-paper-preview {
+            display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+            overflow:hidden;max-height:2.65rem;margin:.1rem 0 .15rem;
+            color:var(--pa-text-secondary);font-size:.67rem;line-height:1.35;
+        }
+        .pa-compact-code-preview code {
+            color:var(--pa-success-dark);font-size:.66rem;white-space:normal;
+            overflow-wrap:anywhere;
+        }
+        .st-key-joint_composer_context .st-key-joint_current_context [data-testid="stHorizontalBlock"] {
+            margin-top:.1rem;
+        }
+        .st-key-joint_composer_context .st-key-joint_selected_context {
+            padding:.3rem .45rem;margin:.25rem 0 .35rem;border-radius:7px;
+        }
+        .st-key-joint_context_actions > [data-testid="stLayoutWrapper"],
+        .st-key-joint_context_actions > [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            flex:0 0 auto !important;height:auto !important;min-height:0 !important;
         }
         .st-key-joint_pdf_toolbar {
             flex:0 0 auto;min-height:40px;padding:.2rem .3rem;
@@ -2026,6 +2073,20 @@ def inject_custom_styles() -> None:
         .st-key-joint_current_context {
             margin:.35rem 0 .7rem;padding:.58rem .65rem .65rem;
             border:1px solid var(--pa-border-medium);border-radius:9px;background:var(--pa-surface);
+            flex:0 0 auto !important;height:auto !important;min-height:0 !important;
+            overflow:visible !important;
+        }
+        .st-key-joint_current_context > [data-testid="stLayoutWrapper"],
+        .st-key-joint_current_context > [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            flex:0 0 auto !important;height:auto !important;min-height:0 !important;
+        }
+        .st-key-joint_current_context [data-testid="stCode"] {
+            flex:0 0 auto !important;height:auto !important;min-height:0 !important;
+            max-height:none !important;overflow:visible !important;
+        }
+        .st-key-joint_current_context [data-testid="stCode"] pre {
+            height:auto !important;min-height:0 !important;max-height:none !important;
+            overflow:visible !important;white-space:pre-wrap !important;overflow-wrap:anywhere;
         }
         .st-key-joint_current_context [data-testid="stCaptionContainer"] {
             margin:.05rem 0 .3rem;color:var(--pa-text-muted);
@@ -2251,6 +2312,16 @@ def inject_custom_styles() -> None:
             }
             .st-key-joint_pdf_panel,.st-key-joint_code_panel,.st-key-joint_conversation_panel {
                 border-left:0;padding:.15rem 0 .45rem;
+            }
+            /* Short selections should not inherit the desktop flex scroller's
+               viewport height on narrow screens. Let the Assistant follow its
+               content so the selection actions and composer stay together. */
+            .st-key-joint_assistant_scroll {
+                flex:0 0 auto !important;height:auto !important;min-height:0 !important;
+                max-height:none !important;overflow:visible !important;
+            }
+            .st-key-joint_assistant_scroll > [data-testid="stLayoutWrapper"] {
+                height:auto !important;min-height:0 !important;display:block !important;
             }
             .st-key-joint_pdf_panel [data-testid="stHorizontalBlock"] {
                 flex-wrap:nowrap !important;gap:.35rem !important;

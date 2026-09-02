@@ -407,7 +407,7 @@ def _render_selection_snapshot(selection: CodeSelection, *, key: str) -> None:
             selection.text,
             language=_selected_source_language(selection.path),
             wrap_lines=True,
-            height=112,
+            height="content",
         )
 
 
@@ -500,6 +500,7 @@ def _render_current_context(
     selection: object,
     *,
     show_code_context: bool = True,
+    compact: bool = False,
 ) -> None:
     paper_label: str | None = None
     if isinstance(selection, dict) and selection.get("page"):
@@ -573,17 +574,34 @@ def _render_current_context(
                 active_selection = CodeSelection.model_validate(selected_code)
             except ValueError:
                 return
-            st.caption(
-                f"已选{_selected_source_label(active_selection.path)} · "
-                f"{active_selection.path} · "
-                f"L{active_selection.start_line}—{active_selection.end_line}"
-            )
-            st.code(
-                active_selection.text,
-                language=_selected_source_language(active_selection.path),
-                wrap_lines=True,
-                height=140,
-            )
+            if compact:
+                filename = active_selection.path.rsplit("/", 1)[-1]
+                st.caption(
+                    f"已选{_selected_source_label(active_selection.path)} · "
+                    f"{filename} · L{active_selection.start_line}—{active_selection.end_line}"
+                )
+            else:
+                st.caption(
+                    f"已选{_selected_source_label(active_selection.path)} · "
+                    f"{active_selection.path} · "
+                    f"L{active_selection.start_line}—{active_selection.end_line}"
+                )
+            if compact:
+                preview = " ".join(active_selection.text.split())
+                if len(preview) > 180:
+                    preview = preview[:177].rstrip() + "…"
+                st.markdown(
+                    '<div class="pa-compact-code-preview">'
+                    f'<code>{escape(preview)}</code></div>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.code(
+                    active_selection.text,
+                    language=_selected_source_language(active_selection.path),
+                    wrap_lines=True,
+                    height="content",
+                )
 
 
 def _render_conversation(
@@ -652,11 +670,15 @@ def _render_conversation(
                 )
                 st.markdown('<div class="pa-assistant-meta">正在检索论文与代码并生成回答…</div>', unsafe_allow_html=True)
 
-        if not isinstance(pending, dict):
+    if not isinstance(pending, dict):
+        # Keep the selected context directly above the composer. It is a compact
+        # preview only; the full answer history remains independently scrollable.
+        with st.container(key="joint_composer_context"):
             _render_current_context(
                 history,
                 selection,
                 show_code_context=show_code_context,
+                compact=True,
             )
 
             if isinstance(selected_code, dict):
@@ -699,7 +721,12 @@ def _render_conversation(
             if isinstance(selection, dict) and selection.get("text"):
                 with st.container(key="joint_selected_context"):
                     st.caption(f"已选论文原文 · 第 {selection.get('page', 1)} 页")
-                    st.markdown(f"> {escape(str(selection['text']))}")
+                    preview = " ".join(str(selection["text"]).split())
+                    st.markdown(
+                        f'<div class="pa-compact-paper-preview">{escape(preview[:180])}'
+                        f'{"…" if len(preview) > 180 else ""}</div>',
+                        unsafe_allow_html=True,
+                    )
                     find_col, cancel_col = st.columns([4, 1])
                     if find_col.button(
                         "查找这段内容对应的代码",
@@ -938,7 +965,6 @@ def render_code_workspace(
                         st.error(f"代码选区无效：{exc}")
                     else:
                         st.session_state["joint_code_selection"] = selected.model_dump()
-                        st.session_state["joint_layout_mode_pending"] = "balanced"
                         if action in {"explain", "relate"}:
                             question, scope = _selection_question(action, selected)
                             st.session_state["joint_qa_pending"] = {
