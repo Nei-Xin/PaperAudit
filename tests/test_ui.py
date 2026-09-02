@@ -10,6 +10,7 @@ from paperaudit.models import (
 )
 from paperaudit.ui.audit_results import _audit_evidence_anchors
 from paperaudit.ui.components import (
+    audit_evidence_button_label,
     audit_evidence_label,
     build_audit_detail_html,
     highlight_keywords,
@@ -161,3 +162,4 @@ def test_saved_audit_evidence_is_enriched_from_the_local_paper_index() -> None:
     assert anchor.locator == "§1 Introduction · 第 1 段"
     assert anchor.rects == [rect]
     assert audit_evidence_label(anchor) == "P1 · §1 Introduction · 第 1 段 · 段落"
+    assert audit_evidence_button_label(anchor) == "查看原文 · P1 · 第 1 段 ↗"

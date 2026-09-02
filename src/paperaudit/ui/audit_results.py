@@ -41,7 +41,7 @@ from paperaudit.ui.visualizations import render_dimension_radar_or_bar
 
 _FILTER_ALL = "all"
 _FILTER_ATTENTION = "attention"
-_PAGE_SIZE = 6
+_PAGE_SIZE = 8
 
 
 @st.dialog("审计证据原文", width="large")
@@ -266,9 +266,11 @@ def render_audit_results(
 
             list_col, detail_col = st.columns([0.32, 0.68], gap="medium")
             with list_col:
-                st.caption(
-                    f"共 {len(filtered_audits)} 条结果 · 需关注 {counts[QUICK_ATTENTION]} · "
-                    f"正常 {normal_count}"
+                st.markdown(
+                    f'<div class="pa-audit-panel-heading"><strong>问题列表</strong>'
+                    f'<span>{len(filtered_audits)} 条 · 需关注 {counts[QUICK_ATTENTION]} · '
+                    f'正常 {normal_count}</span></div>',
+                    unsafe_allow_html=True,
                 )
                 for audit in visible_audits:
                     category_label = category_labels.get(audit.claim.category, "其他")
@@ -282,8 +284,7 @@ def render_audit_results(
                         st.markdown(
                             f'<div class="pa-audit-list-head"><strong>{audit.claim.claim_id}</strong>'
                             f'<span>{category_label}</span>'
-                            f'<div>{render_severity_badge(audit.judgment.severity)}'
-                            f'{render_status_badge(audit.judgment.label)}</div></div>',
+                            f'<div>{render_severity_badge(audit.judgment.severity)}</div></div>',
                             unsafe_allow_html=True,
                         )
                         st.button(
@@ -295,9 +296,16 @@ def render_audit_results(
                             args=(selection_key, audit.claim.claim_id, page_key, current_page),
                         )
                         location = audit.claim.report_location or "报告位置未标注"
-                        st.caption(f"{location} · {len(selected_evidence(audit))} 条证据")
+                        st.markdown(
+                            f'<div class="pa-audit-list-foot"><span>{location} · '
+                            f'{len(selected_evidence(audit))} 条证据</span>'
+                            f'<div>{render_status_badge(audit.judgment.label)}</div></div>',
+                            unsafe_allow_html=True,
+                        )
 
-                prev_page, page_label, next_page = st.columns([1, 1.4, 1])
+                _, prev_page, page_label, next_page, _ = st.columns(
+                    [1.2, 0.52, 0.7, 0.52, 1.2]
+                )
                 prev_page.button(
                     "‹",
                     disabled=current_page <= 1,
@@ -330,22 +338,17 @@ def render_audit_results(
                 )
 
             with detail_col:
-                with st.container(border=True, key="audit_selected_detail"):
-                    render_audit_detail(
-                        selected_audit,
-                        category_labels.get(selected_audit.claim.category, "其他"),
-                        evidence_anchors=evidence_anchors,
-                        on_open_evidence=(
-                            (lambda anchor: _show_audit_evidence(pdf_bytes, anchor))
-                            if pdf_bytes
-                            else None
-                        ),
+                with st.container(key="audit_detail_navigation"):
+                    detail_title, previous_col, next_col = st.columns(
+                        [3, 1, 1], vertical_alignment="center"
                     )
-                    previous_col, next_col = st.columns(2)
+                    detail_title.markdown(
+                        '<div class="pa-audit-panel-heading"><strong>审计详情</strong>'
+                        '<span>逐条核对论断与原文依据</span></div>',
+                        unsafe_allow_html=True,
+                    )
                     previous_col.button(
-                        f"上一条（{filtered_audits[selected_index - 1].claim.claim_id}）"
-                        if selected_index > 0
-                        else "已是第一条",
+                        "上一条",
                         disabled=selected_index == 0,
                         width="stretch",
                         key=f"audit_claim_prev_{run_key}",
@@ -358,19 +361,34 @@ def render_audit_results(
                         ),
                     )
                     next_col.button(
-                        f"下一条（{filtered_audits[selected_index + 1].claim.claim_id}）"
-                        if selected_index < len(filtered_audits) - 1
-                        else "已是最后一条",
+                        "下一条",
                         disabled=selected_index >= len(filtered_audits) - 1,
                         width="stretch",
-                        type="primary" if selected_index < len(filtered_audits) - 1 else "secondary",
+                        type=(
+                            "primary"
+                            if selected_index < len(filtered_audits) - 1
+                            else "secondary"
+                        ),
                         key=f"audit_claim_next_{run_key}",
                         on_click=_select_audit_claim,
                         args=(
                             selection_key,
-                            filtered_audits[min(len(filtered_audits) - 1, selected_index + 1)].claim.claim_id,
+                            filtered_audits[
+                                min(len(filtered_audits) - 1, selected_index + 1)
+                            ].claim.claim_id,
                             page_key,
                             min(page_count, (selected_index + 1) // _PAGE_SIZE + 1),
+                        ),
+                    )
+                with st.container(border=True, key="audit_selected_detail"):
+                    render_audit_detail(
+                        selected_audit,
+                        category_labels.get(selected_audit.claim.category, "其他"),
+                        evidence_anchors=evidence_anchors,
+                        on_open_evidence=(
+                            (lambda anchor: _show_audit_evidence(pdf_bytes, anchor))
+                            if pdf_bytes
+                            else None
                         ),
                     )
 
