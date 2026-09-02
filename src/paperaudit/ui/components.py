@@ -163,17 +163,21 @@ def render_audit_summary(summary: AuditSummary, audits: list[ClaimAudit]) -> Non
         build_audit_summary_html(summary, audits),
         unsafe_allow_html=True,
     )
-    st.caption(
-        f"本次根据报告内容自动拆分并审计 {len(audits)} 条论断，数量并非固定。 "
+    summary_details = (
+        f"自动拆分并审计 {len(audits)} 条论断 · "
         f"支持 {counts[AutoLabel.SUPPORTED]} · "
         f"部分支持 {counts[AutoLabel.PARTIALLY_SUPPORTED]} · "
         f"冲突 {counts[AutoLabel.CONTRADICTED]} · "
         f"未找到支持 {counts[AutoLabel.NO_SUPPORT_FOUND]} · "
         f"证据不足 {counts[AutoLabel.ABSTAIN]} · "
         f"完全支持率 {fully_supported_rate(audits):.1f}% · "
-        f"候选证据检索覆盖率 {summary.evidence_discovery_rate:.1f}%。"
+        f"候选证据检索覆盖率 {summary.evidence_discovery_rate:.1f}%"
     )
-    st.caption("综合总分同时考虑内容覆盖和引用情况，不等同于事实正确率。")
+    st.markdown(
+        f'<div class="pa-audit-summary-meta"><span>{summary_details}</span>'
+        f'<small>综合总分同时考虑内容覆盖和引用情况，不等同于事实正确率。</small></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def build_audit_detail_html(
@@ -192,14 +196,18 @@ def build_audit_detail_html(
     suggestion_html = ""
     if audit.judgment.suggestion and audit.judgment.suggestion.strip():
         suggestion_html = (
-            '<section class="pa-audit-detail-section">'
+            '<section class="pa-audit-detail-section pa-audit-suggestion-panel">'
             '<div class="pa-audit-detail-label">修改建议</div>'
             f'<div class="pa-audit-detail-copy">'
             f'{escape(audit.judgment.suggestion.strip())}</div></section>'
         )
 
-    selected = selected_evidence(audit)[:evidence_limit]
+    selected = _detail_evidence(audit)[:evidence_limit]
     if selected:
+        is_candidate_only = audit.judgment.label in {
+            AutoLabel.NO_SUPPORT_FOUND,
+            AutoLabel.ABSTAIN,
+        }
         evidence_label = (
             "候选片段（不足以支持）"
             if audit.judgment.label == AutoLabel.NO_SUPPORT_FOUND
@@ -209,14 +217,15 @@ def build_audit_detail_html(
         )
         evidence_items = "".join(
             '<article class="pa-audit-evidence-item">'
-            f'<div class="pa-audit-evidence-meta">证据 {index} · '
+            f'<div class="pa-audit-evidence-meta">'
+            f'{"候选" if is_candidate_only else "证据"} {index} · '
             f'P{item.page} · {escape(item.chunk_id)}</div>'
             f'<div class="pa-audit-evidence-text">'
             f'{escape(normalize_evidence_display(item.text))}</div></article>'
             for index, item in enumerate(selected, start=1)
         )
         evidence_html = (
-            '<section class="pa-audit-detail-section">'
+            '<section class="pa-audit-detail-section pa-audit-evidence-section">'
             f'<div class="pa-audit-detail-label">{evidence_label} · {len(selected)}</div>'
             f'<div class="pa-audit-evidence-list">{evidence_items}</div></section>'
         )
@@ -235,18 +244,34 @@ def build_audit_detail_html(
         f'{escape(category_label)}{report_location}</div>'
         f'<div class="pa-audit-tags">{render_status_badge(audit.judgment.label)}'
         f'{render_severity_badge(audit.judgment.severity)}</div></div>'
-        '<section class="pa-audit-detail-section">'
+        '<section class="pa-audit-detail-section pa-audit-claim-panel">'
         '<div class="pa-audit-detail-label">完整论断</div>'
         f'<div class="pa-audit-claim">{highlighted_claim}</div></section>'
+        '<div class="pa-audit-assessment-grid">'
         '<section class="pa-audit-detail-section">'
         '<div class="pa-audit-detail-label">判断说明</div>'
         f'<div class="pa-audit-detail-copy">{explanation}</div></section>'
         '<section class="pa-audit-detail-section">'
         '<div class="pa-audit-detail-label">问题分类</div>'
         f'<div class="pa-audit-detail-copy">论断：{escape(claim_error_name(audit.judgment.claim_error_type))} · '
-        f'证据：{escape(evidence_error_name(audit.judgment.evidence_error_type))}</div></section>'
+        f'证据：{escape(evidence_error_name(audit.judgment.evidence_error_type))}</div></section></div>'
         f'{suggestion_html}{evidence_html}</div>'
     )
+
+
+def _detail_evidence(audit: ClaimAudit):
+    selected = selected_evidence(audit)
+    if audit.judgment.label not in {
+        AutoLabel.NO_SUPPORT_FOUND,
+        AutoLabel.ABSTAIN,
+    }:
+        return selected
+
+    selected_ids = {item.evidence_id for item in selected}
+    return [
+        *selected,
+        *(item for item in audit.candidates if item.evidence_id not in selected_ids),
+    ]
 
 
 def audit_evidence_label(anchor: EvidenceAnchor) -> str:
@@ -260,11 +285,26 @@ def audit_evidence_label(anchor: EvidenceAnchor) -> str:
     return " · ".join(parts)
 
 
+def audit_evidence_button_label(anchor: EvidenceAnchor) -> str:
+    parts = ["查看原文", f"P{anchor.page}" if anchor.page is not None else "页码未知"]
+    if anchor.locator:
+        locator_tail = anchor.locator.rsplit("·", 1)[-1].strip()
+        if len(locator_tail) > 24:
+            locator_tail = locator_tail[:23].rstrip() + "…"
+        parts.append(locator_tail)
+    return " · ".join(parts) + " ↗"
+
+
 def _audit_evidence_help(anchor: EvidenceAnchor) -> str:
     excerpt = normalize_evidence_display(anchor.quote or anchor.text or "")
     if len(excerpt) > 240:
         excerpt = excerpt[:237].rstrip() + "…"
-    return f"原文预览\n{excerpt}" if excerpt else "该引用暂时无法显示原文预览。"
+    location = audit_evidence_label(anchor)
+    return (
+        f"{location}\n\n原文预览\n{excerpt}"
+        if excerpt
+        else f"{location}\n\n该引用暂时无法显示原文预览。"
+    )
 
 
 def render_audit_detail(
@@ -278,31 +318,39 @@ def render_audit_detail(
         build_audit_detail_html(audit, category_label),
         unsafe_allow_html=True,
     )
-    selected = selected_evidence(audit)
-    if on_open_evidence is not None and selected:
-        action_columns = st.columns(min(len(selected[:2]), 2))
-        for index, item in enumerate(selected[:2]):
-            anchor = (
-                evidence_anchors.get(item.chunk_id)
-                if evidence_anchors is not None
-                else None
-            ) or EvidenceAnchor(
-                chunk_id=item.chunk_id,
-                page=item.page,
-                text=item.text,
-            )
-            if action_columns[index].button(
-                f"{audit_evidence_label(anchor)} ↗",
-                key=f"audit-evidence-{audit.claim.claim_id}-{index}-{item.chunk_id}",
-                type="tertiary",
-                help=_audit_evidence_help(anchor),
-                width="stretch",
-            ):
-                on_open_evidence(anchor)
+    selected = _detail_evidence(audit)
+    visible_evidence = selected[:2]
+    if on_open_evidence is not None and visible_evidence:
+        with st.container(key="audit_evidence_actions"):
+            action_columns = st.columns(len(visible_evidence))
+            for index, item in enumerate(visible_evidence):
+                anchor = (
+                    evidence_anchors.get(item.chunk_id)
+                    if evidence_anchors is not None
+                    else None
+                ) or EvidenceAnchor(
+                    chunk_id=item.chunk_id,
+                    page=item.page,
+                    text=item.text,
+                )
+                if action_columns[index].button(
+                    audit_evidence_button_label(anchor),
+                    key=f"audit-evidence-{audit.claim.claim_id}-{index}-{item.chunk_id}",
+                    type="tertiary",
+                    help=_audit_evidence_help(anchor),
+                    width="stretch",
+                ):
+                    on_open_evidence(anchor)
 
     remaining = selected[2:]
     if remaining:
-        with st.expander(f"查看其余 {len(remaining)} 条原文依据"):
+        remainder_name = (
+            "候选片段"
+            if audit.judgment.label
+            in {AutoLabel.NO_SUPPORT_FOUND, AutoLabel.ABSTAIN}
+            else "原文依据"
+        )
+        with st.expander(f"查看其余 {len(remaining)} 条{remainder_name}"):
             for index, item in enumerate(remaining, start=2):
                 st.caption(f"第 {item.page} 页 · {item.chunk_id}")
                 st.code(normalize_evidence_display(item.text), language=None)
@@ -317,7 +365,7 @@ def render_audit_detail(
                         text=item.text,
                     )
                     if st.button(
-                        f"{audit_evidence_label(anchor)} ↗",
+                        audit_evidence_button_label(anchor),
                         key=f"audit-evidence-{audit.claim.claim_id}-{index}-{item.chunk_id}",
                         type="tertiary",
                         help=_audit_evidence_help(anchor),

@@ -156,3 +156,21 @@ def test_detail_uses_chinese_error_type_and_limits_primary_evidence() -> None:
     assert "遗漏成立条件" in html
     assert "p1_b1" in html and "p1_b2" in html
     assert "p1_b3" not in html
+
+
+def test_no_support_detail_shows_ranked_candidates_without_verified_evidence() -> None:
+    audit = get_demo_audit_run().audits[3]
+    candidates = [
+        audit.candidates[0].model_copy(
+            update={"evidence_id": f"E{index}", "chunk_id": f"p1_b{index}"}
+        )
+        for index in range(1, 4)
+    ]
+    updated = audit.model_copy(update={"candidates": candidates})
+
+    html = build_audit_detail_html(updated, "主要结果")
+
+    assert "候选片段（不足以支持） · 2" in html
+    assert "候选 1" in html and "候选 2" in html
+    assert "p1_b1" in html and "p1_b2" in html
+    assert "p1_b3" not in html

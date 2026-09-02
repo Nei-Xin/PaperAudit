@@ -600,13 +600,13 @@ with st.sidebar:
                 ):
                     _confirm_project_deletion(metadata.project_id, metadata.title)
                 if metadata.has_code:
-                    kind_badge = '<span class="pa-project-chip chip-code">💻 论文与代码</span>'
+                    kind_badge = '<span class="pa-project-chip chip-code">论文与代码</span>'
                 elif metadata.has_peer_review:
-                    kind_badge = '<span class="pa-project-chip chip-audit">📝 投稿评审</span>'
+                    kind_badge = '<span class="pa-project-chip chip-audit">投稿评审</span>'
                 elif metadata.has_learning_report:
-                    kind_badge = '<span class="pa-project-chip chip-paper">📄 论文精读</span>'
+                    kind_badge = '<span class="pa-project-chip chip-paper">论文精读</span>'
                 else:
-                    kind_badge = '<span class="pa-project-chip chip-audit">🔍 论文检查</span>'
+                    kind_badge = '<span class="pa-project-chip chip-audit">论文检查</span>'
 
                 marker_class = " is-active" if is_active else ""
                 st.markdown(
@@ -1028,14 +1028,25 @@ if st.session_state.get("result_mode") == "audit_project":
             learning_jobs[0],
         )
         st.session_state["learning_job_id"] = learning_job.job_id
-    title_col, learning_col, action_col, history_col, export_col = st.columns(
+    audit_header = st.container(key="audit_project_header")
+    title_col, learning_col, action_col, history_col, export_col = audit_header.columns(
         [3.3, 1.15, 1.15, 1.05, 1.05], vertical_alignment="center"
     )
     with title_col:
-        st.markdown(f"### {escape(str(project_title))}")
-        st.caption(
-            f"{'论文项目' if learning_job is not None and learning_job.status == AuditJobStatus.SUCCEEDED else '仅审计项目'}"
-            f" · {st.session_state.get('project_original_filename', 'paper.pdf')}"
+        project_kind = (
+            "论文项目"
+            if learning_job is not None
+            and learning_job.status == AuditJobStatus.SUCCEEDED
+            else "仅审计项目"
+        )
+        project_filename = st.session_state.get(
+            "project_original_filename", "paper.pdf"
+        )
+        st.markdown(
+            f'<div class="pa-audit-project-heading" title="{escape(str(project_title))}">'
+            f'<strong>{escape(str(project_title))}</strong>'
+            f'<span>{project_kind} · {escape(str(project_filename))}</span></div>',
+            unsafe_allow_html=True,
         )
     learning_active = bool(
         learning_job
@@ -1047,7 +1058,7 @@ if st.session_state.get("result_mode") == "audit_project":
     if learning_succeeded:
         if learning_col.button(
             "查看讲解",
-            type="primary",
+            type="secondary",
             width="stretch",
         ):
             _restore_learning_project(project_store, str(project_id))
@@ -1056,7 +1067,7 @@ if st.session_state.get("result_mode") == "audit_project":
         learning_col.button("讲解生成中", disabled=True, width="stretch")
     elif learning_col.button(
         "生成讲解",
-        type="primary",
+        type="secondary",
         width="stretch",
         disabled=not api_ready or not project_id,
     ):
