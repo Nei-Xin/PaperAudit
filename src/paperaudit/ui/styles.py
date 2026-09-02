@@ -618,6 +618,10 @@ def inject_custom_styles() -> None:
             color:var(--pa-text-muted);font-size:.68rem;line-height:1.4;
         }
         .pa-audit-summary-meta small {color:var(--pa-text-faint);font-size:.65rem;}
+        [data-testid="stMarkdown"]:has(.pa-audit-summary)
+        [data-testid="stMarkdownContainer"] {margin-bottom:-.3rem !important;}
+        [data-testid="stMarkdown"]:has(.pa-audit-summary-meta)
+        [data-testid="stMarkdownContainer"] {margin-bottom:-.35rem !important;}
         body:has(.st-key-audit_project_header) header[data-testid="stHeader"] {
             height:2.35rem;background:transparent;
         }
