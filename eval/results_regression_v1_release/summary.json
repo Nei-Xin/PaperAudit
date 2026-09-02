@@ -1,0 +1,1441 @@
+{
+  "config": {
+    "dry_run": true,
+    "retrieval_top_k": 5
+  },
+  "regression_passed": true,
+  "final_holdout_is_independent": true,
+  "final_holdout_policy": "论文级隔离；不用于规则调优，仅用于最终泛化验收",
+  "datasets": [
+    {
+      "name": "dev",
+      "samples": "resolved_samples.jsonl",
+      "papers": "papers.json",
+      "min_recall": 1.0,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 40,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.45,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 38,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 40
+        },
+        "by_category": {
+          "contribution": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.6667,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "dataset_setup": {
+            "sample_count": 2,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.5,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 2,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 2
+            }
+          },
+          "method": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.625,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          },
+          "results": {
+            "sample_count": 27,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.3704,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 25,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 27
+            }
+          }
+        },
+        "by_construction": {
+          "condition_omission": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "contradiction": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 2,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 0,
+            "retrieval_hit_rate": null,
+            "label_distribution": {
+              "ABSTAIN": 2
+            }
+          },
+          "metric_mutation": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "numeric_mutation": {
+            "sample_count": 5,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 5,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 5
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 5,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 5,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 5
+            }
+          },
+          "partial_condition": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "supported": {
+            "sample_count": 18,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 18,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 18
+            }
+          },
+          "wrong_attribution": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\dev"
+    },
+    {
+      "name": "holdout",
+      "samples": "holdout_resolved_samples.jsonl",
+      "papers": "holdout_papers.json",
+      "min_recall": 1.0,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 32,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.2812,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 28,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 32
+        },
+        "by_category": {
+          "contribution": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "dataset_setup": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "method": {
+            "sample_count": 13,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.5385,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 13,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 13
+            }
+          },
+          "results": {
+            "sample_count": 14,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0714,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 10,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 14
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 0,
+            "retrieval_hit_rate": null,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "missing_condition": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "numeric_mutation": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "supported": {
+            "sample_count": 9,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 9,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 9
+            }
+          },
+          "wrong_attribution": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\holdout"
+    },
+    {
+      "name": "extended",
+      "samples": "extended_resolved_samples.jsonl",
+      "papers": "extended_papers.json",
+      "min_recall": 0.95,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 24,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.2917,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 24,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 24
+        },
+        "by_category": {
+          "contribution": {
+            "sample_count": 2,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.5,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 2,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 2
+            }
+          },
+          "dataset_setup": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "limitations": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "method": {
+            "sample_count": 12,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.4167,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 12,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 12
+            }
+          },
+          "results": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.125,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 7,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 7,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 7
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "numeric_mutation": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "supported": {
+            "sample_count": 7,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 7,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 7
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\extended"
+    },
+    {
+      "name": "broad",
+      "samples": "broad_resolved_samples.jsonl",
+      "papers": "broad_papers.json",
+      "min_recall": 0.85,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 24,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.3333,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 24,
+        "retrieval_hit_rate": 0.875,
+        "label_distribution": {
+          "ABSTAIN": 24
+        },
+        "by_category": {
+          "contribution": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "dataset_setup": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 0.5,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "method": {
+            "sample_count": 9,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.3333,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 9,
+            "retrieval_hit_rate": 0.8889,
+            "label_distribution": {
+              "ABSTAIN": 9
+            }
+          },
+          "results": {
+            "sample_count": 10,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.4,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 10,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 10
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 7,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 7,
+            "retrieval_hit_rate": 0.8571,
+            "label_distribution": {
+              "ABSTAIN": 7
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 0.3333,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "missing_condition": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "numeric_mutation": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "supported": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\broad"
+    },
+    {
+      "name": "body",
+      "samples": "body_resolved_samples.jsonl",
+      "papers": "broad_papers.json",
+      "min_recall": 0.9,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 24,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.2917,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 24,
+        "retrieval_hit_rate": 0.9167,
+        "label_distribution": {
+          "ABSTAIN": 24
+        },
+        "by_category": {
+          "dataset_setup": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "method": {
+            "sample_count": 17,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.4118,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 17,
+            "retrieval_hit_rate": 0.8824,
+            "label_distribution": {
+              "ABSTAIN": 17
+            }
+          },
+          "results": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 0.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "missing_condition": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "numeric_or_metric_mismatch": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 0.75,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "supported": {
+            "sample_count": 7,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 7,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 7
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\body"
+    },
+    {
+      "name": "concept",
+      "samples": "concept_resolved_samples.jsonl",
+      "papers": "concept_papers.json",
+      "min_recall": 0.55,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 12,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.5,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 12,
+        "retrieval_hit_rate": 0.5833,
+        "label_distribution": {
+          "ABSTAIN": 12
+        },
+        "by_category": {
+          "dataset_setup": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.1667,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.1667,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "method": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.8333,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 0.6667,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 0.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "supported": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.8333,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\concept"
+    },
+    {
+      "name": "cross_v2",
+      "samples": "cross_resolved_samples_v2.jsonl",
+      "papers": "cross_papers_v2.json",
+      "min_recall": 0.9,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 24,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.4167,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 24,
+        "retrieval_hit_rate": 0.9167,
+        "label_distribution": {
+          "ABSTAIN": 24
+        },
+        "by_category": {
+          "dataset_setup": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.1667,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.6667,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "method": {
+            "sample_count": 10,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.6,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 10,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 10
+            }
+          },
+          "results": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.375,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 5,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 5,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 5
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 0.3333,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "numeric_or_metric_mismatch": {
+            "sample_count": 2,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 2,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 2
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 4,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 4,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 4
+            }
+          },
+          "supported": {
+            "sample_count": 10,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 10,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 10
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\cross_v2"
+    },
+    {
+      "name": "external_v1",
+      "samples": "external_resolved_samples_v1.jsonl",
+      "papers": "external_papers_v1.json",
+      "min_recall": 0.75,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 18,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.3333,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 18,
+        "retrieval_hit_rate": 0.7778,
+        "label_distribution": {
+          "ABSTAIN": 18
+        },
+        "by_category": {
+          "dataset_setup": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.3333,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "limitations": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "method": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.75,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          },
+          "results": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 0.6667,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.5,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "supported": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\external_v1"
+    },
+    {
+      "name": "external_v2",
+      "samples": "external_resolved_samples_v2.jsonl",
+      "papers": "external_papers_v2.json",
+      "min_recall": 0.9,
+      "independent_final": false,
+      "passed": true,
+      "metrics": {
+        "sample_count": 18,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.3333,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 18,
+        "retrieval_hit_rate": 0.9444,
+        "label_distribution": {
+          "ABSTAIN": 18
+        },
+        "by_category": {
+          "dataset_setup": {
+            "sample_count": 5,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 5,
+            "retrieval_hit_rate": 0.8,
+            "label_distribution": {
+              "ABSTAIN": 5
+            }
+          },
+          "method": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.75,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          },
+          "results": {
+            "sample_count": 5,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 5,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 5
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.8333,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 3,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 3,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 3
+            }
+          },
+          "supported": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\external_v2"
+    },
+    {
+      "name": "final_holdout",
+      "samples": "final_holdout_resolved_samples.jsonl",
+      "papers": "final_holdout_papers.json",
+      "min_recall": 0.85,
+      "independent_final": true,
+      "passed": true,
+      "metrics": {
+        "sample_count": 48,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.3125,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 48,
+        "retrieval_hit_rate": 0.875,
+        "label_distribution": {
+          "ABSTAIN": 48
+        },
+        "by_category": {
+          "contribution": {
+            "sample_count": 5,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 5,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 5
+            }
+          },
+          "limitations": {
+            "sample_count": 1,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 1,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 1
+            }
+          },
+          "method": {
+            "sample_count": 19,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.3684,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 19,
+            "retrieval_hit_rate": 0.6842,
+            "label_distribution": {
+              "ABSTAIN": 19
+            }
+          },
+          "results": {
+            "sample_count": 23,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.1304,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 23,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 23
+            }
+          }
+        },
+        "by_construction": {
+          "contradiction": {
+            "sample_count": 12,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 12,
+            "retrieval_hit_rate": 0.8333,
+            "label_distribution": {
+              "ABSTAIN": 12
+            }
+          },
+          "external_hallucination": {
+            "sample_count": 6,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 6,
+            "retrieval_hit_rate": 0.6667,
+            "label_distribution": {
+              "ABSTAIN": 6
+            }
+          },
+          "numeric_mutation": {
+            "sample_count": 7,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 7,
+            "retrieval_hit_rate": 0.8571,
+            "label_distribution": {
+              "ABSTAIN": 7
+            }
+          },
+          "overgeneralization": {
+            "sample_count": 8,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": 0.0,
+            "severity_accuracy": 0.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 8,
+            "retrieval_hit_rate": 1.0,
+            "label_distribution": {
+              "ABSTAIN": 8
+            }
+          },
+          "supported": {
+            "sample_count": 15,
+            "label_accuracy": 0.0,
+            "label_macro_f1": 0.0,
+            "error_type_accuracy": null,
+            "severity_accuracy": 1.0,
+            "abstain_rate": 1.0,
+            "gold_evidence_count": 15,
+            "retrieval_hit_rate": 0.9333,
+            "label_distribution": {
+              "ABSTAIN": 15
+            }
+          }
+        }
+      },
+      "output_dir": "eval\\results_regression_v1_release\\final_holdout"
+    }
+  ]
+}

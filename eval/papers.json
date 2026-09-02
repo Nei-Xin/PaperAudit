@@ -1,0 +1,67 @@
+[
+  {
+    "paper_id": "vaswani2017_transformer",
+    "title": "Attention Is All You Need",
+    "authors": ["Ashish Vaswani", "Noam Shazeer", "Niki Parmar", "Jakob Uszkoreit", "Llion Jones", "Aidan N. Gomez", "Lukasz Kaiser", "Illia Polosukhin"],
+    "arxiv_id": "1706.03762",
+    "version": "v7",
+    "url": "https://arxiv.org/abs/1706.03762",
+    "pdf_url": "https://arxiv.org/pdf/1706.03762",
+    "local_pdf": "papers/1706.03762v7.pdf",
+    "sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "page_count": 15,
+    "scope": ["research_question", "contribution", "method", "results"]
+  },
+  {
+    "paper_id": "devlin2018_bert",
+    "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+    "authors": ["Jacob Devlin", "Ming-Wei Chang", "Kenton Lee", "Kristina Toutanova"],
+    "arxiv_id": "1810.04805",
+    "version": "v2",
+    "url": "https://arxiv.org/abs/1810.04805",
+    "pdf_url": "https://arxiv.org/pdf/1810.04805",
+    "local_pdf": "papers/1810.04805v2.pdf",
+    "sha256": "5692a5514787a8c6727b4ff3b726a3385798bc68e12138d1d4af83947e2acf6e",
+    "page_count": 16,
+    "scope": ["research_question", "contribution", "method", "results"]
+  },
+  {
+    "paper_id": "he2015_resnet",
+    "title": "Deep Residual Learning for Image Recognition",
+    "authors": ["Kaiming He", "Xiangyu Zhang", "Shaoqing Ren", "Jian Sun"],
+    "arxiv_id": "1512.03385",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1512.03385",
+    "pdf_url": "https://arxiv.org/pdf/1512.03385",
+    "local_pdf": "papers/1512.03385v1.pdf",
+    "sha256": "1e0651b6810ecba34a3dbc5b5b0209226f889004607c1f203540a48d64e5a93a",
+    "page_count": 12,
+    "scope": ["research_question", "contribution", "method", "results"]
+  },
+  {
+    "paper_id": "hu2021_lora",
+    "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+    "authors": ["Edward J. Hu", "Yelong Shen", "Phillip Wallis", "Zeyuan Allen-Zhu", "Yuanzhi Li", "Shean Wang", "Lu Wang", "Weizhu Chen"],
+    "arxiv_id": "2106.09685",
+    "version": "v2",
+    "url": "https://arxiv.org/abs/2106.09685",
+    "pdf_url": "https://arxiv.org/pdf/2106.09685",
+    "local_pdf": "papers/2106.09685v2.pdf",
+    "sha256": "e9a0d3128767db616085dc0f4e6e455e672e89af823e8ed1282793682787395a",
+    "page_count": 26,
+    "scope": ["research_question", "contribution", "method", "results"]
+  },
+  {
+    "paper_id": "radford2021_clip",
+    "title": "Learning Transferable Visual Models From Natural Language Supervision",
+    "authors": ["Alec Radford", "Jong Wook Kim", "Chris Hallacy", "Aditya Ramesh", "Girish Sastry", "Amanda Askell", "Jack Clark", "Gretchen Krueger", "Ilya Sutskever"],
+    "arxiv_id": "2103.00020",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/2103.00020",
+    "pdf_url": "https://arxiv.org/pdf/2103.00020",
+    "local_pdf": "papers/2103.00020v1.pdf",
+    "sha256": "6478b6e571a7d6fcd846d8ef77bfd60c285f1986abb8f475eedc43de403074f5",
+    "page_count": 48,
+    "scope": ["research_question", "contribution", "method", "results"]
+  }
+]

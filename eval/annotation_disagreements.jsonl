@@ -1,0 +1,2 @@
+{"sample_id":"geolocation-alignment","fields":["confidence"]}
+{"sample_id":"geolocation-low-confidence","fields":["severity","confidence"]}

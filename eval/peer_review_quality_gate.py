@@ -18,6 +18,13 @@ except ModuleNotFoundError:  # pragma: no cover - exercised when imported as eva
     from .peer_review_quality import _load_jsonl, evaluate
 
 
+def _portable_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def _dataset_checks(rows: list[dict[str, Any]], *, min_samples: int, min_papers: int) -> dict[str, Any]:
     papers = {str(row["openreview_url"]) for row in rows}
     fatal_without_evidence = [
@@ -82,7 +89,7 @@ def run_gate(
     split = _split_checks(gold)
     result: dict[str, Any] = {
         "gate_version": "peer-review-quality-gate-v1",
-        "gold": str(gold_path),
+        "gold": _portable_path(gold_path),
         "dataset": dataset,
         "split": split,
         "thresholds": {

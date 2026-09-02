@@ -1,0 +1,41 @@
+[
+  {
+    "paper_id": "mnih2013_dqn",
+    "title": "Playing Atari with Deep Reinforcement Learning",
+    "authors": ["Volodymyr Mnih", "Koray Kavukcuoglu", "David Silver", "Alex Graves", "Ioannis Antonoglou", "Daan Wierstra", "Martin Riedmiller"],
+    "arxiv_id": "1312.5602",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1312.5602",
+    "pdf_url": "https://arxiv.org/pdf/1312.5602v1",
+    "local_pdf": "papers/1312.5602v1.pdf",
+    "sha256": "8db04120cace173151c77e0faa6f3eaa4207009da66b9417597dc70bfee56d9c",
+    "page_count": 9,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "ronneberger2015_unet",
+    "title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+    "authors": ["Olaf Ronneberger", "Philipp Fischer", "Thomas Brox"],
+    "arxiv_id": "1505.04597",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1505.04597",
+    "pdf_url": "https://arxiv.org/pdf/1505.04597v1",
+    "local_pdf": "papers/1505.04597v1.pdf",
+    "sha256": "a3172b2124f38e260dc2c7ed968d87c31bc94dbc19a42a7ab3dcbd7534319c44",
+    "page_count": 8,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "mikolov2013_word2vec",
+    "title": "Efficient Estimation of Word Representations in Vector Space",
+    "authors": ["Tomas Mikolov", "Kai Chen", "Greg Corrado", "Jeffrey Dean"],
+    "arxiv_id": "1301.3781",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1301.3781",
+    "pdf_url": "https://arxiv.org/pdf/1301.3781v1",
+    "local_pdf": "papers/1301.3781v1.pdf",
+    "sha256": "4ca4bc94797e57e8dd4843ec2b26811e56d60e2297c187c3591e21be6b08e509",
+    "page_count": 9,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  }
+]

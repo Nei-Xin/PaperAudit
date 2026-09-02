@@ -1,0 +1,184 @@
+{
+  "config": {
+    "dry_run": true,
+    "retrieval_top_k": 5,
+    "oracle_evidence": false
+  },
+  "metrics": {
+    "sample_count": 24,
+    "label_accuracy": 0.0,
+    "label_macro_f1": 0.0,
+    "error_type_accuracy": 0.0,
+    "severity_accuracy": 0.4167,
+    "abstain_rate": 1.0,
+    "gold_evidence_count": 24,
+    "retrieval_hit_rate": 0.9167,
+    "label_distribution": {
+      "ABSTAIN": 24
+    },
+    "by_category": {
+      "dataset_setup": {
+        "sample_count": 6,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.1667,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 6,
+        "retrieval_hit_rate": 0.6667,
+        "label_distribution": {
+          "ABSTAIN": 6
+        }
+      },
+      "method": {
+        "sample_count": 10,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.6,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 10,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 10
+        }
+      },
+      "results": {
+        "sample_count": 8,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.375,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 8,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 8
+        }
+      }
+    },
+    "by_construction": {
+      "contradiction": {
+        "sample_count": 5,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 5,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 5
+        }
+      },
+      "external_hallucination": {
+        "sample_count": 3,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 3,
+        "retrieval_hit_rate": 0.3333,
+        "label_distribution": {
+          "ABSTAIN": 3
+        }
+      },
+      "numeric_or_metric_mismatch": {
+        "sample_count": 2,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 2,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 2
+        }
+      },
+      "overgeneralization": {
+        "sample_count": 4,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 4,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 4
+        }
+      },
+      "supported": {
+        "sample_count": 10,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 10,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 10
+        }
+      }
+    }
+  },
+  "paper_summaries": {
+    "mnih2013_dqn": {
+      "grade": "无法评级",
+      "total_score": 46.7,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 40.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "ronneberger2015_unet": {
+      "grade": "无法评级",
+      "total_score": 46.7,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 40.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "mikolov2013_word2vec": {
+      "grade": "无法评级",
+      "total_score": 46.7,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 40.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    }
+  }
+}

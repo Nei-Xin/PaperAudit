@@ -1,0 +1,155 @@
+{
+  "config": {
+    "dry_run": false,
+    "retrieval_top_k": 5,
+    "oracle_evidence": false
+  },
+  "metrics": {
+    "sample_count": 8,
+    "label_accuracy": 0.875,
+    "label_macro_f1": 0.881,
+    "error_type_accuracy": 0.8333,
+    "severity_accuracy": 0.75,
+    "abstain_rate": 0.0,
+    "gold_evidence_count": 8,
+    "retrieval_hit_rate": 0.875,
+    "label_distribution": {
+      "SUPPORTED": 2,
+      "CONTRADICTED": 4,
+      "PARTIALLY_SUPPORTED": 1,
+      "NO_SUPPORT_FOUND": 1
+    },
+    "by_category": {
+      "contribution": {
+        "sample_count": 1,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 1
+        }
+      },
+      "method": {
+        "sample_count": 4,
+        "label_accuracy": 0.75,
+        "label_macro_f1": 0.6667,
+        "error_type_accuracy": 0.6667,
+        "severity_accuracy": 0.5,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 4,
+        "retrieval_hit_rate": 0.75,
+        "label_distribution": {
+          "SUPPORTED": 1,
+          "CONTRADICTED": 2,
+          "NO_SUPPORT_FOUND": 1
+        }
+      },
+      "results": {
+        "sample_count": 3,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": 1.0,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 3,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "PARTIALLY_SUPPORTED": 1,
+          "CONTRADICTED": 2
+        }
+      }
+    },
+    "by_construction": {
+      "contradiction": {
+        "sample_count": 2,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": 1.0,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 2,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "CONTRADICTED": 2
+        }
+      },
+      "external_hallucination": {
+        "sample_count": 1,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": 1.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 0.0,
+        "label_distribution": {
+          "NO_SUPPORT_FOUND": 1
+        }
+      },
+      "numeric_mutation": {
+        "sample_count": 1,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": 1.0,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "CONTRADICTED": 1
+        }
+      },
+      "overgeneralization": {
+        "sample_count": 2,
+        "label_accuracy": 0.5,
+        "label_macro_f1": 0.3333,
+        "error_type_accuracy": 0.5,
+        "severity_accuracy": 0.5,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 2,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "CONTRADICTED": 1,
+          "PARTIALLY_SUPPORTED": 1
+        }
+      },
+      "supported": {
+        "sample_count": 2,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 2,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 2
+        }
+      }
+    }
+  },
+  "paper_summaries": {
+    "garnelo2018_neural_processes": {
+      "grade": "不可信",
+      "total_score": 53.4,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 35.7,
+        "evidence_correctness": 37.5,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 60.0,
+        "conclusion_boundary": 87.5
+      },
+      "critical_count": 0,
+      "high_count": 5,
+      "medium_count": 1,
+      "review_count": 0
+    }
+  }
+}

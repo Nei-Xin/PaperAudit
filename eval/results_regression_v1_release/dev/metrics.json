@@ -1,0 +1,285 @@
+{
+  "config": {
+    "dry_run": true,
+    "retrieval_top_k": 5,
+    "oracle_evidence": false
+  },
+  "metrics": {
+    "sample_count": 40,
+    "label_accuracy": 0.0,
+    "label_macro_f1": 0.0,
+    "error_type_accuracy": 0.0,
+    "severity_accuracy": 0.45,
+    "abstain_rate": 1.0,
+    "gold_evidence_count": 38,
+    "retrieval_hit_rate": 1.0,
+    "label_distribution": {
+      "ABSTAIN": 40
+    },
+    "by_category": {
+      "contribution": {
+        "sample_count": 3,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.6667,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 3,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 3
+        }
+      },
+      "dataset_setup": {
+        "sample_count": 2,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.5,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 2,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 2
+        }
+      },
+      "method": {
+        "sample_count": 8,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.625,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 8,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 8
+        }
+      },
+      "results": {
+        "sample_count": 27,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.3704,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 25,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 27
+        }
+      }
+    },
+    "by_construction": {
+      "condition_omission": {
+        "sample_count": 1,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 1
+        }
+      },
+      "contradiction": {
+        "sample_count": 6,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 6,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 6
+        }
+      },
+      "external_hallucination": {
+        "sample_count": 2,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 0,
+        "retrieval_hit_rate": null,
+        "label_distribution": {
+          "ABSTAIN": 2
+        }
+      },
+      "metric_mutation": {
+        "sample_count": 1,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 1
+        }
+      },
+      "numeric_mutation": {
+        "sample_count": 5,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 5,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 5
+        }
+      },
+      "overgeneralization": {
+        "sample_count": 5,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 5,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 5
+        }
+      },
+      "partial_condition": {
+        "sample_count": 1,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 1
+        }
+      },
+      "supported": {
+        "sample_count": 18,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 18,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 18
+        }
+      },
+      "wrong_attribution": {
+        "sample_count": 1,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 1
+        }
+      }
+    }
+  },
+  "paper_summaries": {
+    "vaswani2017_transformer": {
+      "grade": "无法评级",
+      "total_score": 58.3,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 75.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "devlin2018_bert": {
+      "grade": "无法评级",
+      "total_score": 50.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 50.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "he2015_resnet": {
+      "grade": "无法评级",
+      "total_score": 50.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 50.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "hu2021_lora": {
+      "grade": "无法评级",
+      "total_score": 50.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 50.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "radford2021_clip": {
+      "grade": "无法评级",
+      "total_score": 58.3,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 75.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    }
+  }
+}

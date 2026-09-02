@@ -1,0 +1,29 @@
+{
+  "dataset_version": "peer-review-regression-v1.2",
+  "source_policy": "public_openreview_with_fixed_paper_version_arxiv_or_pmlr",
+  "issue_record_count": 30,
+  "paper_count": 10,
+  "provenance_verified_count": 30,
+  "annotation_review_manifest": "eval/peer_review_annotation_review_manifest.json",
+  "stage2_status": "completed_ai_annotation_pass",
+  "stage2_report": "eval/peer_review_stage2_report.json",
+  "dev_pdf_manifest": "eval/peer_review_dev_papers.json",
+  "dev_pdf_check": "eval/peer_review_dev_pdf_check.json",
+  "split": {
+    "dev": 22,
+    "holdout": 8,
+    "dev_records": 22,
+    "dev_papers": 7,
+    "holdout_papers": 3,
+    "pending_manual_review": 0,
+    "pending_ai_annotation": 0,
+    "holdout_policy": "论文级隔离；GeoPlant、Critical Phase Transition、Towards Interactive Global Geolocation Assistant 仅进入 holdout"
+  },
+  "coverage": {
+    "decisions": ["STRONG_ACCEPT", "WEAK_ACCEPT", "BORDERLINE", "WEAK_REJECT"],
+    "severities": ["P1", "P2", "P3"],
+    "categories": ["correctness", "evaluation", "novelty", "reproducibility", "clarity", "ethics"],
+    "gaps": ["STRONG_REJECT", "P0", "production_hy3_model_run"]
+  },
+  "next_gate": "针对 holdout 的 P1 漏报开展问题抽取规则和 Prompt 优化；优化后必须在同一 holdout 重跑。"
+}

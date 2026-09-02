@@ -1,0 +1,41 @@
+[
+  {
+    "paper_id": "graves2014_ntm",
+    "title": "Neural Turing Machines",
+    "authors": ["Alex Graves", "Greg Wayne", "Ivo Danihelka"],
+    "arxiv_id": "1410.5401",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1410.5401",
+    "pdf_url": "https://arxiv.org/pdf/1410.5401v1",
+    "local_pdf": "papers/1410.5401v1.pdf",
+    "sha256": "555f3a416e7a657dccde030c4771f678bc914b31051bd42b13aadb1b242df700",
+    "page_count": 26,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "chen2016_xgboost",
+    "title": "XGBoost: A Scalable Tree Boosting System",
+    "authors": ["Tianqi Chen", "Carlos Guestrin"],
+    "arxiv_id": "1603.02754",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1603.02754",
+    "pdf_url": "https://arxiv.org/pdf/1603.02754v1",
+    "local_pdf": "papers/1603.02754v1.pdf",
+    "sha256": "6efbbcf077f2a0344bddb5777a6cd74263a2860e05e55d4be6ca1db911f7c2b5",
+    "page_count": 13,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "hannun2014_deepspeech",
+    "title": "Deep Speech: Scaling up end-to-end speech recognition",
+    "authors": ["Awni Hannun", "Carl Case", "Jared Casper", "Bryan Catanzaro", "Greg Diamos", "Erich Elsen", "Ryan Prenger", "Sanjeev Satheesh", "Shubho Sengupta", "Adam Coates", "Andrew Y. Ng"],
+    "arxiv_id": "1412.5567",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1412.5567",
+    "pdf_url": "https://arxiv.org/pdf/1412.5567v1",
+    "local_pdf": "papers/1412.5567v1.pdf",
+    "sha256": "94a80694cfa8e033efbb884c3f519f75a9b6062e9e3ea7223105b4b60e3dabb0",
+    "page_count": 12,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  }
+]

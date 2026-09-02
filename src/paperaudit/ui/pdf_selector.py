@@ -86,37 +86,49 @@ _PDF_SELECTOR_CSS = """
   position: absolute;
   z-index: 5;
   left: 12px;
-  right: 12px;
   display: none;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 10px;
-  border: 1px solid rgba(37, 99, 235, .28);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, .97);
-  box-shadow: 0 10px 28px rgba(15, 23, 42, .18);
-  font: 12px/1.4 var(--st-font);
+  width: max-content;
+  box-sizing: border-box;
+  border: 1px solid rgba(6, 95, 70, .22);
+  border-radius: 999px;
+  background: #147052;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .2);
+  font: 12px/1.2 var(--st-font);
 }
 .pa-pdf-selection-action.is-visible { display: flex; }
-.pa-pdf-selection-preview {
-  min-width: 0;
-  overflow: hidden;
-  color: #475569;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.pa-pdf-selection-action::after {
+  position: absolute;
+  left: 18px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  content: '';
+}
+.pa-pdf-selection-action.is-above::after {
+  top: 100%;
+  border-top-color: #147052;
+}
+.pa-pdf-selection-action.is-below::after {
+  bottom: 100%;
+  border-bottom-color: #147052;
 }
 .pa-pdf-selection-button {
-  flex: 0 0 auto;
-  padding: 7px 11px;
+  padding: 8px 12px;
   border: 0;
-  border-radius: 7px;
-  background: #1f7a54;
+  border-radius: inherit;
+  background: transparent;
   color: white;
   font-weight: 650;
+  letter-spacing: .01em;
   cursor: pointer;
 }
-.pa-pdf-selection-button:hover { background: #176343; }
+.pa-pdf-selection-action:hover { background: #0f6047; }
+.pa-pdf-selection-action:hover::after { border-top-color: #0f6047; }
+.pa-pdf-selection-action.is-below:hover::after {
+  border-top-color: transparent;
+  border-bottom-color: #0f6047;
+}
 """
 
 _PDF_SELECTOR_JS = r"""
@@ -177,13 +189,12 @@ export default function(component) {
 
   const action = document.createElement('div');
   action.className = 'pa-pdf-selection-action';
-  const preview = document.createElement('div');
-  preview.className = 'pa-pdf-selection-preview';
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'pa-pdf-selection-button';
-  button.textContent = '针对选中内容提问';
-  action.append(preview, button);
+  button.textContent = '提问选中内容';
+  button.title = '针对选中内容提问';
+  action.appendChild(button);
   frame.appendChild(action);
   host.appendChild(frame);
 
@@ -231,6 +242,32 @@ export default function(component) {
     pendingSelection = null;
     action.classList.remove('is-visible');
   };
+  const positionAction = (anchorBox, frameBox) => {
+    const edge = 12;
+    const gap = 10;
+    action.classList.add('is-visible');
+    action.style.visibility = 'hidden';
+    action.style.left = '0px';
+    action.style.top = '0px';
+
+    const actionWidth = action.offsetWidth;
+    const actionHeight = action.offsetHeight;
+    const preferredLeft = anchorBox.left - frameBox.left;
+    const maxLeft = Math.max(edge, frameBox.width - actionWidth - edge);
+    const localLeft = Math.max(edge, Math.min(preferredLeft, maxLeft));
+    const above = anchorBox.top - frameBox.top - actionHeight - gap;
+    const below = anchorBox.bottom - frameBox.top + gap;
+    const placeAbove = above >= edge;
+    const preferredTop = placeAbove ? above : below;
+    const maxTop = Math.max(edge, frameBox.height - actionHeight - edge);
+    const localTop = Math.max(edge, Math.min(preferredTop, maxTop));
+
+    action.classList.toggle('is-above', placeAbove);
+    action.classList.toggle('is-below', !placeAbove);
+    action.style.left = `${localLeft}px`;
+    action.style.top = `${localTop}px`;
+    action.style.visibility = '';
+  };
   const handleSelection = (event) => {
     const selection = readSelection();
     if (!selection) {
@@ -272,12 +309,13 @@ export default function(component) {
       text: text.slice(0, 2000),
       rects,
     };
-    preview.textContent = text;
-    const lastRect = clientRects[clientRects.length - 1];
-    const pointerY = event?.clientY || lastRect.bottom;
-    const localY = Math.max(12, Math.min(frameBox.height - 58, pointerY - frameBox.top + 12));
-    action.style.top = `${localY}px`;
-    action.classList.add('is-visible');
+    const anchorBox = {
+      left: Math.min(...clientRects.map(rect => rect.left)),
+      top: Math.min(...clientRects.map(rect => rect.top)),
+      right: Math.max(...clientRects.map(rect => rect.right)),
+      bottom: Math.max(...clientRects.map(rect => rect.bottom)),
+    };
+    positionAction(anchorBox, frameBox);
   };
   const handleWordPick = (event) => {
     const word = event.target.closest?.('.pa-pdf-word');
@@ -298,9 +336,7 @@ export default function(component) {
         y1: Math.min(data.page_height, (wordBox.bottom - frameBox.top) * scaleY),
       }],
     };
-    preview.textContent = text;
-    action.style.top = `${Math.max(12, Math.min(frameBox.height - 58, wordBox.bottom - frameBox.top + 12))}px`;
-    action.classList.add('is-visible');
+    positionAction(wordBox, frameBox);
   };
   const submitSelection = (event) => {
     event.preventDefault();

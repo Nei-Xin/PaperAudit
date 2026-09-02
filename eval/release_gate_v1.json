@@ -1,0 +1,207 @@
+{
+  "release": "PaperAudit v1",
+  "passed": true,
+  "steps": [
+    {
+      "name": "pytest",
+      "command": ".venv/Scripts/python.exe -m pytest -q",
+      "returncode": 0,
+      "passed": true,
+      "stdout_tail": "........................................................................ [ 60%]\n...............................................                          [100%]\n119 passed in 1.84s\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "holdout_isolation",
+      "command": ".venv/Scripts/python.exe eval/check_holdout_isolation.py",
+      "returncode": 0,
+      "passed": true,
+      "stdout_tail": "{\n  \"final_paper_count\": 6,\n  \"final_paper_ids\": [\n    \"abadi2016_differential_privacy\",\n    \"andrychowicz2016_learning_to_learn\",\n    \"garnelo2018_neural_processes\",\n    \"guo2017_deepfm\",\n    \"ulyanov2017_deep_image_prior\",\n    \"zoph2016_nas_rl\"\n  ],\n  \"checked_split_count\": 8,\n  \"overlaps\": {},\n  \"isolated\": true\n}\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "offline_regression",
+      "command": ".venv/Scripts/python.exe eval/run_regression.py --output-dir eval/results_regression_v1_gate --top-k 5",
+      "returncode": 0,
+      "passed": true,
+      "stdout_tail": "           \"severity_accuracy\": 0.0,\n            \"abstain_rate\": 1.0,\n            \"gold_evidence_count\": 12,\n            \"retrieval_hit_rate\": 0.8333,\n            \"label_distribution\": {\n              \"ABSTAIN\": 12\n            }\n          },\n          \"external_hallucination\": {\n            \"sample_count\": 6,\n            \"label_accuracy\": 0.0,\n            \"label_macro_f1\": 0.0,\n            \"error_type_accuracy\": 0.0,\n            \"severity_accuracy\": 0.0,\n            \"abstain_rate\": 1.0,\n            \"gold_evidence_count\": 6,\n            \"retrieval_hit_rate\": 0.6667,\n            \"label_distribution\": {\n              \"ABSTAIN\": 6\n            }\n          },\n          \"numeric_mutation\": {\n            \"sample_count\": 7,\n            \"label_accuracy\": 0.0,\n            \"label_macro_f1\": 0.0,\n            \"error_type_accuracy\": 0.0,\n            \"severity_accuracy\": 0.0,\n            \"abstain_rate\": 1.0,\n            \"gold_evidence_count\": 7,\n            \"retrieval_hit_rate\": 0.8571,\n            \"label_distribution\": {\n              \"ABSTAIN\": 7\n            }\n          },\n          \"overgeneralization\": {\n            \"sample_count\": 8,\n            \"label_accuracy\": 0.0,\n            \"label_macro_f1\": 0.0,\n            \"error_type_accuracy\": 0.0,\n            \"severity_accuracy\": 0.0,\n            \"abstain_rate\": 1.0,\n            \"gold_evidence_count\": 8,\n            \"retrieval_hit_rate\": 1.0,\n            \"label_distribution\": {\n              \"ABSTAIN\": 8\n            }\n          },\n          \"supported\": {\n            \"sample_count\": 15,\n            \"label_accuracy\": 0.0,\n            \"label_macro_f1\": 0.0,\n            \"error_type_accuracy\": null,\n            \"severity_accuracy\": 1.0,\n            \"abstain_rate\": 1.0,\n            \"gold_evidence_count\": 15,\n            \"retrieval_hit_rate\": 0.9333,\n            \"label_distribution\": {\n              \"ABSTAIN\": 15\n            }\n          }\n        }\n      },\n      \"output_dir\": \"eval\\\\results_regression_v1_gate\\\\final_holdout\"\n    }\n  ]\n}\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "app_compile",
+      "command": ".venv/Scripts/python.exe -m py_compile app.py",
+      "returncode": 0,
+      "passed": true,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "name": "diagnostics_compile",
+      "command": ".venv/Scripts/python.exe -m py_compile eval/aggregate_production_diagnostics.py eval/e2e_smoke.py",
+      "returncode": 0,
+      "passed": true,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    }
+  ],
+  "final_holdout_snapshot": {
+    "passed": true,
+    "checks": {
+      "sample_count": true,
+      "retrieval_hit_rate": true,
+      "label_accuracy": true,
+      "error_type_accuracy": true,
+      "severity_accuracy": true,
+      "abstain_rate": true,
+      "dry_run_false": true
+    },
+    "metrics": {
+      "sample_count": 48,
+      "label_accuracy": 0.8333,
+      "label_macro_f1": 0.8005,
+      "error_type_accuracy": 0.7879,
+      "severity_accuracy": 0.8333,
+      "abstain_rate": 0.0,
+      "gold_evidence_count": 48,
+      "retrieval_hit_rate": 0.875,
+      "label_distribution": {
+        "SUPPORTED": 14,
+        "CONTRADICTED": 19,
+        "NO_SUPPORT_FOUND": 7,
+        "PARTIALLY_SUPPORTED": 8
+      },
+      "by_category": {
+        "contribution": {
+          "sample_count": 5,
+          "label_accuracy": 1.0,
+          "label_macro_f1": 1.0,
+          "error_type_accuracy": null,
+          "severity_accuracy": 1.0,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 5,
+          "retrieval_hit_rate": 1.0,
+          "label_distribution": {
+            "SUPPORTED": 5
+          }
+        },
+        "limitations": {
+          "sample_count": 1,
+          "label_accuracy": 1.0,
+          "label_macro_f1": 1.0,
+          "error_type_accuracy": 1.0,
+          "severity_accuracy": 1.0,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 1,
+          "retrieval_hit_rate": 1.0,
+          "label_distribution": {
+            "PARTIALLY_SUPPORTED": 1
+          }
+        },
+        "method": {
+          "sample_count": 19,
+          "label_accuracy": 0.8421,
+          "label_macro_f1": 0.653,
+          "error_type_accuracy": 0.8333,
+          "severity_accuracy": 0.8421,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 19,
+          "retrieval_hit_rate": 0.6842,
+          "label_distribution": {
+            "SUPPORTED": 6,
+            "CONTRADICTED": 9,
+            "NO_SUPPORT_FOUND": 3,
+            "PARTIALLY_SUPPORTED": 1
+          }
+        },
+        "results": {
+          "sample_count": 23,
+          "label_accuracy": 0.7826,
+          "label_macro_f1": 0.8042,
+          "error_type_accuracy": 0.75,
+          "severity_accuracy": 0.7826,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 23,
+          "retrieval_hit_rate": 1.0,
+          "label_distribution": {
+            "CONTRADICTED": 10,
+            "PARTIALLY_SUPPORTED": 6,
+            "NO_SUPPORT_FOUND": 4,
+            "SUPPORTED": 3
+          }
+        }
+      },
+      "by_construction": {
+        "contradiction": {
+          "sample_count": 12,
+          "label_accuracy": 1.0,
+          "label_macro_f1": 1.0,
+          "error_type_accuracy": 1.0,
+          "severity_accuracy": 1.0,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 12,
+          "retrieval_hit_rate": 0.8333,
+          "label_distribution": {
+            "CONTRADICTED": 12
+          }
+        },
+        "external_hallucination": {
+          "sample_count": 6,
+          "label_accuracy": 0.8333,
+          "label_macro_f1": 0.4545,
+          "error_type_accuracy": 0.8333,
+          "severity_accuracy": 0.5,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 6,
+          "retrieval_hit_rate": 0.6667,
+          "label_distribution": {
+            "NO_SUPPORT_FOUND": 5,
+            "PARTIALLY_SUPPORTED": 1
+          }
+        },
+        "numeric_mutation": {
+          "sample_count": 7,
+          "label_accuracy": 0.5714,
+          "label_macro_f1": 0.2424,
+          "error_type_accuracy": 0.5714,
+          "severity_accuracy": 0.8571,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 7,
+          "retrieval_hit_rate": 0.8571,
+          "label_distribution": {
+            "CONTRADICTED": 4,
+            "PARTIALLY_SUPPORTED": 1,
+            "NO_SUPPORT_FOUND": 2
+          }
+        },
+        "overgeneralization": {
+          "sample_count": 8,
+          "label_accuracy": 0.625,
+          "label_macro_f1": 0.3846,
+          "error_type_accuracy": 0.625,
+          "severity_accuracy": 0.625,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 8,
+          "retrieval_hit_rate": 1.0,
+          "label_distribution": {
+            "CONTRADICTED": 3,
+            "PARTIALLY_SUPPORTED": 5
+          }
+        },
+        "supported": {
+          "sample_count": 15,
+          "label_accuracy": 0.9333,
+          "label_macro_f1": 0.4828,
+          "error_type_accuracy": null,
+          "severity_accuracy": 0.9333,
+          "abstain_rate": 0.0,
+          "gold_evidence_count": 15,
+          "retrieval_hit_rate": 0.9333,
+          "label_distribution": {
+            "SUPPORTED": 14,
+            "PARTIALLY_SUPPORTED": 1
+          }
+        }
+      }
+    }
+  },
+  "policy": "规则冻结；最终留出集只作发布快照校验，不用于调参"
+}

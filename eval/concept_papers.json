@@ -1,0 +1,41 @@
+[
+  {
+    "paper_id": "baevski2020_wav2vec2",
+    "title": "wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations",
+    "authors": ["Alexei Baevski", "Henry Zhou", "Abdelrahman Mohamed", "Michael Auli"],
+    "arxiv_id": "2006.11477",
+    "version": "v3",
+    "url": "https://arxiv.org/abs/2006.11477",
+    "pdf_url": "https://arxiv.org/pdf/2006.11477",
+    "local_pdf": "papers/2006.11477.pdf",
+    "sha256": "4a881708378143547a5c053f62090104afb49782a4c71d78441dde0a818758ff",
+    "page_count": 19,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "kipf2016_gcn",
+    "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+    "authors": ["Thomas N. Kipf", "Max Welling"],
+    "arxiv_id": "1609.02907",
+    "version": "v4",
+    "url": "https://arxiv.org/abs/1609.02907",
+    "pdf_url": "https://arxiv.org/pdf/1609.02907",
+    "local_pdf": "papers/1609.02907.pdf",
+    "sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+    "page_count": 14,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "ho2020_ddpm",
+    "title": "Denoising Diffusion Probabilistic Models",
+    "authors": ["Jonathan Ho", "Ajay Jain", "Pieter Abbeel"],
+    "arxiv_id": "2006.11239",
+    "version": "v2",
+    "url": "https://arxiv.org/abs/2006.11239",
+    "pdf_url": "https://arxiv.org/pdf/2006.11239",
+    "local_pdf": "papers/2006.11239.pdf",
+    "sha256": "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+    "page_count": 25,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  }
+]

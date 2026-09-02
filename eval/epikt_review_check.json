@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": {
+    "decision_borderline": true,
+    "score_six": true,
+    "confidence_three": true,
+    "no_author_rebuttal": true,
+    "episode_semantics": true,
+    "statistical_robustness": true,
+    "reproducibility": true,
+    "long_sequence_scope": true,
+    "gate_interpretation": true
+  },
+  "path": "D:\\downloads\\paperaudit-peer-review.md"
+}

@@ -14,6 +14,13 @@ from pathlib import Path
 _ORDER = {"STRONG_REJECT": 0, "WEAK_REJECT": 1, "BORDERLINE": 2, "WEAK_ACCEPT": 3, "STRONG_ACCEPT": 4}
 
 
+def _portable_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return str(path)
+
+
 def evaluate(run_dirs: list[Path], manifest: Path, review_path: Path | None = None) -> dict[str, object]:
     if len(run_dirs) < 2:
         raise ValueError("至少需要两次 dev 真实评审运行")
@@ -107,7 +114,7 @@ def evaluate(run_dirs: list[Path], manifest: Path, review_path: Path | None = No
         })
     result = {
         "evaluation_version": "peer-review-stage9-dev-stability-v1",
-        "run_dirs": [str(path) for path in run_dirs],
+        "run_dirs": [_portable_path(path) for path in run_dirs],
         "paper_count": len(papers),
         "repeat_count": len(run_dirs),
         "passed": all(bool(item["passed"]) for item in papers),
@@ -115,7 +122,7 @@ def evaluate(run_dirs: list[Path], manifest: Path, review_path: Path | None = No
         "papers": papers,
         "high_risk_review_queue": review_queue,
         "resolved_high_risk_reviews": resolved_reviews,
-        "review_file": str(review_path) if review_path else None,
+        "review_file": _portable_path(review_path) if review_path else None,
     }
     return result
 

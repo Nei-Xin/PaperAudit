@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "dev_paper_count": 6,
+  "manifest_paper_count": 7,
+  "missing_manifest": [],
+  "missing_files": [],
+  "hash_mismatch": [],
+  "policy": "只使用固定版本 PDF；哈希不一致时禁止进入真实模型回归。"
+}

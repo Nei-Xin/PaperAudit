@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "decision_span_bands": 1,
+  "score_span": 1.0,
+  "decisions": [
+    "BORDERLINE",
+    "WEAK_ACCEPT",
+    "BORDERLINE"
+  ],
+  "scores": [
+    6.0,
+    7.0,
+    6.0
+  ],
+  "paths": [
+    "eval\\epikt_stage9_real_model.json",
+    "eval\\epikt_stage9_real_model_v2.json",
+    "eval\\epikt_stage9_real_model_temp0.json"
+  ],
+  "policy": "同一论文重复运行允许最多一档建议漂移、评分最多 1.5 分；超过阈值需降低温度或复核提示词。"
+}

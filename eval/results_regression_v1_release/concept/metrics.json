@@ -1,0 +1,145 @@
+{
+  "config": {
+    "dry_run": true,
+    "retrieval_top_k": 5,
+    "oracle_evidence": false
+  },
+  "metrics": {
+    "sample_count": 12,
+    "label_accuracy": 0.0,
+    "label_macro_f1": 0.0,
+    "error_type_accuracy": 0.0,
+    "severity_accuracy": 0.5,
+    "abstain_rate": 1.0,
+    "gold_evidence_count": 12,
+    "retrieval_hit_rate": 0.5833,
+    "label_distribution": {
+      "ABSTAIN": 12
+    },
+    "by_category": {
+      "dataset_setup": {
+        "sample_count": 6,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.1667,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 6,
+        "retrieval_hit_rate": 0.1667,
+        "label_distribution": {
+          "ABSTAIN": 6
+        }
+      },
+      "method": {
+        "sample_count": 6,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.8333,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 6,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 6
+        }
+      }
+    },
+    "by_construction": {
+      "contradiction": {
+        "sample_count": 3,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 3,
+        "retrieval_hit_rate": 0.6667,
+        "label_distribution": {
+          "ABSTAIN": 3
+        }
+      },
+      "external_hallucination": {
+        "sample_count": 3,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 3,
+        "retrieval_hit_rate": 0.0,
+        "label_distribution": {
+          "ABSTAIN": 3
+        }
+      },
+      "supported": {
+        "sample_count": 6,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 6,
+        "retrieval_hit_rate": 0.8333,
+        "label_distribution": {
+          "ABSTAIN": 6
+        }
+      }
+    }
+  },
+  "paper_summaries": {
+    "baevski2020_wav2vec2": {
+      "grade": "无法评级",
+      "total_score": 40.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 20.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 4
+    },
+    "kipf2016_gcn": {
+      "grade": "无法评级",
+      "total_score": 40.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 20.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 4
+    },
+    "ho2020_ddpm": {
+      "grade": "无法评级",
+      "total_score": 40.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 20.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 4
+    }
+  }
+}

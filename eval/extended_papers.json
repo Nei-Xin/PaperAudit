@@ -1,0 +1,41 @@
+[
+  {
+    "paper_id": "kingma2014_adam",
+    "title": "Adam: A Method for Stochastic Optimization",
+    "authors": ["Diederik P. Kingma", "Jimmy Lei Ba"],
+    "arxiv_id": "1412.6980",
+    "version": "v9",
+    "url": "https://arxiv.org/abs/1412.6980",
+    "pdf_url": "https://arxiv.org/pdf/1412.6980",
+    "local_pdf": "papers/1412.6980.pdf",
+    "sha256": "eab9c73ae2ceda884b94830bda99312254bac4806f6c9f045cbab90721ecda31",
+    "page_count": 15,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "hinton2012_dropout",
+    "title": "Improving neural networks by preventing co-adaptation of feature detectors",
+    "authors": ["G. E. Hinton", "N. Srivastava", "A. Krizhevsky", "I. Sutskever", "R. R. Salakhutdinov"],
+    "arxiv_id": "1207.0580",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1207.0580",
+    "pdf_url": "https://arxiv.org/pdf/1207.0580",
+    "local_pdf": "papers/1207.0580.pdf",
+    "sha256": "997046169952532654f9ab620d511ed4e49eb30018893b7de144fdb485030358",
+    "page_count": 18,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "bahdanau2014_nmt",
+    "title": "Neural Machine Translation by Jointly Learning to Align and Translate",
+    "authors": ["Dzmitry Bahdanau", "KyungHyun Cho", "Yoshua Bengio"],
+    "arxiv_id": "1409.0473",
+    "version": "v7",
+    "url": "https://arxiv.org/abs/1409.0473",
+    "pdf_url": "https://arxiv.org/pdf/1409.0473",
+    "local_pdf": "papers/1409.0473.pdf",
+    "sha256": "84801c8410da51b449d379d2fa4939a416123f2c93991077a680f863026022a7",
+    "page_count": 15,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  }
+]

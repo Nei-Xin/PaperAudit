@@ -1,0 +1,75 @@
+{
+  "scoring_probes": {
+    "scores": {
+      "good": {
+        "grade": "可信",
+        "total_score": 100.0,
+        "audit_coverage": 100.0,
+        "evidence_discovery_rate": 100.0,
+        "dimensions": {
+          "factual_support": 100.0,
+          "evidence_correctness": 100.0,
+          "evidence_completeness": 100.0,
+          "numeric_consistency": null,
+          "content_coverage": 100.0,
+          "conclusion_boundary": 100.0
+        },
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 0,
+        "review_count": 0
+      },
+      "medium": {
+        "grade": "需复核",
+        "total_score": 85.0,
+        "audit_coverage": 100.0,
+        "evidence_discovery_rate": 100.0,
+        "dimensions": {
+          "factual_support": 75.0,
+          "evidence_correctness": 100.0,
+          "evidence_completeness": 100.0,
+          "numeric_consistency": null,
+          "content_coverage": 100.0,
+          "conclusion_boundary": 50.0
+        },
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 4,
+        "review_count": 0
+      },
+      "bad": {
+        "grade": "不可信",
+        "total_score": 40.0,
+        "audit_coverage": 100.0,
+        "evidence_discovery_rate": 100.0,
+        "dimensions": {
+          "factual_support": 0.0,
+          "evidence_correctness": 0.0,
+          "evidence_completeness": 100.0,
+          "numeric_consistency": null,
+          "content_coverage": 100.0,
+          "conclusion_boundary": 0.0
+        },
+        "critical_count": 0,
+        "high_count": 0,
+        "medium_count": 8,
+        "review_count": 0
+      }
+    },
+    "discrimination_order_correct": true,
+    "adversarial_length_invariance": true,
+    "note": "这是评分器层面的自动探针，不等价于对 Hy3 生成报告的人工质量判断。"
+  },
+  "consistency": {
+    "sample_count": 40,
+    "repeats": 3,
+    "label_pairwise_agreement": 0.9833,
+    "mean_paper_score": 69.4533,
+    "paper_score_std": 0.5468,
+    "runs": [
+      "eval\\validation_full\\run_1",
+      "eval\\validation_full\\run_2",
+      "eval\\validation_full\\run_3"
+    ]
+  }
+}

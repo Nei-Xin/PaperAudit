@@ -1,0 +1,209 @@
+{
+  "config": {
+    "dry_run": false,
+    "retrieval_top_k": 5,
+    "oracle_evidence": false
+  },
+  "metrics": {
+    "sample_count": 10,
+    "label_accuracy": 0.9,
+    "label_macro_f1": 0.6364,
+    "error_type_accuracy": 0.8,
+    "severity_accuracy": 0.9,
+    "abstain_rate": 0.0,
+    "gold_evidence_count": 10,
+    "retrieval_hit_rate": 1.0,
+    "label_distribution": {
+      "SUPPORTED": 6,
+      "CONTRADICTED": 4
+    },
+    "by_category": {
+      "contribution": {
+        "sample_count": 1,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 1
+        }
+      },
+      "dataset_setup": {
+        "sample_count": 1,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": 1.0,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "CONTRADICTED": 1
+        }
+      },
+      "method": {
+        "sample_count": 4,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 4,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 4
+        }
+      },
+      "results": {
+        "sample_count": 4,
+        "label_accuracy": 0.75,
+        "label_macro_f1": 0.3333,
+        "error_type_accuracy": 0.75,
+        "severity_accuracy": 0.75,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 4,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 1,
+          "CONTRADICTED": 3
+        }
+      }
+    },
+    "by_construction": {
+      "numeric_mutation": {
+        "sample_count": 4,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": 1.0,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 4,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "CONTRADICTED": 4
+        }
+      },
+      "partial_condition": {
+        "sample_count": 1,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 1
+        }
+      },
+      "supported": {
+        "sample_count": 5,
+        "label_accuracy": 1.0,
+        "label_macro_f1": 1.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 0.0,
+        "gold_evidence_count": 5,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "SUPPORTED": 5
+        }
+      }
+    }
+  },
+  "paper_summaries": {
+    "vaswani2017_transformer": {
+      "grade": "可信",
+      "total_score": 91.7,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 100.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 100.0,
+        "content_coverage": 50.0,
+        "conclusion_boundary": 100.0
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 0
+    },
+    "devlin2018_bert": {
+      "grade": "需复核",
+      "total_score": 66.7,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 50.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 50.0,
+        "conclusion_boundary": 100.0
+      },
+      "critical_count": 0,
+      "high_count": 1,
+      "medium_count": 0,
+      "review_count": 0
+    },
+    "he2015_resnet": {
+      "grade": "需复核",
+      "total_score": 66.7,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 50.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 50.0,
+        "conclusion_boundary": 100.0
+      },
+      "critical_count": 0,
+      "high_count": 1,
+      "medium_count": 0,
+      "review_count": 0
+    },
+    "hu2021_lora": {
+      "grade": "需复核",
+      "total_score": 66.7,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 50.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 50.0,
+        "conclusion_boundary": 100.0
+      },
+      "critical_count": 0,
+      "high_count": 1,
+      "medium_count": 0,
+      "review_count": 0
+    },
+    "radford2021_clip": {
+      "grade": "需复核",
+      "total_score": 62.5,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 50.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 25.0,
+        "conclusion_boundary": 100.0
+      },
+      "critical_count": 0,
+      "high_count": 1,
+      "medium_count": 0,
+      "review_count": 0
+    }
+  }
+}

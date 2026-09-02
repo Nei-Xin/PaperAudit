@@ -1,0 +1,28 @@
+{
+  "metrics": {
+    "sample_count": 22,
+    "paper_count": 7,
+    "category_accuracy": 1.0,
+    "severity_macro_f1": 1.0,
+    "evidence_valid_accuracy": 1.0,
+    "confidence_calibration_mae": 0.2727272727272727,
+    "p0_false_positive_rate": 0.0,
+    "p1_miss_rate": 0.0,
+    "decision_severity_mismatch_rate": 0.0,
+    "gold_category_distribution": {
+      "evaluation": 6,
+      "reproducibility": 2,
+      "clarity": 8,
+      "novelty": 2,
+      "ethics": 2,
+      "correctness": 2
+    },
+    "gold_severity_distribution": {
+      "P1": 14,
+      "P2": 6,
+      "P3": 2
+    }
+  },
+  "gold": "eval\\peer_review_regression_dev.jsonl",
+  "predictions": "oracle-dry-run"
+}

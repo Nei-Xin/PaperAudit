@@ -1,6 +1,6 @@
 {
   "gate_version": "peer-review-quality-gate-v1",
-  "gold": "D:\\data\\code\\project\\PaperAudit\\eval\\peer_review_regression.jsonl",
+  "gold": "eval/peer_review_regression.jsonl",
   "dataset": {
     "passed": true,
     "checks": {

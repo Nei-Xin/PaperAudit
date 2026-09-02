@@ -1,0 +1,41 @@
+[
+  {
+    "paper_id": "kingma2013_vae",
+    "title": "Auto-Encoding Variational Bayes",
+    "authors": ["Diederik P. Kingma", "Max Welling"],
+    "arxiv_id": "1312.6114",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1312.6114",
+    "pdf_url": "https://arxiv.org/pdf/1312.6114v1",
+    "local_pdf": "papers/1312.6114v1.pdf",
+    "sha256": "1a320bb73327d1ccb5d8df2d290ade85f80a22e2131635b2d87b5df9b6994153",
+    "page_count": 9,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "chen2018_neural_ode",
+    "title": "Neural Ordinary Differential Equations",
+    "authors": ["Ricky T. Q. Chen", "Yulia Rubanova", "Jesse Bettencourt", "David Duvenaud"],
+    "arxiv_id": "1806.07366",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1806.07366",
+    "pdf_url": "https://arxiv.org/pdf/1806.07366v1",
+    "local_pdf": "papers/1806.07366v1.pdf",
+    "sha256": "5bc31ec1ab6ba56aa892ecef04ef4b097b378767184cad4486ac0a79d6679433",
+    "page_count": 19,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "dong2014_srcnn",
+    "title": "Image Super-Resolution Using Deep Convolutional Networks",
+    "authors": ["Chao Dong", "Chen Change Loy", "Kaiming He", "Xiaoou Tang"],
+    "arxiv_id": "1501.00092",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1501.00092",
+    "pdf_url": "https://arxiv.org/pdf/1501.00092v1",
+    "local_pdf": "papers/1501.00092v1.pdf",
+    "sha256": "b095130619fafe47ec500d107203dcddba24786a770535762c44f22c851971fc",
+    "page_count": 14,
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  }
+]

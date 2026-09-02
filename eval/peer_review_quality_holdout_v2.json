@@ -1,0 +1,28 @@
+{
+  "metrics": {
+    "sample_count": 8,
+    "paper_count": 3,
+    "category_accuracy": 1.0,
+    "severity_macro_f1": 0.9047619047619048,
+    "evidence_valid_accuracy": 1.0,
+    "confidence_calibration_mae": 0.3,
+    "p0_false_positive_rate": 0.0,
+    "p1_miss_rate": 0.25,
+    "p1_miss_rate_evidence_backed": 0.0,
+    "p1_evidence_backed_count": 3,
+    "decision_severity_mismatch_rate": 0.0,
+    "gold_category_distribution": {
+      "evaluation": 3,
+      "clarity": 2,
+      "novelty": 2,
+      "reproducibility": 1
+    },
+    "gold_severity_distribution": {
+      "P1": 4,
+      "P2": 3,
+      "P3": 1
+    }
+  },
+  "gold": "eval\\peer_review_regression_holdout.jsonl",
+  "predictions": "eval\\predictions\\codex-ai-annotation-v1-holdout.jsonl"
+}

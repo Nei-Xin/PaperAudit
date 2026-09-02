@@ -1,0 +1,14 @@
+{
+  "review_version": "peer-review-annotation-review-v1",
+  "record_count": 30,
+  "agreement_count": 28,
+  "disagreement_count": 2,
+  "review_mode": "ai_second_pass_annotation",
+  "annotator_type": "AI",
+  "annotator_identity": "PaperAudit AI annotation pass",
+  "human_signoff_required": false,
+  "blind_queue": "eval/peer_review_holdout_blind_review_queue.jsonl",
+  "ai_annotated_count": 8,
+  "ai_annotation_complete": true,
+  "limitation": "AI 标注用于离线一致性和误差分析，不代表真实会议评审或录用概率。"
+}

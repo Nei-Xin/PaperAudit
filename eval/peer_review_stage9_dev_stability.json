@@ -234,5 +234,5 @@
       ]
     }
   ],
-  "review_file": "D:\\data\\code\\project\\PaperAudit\\eval\\peer_review_stage9_dev_high_risk_review.json"
+  "review_file": "eval/peer_review_stage9_dev_high_risk_review.json"
 }
