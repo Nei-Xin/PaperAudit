@@ -642,15 +642,46 @@ def inject_custom_styles() -> None:
         .pa-peer-scale-step.pa-peer-decision-borderline {color:#9a6700;}
         .pa-peer-scale-step.pa-peer-decision-weak-reject {color:#b54708;}
         .pa-peer-scale-step.pa-peer-decision-strong-reject {color:#b42318;}
+        section.main:has(.st-key-peer_review_workspace),
+        .block-container:has(.st-key-peer_review_workspace) {
+            height:100vh !important;max-height:100vh !important;min-height:0 !important;overflow:hidden !important;
+        }
+        .block-container:has(.st-key-peer_review_workspace) > [data-testid="stVerticalBlock"] {
+            height:100%;min-height:0;display:flex;flex-direction:column;
+        }
+        .block-container:has(.st-key-peer_review_workspace) > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"] {flex:0 0 auto !important;min-height:0 !important;}
+        .block-container:has(.st-key-peer_review_workspace) > [data-testid="stVerticalBlock"]
+        > [data-testid="stLayoutWrapper"]:has(.st-key-peer_review_workspace) {
+            flex:1 1 0 !important;min-height:0 !important;overflow:hidden;
+        }
+        .st-key-peer_review_workspace,
+        .st-key-peer_review_workspace > [data-testid="stLayoutWrapper"],
+        .st-key-peer_review_workspace > [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {
+            height:100% !important;min-height:0 !important;display:flex;flex-direction:column;overflow:hidden;
+        }
+        .st-key-peer_review_workspace [data-testid="stHorizontalBlock"]:has(.st-key-peer_review_source_panel) {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;align-items:stretch !important;
+        }
+        .st-key-peer_review_workspace [data-testid="stHorizontalBlock"]:has(.st-key-peer_review_source_panel)
+        > [data-testid="stColumn"] {
+            height:100% !important;min-height:0 !important;display:flex;flex-direction:column;overflow:hidden;
+        }
+        .st-key-peer_review_workspace [data-testid="stLayoutWrapper"]:has(>
+        .st-key-peer_review_source_panel),
+        .st-key-peer_review_workspace [data-testid="stLayoutWrapper"]:has(>
+        .st-key-peer_review_side_panel) {
+            flex:1 1 0 !important;height:100% !important;min-height:0 !important;overflow:hidden;
+        }
         .st-key-peer_review_source_panel {
-            height:calc(100vh - 17rem) !important;max-height:calc(100vh - 17rem) !important;
-            min-height:32rem !important;overflow-y:auto;overflow-x:hidden;
+            flex:1 1 0 !important;height:100% !important;max-height:none !important;
+            min-height:0 !important;overflow-y:auto;overflow-x:hidden;
             padding:.35rem .5rem .6rem;border:1px solid var(--pa-border-medium);background:var(--pa-surface);
             border-radius:var(--pa-radius-lg);box-shadow:var(--pa-shadow-xs);scrollbar-gutter:stable;
         }
         .st-key-peer_review_side_panel {
-            height:calc(100vh - 17rem) !important;max-height:calc(100vh - 17rem) !important;
-            min-height:32rem !important;overflow-y:auto;overflow-x:hidden;
+            flex:1 1 0 !important;height:100% !important;max-height:none !important;
+            min-height:0 !important;overflow-y:auto;overflow-x:hidden;
             padding:0 .35rem .75rem 0;scrollbar-gutter:stable;
         }
         .st-key-peer_review_side_panel [data-testid="stTabs"] > div:first-child {
@@ -1075,28 +1106,31 @@ def inject_custom_styles() -> None:
         .pa-learning-nav-link:hover {color:var(--pa-primary-hover) !important; background:var(--pa-primary-surface);}
         .pa-learning-section-anchor {scroll-margin-top:4rem;}
         .st-key-learning_section_bar {
-            height:40px;padding:0 .25rem;margin:0;border:0;border-bottom:1px solid var(--pa-border-divider);
+            height:44px;padding:0 .25rem;margin:0;border:0;border-bottom:1px solid var(--pa-border-divider);
             border-radius:10px 10px 0 0;background:var(--pa-bg);position:relative;top:auto;z-index:11;
             box-shadow:none;
         }
         .st-key-learning_section_bar [role="radiogroup"] {
-            height:40px;gap:0 !important;border:0 !important;border-radius:0 !important;
+            height:44px;gap:.15rem !important;border:0 !important;border-radius:0 !important;
             flex-wrap:nowrap !important;
-            background:transparent !important;overflow-x:auto;scrollbar-width:none;
+            background:transparent !important;overflow-x:auto;overflow-y:hidden;
+            scrollbar-width:thin;scrollbar-color:var(--pa-border-medium) transparent;
         }
-        .st-key-learning_section_bar [role="radiogroup"]::-webkit-scrollbar {display:none;}
+        .st-key-learning_section_bar [role="radiogroup"]::-webkit-scrollbar {height:3px;}
+        .st-key-learning_section_bar [role="radiogroup"]::-webkit-scrollbar-thumb {
+            background:var(--pa-border-medium);border-radius:999px;
+        }
         .st-key-learning_section_bar [role="radio"],
         .st-key-learning_section_bar button {
-            height:40px;min-height:40px;min-width:0 !important;flex:1 1 0 !important;
-            padding:.1rem 0 !important;
+            height:41px;min-height:41px;min-width:4.6rem !important;flex:0 0 auto !important;
+            padding:.1rem .55rem !important;
             border:0 !important;border-radius:0 !important;background:transparent !important;
             box-shadow:none !important;color:var(--pa-text-secondary) !important;font-weight:560;
-            font-size:.72rem !important;white-space:nowrap !important;overflow:hidden !important;
+            font-size:.74rem !important;white-space:nowrap !important;overflow:visible !important;
         }
         .st-key-learning_section_bar [role="radio"] p,
         .st-key-learning_section_bar button p {
-            margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-            font-size:.72rem !important;
+            margin:0;overflow:visible;white-space:nowrap;font-size:.74rem !important;
         }
         .st-key-learning_section_bar [role="radio"][aria-checked="true"],
         .st-key-learning_section_bar button[aria-checked="true"] {
@@ -1644,24 +1678,23 @@ def inject_custom_styles() -> None:
         /* Streamlit inserts a layout wrapper between keyed containers and
            their children. Constrain both layers so the workspace is truly
            viewport-sized instead of being expanded by the longest panel. */
-        section.main:has(.st-key-joint_workspace) {height:auto;min-height:100vh;overflow:visible;}
+        section.main:has(.st-key-joint_workspace) {height:100vh;min-height:0;overflow:hidden;}
         .block-container:has(.st-key-joint_workspace) {
-            height:auto;min-height:calc(100vh + 2.5rem);overflow:visible;
+            height:100vh;max-height:100vh;min-height:0;overflow:hidden;
         }
-        /* Keep a page-level vertical scroll available as a fallback when the
-           pointer is outside an individual panel.  The PDF, code, file-tree,
-           and Assistant regions still keep their own scroll positions. */
+        /* Keep the desktop shell fixed. PDF, code, file tree, and Assistant
+           history each own one explicit scroll position. */
         body:has(.st-key-joint_workspace) .stApp,
         body:has(.st-key-joint_workspace) [data-testid="stAppViewContainer"] {
-            overflow-y:auto !important;overflow-x:hidden !important;
+            height:100vh !important;max-height:100vh !important;overflow:hidden !important;
         }
         body:has(.st-key-joint_workspace) [data-testid="stMain"],
         body:has(.st-key-joint_workspace) .stMain {
-            overflow:visible !important;
+            height:100vh !important;max-height:100vh !important;overflow:hidden !important;
         }
         .st-key-joint_workspace {
-            box-sizing:border-box;height:calc(100vh - 7.5rem) !important;
-            min-height:540px !important;max-height:calc(100vh - 7.5rem) !important;
+            box-sizing:border-box;height:calc(100vh - 8.1rem) !important;
+            min-height:540px !important;max-height:calc(100vh - 8.1rem) !important;
             width:100% !important;max-width:100% !important;margin:.4rem 0 0;padding:0 .25rem;
             flex:0 0 auto !important;overflow:hidden;
         }
@@ -1813,16 +1846,18 @@ def inject_custom_styles() -> None:
             object-fit:contain !important;border-radius:8px;border:1px solid var(--pa-border-medium);
             background:var(--pa-bg);box-shadow:var(--pa-shadow-xs);
         }
-        .st-key-joint_pdf_panel,.st-key-joint_conversation_panel {overflow-y:auto;}
+        .st-key-joint_pdf_panel {overflow-y:auto;}
         .st-key-joint_code_panel {overflow:hidden;border-left:1px solid var(--pa-border);}
-        .st-key-joint_conversation_panel {border-left:1px solid var(--pa-border);padding-bottom:.3rem;}
+        .st-key-joint_conversation_panel {
+            overflow:hidden;border-left:1px solid var(--pa-border);padding-bottom:.3rem;
+        }
         .st-key-joint_assistant_scroll {
-            flex:0 1 auto !important;height:auto !important;min-height:0;max-height:100%;
+            flex:1 1 0 !important;height:auto !important;min-height:0;max-height:none;
             overflow-y:auto;overflow-x:hidden;
             overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:.35rem;
         }
         .st-key-joint_conversation_panel > [data-testid="stLayoutWrapper"]:has(.st-key-joint_assistant_scroll) {
-            flex:0 1 auto;min-height:0;max-height:100%;overflow:hidden;
+            flex:1 1 0;min-height:0;max-height:none;overflow:hidden;
         }
         .st-key-joint_assistant_scroll > [data-testid="stLayoutWrapper"] {
             min-height:0;display:flex;flex-direction:column;
@@ -2209,14 +2244,59 @@ def inject_custom_styles() -> None:
             .st-key-joint_conversation_panel {padding-left:.25rem;padding-right:.25rem;}
             .st-key-joint_pdf_toolbar button {font-size:.68rem;}
         }
+        @media (max-width:1350px) and (min-width:1101px) {
+            /* Balanced mode keeps readable content widths by stacking paper
+               and code on the left, with Assistant spanning the right rail. */
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel) {
+                display:grid !important;
+                grid-template-columns:minmax(0,1fr) minmax(330px,34%);
+                grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+                gap:.45rem !important;
+            }
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel)
+            > [data-testid="stColumn"] {
+                width:auto !important;min-width:0 !important;height:auto !important;min-height:0 !important;
+            }
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel)
+            > [data-testid="stColumn"]:nth-child(1) {grid-column:1;grid-row:1;}
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel)
+            > [data-testid="stColumn"]:nth-child(2) {grid-column:1;grid-row:2;}
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel)
+            > [data-testid="stColumn"]:nth-child(3) {grid-column:2;grid-row:1 / span 2;}
+        }
         @media (max-width:1100px) and (min-width:701px) {
-            .st-key-joint_workspace {height:calc(100vh - 13.2rem);min-height:440px;}
-            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
-            > [data-testid="stColumn"]:nth-child(1),
-            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
-            > [data-testid="stColumn"]:nth-child(2) {flex:1 1 0 !important;min-width:0 !important;}
-            [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel)
-            > [data-testid="stColumn"]:nth-child(3) {flex:0 0 320px !important;width:320px !important;}
+            section.main:has(.st-key-joint_workspace),
+            .block-container:has(.st-key-joint_workspace) {
+                height:auto !important;max-height:none !important;min-height:100vh !important;overflow:visible !important;
+            }
+            body:has(.st-key-joint_workspace) .stApp,
+            body:has(.st-key-joint_workspace) [data-testid="stAppViewContainer"],
+            body:has(.st-key-joint_workspace) [data-testid="stMain"] {
+                height:auto !important;max-height:none !important;overflow-y:auto !important;overflow-x:hidden !important;
+            }
+            .st-key-joint_workspace {
+                height:auto !important;max-height:none !important;min-height:0 !important;overflow:visible;
+            }
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel) {
+                display:grid !important;grid-template-columns:minmax(0,1fr) !important;
+                grid-template-rows:repeat(3,minmax(440px,68vh));gap:.75rem !important;height:auto !important;
+            }
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_pdf_panel):has(.st-key-joint_code_panel)
+            > [data-testid="stColumn"] {
+                grid-column:1 !important;grid-row:auto !important;width:100% !important;
+                min-width:0 !important;height:100% !important;min-height:440px !important;
+            }
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_code_panel):has(.st-key-joint_conversation_panel):not(:has(.st-key-joint_pdf_panel)),
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel):has(.st-key-qa_conversation_panel) {
+                height:auto !important;min-height:0 !important;flex-wrap:wrap !important;gap:.75rem !important;
+            }
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-joint_code_panel):has(.st-key-joint_conversation_panel):not(:has(.st-key-joint_pdf_panel))
+            > [data-testid="stColumn"],
+            .st-key-joint_workspace [data-testid="stHorizontalBlock"]:has(.st-key-qa_source_panel):has(.st-key-qa_conversation_panel)
+            > [data-testid="stColumn"] {
+                flex:1 1 100% !important;width:100% !important;min-width:0 !important;
+                height:68vh !important;min-height:440px !important;
+            }
             .st-key-joint_conversation_panel {font-size:.88rem;}
         }
         @media (max-width:700px) {
@@ -2224,6 +2304,15 @@ def inject_custom_styles() -> None:
                phones so the natural single-column flow remains scrollable. */
             section.main:has(.st-key-joint_workspace) {height:auto;overflow:visible;}
             .block-container:has(.st-key-joint_workspace) {height:auto;min-height:0;overflow:visible;}
+            section.main:has(.st-key-peer_review_workspace),
+            .block-container:has(.st-key-peer_review_workspace) {
+                height:auto !important;max-height:none !important;min-height:0 !important;overflow:visible !important;
+            }
+            .st-key-peer_review_workspace,
+            .st-key-peer_review_source_panel,
+            .st-key-peer_review_side_panel {
+                height:auto !important;max-height:none !important;min-height:0 !important;overflow:visible !important;
+            }
             .st-key-joint_workspace {
                 height:auto !important;max-height:none !important;min-height:0 !important;
                 overflow:visible;

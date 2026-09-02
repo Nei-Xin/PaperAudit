@@ -44,6 +44,7 @@ _PDF_SELECTOR_CSS = """
   height: 100%;
   display: block;
   object-fit: contain;
+  image-rendering: auto;
   user-select: none;
   pointer-events: none;
 }
@@ -148,7 +149,7 @@ export default function(component) {
    const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || .92), 1.08));
    const availableWidth = Math.max(120, host.clientWidth - 28);
    const fitWidth = Math.min(availableWidth * fitScale, 1120);
-   const pageWidth = fitWidth * zoom / 100;
+   const pageWidth = Math.round(fitWidth * zoom / 100);
   frame.style.width = `${Math.max(120, pageWidth)}px`;
 
   const image = document.createElement('img');
@@ -355,12 +356,12 @@ export default function(component) {
   }
   const resizePage = () => {
     const currentZoom = Math.max(50, Math.min(Number(data.zoom_percent || 100), 180));
-    const availableWidth = Math.max(120, host.clientWidth);
-    const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || 1.0), 1.25));
-    const fitWidth = availableWidth * fitScale;
-    const pageWidth = fitWidth * currentZoom / 100;
+    const availableWidth = Math.max(120, host.clientWidth - 28);
+    const fitScale = Math.max(.6, Math.min(Number(data.fit_scale || .92), 1.08));
+    const fitWidth = Math.min(availableWidth * fitScale, 1120);
+    const pageWidth = Math.round(fitWidth * currentZoom / 100);
     const aspectRatio = data.page_height > 0 ? (data.page_height / data.page_width) : 1.414;
-    const pageHeight = pageWidth * aspectRatio;
+    const pageHeight = Math.round(pageWidth * aspectRatio);
 
     frame.style.width = `${Math.max(120, pageWidth)}px`;
     frame.style.height = `${Math.max(160, pageHeight)}px`;
@@ -429,13 +430,20 @@ _pdf_selector = st.components.v2.component(
 
 
 @st.cache_data(show_spinner=False, max_entries=12)
-def _page_payload(pdf_bytes: bytes, page_number: int) -> dict[str, Any]:
+def _page_payload(
+    pdf_bytes: bytes,
+    page_number: int,
+    render_scale: float,
+) -> dict[str, Any]:
     document = pymupdf.open(stream=pdf_bytes, filetype="pdf")
     try:
         if page_number < 1 or page_number > document.page_count:
             raise ValueError("PDF 页码超出范围。")
         page = document.load_page(page_number - 1)
-        pixmap = page.get_pixmap(matrix=pymupdf.Matrix(1.5, 1.5), alpha=False)
+        pixmap = page.get_pixmap(
+            matrix=pymupdf.Matrix(render_scale, render_scale),
+            alpha=False,
+        )
         words = [
             {
                 "text": str(item[4]),
@@ -460,6 +468,14 @@ def _page_payload(pdf_bytes: bytes, page_number: int) -> dict[str, Any]:
         document.close()
 
 
+def _render_scale_for_zoom(zoom_percent: int) -> float:
+    if zoom_percent <= 100:
+        return 2.5
+    if zoom_percent <= 130:
+        return 3.0
+    return 3.5
+
+
 def render_selectable_pdf_page(
     pdf_bytes: bytes,
     page_number: int,
@@ -472,7 +488,11 @@ def render_selectable_pdf_page(
     fit_scale: float = 0.92,
 ) -> dict[str, Any] | None:
     """Render one selectable page and return a user-confirmed selection event."""
-    payload = _page_payload(pdf_bytes, page_number)
+    payload = _page_payload(
+        pdf_bytes,
+        page_number,
+        _render_scale_for_zoom(zoom_percent),
+    )
     payload.update(
         {
             "page_number": page_number,
