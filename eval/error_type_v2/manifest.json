@@ -1,0 +1,48 @@
+{
+  "version": "error-taxonomy-v2",
+  "status": "reviewed",
+  "policy": "v1 冻结文件保持不变；v2 仅应用已审定重标和原子化替换。",
+  "taxonomy": "../error_taxonomy_v2.md",
+  "annotation_review": "../error_type_annotation_review_v2.jsonl",
+  "relabel_count": 7,
+  "rewritten_source_count": 2,
+  "replacement_sample_count": 4,
+  "datasets": [
+    {
+      "name": "holdout",
+      "source_samples": "holdout_resolved_samples.jsonl",
+      "samples": "holdout_resolved_samples.jsonl",
+      "papers": "holdout_papers.json",
+      "source_sample_count": 32,
+      "sample_count": 32,
+      "sha256": "cb03524a7fd8ff817c44b51c1052f6fbfd40ba738cdcdf63702607b0b6a5ed4d"
+    },
+    {
+      "name": "broad",
+      "source_samples": "broad_resolved_samples.jsonl",
+      "samples": "broad_resolved_samples.jsonl",
+      "papers": "broad_papers.json",
+      "source_sample_count": 24,
+      "sample_count": 24,
+      "sha256": "b4d4a947321b5e5e163507c2246ffbee2b0847b881ff7a21c49620c47b5c38db"
+    },
+    {
+      "name": "body",
+      "source_samples": "body_resolved_samples.jsonl",
+      "samples": "body_resolved_samples.jsonl",
+      "papers": "body_papers.json",
+      "source_sample_count": 24,
+      "sample_count": 24,
+      "sha256": "ba20c81b66a672a818ae5182e6cedcc3858a5c8d64743d73e5c353ae340536df"
+    },
+    {
+      "name": "cross_v2",
+      "source_samples": "cross_resolved_samples_v2.jsonl",
+      "samples": "cross_v2_resolved_samples.jsonl",
+      "papers": "cross_v2_papers.json",
+      "source_sample_count": 24,
+      "sample_count": 26,
+      "sha256": "4cf6012456541495ab6688ee132ac737e0b9eb4bbe51ff39a0f3c15f379ae86b"
+    }
+  ]
+}

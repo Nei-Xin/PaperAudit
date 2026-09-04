@@ -60,6 +60,7 @@ from .scoring import build_summary
 
 
 ProgressCallback = Callable[[str, float], None]
+MAX_AUDIT_REPORT_CHARS = 100_000
 
 _PEER_SCORE_BANDS = {
     ReviewDecision.STRONG_ACCEPT: (9.0, 10.0),
@@ -604,6 +605,15 @@ class LearningLogicNode:
 
 def _noop_progress(_: str, __: float) -> None:
     return None
+
+
+def validate_audit_report_text(report_text: str) -> None:
+    """Reject empty or unbounded report input before persistence or API calls."""
+
+    if not report_text.strip():
+        raise ValueError("报告内容不能为空。")
+    if len(report_text) > MAX_AUDIT_REPORT_CHARS:
+        raise ValueError("报告内容超过 100,000 个字符，请精简或拆分后重试。")
 
 
 def _numbered_heading(chunk: PaperChunk) -> tuple[str, str] | None:
@@ -1824,6 +1834,7 @@ class AuditService:
         mode: str = "audit_existing",
         progress: ProgressCallback | None = None,
     ) -> AuditRun:
+        validate_audit_report_text(report_text)
         notify = progress or _noop_progress
         notify("正在拆分原子论断", 0.1)
         extraction = self.client.extract_claims(report_text, [category.value for category in scope])
@@ -1943,9 +1954,8 @@ class AuditService:
                     explanation="Hy3 未返回该论断的结构化判断。",
                     severity=Severity.NONE,
                 )
-            else:
-                judgment = validate_judgment_references(judgment, candidates)
             judgment = calibrate_judgment(judgment)
+            judgment = validate_judgment_references(judgment, candidates)
             audits.append(ClaimAudit(claim=claim, candidates=candidates, judgment=judgment))
 
         notify("正在生成审计摘要", 0.95)

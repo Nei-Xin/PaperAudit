@@ -18,7 +18,7 @@
 | 概念/应用诊断集 | 12 | 58.33% | 未跑 API | 未跑 API | 未跑 API | — |
 | 最终独立留出集（6 篇全新论文） | 48 | 87.50%（离线） | 仅作最终泛化验收 | 仅作最终泛化验收 | 仅作最终泛化验收 | 100%（离线为 ABSTAIN） |
 
-当前工作区完整自动化测试：`155 passed`。
+当前工作区完整自动化测试：`164 passed`。
 
 方向一自动有效性实验已补齐一轮完整回放：固定测试集 40 条样本在相同配置下重复调用真实 API 3 次，标签两两一致率 98.33%，平均论文分标准差 0.5468，各次标签准确率为 95.00%/97.50%/97.50%，ABSTAIN 均为 0%。另在每篇论文 1 条支持样本和 1 条错误样本上构造 10 组成对端到端对抗样本（篇幅扩写、术语堆砌、伪造引用、重复段落、Prompt 注入），评分上升和风险降低均为 0，对抗攻击成功率 0%。详细结果见 [`eval/validation_report.md`](../eval/validation_report.md)、[`eval/validation_full/validation.json`](../eval/validation_full/validation.json) 和 [`eval/validation_adversarial/adversarial_summary.json`](../eval/validation_adversarial/adversarial_summary.json)。这些是自动化稳定性和鲁棒性证据，不能替代独立人工双评审一致性。
 

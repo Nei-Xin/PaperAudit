@@ -1,0 +1,38 @@
+[
+  {
+    "paper_id": "goodfellow2014_gan",
+    "local_pdf": "papers/1406.2661.pdf",
+    "sha256": "ff5819e3a7b713c3bd3107b7de3d51fe0a347aa5d8444f0efdcf2345ef0a8b63",
+    "scope": ["research_question", "contribution", "method", "results"]
+  },
+  {
+    "paper_id": "ronneberger2015_unet",
+    "local_pdf": "papers/1505.04597v1.pdf",
+    "sha256": "a3172b2124f38e260dc2c7ed968d87c31bc94dbc19a42a7ab3dcbd7534319c44",
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "kipf2016_gcn",
+    "local_pdf": "papers/1609.02907.pdf",
+    "sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "ho2020_ddpm",
+    "local_pdf": "papers/2006.11239.pdf",
+    "sha256": "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "mnih2013_dqn",
+    "local_pdf": "papers/1312.5602v1.pdf",
+    "sha256": "8db04120cace173151c77e0faa6f3eaa4207009da66b9417597dc70bfee56d9c",
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  },
+  {
+    "paper_id": "mikolov2013_word2vec",
+    "local_pdf": "papers/1301.3781v1.pdf",
+    "sha256": "4ca4bc94797e57e8dd4843ec2b26811e56d60e2297c187c3591e21be6b08e509",
+    "scope": ["research_question", "contribution", "method", "results", "limitations"]
+  }
+]

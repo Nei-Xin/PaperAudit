@@ -38,6 +38,8 @@ eval/results*/
 !eval/results_final_holdout_actual/**
 !eval/results_regression_v1_release/
 !eval/results_regression_v1_release/**
+!eval/results_error_type_v2_regression_actual_20260904/
+!eval/results_error_type_v2_regression_actual_20260904/**
 eval/validation*/
 !eval/validation_full/
 !eval/validation_full/**

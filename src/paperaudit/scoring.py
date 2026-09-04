@@ -64,7 +64,7 @@ def build_summary(audits: list[ClaimAudit], scope: list[ClaimCategory]) -> Audit
 
     key_claims = [audit for audit in audits if audit.claim.key_claim]
     evidence_completeness = None
-    if key_claims and claims_with_anchor:
+    if key_claims:
         evidence_completeness = _percentage(
             [1.0 if audit.claim.provided_evidence else 0.0 for audit in key_claims]
         )
@@ -134,4 +134,3 @@ def build_summary(audits: list[ClaimAudit], scope: list[ClaimCategory]) -> Audit
         medium_count=medium_count,
         review_count=review_count,
     )
-

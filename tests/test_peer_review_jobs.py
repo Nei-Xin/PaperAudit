@@ -74,6 +74,7 @@ def test_peer_review_job_persists_stage_and_runtime_metadata(tmp_path: Path) -> 
     saved = store.load_peer_review(project_id)
     assert saved is not None
     assert saved.model_name == "fake-model"
+    assert saved.prompt_version == "peer-review-v5"
     assert saved.elapsed_seconds is not None
 
 

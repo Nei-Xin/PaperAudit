@@ -17,6 +17,7 @@ def make_audit(
     label: AutoLabel,
     severity: Severity = Severity.NONE,
     error: ClaimErrorType | None = None,
+    provided_evidence: str | None = "P1",
 ) -> ClaimAudit:
     return ClaimAudit(
         claim=AtomicClaim(
@@ -25,6 +26,7 @@ def make_audit(
             category=category,
             key_claim=True,
             query_en="test claim",
+            provided_evidence=provided_evidence,
         ),
         candidates=[],
         judgment=ClaimJudgment(
@@ -68,3 +70,17 @@ def test_summary_is_unrated_when_most_claims_abstain() -> None:
     assert summary.audit_coverage == 33.3
     assert summary.grade == TrustGrade.UNRATED
 
+
+def test_summary_scores_missing_key_claim_evidence_as_zero() -> None:
+    audit = make_audit(
+        "C001",
+        ClaimCategory.CONTRIBUTION,
+        AutoLabel.SUPPORTED,
+        provided_evidence=None,
+    )
+
+    summary = build_summary([audit], [ClaimCategory.CONTRIBUTION])
+
+    assert summary.dimensions.evidence_completeness == 0.0
+    assert summary.total_score == 75.0
+    assert summary.grade == TrustGrade.REVIEW

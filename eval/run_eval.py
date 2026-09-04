@@ -75,7 +75,8 @@ def _validated_judgment(
             explanation="本地检索未返回候选证据，暂时无法可靠判断。",
             severity=Severity.NONE,
         )
-    return validate_judgment_references(judgment, candidates)
+    calibrated = calibrate_judgment(judgment) if judgment is not None else None
+    return validate_judgment_references(calibrated, candidates)
 
 
 def _macro_f1(gold: list[str], predicted: list[str], labels: list[str]) -> float:
@@ -300,7 +301,6 @@ def run(
             for sample, claim in zip(group, claims, strict=True):
                 candidates = candidates_by_id[claim.claim_id]
                 judgment = _validated_judgment(judgments.get(claim.claim_id), candidates)
-                judgment = calibrate_judgment(judgment)
                 retrieval_hit = bool(
                     set(str(value) for value in sample["gold_evidence_chunk_ids"])
                     & {candidate.chunk_id for candidate in retrieved_by_id[claim.claim_id]}

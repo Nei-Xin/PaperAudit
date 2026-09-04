@@ -38,7 +38,7 @@ uv run python eval/e2e_smoke.py --pdf tmp/release_smoke/mamba.pdf
 
 ## 4. v1 发布门槛
 
-- [x] 自动化测试全部通过（当前工作区 155 passed）
+- [x] 自动化测试全部通过（当前工作区 164 passed）
 - [x] 最终留出集保持论文级隔离，样本数 48
 - [x] 最终留出集 Top-5 证据召回率不低于 85%（87.50%）
 - [x] 最终留出集标签准确率不低于 80%（83.33%）
@@ -64,3 +64,56 @@ uv run python eval/e2e_smoke.py --pdf tmp/release_smoke/mamba.pdf
 - 发布前复现结论：`PASS`
 - 生产观察入口：`eval/production_observations_v1/runtime_20260830_release/summary.json`
 - 首轮发布后观察：31 篇论文、32 次审计、251 条论断，`ABSTAIN=0`
+
+## 7. 错误类型 v2 交付
+
+- [x] 5 条争议样本完成原文复核并定稿
+- [x] 2 条复合论断替换为 4 条原子论断
+- [x] 审查清单无 `manual_review`，最终状态为 `keep=8`、`relabel=7`、`rewrite=2`
+- [x] 正式 v2 金标包含 `holdout / broad / body / cross_v2`，共 106 条
+- [x] 金标生成器通过标签映射、ID 唯一性、PDF SHA-256 和证据 chunk 校验
+- [x] 四数据集真实 API 回归的检索门槛全部通过，`ABSTAIN=0`
+- [x] 106 条合并标签准确率 90.57%、Macro-F1 88.04%、错误类型准确率 84.51%、风险准确率 96.23%、证据召回率 95.10%
+- [x] 正式回归结果保存在 `eval/results_error_type_v2_regression_actual_20260904/`
+
+v2 金标复现：
+
+```powershell
+$env:PYTHONPATH='src'
+uv run python eval/build_error_type_v2_dataset.py
+```
+
+四数据集本地检索回归：
+
+```powershell
+$env:PYTHONPATH='src'
+uv run python eval/run_error_type_v2_regression.py --dry-run --output-dir eval/results_error_type_v2_regression_dry
+```
+
+## 8. 可直接使用的提交说明
+
+提交标题：
+
+```text
+feat: finalize error taxonomy v2 evaluation
+```
+
+提交正文：
+
+```text
+- confirm five disputed annotations and split two compound claims
+- generate the reviewed 106-sample error taxonomy v2 gold dataset
+- add reproducible four-dataset regression tooling and frozen real-API results
+- clarify overlapping error-type priority without sample-specific rules
+- harden report validation, evidence calibration, and scoring behavior
+- update release documentation and regression baselines
+
+Validation:
+- 164 tests passed
+- compileall passed
+- uv lock --check passed
+- git diff --check passed
+- v2 retrieval gates passed on holdout, broad, body, and cross_v2
+```
+
+说明：v2 包含人工重标和论断原子化，不能将其与 v1 的指标差异直接解释为纯模型提升；剩余少量错误类型边界波动不再通过单样本规则修补。

@@ -4,7 +4,7 @@
 
 **已封版（2026-08-30，Asia/Shanghai）**。v1 以冻结审核规则、独立最终留出集和可重复发布门禁为发布条件。最终留出集包含 6 篇新论文、48 条样本；真实 API 结果保存在 `eval/results_final_holdout_actual/metrics.json`。
 
-本文件记录 2026-08-30 的历史冻结快照。机器可读门禁 `eval/release_gate_v1.json` 保存的是当时的 `119 passed`；当前工作区测试数量已增加到 155，当前复现状态以 `docs/final_submission_checklist.md` 为准。
+本文件记录 2026-08-30 的历史冻结快照。机器可读门禁 `eval/release_gate_v1.json` 保存的是当时的 `119 passed`；当前工作区测试数量已增加到 164，当前复现状态以 `docs/final_submission_checklist.md` 为准。
 
 ## 已完成检查
 

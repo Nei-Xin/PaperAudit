@@ -35,7 +35,7 @@ uv run streamlit run app.py
 uv run python -m pytest -q
 ```
 
-当前工作区基线为 155 个测试通过。
+当前工作区基线为 164 个测试通过。
 
 ## 方向一自动有效性复现
 

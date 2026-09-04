@@ -34,6 +34,7 @@ from paperaudit.service import (
     build_revision_diff,
     peer_review_rubric_metadata,
     recalculate_peer_review,
+    validate_audit_report_text,
 )
 from paperaudit.storage import (
     ProjectStore,
@@ -711,7 +712,7 @@ with st.sidebar:
     st.markdown(
         """
         <div class="pa-sidebar-version">
-            <span>◇</span><div>Paper Learning Assistant<small>v0.3.0</small></div>
+            <span>◇</span><div>Paper Learning Assistant<small>v1.0.0</small></div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -782,6 +783,7 @@ def _submit_active_project_audit(
         raise StorageError("请先打开一个已保存的论文项目。")
     if not active_settings.is_configured:
         raise ValueError("请先配置并连接 Hy3 API。")
+    validate_audit_report_text(report_text)
     runtime = AuditRuntimeSnapshot(
         model=active_settings.model,
         reasoning_effort=active_settings.reasoning_effort,

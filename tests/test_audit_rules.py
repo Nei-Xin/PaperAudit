@@ -50,3 +50,10 @@ def test_calibrate_judgment_aligns_label_and_severity() -> None:
     calibrated = calibrate_judgment(judgment)
     assert calibrated.label == AutoLabel.CONTRADICTED
     assert calibrated.severity == Severity.HIGH
+
+
+def test_calibrate_judgment_does_not_promote_negative_label_without_error_type() -> None:
+    for label in (AutoLabel.CONTRADICTED, AutoLabel.NO_SUPPORT_FOUND):
+        calibrated = calibrate_judgment(_judgment(label, None, Severity.NONE))
+
+        assert calibrated.label == label

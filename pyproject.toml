@@ -1,6 +1,6 @@
 [project]
 name = "hy3-paperaudit"
-version = "0.1.0"
+version = "1.0.0"
 description = "Claim-level evidence auditing for AI paper reports using Hy3"
 readme = "README.md"
 requires-python = ">=3.11"

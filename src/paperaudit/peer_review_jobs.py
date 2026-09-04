@@ -92,7 +92,6 @@ class PeerReviewJobManager:
                 "generated_at": _utc_now(),
                 "model_name": settings.model,
                 "reasoning_effort": settings.reasoning_effort,
-                "prompt_version": "peer-review-v2",
                 "elapsed_seconds": round(perf_counter() - started_clock, 3),
             })
             current_stage = "正在校验评审证据"

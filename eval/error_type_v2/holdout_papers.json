@@ -1,0 +1,108 @@
+[
+  {
+    "paper_id": "dosovitskiy2021_vit",
+    "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+    "authors": [
+      "Alexey Dosovitskiy",
+      "Lucas Beyer",
+      "Alexander Kolesnikov",
+      "Dirk Weissenborn",
+      "Xiaohua Zhai",
+      "Thomas Unterthiner",
+      "Mostafa Dehghani",
+      "Matthias Minderer",
+      "Georg Heigold",
+      "Sylvain Gelly",
+      "Jakob Uszkoreit",
+      "Neil Houlsby"
+    ],
+    "arxiv_id": "2010.11929",
+    "version": "v2",
+    "url": "https://arxiv.org/abs/2010.11929",
+    "pdf_url": "https://arxiv.org/pdf/2010.11929",
+    "local_pdf": "papers/2010.11929.pdf",
+    "sha256": "8ce7b83971a14508ca711a27c875c9b6914c4f6767cf3150fb1ca6c07aa056d6",
+    "page_count": 22,
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results"
+    ]
+  },
+  {
+    "paper_id": "goodfellow2014_gan",
+    "title": "Generative Adversarial Nets",
+    "authors": [
+      "Ian J. Goodfellow",
+      "Jean Pouget-Abadie",
+      "Mehdi Mirza",
+      "Bing Xu",
+      "David Warde-Farley",
+      "Sherjil Ozair",
+      "Aaron Courville",
+      "Yoshua Bengio"
+    ],
+    "arxiv_id": "1406.2661",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1406.2661",
+    "pdf_url": "https://arxiv.org/pdf/1406.2661",
+    "local_pdf": "papers/1406.2661.pdf",
+    "sha256": "ff5819e3a7b713c3bd3107b7de3d51fe0a347aa5d8444f0efdcf2345ef0a8b63",
+    "page_count": 9,
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results"
+    ]
+  },
+  {
+    "paper_id": "mnih2013_dqn",
+    "title": "Playing Atari with Deep Reinforcement Learning",
+    "authors": [
+      "Volodymyr Mnih",
+      "Koray Kavukcuoglu",
+      "David Silver",
+      "Alex Graves",
+      "Ioannis Antonoglou",
+      "Daan Wierstra",
+      "Martin Riedmiller"
+    ],
+    "arxiv_id": "1312.5602",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1312.5602",
+    "pdf_url": "https://arxiv.org/pdf/1312.5602",
+    "local_pdf": "papers/1312.5602.pdf",
+    "sha256": "8db04120cace173151c77e0faa6f3eaa4207009da66b9417597dc70bfee56d9c",
+    "page_count": 9,
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results"
+    ]
+  },
+  {
+    "paper_id": "ronneberger2015_unet",
+    "title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+    "authors": [
+      "Olaf Ronneberger",
+      "Philipp Fischer",
+      "Thomas Brox"
+    ],
+    "arxiv_id": "1505.04597",
+    "version": "v1",
+    "url": "https://arxiv.org/abs/1505.04597",
+    "pdf_url": "https://arxiv.org/pdf/1505.04597",
+    "local_pdf": "papers/1505.04597.pdf",
+    "sha256": "a3172b2124f38e260dc2c7ed968d87c31bc94dbc19a42a7ab3dcbd7534319c44",
+    "page_count": 8,
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results"
+    ]
+  }
+]
