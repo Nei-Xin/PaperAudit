@@ -1,0 +1,937 @@
+{
+  "report_id": "R011",
+  "paper_id": "abadi2016_differential_privacy",
+  "tier": "high",
+  "repeat": 3,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc",
+  "audit": {
+    "paper_title": "Deep Learning with Differential Privacy",
+    "page_count": 17,
+    "mode": "direction_one_report_test",
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results",
+      "limitations"
+    ],
+    "report_text": "# Deep Learning with Differential Privacy 论文讲解报告\n\n本报告围绕论文的研究问题、贡献、方法、实验结果与适用边界进行结构化说明。\n\n## 研究问题\n\n- 论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。（证据：论文第1页）\n\n## 核心贡献\n\n- 论文提出了面向深度学习的差分隐私算法技术。（证据：论文第1页）\n\n## 方法\n\n- 该方法能够训练具有非凸目标函数的深度神经网络。（证据：论文第1页）\n- 论文明确研究了神经网络的差分隐私训练。（证据：论文第1页）\n\n## 主要结果\n\n- 实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。（证据：论文第1页）\n- 隐私训练在软件复杂度、训练效率和模型质量方面产生可管理的成本。（证据：论文第1页）\n- 论文在适度的个位数隐私预算下训练深度神经网络。（证据：论文第1页）\n- 实验表明该方法能够在差分隐私约束下训练深度神经网络。（证据：论文第1页）\n\n## 局限与边界\n\n- 该方法旨在降低模型暴露训练数据中私人信息的风险。（证据：论文第1页）\n- 论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。（证据：论文第1页）\n\n## 阅读结论\n\n以上内容按论文中的研究问题、方法与实验结论组织，便于读者逐项回到原文核验。\n",
+    "audits": [
+      {
+        "claim": {
+          "claim_id": "C001",
+          "text": "论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。",
+          "category": "research_question",
+          "key_claim": true,
+          "query_en": "research question training deep neural networks with non-convex objectives under differential privacy",
+          "entities": [
+            "差分隐私",
+            "深度神经网络",
+            "非凸目标"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C001_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.35
+          },
+          {
+            "evidence_id": "C001_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.188135
+          },
+          {
+            "evidence_id": "C001_e3",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.186386
+          },
+          {
+            "evidence_id": "C001_e4",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 1.071242
+          },
+          {
+            "evidence_id": "C001_e5",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 1.069162
+          }
+        ],
+        "judgment": {
+          "claim_id": "C001",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C001_e1",
+            "C001_e2"
+          ],
+          "explanation": "证据明确说明论文在差分隐私框架下训练具有非凸目标的深度神经网络。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C002",
+          "text": "论文提出了面向深度学习的差分隐私算法技术。",
+          "category": "contribution",
+          "key_claim": true,
+          "query_en": "differential privacy algorithmic techniques for deep learning",
+          "entities": [
+            "深度学习",
+            "差分隐私算法"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C002_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.233313
+          },
+          {
+            "evidence_id": "C002_e2",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.039196
+          },
+          {
+            "evidence_id": "C002_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.039132
+          },
+          {
+            "evidence_id": "C002_e4",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 0.937405
+          },
+          {
+            "evidence_id": "C002_e5",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "within the framework of diﬀerential privacy, and careful\nimplementation strategies:",
+            "score": 0.851765
+          }
+        ],
+        "judgment": {
+          "claim_id": "C002",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C002_e1",
+            "C002_e3"
+          ],
+          "explanation": "证据明确指出论文提出了新的学习算法技术和隐私成本分析，用于差分隐私下的神经网络训练。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C003",
+          "text": "该方法能够训练具有非凸目标函数的深度神经网络。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "method trains deep neural networks with non-convex objective functions",
+          "entities": [
+            "该方法",
+            "深度神经网络",
+            "非凸目标函数"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C003_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.103635
+          },
+          {
+            "evidence_id": "C003_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.031739
+          },
+          {
+            "evidence_id": "C003_e3",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 0.888925
+          },
+          {
+            "evidence_id": "C003_e4",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 0.876963
+          },
+          {
+            "evidence_id": "C003_e5",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 0.814183
+          }
+        ],
+        "judgment": {
+          "claim_id": "C003",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C003_e1",
+            "C003_e2"
+          ],
+          "explanation": "证据明确说明该方法能够训练具有非凸目标的深度神经网络。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C004",
+          "text": "论文明确研究了神经网络的差分隐私训练。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "differentially private training of neural networks",
+          "entities": [
+            "神经网络",
+            "差分隐私训练"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C004_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.31464
+          },
+          {
+            "evidence_id": "C004_e2",
+            "chunk_id": "p1_b14",
+            "page": 1,
+            "text": "2. We improve the computational eﬃciency of diﬀer-\nentially private training by introducing new tech-\nniques.\nThese techniques include eﬃcient algo-\nrithms for computing gradients for individual train-\ning examples, subdividing tasks into smaller batches\nto reduce memory footprint, and applying diﬀer-\nentially private principal projection at the input\nlayer.",
+            "score": 1.208456
+          },
+          {
+            "evidence_id": "C004_e3",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.20194
+          },
+          {
+            "evidence_id": "C004_e4",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 1.201498
+          },
+          {
+            "evidence_id": "C004_e5",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.20117
+          }
+        ],
+        "judgment": {
+          "claim_id": "C004",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C004_e1",
+            "C004_e2",
+            "C004_e3"
+          ],
+          "explanation": "证据明确讨论了神经网络的差分隐私训练，并列出提高训练计算效率的相关技术。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C005",
+          "text": "实验在 MNIST 图像分类任务上评估方法。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "evaluation of differential privacy method on MNIST image classification",
+          "entities": [
+            "MNIST",
+            "图像分类",
+            "该方法"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "MNIST",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C005_e1",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 0.909374
+          },
+          {
+            "evidence_id": "C005_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 0.906841
+          },
+          {
+            "evidence_id": "C005_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "within the framework of diﬀerential privacy, and careful\nimplementation strategies:",
+            "score": 0.831153
+          },
+          {
+            "evidence_id": "C005_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 0.818109
+          },
+          {
+            "evidence_id": "C005_e5",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 0.814402
+          }
+        ],
+        "judgment": {
+          "claim_id": "C005",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C005_e1"
+          ],
+          "explanation": "证据明确指出该方法在MNIST图像分类任务上进行了评估。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C006",
+          "text": "实验在 CIFAR-10 图像分类任务上评估方法。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "evaluation of differential privacy method on CIFAR-10 image classification",
+          "entities": [
+            "CIFAR-10",
+            "图像分类",
+            "该方法"
+          ],
+          "numbers": [
+            "10"
+          ],
+          "metric": null,
+          "dataset": "CIFAR-10",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C006_e1",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 0.982086
+          },
+          {
+            "evidence_id": "C006_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 0.872704
+          },
+          {
+            "evidence_id": "C006_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "within the framework of diﬀerential privacy, and careful\nimplementation strategies:",
+            "score": 0.8062
+          },
+          {
+            "evidence_id": "C006_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 0.796041
+          },
+          {
+            "evidence_id": "C006_e5",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 0.793153
+          }
+        ],
+        "judgment": {
+          "claim_id": "C006",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C006_e1"
+          ],
+          "explanation": "证据明确指出该方法在CIFAR-10图像分类任务上进行了评估。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C007",
+          "text": "隐私训练在软件复杂度方面产生可管理的成本。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "manageable software complexity cost of privacy-preserving training",
+          "entities": [
+            "隐私训练",
+            "软件复杂度"
+          ],
+          "numbers": [],
+          "metric": "软件复杂度成本",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C007_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.352665
+          },
+          {
+            "evidence_id": "C007_e2",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.266667
+          },
+          {
+            "evidence_id": "C007_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.138618
+          },
+          {
+            "evidence_id": "C007_e4",
+            "chunk_id": "p1_b14",
+            "page": 1,
+            "text": "2. We improve the computational eﬃciency of diﬀer-\nentially private training by introducing new tech-\nniques.\nThese techniques include eﬃcient algo-\nrithms for computing gradients for individual train-\ning examples, subdividing tasks into smaller batches\nto reduce memory footprint, and applying diﬀer-\nentially private principal projection at the input\nlayer.",
+            "score": 0.70281
+          },
+          {
+            "evidence_id": "C007_e5",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 0.702419
+          }
+        ],
+        "judgment": {
+          "claim_id": "C007",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C007_e1",
+            "C007_e2"
+          ],
+          "explanation": "证据明确指出，该方法在深度神经网络的差分隐私训练中，软件复杂度成本是可管理的。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C008",
+          "text": "隐私训练在训练效率方面产生可管理的成本。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "manageable training efficiency cost of privacy-preserving training",
+          "entities": [
+            "隐私训练",
+            "训练效率"
+          ],
+          "numbers": [],
+          "metric": "训练效率成本",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C008_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.337466
+          },
+          {
+            "evidence_id": "C008_e2",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.2283
+          },
+          {
+            "evidence_id": "C008_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.198577
+          },
+          {
+            "evidence_id": "C008_e4",
+            "chunk_id": "p1_b14",
+            "page": 1,
+            "text": "2. We improve the computational eﬃciency of diﬀer-\nentially private training by introducing new tech-\nniques.\nThese techniques include eﬃcient algo-\nrithms for computing gradients for individual train-\ning examples, subdividing tasks into smaller batches\nto reduce memory footprint, and applying diﬀer-\nentially private principal projection at the input\nlayer.",
+            "score": 1.105741
+          },
+          {
+            "evidence_id": "C008_e5",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 0.724667
+          }
+        ],
+        "judgment": {
+          "claim_id": "C008",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C008_e1",
+            "C008_e2"
+          ],
+          "explanation": "证据明确指出，该方法在差分隐私训练中产生可管理的训练效率成本。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C009",
+          "text": "隐私训练在模型质量方面产生可管理的成本。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "manageable model quality cost of privacy-preserving training",
+          "entities": [
+            "隐私训练",
+            "模型质量"
+          ],
+          "numbers": [],
+          "metric": "模型质量成本",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C009_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.349667
+          },
+          {
+            "evidence_id": "C009_e2",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.262099
+          },
+          {
+            "evidence_id": "C009_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.23027
+          },
+          {
+            "evidence_id": "C009_e4",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "We incur a privacy cost due to running a PCA. How-\never, we ﬁnd it useful for both improving the model\nquality and for reducing the training time, as suggested\nby our experiments on the MNIST data. See Section 4\nfor details.",
+            "score": 0.866667
+          },
+          {
+            "evidence_id": "C009_e5",
+            "chunk_id": "p1_b14",
+            "page": 1,
+            "text": "2. We improve the computational eﬃciency of diﬀer-\nentially private training by introducing new tech-\nniques.\nThese techniques include eﬃcient algo-\nrithms for computing gradients for individual train-\ning examples, subdividing tasks into smaller batches\nto reduce memory footprint, and applying diﬀer-\nentially private principal projection at the input\nlayer.",
+            "score": 0.702797
+          }
+        ],
+        "judgment": {
+          "claim_id": "C009",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C009_e1",
+            "C009_e2"
+          ],
+          "explanation": "证据明确指出，该方法在差分隐私训练中产生可管理的模型质量成本。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C010",
+          "text": "论文在适度的个位数隐私预算下训练深度神经网络。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "training deep neural networks under moderate single-digit privacy budgets",
+          "entities": [
+            "深度神经网络",
+            "隐私预算"
+          ],
+          "numbers": [
+            "个位数"
+          ],
+          "metric": "隐私预算",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C010_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.327778
+          },
+          {
+            "evidence_id": "C010_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.264574
+          },
+          {
+            "evidence_id": "C010_e3",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.201013
+          },
+          {
+            "evidence_id": "C010_e4",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 1.125499
+          },
+          {
+            "evidence_id": "C010_e5",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 1.122459
+          }
+        ],
+        "judgment": {
+          "claim_id": "C010",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C010_e1",
+            "C010_e2"
+          ],
+          "explanation": "证据明确说明论文在适度的“个位数”隐私预算下训练深度神经网络。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C011",
+          "text": "实验表明该方法能够在差分隐私约束下训练深度神经网络。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "experimental evidence that the method trains deep neural networks under differential privacy constraints",
+          "entities": [
+            "实验",
+            "该方法",
+            "差分隐私",
+            "深度神经网络"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C011_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.043533
+          },
+          {
+            "evidence_id": "C011_e2",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 0.939111
+          },
+          {
+            "evidence_id": "C011_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 0.877396
+          },
+          {
+            "evidence_id": "C011_e4",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 0.823736
+          },
+          {
+            "evidence_id": "C011_e5",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 0.81562
+          }
+        ],
+        "judgment": {
+          "claim_id": "C011",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C011_e1",
+            "C011_e2"
+          ],
+          "explanation": "证据明确指出，论文的实现和实验表明能够在差分隐私框架下训练深度神经网络。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C012",
+          "text": "该方法旨在降低模型暴露训练数据中私人信息的风险。",
+          "category": "limitations",
+          "key_claim": false,
+          "query_en": "reducing the risk that models expose private information from training data",
+          "entities": [
+            "该方法",
+            "模型",
+            "训练数据",
+            "私人信息"
+          ],
+          "numbers": [],
+          "metric": "私人信息暴露风险",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C012_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.240516
+          },
+          {
+            "evidence_id": "C012_e2",
+            "chunk_id": "p1_b14",
+            "page": 1,
+            "text": "2. We improve the computational eﬃciency of diﬀer-\nentially private training by introducing new tech-\nniques.\nThese techniques include eﬃcient algo-\nrithms for computing gradients for individual train-\ning examples, subdividing tasks into smaller batches\nto reduce memory footprint, and applying diﬀer-\nentially private principal projection at the input\nlayer.",
+            "score": 1.009515
+          },
+          {
+            "evidence_id": "C012_e3",
+            "chunk_id": "p1_b16",
+            "page": 1,
+            "text": "Machine learning systems often comprise elements\nthat contribute to protecting their training data.\nIn\nparticular, regularization techniques, which aim to avoid\noverﬁtting to the examples used for training, may hide\ndetails of those examples. On the other hand, explain-\ning the internal representations in deep neural networks\nis notoriously diﬃcult, and their large capacity entails\nthat these representations may potentially encode ﬁne\ndetails of at least some of the training data. In some\ncases, a determined adversary may be able to extract\nparts of the training data. For example, Fredrikson et\nal. demonstrated a model-inversion attack that recovers\nimages from a facial recognition system [23].",
+            "score": 1.009434
+          },
+          {
+            "evidence_id": "C012_e4",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.008745
+          },
+          {
+            "evidence_id": "C012_e5",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.006553
+          }
+        ],
+        "judgment": {
+          "claim_id": "C012",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C012_e1"
+          ],
+          "explanation": "证据说明训练数据可能含有敏感信息，论文开发相关技术正是为了避免模型暴露这些私人信息，因此该方法旨在降低此类暴露风险。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C013",
+          "text": "论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "privacy training has manageable but nonzero software efficiency and model quality costs",
+          "entities": [
+            "隐私训练",
+            "软件",
+            "训练效率",
+            "模型质量"
+          ],
+          "numbers": [],
+          "metric": "软件、效率和模型质量成本",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C013_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Machine learning techniques based on neural networks\nare achieving remarkable results in a wide variety of do-\nmains. Often, the training of models requires large, rep-\nresentative datasets, which may be crowdsourced and\ncontain sensitive information. The models should not\nexpose private information in these datasets. Address-\ning this goal, we develop new algorithmic techniques for\nlearning and a reﬁned analysis of privacy costs within\nthe framework of diﬀerential privacy. Our implemen-\ntation and experiments demonstrate that we can train\ndeep neural networks with non-convex objectives, un-\nder a modest privacy budget, and at a manageable cost\nin software complexity, training eﬃciency, and model\nquality.",
+            "score": 1.299799
+          },
+          {
+            "evidence_id": "C013_e2",
+            "chunk_id": "p1_b15",
+            "page": 1,
+            "text": "3. We build on the machine learning framework Ten-\nsorFlow [3] for training models with diﬀerential\nprivacy. We evaluate our approach on two stan-\ndard image-classiﬁcation tasks, MNIST and CIFAR-\n10. Our experience indicates that privacy protec-\ntion for deep neural networks can be achieved at\na modest cost in software complexity, training ef-\nﬁciency, and model quality.",
+            "score": 1.25
+          },
+          {
+            "evidence_id": "C013_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "In this paper, we present the ﬁrst study that com-\nbines state-of-the-art machine learning methods with\nstate-of-the-art privacy-preserving mechanisms, train-\ning neural networks within a modest (“single-digit”) pri-\nvacy budget. We treat models with non-convex objec-\ntives, several layers, and tens of thousands to millions of\nparameters. (In contrast, previous work obtains strong\nresults on convex models with smaller numbers of pa-\nrameters, or treats complex neural networks but with a\nlarge privacy loss.) For this purpose, we develop new al-\ngorithmic techniques, a reﬁned analysis of privacy costs",
+            "score": 1.122717
+          },
+          {
+            "evidence_id": "C013_e4",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Recent progress in neural networks has led to impres-\nsive successes in a wide range of applications, including\nimage classiﬁcation, language representation, move se-\nlection for Go, and many more (e.g., [49, 27, 52, 37, 46]).\nThese advances are enabled, in part, by the availability\nof large and representative datasets for training neural\nnetworks. These datasets are often crowdsourced, and\nmay contain sensitive information. Their use requires\ntechniques that meet the demands of the applications\nwhile oﬀering principled and rigorous privacy guaran-\ntees.",
+            "score": 1.010205
+          },
+          {
+            "evidence_id": "C013_e5",
+            "chunk_id": "p1_b14",
+            "page": 1,
+            "text": "2. We improve the computational eﬃciency of diﬀer-\nentially private training by introducing new tech-\nniques.\nThese techniques include eﬃcient algo-\nrithms for computing gradients for individual train-\ning examples, subdividing tasks into smaller batches\nto reduce memory footprint, and applying diﬀer-\nentially private principal projection at the input\nlayer.",
+            "score": 0.967354
+          }
+        ],
+        "judgment": {
+          "claim_id": "C013",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C013_e1",
+            "C013_e2"
+          ],
+          "explanation": "证据明确指出隐私保护会带来软件复杂度、训练效率和模型质量方面的成本，但这些成本是可管理的，而非完全不存在。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ],
+    "summary": {
+      "grade": "可信",
+      "total_score": 100.0,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 100.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 100.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 0
+    },
+    "parse_warnings": []
+  }
+}

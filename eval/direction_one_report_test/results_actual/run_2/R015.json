@@ -1,0 +1,997 @@
+{
+  "report_id": "R015",
+  "paper_id": "andrychowicz2016_learning_to_learn",
+  "tier": "medium",
+  "repeat": 2,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc",
+  "audit": {
+    "paper_title": "Learning to learn by gradient descent",
+    "page_count": 16,
+    "mode": "direction_one_report_test",
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results",
+      "limitations"
+    ],
+    "report_text": "# Learning to learn by gradient descent by gradient descent 论文讲解报告\n\n本报告围绕论文的研究问题、贡献、方法、实验结果与适用边界进行结构化说明。\n\n## 研究问题\n\n- 论文研究能否把优化算法本身的设计转化为学习问题。（证据：论文第1页）\n\n## 核心贡献\n\n- 论文将优化算法的设计转化为学习问题。（证据：论文第1页）\n\n## 方法\n\n- 学习到的算法由 LSTM 实现。（证据：论文第1页）\n- 梯度下降更新为 theta(t+1)=theta(t)-eta gradient。\n\n## 主要结果\n\n- 学习优化器在所有问题上都优于手工设计的优化器。（证据：论文第1页）\n- 学习优化器可以泛化到所有结构的新任务。（证据：论文第1页）\n- 实验覆盖简单凸问题、神经网络训练和神经艺术风格化等任务。（证据：论文第1页）\n- 论文报告学习优化器在训练任务上优于通用手工优化器，但没有声称统一提升百分之五十。\n- 论文研究学习得到的优化器，并评估其在训练任务和结构相似新任务上的表现。（证据：论文第1页）\n\n## 局限与边界\n\n- 论文的优势结论针对训练任务，泛化结论限定于结构相似的新任务。（证据：论文第1页）\n\n## 阅读结论\n\n以上内容按论文中的研究问题、方法与实验结论组织，便于读者逐项回到原文核验。\n",
+    "audits": [
+      {
+        "claim": {
+          "claim_id": "C001",
+          "text": "论文研究能否把优化算法本身的设计转化为学习问题。",
+          "category": "research_question",
+          "key_claim": true,
+          "query_en": "Can optimization algorithm design be formulated as a learning problem?",
+          "entities": [
+            "optimization algorithms"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C001_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.169875
+          },
+          {
+            "evidence_id": "C001_e2",
+            "chunk_id": "p2_b34",
+            "page": 2,
+            "text": "The goal of this work is to develop a procedure for constructing a learning algorithm which performs\nwell on a particular class of optimization problems. Casting algorithm design as a learning problem\nallows us to specify the class of problems we are interested in through example problem instances.\nThis is in contrast to the ordinary approach of characterizing properties of interesting problems\nanalytically and using these analytical insights to design learning algorithms by hand.",
+            "score": 0.7125
+          },
+          {
+            "evidence_id": "C001_e3",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.68628
+          },
+          {
+            "evidence_id": "C001_e4",
+            "chunk_id": "p2_b29",
+            "page": 2,
+            "text": "This industry of optimizer design allows differ-\nent communities to create optimization meth-\nods which exploit structure in their problems\nof interest at the expense of potentially poor\nperformance on problems outside of that scope.\nMoreover the No Free Lunch Theorems for Op-\ntimization [Wolpert and Macready, 1997] show\nthat in the setting of combinatorial optimization,\nno algorithm is able to do better than a random\nstrategy in expectation. This suggests that spe-\ncialization to a subclass of problems is in fact\nthe only way that improved performance can be\nachieved in general.",
+            "score": 0.684305
+          },
+          {
+            "evidence_id": "C001_e5",
+            "chunk_id": "p12_b14",
+            "page": 12,
+            "text": "In this section we describe the construction of the NTM-BFGS optimizer in detail. Its design is\nmotivated by the approximate Newton method BFGS, named for Broyden, Fletcher, Goldfarb, and\nShanno. In BFGS an explicit estimate of the full (inverse) Hessian is built up from the sequence\nof observed gradients. We can write a skeletonized version of the BFGS algorithm, using Mt to\nrepresent the inverse Hessian approximation at iteration t, as follows",
+            "score": 0.540918
+          }
+        ],
+        "judgment": {
+          "claim_id": "C001",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C001_e1",
+            "C001_e2"
+          ],
+          "explanation": "证据明确说明论文将优化算法设计转化为学习问题，并通过问题实例指定目标问题类别。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C002",
+          "text": "论文将优化算法的设计转化为学习问题。",
+          "category": "contribution",
+          "key_claim": true,
+          "query_en": "Paper contribution of turning optimization algorithm design into learning",
+          "entities": [
+            "optimization algorithms"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C002_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.063928
+          },
+          {
+            "evidence_id": "C002_e2",
+            "chunk_id": "p2_b34",
+            "page": 2,
+            "text": "The goal of this work is to develop a procedure for constructing a learning algorithm which performs\nwell on a particular class of optimization problems. Casting algorithm design as a learning problem\nallows us to specify the class of problems we are interested in through example problem instances.\nThis is in contrast to the ordinary approach of characterizing properties of interesting problems\nanalytically and using these analytical insights to design learning algorithms by hand.",
+            "score": 0.605556
+          },
+          {
+            "evidence_id": "C002_e3",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.579706
+          },
+          {
+            "evidence_id": "C002_e4",
+            "chunk_id": "p2_b29",
+            "page": 2,
+            "text": "This industry of optimizer design allows differ-\nent communities to create optimization meth-\nods which exploit structure in their problems\nof interest at the expense of potentially poor\nperformance on problems outside of that scope.\nMoreover the No Free Lunch Theorems for Op-\ntimization [Wolpert and Macready, 1997] show\nthat in the setting of combinatorial optimization,\nno algorithm is able to do better than a random\nstrategy in expectation. This suggests that spe-\ncialization to a subclass of problems is in fact\nthe only way that improved performance can be\nachieved in general.",
+            "score": 0.516335
+          },
+          {
+            "evidence_id": "C002_e5",
+            "chunk_id": "p6_b18",
+            "page": 6,
+            "text": "Learning curves for different optimizers, averaged over many functions, are shown in the left plot\nof Figure 4. Each curve corresponds to the average performance of one optimization algorithm on\nmany test functions; solid curves show learned optimizer performance and dashed curves show the\nperformance of the standard hand-crafted baselines. It is clear the learned optimizers substantially\noutperform their generic counterparts in this setting, and also that the LSTM+GAC and NTM-\nBFGS variants, which incorporate global information at each step, are able to outperform the purely\ncoordinatewise LSTM optimizer.",
+            "score": 0.506774
+          }
+        ],
+        "judgment": {
+          "claim_id": "C002",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C002_e1",
+            "C002_e2"
+          ],
+          "explanation": "证据明确陈述论文展示了如何将优化算法设计表述为学习问题，这是论文的核心贡献。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C003",
+          "text": "学习到的算法由LSTM实现。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Learned optimization algorithm implemented with LSTM",
+          "entities": [
+            "LSTM",
+            "learned optimizer"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C003_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.158333
+          },
+          {
+            "evidence_id": "C003_e2",
+            "chunk_id": "p6_b18",
+            "page": 6,
+            "text": "Learning curves for different optimizers, averaged over many functions, are shown in the left plot\nof Figure 4. Each curve corresponds to the average performance of one optimization algorithm on\nmany test functions; solid curves show learned optimizer performance and dashed curves show the\nperformance of the standard hand-crafted baselines. It is clear the learned optimizers substantially\noutperform their generic counterparts in this setting, and also that the LSTM+GAC and NTM-\nBFGS variants, which incorporate global information at each step, are able to outperform the purely\ncoordinatewise LSTM optimizer.",
+            "score": 0.757896
+          },
+          {
+            "evidence_id": "C003_e3",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.733657
+          },
+          {
+            "evidence_id": "C003_e4",
+            "chunk_id": "p8_b10",
+            "page": 8,
+            "text": "Figure 8 compares the performance of the LSTM optimizer to standard optimization algorithms. The\nLSTM optimizer outperforms all standard optimizers if the resolution and style image are the same\nas the ones on which it was trained. Moreover, it continues to perform very well when both the\nresolution and style are changed at test time.",
+            "score": 0.648364
+          },
+          {
+            "evidence_id": "C003_e5",
+            "chunk_id": "p6_b8",
+            "page": 6,
+            "text": "Figure 5: Comparisons between learned and hand-crafted optimizers performance. Units for the\ny axis are logits. Left: Generalization to the different number of hidden units (40 instead of 20).\nCenter: Generalization to the different number of hidden layers (2 instead of 1). This optimization\nproblem is very hard, because the hidden layers are very narrow. Right: Training curves for an MLP\nwith 20 hidden units using ReLU activations. The LSTM optimizer was trained on an MLP with\nsigmoid activations.",
+            "score": 0.643018
+          }
+        ],
+        "judgment": {
+          "claim_id": "C003",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C003_e1",
+            "C003_e3"
+          ],
+          "explanation": "证据明确指出学习到的算法由LSTM实现，并进一步讨论了LSTM优化器。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C004",
+          "text": "梯度下降更新为 theta(t+1)=theta(t)-eta gradient。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "Gradient descent update rule theta t plus one equals theta t minus eta gradient",
+          "entities": [
+            "theta",
+            "eta",
+            "gradient descent"
+          ],
+          "numbers": [
+            "t+1"
+          ],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C004_e1",
+            "chunk_id": "p4_b31",
+            "page": 4,
+            "text": "We implement the update rule for each coordi-\nnate using a two-layer Long Short Term Memory\n(LSTM) network [Hochreiter and Schmidhuber,\n1997]. The network takes as input the optimizee\ngradient for a single coordinate as well as the\nprevious hidden state and outputs the update for\nthe corresponding optimizee parameter. We will\nrefer to this architecture, illustrated in Figure 3,\nas an LSTM optimizer.",
+            "score": 0.530388
+          },
+          {
+            "evidence_id": "C004_e2",
+            "chunk_id": "p2_b32",
+            "page": 2,
+            "text": "A high level view of this process is shown in Figure 1. In what follows we will explicitly model\nthe update rule g using a recurrent neural network (RNN) which maintains its own state and hence\ndynamically updates as a function of its iterates.",
+            "score": 0.52978
+          },
+          {
+            "evidence_id": "C004_e3",
+            "chunk_id": "p4_b32",
+            "page": 4,
+            "text": "The use of recurrence allows the LSTM to learn\ndynamic update rules which integrate informa-\ntion from the history of gradients, similar to\nmomentum. This is known to have many desir-\nable properties in convex optimization [see e.g.\nNesterov, 1983] and in fact many recent learning\nprocedures—such as ADAM—use momentum in their updates.",
+            "score": 0.508855
+          },
+          {
+            "evidence_id": "C004_e4",
+            "chunk_id": "p3_b2",
+            "page": 3,
+            "text": "More closely related is the line of work that began with Cotter and Conwell [1990] and later Younger\net al. [1999] who showed that due to their hidden state, ﬁxed-weight recurrent neural networks can\nexhibit dynamic behavior without need to modify their network weights. This work was built on\nby [Younger et al., 2001, Hochreiter et al., 2001] wherein a higher-level network act as a gradient\ndescent procedure, with both levels trained during learning. Earlier work of Runarsson and Jonsson\n[2000] trains similar feed-forward meta-learning rules using evolutionary strategies. Alternatively\nSchmidhuber [1992, 1993] considers networks that are able to modify their own behavior and act as\nan alternative to recurrent networks in meta-learning. Note, however that these earlier works do not\ndirectly address the transfer of a learned training procedure to novel problem instances and instead\nfocus on adaptivity in the online setting. Similar work has also been attacked in a ﬁltering context\n[Feldkamp and Puskorius, 1998, Prokhorov et al., 2002], a line of work that is directly related to\nsimple multi-timescale optimizers [Sutton, 1992, Schraudolph, 1999]. Finally, Daniel et al. [2016]\nconsiders using reinforcement learning to train a controller for selecting step-sizes, however this work\nis much more constrained than ours and still requires hand-tuned features.",
+            "score": 0.50593
+          },
+          {
+            "evidence_id": "C004_e5",
+            "chunk_id": "p9_b9",
+            "page": 9,
+            "text": "Proposed update as a function of current gradient\nAnother way to visualize the optimizer\nbehavior is to look at the proposed update gt for a single coordinate as a function of the current\ngradient evaluation ∇t. We follow the same procedure as in the previous experiment, and visualize\nthe proposed updates for a few selected time steps in Figure 10, and more extensively in Appendix C.\nThe shape of this function for the LSTM optimizer is often step-like, which is also the case for\nADAM. Surprisingly the step is sometimes in the opposite direction as for ADAM, i.e. the bigger the\ngradient, the bigger the update.",
+            "score": 0.472823
+          }
+        ],
+        "judgment": {
+          "claim_id": "C004",
+          "label": "NO_SUPPORT_FOUND",
+          "evidence_ids": [
+            "C004_e1",
+            "C004_e2",
+            "C004_e3"
+          ],
+          "explanation": "候选证据讨论的是由RNN/LSTM学习的动态更新规则，没有给出或支持所述的标准梯度下降公式 theta(t+1)=theta(t)-eta gradient。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": "evidence_mismatch",
+          "severity": "high",
+          "suggestion": "改为：论文使用RNN/LSTM根据梯度及其历史状态学习参数更新规则，而非在所给证据中明确采用标准梯度下降公式。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C005",
+          "text": "学习优化器在所有问题上都优于手工设计的优化器。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Learned optimizer outperforms hand-designed optimizer on all problems",
+          "entities": [
+            "learned optimizer",
+            "hand-designed optimizer"
+          ],
+          "numbers": [],
+          "metric": "optimization performance",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C005_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.02551
+          },
+          {
+            "evidence_id": "C005_e2",
+            "chunk_id": "p8_b7",
+            "page": 8,
+            "text": "Figure 7: Optimization performance for the CIFAR-10 dataset. Shown on the left is the performance\nof the learned optimizer on problems drawn from the training set; the right plot shows performance\non a held-out test set.",
+            "score": 0.64375
+          },
+          {
+            "evidence_id": "C005_e3",
+            "chunk_id": "p8_b10",
+            "page": 8,
+            "text": "Figure 8 compares the performance of the LSTM optimizer to standard optimization algorithms. The\nLSTM optimizer outperforms all standard optimizers if the resolution and style image are the same\nas the ones on which it was trained. Moreover, it continues to perform very well when both the\nresolution and style are changed at test time.",
+            "score": 0.630178
+          },
+          {
+            "evidence_id": "C005_e4",
+            "chunk_id": "p6_b18",
+            "page": 6,
+            "text": "Learning curves for different optimizers, averaged over many functions, are shown in the left plot\nof Figure 4. Each curve corresponds to the average performance of one optimization algorithm on\nmany test functions; solid curves show learned optimizer performance and dashed curves show the\nperformance of the standard hand-crafted baselines. It is clear the learned optimizers substantially\noutperform their generic counterparts in this setting, and also that the LSTM+GAC and NTM-\nBFGS variants, which incorporate global information at each step, are able to outperform the purely\ncoordinatewise LSTM optimizer.",
+            "score": 0.6224
+          },
+          {
+            "evidence_id": "C005_e5",
+            "chunk_id": "p7_b4",
+            "page": 7,
+            "text": "Generalization to different architectures\nFigure 5 shows three examples of applying the LSTM\noptimizer to train networks with different architectures than the base network on which it was trained.\nThe modiﬁcations are (from left to right) (1) an MLP with 40 hidden units instead of 20, (2) a\nnetwork with two hidden layers instead of one, and (3) a network using ReLU activations instead of\nsigmoid. In the ﬁrst two cases the LSTM optimizer generalizes well, and continues to outperform\nthe hand-designed baselines despite operating outside of its training regime. However, changing the\nactivation function to ReLU makes the dynamics of the learning procedure sufﬁciently different that\nthe learned optimizer is no longer able to generalize. In all cases, the baseline learning rates were\nre-tuned.",
+            "score": 0.611199
+          }
+        ],
+        "judgment": {
+          "claim_id": "C005",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "C005_e1",
+            "C005_e3",
+            "C005_e4",
+            "C005_e5"
+          ],
+          "explanation": "证据表明学习优化器在训练任务及部分相近任务上优于手工设计基线，但性能取决于任务和训练条件；例如ReLU激活改变后，优化器不再能泛化。因此“所有问题”属于范围过度扩张。",
+          "claim_error_type": "overgeneralization",
+          "evidence_error_type": null,
+          "severity": "medium",
+          "suggestion": "改为：学习优化器在其训练任务及部分具有相似结构的任务上优于手工设计的优化器，但并非在所有问题上都成立。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C006",
+          "text": "学习优化器可以泛化到所有结构的新任务。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Learned optimizer generalizes to new tasks across all structures",
+          "entities": [
+            "learned optimizer",
+            "new tasks"
+          ],
+          "numbers": [],
+          "metric": "generalization",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C006_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.00365
+          },
+          {
+            "evidence_id": "C006_e2",
+            "chunk_id": "p7_b4",
+            "page": 7,
+            "text": "Generalization to different architectures\nFigure 5 shows three examples of applying the LSTM\noptimizer to train networks with different architectures than the base network on which it was trained.\nThe modiﬁcations are (from left to right) (1) an MLP with 40 hidden units instead of 20, (2) a\nnetwork with two hidden layers instead of one, and (3) a network using ReLU activations instead of\nsigmoid. In the ﬁrst two cases the LSTM optimizer generalizes well, and continues to outperform\nthe hand-designed baselines despite operating outside of its training regime. However, changing the\nactivation function to ReLU makes the dynamics of the learning procedure sufﬁciently different that\nthe learned optimizer is no longer able to generalize. In all cases, the baseline learning rates were\nre-tuned.",
+            "score": 0.598821
+          },
+          {
+            "evidence_id": "C006_e3",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.594455
+          },
+          {
+            "evidence_id": "C006_e4",
+            "chunk_id": "p3_b1",
+            "page": 3,
+            "text": "across many different tasks. In some of the earliest work on meta-learning, Naik and Mammone\n[1992] use the results from previous training runs to modify the descent direction of backpropagation;\nhowever, their update strategy is somewhat more ad-hoc and not directly learned. The work of Santoro\net al. [2016] takes an approach similar to ours in that multi-task learning is cast as generalization,\nhowever they directly train a base learner rather than a higher-level training algorithm.",
+            "score": 0.544444
+          },
+          {
+            "evidence_id": "C006_e5",
+            "chunk_id": "p6_b8",
+            "page": 6,
+            "text": "Figure 5: Comparisons between learned and hand-crafted optimizers performance. Units for the\ny axis are logits. Left: Generalization to the different number of hidden units (40 instead of 20).\nCenter: Generalization to the different number of hidden layers (2 instead of 1). This optimization\nproblem is very hard, because the hidden layers are very narrow. Right: Training curves for an MLP\nwith 20 hidden units using ReLU activations. The LSTM optimizer was trained on an MLP with\nsigmoid activations.",
+            "score": 0.469094
+          }
+        ],
+        "judgment": {
+          "claim_id": "C006",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "C006_e1",
+            "C006_e2",
+            "C006_e3"
+          ],
+          "explanation": "证据支持其在具有相似结构的部分新任务、不同规模或部分架构上泛化，但明确指出改变为ReLU激活时不再能够泛化，因此不能推广到所有结构的新任务。",
+          "claim_error_type": "overgeneralization",
+          "evidence_error_type": null,
+          "severity": "medium",
+          "suggestion": "改为：学习优化器可以泛化到部分具有相似结构的新任务及某些不同架构，但对所有结构并不保证泛化。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C007",
+          "text": "实验覆盖简单凸问题、神经网络训练和神经艺术风格化等任务。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "Experiments on simple convex problems neural network training and neural artistic style transfer",
+          "entities": [
+            "simple convex problems",
+            "neural network training",
+            "neural artistic style transfer"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C007_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.209271
+          },
+          {
+            "evidence_id": "C007_e2",
+            "chunk_id": "p3_b2",
+            "page": 3,
+            "text": "More closely related is the line of work that began with Cotter and Conwell [1990] and later Younger\net al. [1999] who showed that due to their hidden state, ﬁxed-weight recurrent neural networks can\nexhibit dynamic behavior without need to modify their network weights. This work was built on\nby [Younger et al., 2001, Hochreiter et al., 2001] wherein a higher-level network act as a gradient\ndescent procedure, with both levels trained during learning. Earlier work of Runarsson and Jonsson\n[2000] trains similar feed-forward meta-learning rules using evolutionary strategies. Alternatively\nSchmidhuber [1992, 1993] considers networks that are able to modify their own behavior and act as\nan alternative to recurrent networks in meta-learning. Note, however that these earlier works do not\ndirectly address the transfer of a learned training procedure to novel problem instances and instead\nfocus on adaptivity in the online setting. Similar work has also been attacked in a ﬁltering context\n[Feldkamp and Puskorius, 1998, Prokhorov et al., 2002], a line of work that is directly related to\nsimple multi-timescale optimizers [Sutton, 1992, Schraudolph, 1999]. Finally, Daniel et al. [2016]\nconsiders using reinforcement learning to train a controller for selecting step-sizes, however this work\nis much more constrained than ours and still requires hand-tuned features.",
+            "score": 0.792892
+          },
+          {
+            "evidence_id": "C007_e3",
+            "chunk_id": "p6_b20",
+            "page": 6,
+            "text": "In this experiment we test whether trainable optimizers can learn to optimize a small neural network\non MNIST, and also explore how the trained optimizers generalize to functions beyond those they\nwere trained on. To this end, we train the optimizer to optimize a base network and explore a series\nof modiﬁcations to the network architecture and training procedure at test time.",
+            "score": 0.692633
+          },
+          {
+            "evidence_id": "C007_e4",
+            "chunk_id": "p6_b19",
+            "page": 6,
+            "text": "3.2\nTraining a small neural network on MNIST",
+            "score": 0.660022
+          },
+          {
+            "evidence_id": "C007_e5",
+            "chunk_id": "p10_b9",
+            "page": 10,
+            "text": "C. Daniel, J. Taylor, and S. Nowozin. Learning step size controllers for robust neural network training.",
+            "score": 0.651556
+          }
+        ],
+        "judgment": {
+          "claim_id": "C007",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C007_e1"
+          ],
+          "explanation": "证据明确列出简单凸问题、神经网络训练和神经艺术风格化等实验任务，支持该 claim。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C008",
+          "text": "论文报告学习优化器在训练任务上优于通用手工优化器。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Learned optimizer outperforms general hand-designed optimizers on training tasks",
+          "entities": [
+            "learned optimizer",
+            "general hand-designed optimizer",
+            "training tasks"
+          ],
+          "numbers": [],
+          "metric": "performance",
+          "dataset": "training tasks",
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C008_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.189431
+          },
+          {
+            "evidence_id": "C008_e2",
+            "chunk_id": "p5_b14",
+            "page": 5,
+            "text": "Figure 4: Comparisons between learned and hand-crafted optimizers performance. Learned optimiz-\ners are shown with solid lines and hand-crafted optimizers are shown with dashed lines. Units for the\ny axis in the MNIST plots are logits. Left: Performance of different optimizers on randomly sampled\n10-dimensional quadratic functions. Center: the LSTM optimizer outperforms standard methods\ntraining the base network on MNIST. Right: Learning curves for steps 100-200 by an optimizer\ntrained to optimize for 100 steps (continuation of center plot).",
+            "score": 0.866667
+          },
+          {
+            "evidence_id": "C008_e3",
+            "chunk_id": "p7_b4",
+            "page": 7,
+            "text": "Generalization to different architectures\nFigure 5 shows three examples of applying the LSTM\noptimizer to train networks with different architectures than the base network on which it was trained.\nThe modiﬁcations are (from left to right) (1) an MLP with 40 hidden units instead of 20, (2) a\nnetwork with two hidden layers instead of one, and (3) a network using ReLU activations instead of\nsigmoid. In the ﬁrst two cases the LSTM optimizer generalizes well, and continues to outperform\nthe hand-designed baselines despite operating outside of its training regime. However, changing the\nactivation function to ReLU makes the dynamics of the learning procedure sufﬁciently different that\nthe learned optimizer is no longer able to generalize. In all cases, the baseline learning rates were\nre-tuned.",
+            "score": 0.833732
+          },
+          {
+            "evidence_id": "C008_e4",
+            "chunk_id": "p8_b7",
+            "page": 8,
+            "text": "Figure 7: Optimization performance for the CIFAR-10 dataset. Shown on the left is the performance\nof the learned optimizer on problems drawn from the training set; the right plot shows performance\non a held-out test set.",
+            "score": 0.79575
+          },
+          {
+            "evidence_id": "C008_e5",
+            "chunk_id": "p7_b8",
+            "page": 7,
+            "text": "Training curves for this optimizer are shown in Figure 7, where the left plot shows training set\nperformance. In this ﬁgure we also show that the learned optimizer can be applied to an additional\ndataset by learning on the held-out test set. We can see that the LSTM optimizer learns much more\nquickly than the standard optimizers and converges to the same value.",
+            "score": 0.792074
+          }
+        ],
+        "judgment": {
+          "claim_id": "C008",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C008_e1"
+          ],
+          "explanation": "证据明确称学习得到的优化器在其训练任务上优于通用的手工设计优化器。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C009",
+          "text": "论文没有声称学习优化器统一提升百分之五十。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "Paper does not claim a uniform 50 percent improvement from learned optimizers",
+          "entities": [
+            "learned optimizer"
+          ],
+          "numbers": [
+            "50%"
+          ],
+          "metric": "improvement",
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C009_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 0.774499
+          },
+          {
+            "evidence_id": "C009_e2",
+            "chunk_id": "p3_b2",
+            "page": 3,
+            "text": "More closely related is the line of work that began with Cotter and Conwell [1990] and later Younger\net al. [1999] who showed that due to their hidden state, ﬁxed-weight recurrent neural networks can\nexhibit dynamic behavior without need to modify their network weights. This work was built on\nby [Younger et al., 2001, Hochreiter et al., 2001] wherein a higher-level network act as a gradient\ndescent procedure, with both levels trained during learning. Earlier work of Runarsson and Jonsson\n[2000] trains similar feed-forward meta-learning rules using evolutionary strategies. Alternatively\nSchmidhuber [1992, 1993] considers networks that are able to modify their own behavior and act as\nan alternative to recurrent networks in meta-learning. Note, however that these earlier works do not\ndirectly address the transfer of a learned training procedure to novel problem instances and instead\nfocus on adaptivity in the online setting. Similar work has also been attacked in a ﬁltering context\n[Feldkamp and Puskorius, 1998, Prokhorov et al., 2002], a line of work that is directly related to\nsimple multi-timescale optimizers [Sutton, 1992, Schraudolph, 1999]. Finally, Daniel et al. [2016]\nconsiders using reinforcement learning to train a controller for selecting step-sizes, however this work\nis much more constrained than ours and still requires hand-tuned features.",
+            "score": 0.460012
+          },
+          {
+            "evidence_id": "C009_e3",
+            "chunk_id": "p5_b14",
+            "page": 5,
+            "text": "Figure 4: Comparisons between learned and hand-crafted optimizers performance. Learned optimiz-\ners are shown with solid lines and hand-crafted optimizers are shown with dashed lines. Units for the\ny axis in the MNIST plots are logits. Left: Performance of different optimizers on randomly sampled\n10-dimensional quadratic functions. Center: the LSTM optimizer outperforms standard methods\ntraining the base network on MNIST. Right: Learning curves for steps 100-200 by an optimizer\ntrained to optimize for 100 steps (continuation of center plot).",
+            "score": 0.45
+          },
+          {
+            "evidence_id": "C009_e4",
+            "chunk_id": "p7_b2",
+            "page": 7,
+            "text": "Learning curves for the base network using different optimizers are displayed in the center plot of\nFigure 4. ADAM performs best among the standard optimizers and the LSTM optimizer outperforms\nit by a large margin. For clarity, we do not plot the results for LSTM+GAC and NTM-BFGS, because\ntheir performance is similar to that of the LSTM optimizer.",
+            "score": 0.443015
+          },
+          {
+            "evidence_id": "C009_e5",
+            "chunk_id": "p6_b18",
+            "page": 6,
+            "text": "Learning curves for different optimizers, averaged over many functions, are shown in the left plot\nof Figure 4. Each curve corresponds to the average performance of one optimization algorithm on\nmany test functions; solid curves show learned optimizer performance and dashed curves show the\nperformance of the standard hand-crafted baselines. It is clear the learned optimizers substantially\noutperform their generic counterparts in this setting, and also that the LSTM+GAC and NTM-\nBFGS variants, which incorporate global information at each step, are able to outperform the purely\ncoordinatewise LSTM optimizer.",
+            "score": 0.437829
+          }
+        ],
+        "judgment": {
+          "claim_id": "C009",
+          "label": "NO_SUPPORT_FOUND",
+          "evidence_ids": [
+            "C009_e1",
+            "C009_e3",
+            "C009_e4",
+            "C009_e5"
+          ],
+          "explanation": "候选证据支持学习优化器在若干任务上表现更好，但没有直接证明论文没有声称统一提升50%；该否定性表述及具体百分比缺乏候选证据支持。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "改为：候选证据未显示论文声称学习优化器带来统一的50%性能提升。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C010",
+          "text": "论文研究学习得到的优化器。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Study of learned optimization algorithms",
+          "entities": [
+            "learned optimizer"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C010_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.03
+          },
+          {
+            "evidence_id": "C010_e2",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.730909
+          },
+          {
+            "evidence_id": "C010_e3",
+            "chunk_id": "p6_b18",
+            "page": 6,
+            "text": "Learning curves for different optimizers, averaged over many functions, are shown in the left plot\nof Figure 4. Each curve corresponds to the average performance of one optimization algorithm on\nmany test functions; solid curves show learned optimizer performance and dashed curves show the\nperformance of the standard hand-crafted baselines. It is clear the learned optimizers substantially\noutperform their generic counterparts in this setting, and also that the LSTM+GAC and NTM-\nBFGS variants, which incorporate global information at each step, are able to outperform the purely\ncoordinatewise LSTM optimizer.",
+            "score": 0.728129
+          },
+          {
+            "evidence_id": "C010_e4",
+            "chunk_id": "p8_b10",
+            "page": 8,
+            "text": "Figure 8 compares the performance of the LSTM optimizer to standard optimization algorithms. The\nLSTM optimizer outperforms all standard optimizers if the resolution and style image are the same\nas the ones on which it was trained. Moreover, it continues to perform very well when both the\nresolution and style are changed at test time.",
+            "score": 0.627876
+          },
+          {
+            "evidence_id": "C010_e5",
+            "chunk_id": "p8_b7",
+            "page": 8,
+            "text": "Figure 7: Optimization performance for the CIFAR-10 dataset. Shown on the left is the performance\nof the learned optimizer on problems drawn from the training set; the right plot shows performance\non a held-out test set.",
+            "score": 0.62781
+          }
+        ],
+        "judgment": {
+          "claim_id": "C010",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C010_e1"
+          ],
+          "explanation": "证据明确说明将优化算法设计转化为学习问题，并研究由LSTM实现的学习得到的优化器。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C011",
+          "text": "论文评估学习得到的优化器在训练任务上的表现。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Evaluate learned optimizer performance on training tasks",
+          "entities": [
+            "learned optimizer",
+            "training tasks"
+          ],
+          "numbers": [],
+          "metric": "performance",
+          "dataset": "training tasks",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C011_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.15314
+          },
+          {
+            "evidence_id": "C011_e2",
+            "chunk_id": "p8_b7",
+            "page": 8,
+            "text": "Figure 7: Optimization performance for the CIFAR-10 dataset. Shown on the left is the performance\nof the learned optimizer on problems drawn from the training set; the right plot shows performance\non a held-out test set.",
+            "score": 0.866667
+          },
+          {
+            "evidence_id": "C011_e3",
+            "chunk_id": "p5_b21",
+            "page": 5,
+            "text": "We use early stopping when training the optimizer in order to avoid overﬁtting the optimizer. After\neach epoch (some ﬁxed number of learning steps) we freeze the optimizer parameters and evaluate its\nperformance. We pick the best optimizer (according to the ﬁnal validation loss) and report its average\nperformance on a number of freshly sampled test problems.",
+            "score": 0.865934
+          },
+          {
+            "evidence_id": "C011_e4",
+            "chunk_id": "p7_b8",
+            "page": 7,
+            "text": "Training curves for this optimizer are shown in Figure 7, where the left plot shows training set\nperformance. In this ﬁgure we also show that the learned optimizer can be applied to an additional\ndataset by learning on the held-out test set. We can see that the LSTM optimizer learns much more\nquickly than the standard optimizers and converges to the same value.",
+            "score": 0.854822
+          },
+          {
+            "evidence_id": "C011_e5",
+            "chunk_id": "p5_b14",
+            "page": 5,
+            "text": "Figure 4: Comparisons between learned and hand-crafted optimizers performance. Learned optimiz-\ners are shown with solid lines and hand-crafted optimizers are shown with dashed lines. Units for the\ny axis in the MNIST plots are logits. Left: Performance of different optimizers on randomly sampled\n10-dimensional quadratic functions. Center: the LSTM optimizer outperforms standard methods\ntraining the base network on MNIST. Right: Learning curves for steps 100-200 by an optimizer\ntrained to optimize for 100 steps (continuation of center plot).",
+            "score": 0.852877
+          }
+        ],
+        "judgment": {
+          "claim_id": "C011",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C011_e1",
+            "C011_e3",
+            "C011_e5"
+          ],
+          "explanation": "证据表明论文训练并评估学习优化器在其训练任务或训练集上的性能，并与手工设计的基线进行比较。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C012",
+          "text": "论文评估学习得到的优化器在结构相似新任务上的表现。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Evaluate learned optimizer performance on structurally similar new tasks",
+          "entities": [
+            "learned optimizer",
+            "structurally similar new tasks"
+          ],
+          "numbers": [],
+          "metric": "generalization performance",
+          "dataset": "structurally similar new tasks",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C012_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 0.940337
+          },
+          {
+            "evidence_id": "C012_e2",
+            "chunk_id": "p3_b1",
+            "page": 3,
+            "text": "across many different tasks. In some of the earliest work on meta-learning, Naik and Mammone\n[1992] use the results from previous training runs to modify the descent direction of backpropagation;\nhowever, their update strategy is somewhat more ad-hoc and not directly learned. The work of Santoro\net al. [2016] takes an approach similar to ours in that multi-task learning is cast as generalization,\nhowever they directly train a base learner rather than a higher-level training algorithm.",
+            "score": 0.532719
+          },
+          {
+            "evidence_id": "C012_e3",
+            "chunk_id": "p6_b8",
+            "page": 6,
+            "text": "Figure 5: Comparisons between learned and hand-crafted optimizers performance. Units for the\ny axis are logits. Left: Generalization to the different number of hidden units (40 instead of 20).\nCenter: Generalization to the different number of hidden layers (2 instead of 1). This optimization\nproblem is very hard, because the hidden layers are very narrow. Right: Training curves for an MLP\nwith 20 hidden units using ReLU activations. The LSTM optimizer was trained on an MLP with\nsigmoid activations.",
+            "score": 0.531564
+          },
+          {
+            "evidence_id": "C012_e4",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.52652
+          },
+          {
+            "evidence_id": "C012_e5",
+            "chunk_id": "p7_b3",
+            "page": 7,
+            "text": "Generalization to longer horizons\nThe right plot in Figure 4 compares the performance of the\nLSTM optimizer if it is allowed to run for 200 steps to the hand-crafted baselines, this is despite only\nhaving been trained to optimize for 100 steps. In this comparison we re-used the LSTM optimizer\nfrom the previous experiment, but the baseline learning rates were re-tuned to optimize performance\nafter the full 200 steps of optimization. In spite of this handicap, the LSTM optimizer still outperforms\nthe baseline optimizers on this task.",
+            "score": 0.525711
+          }
+        ],
+        "judgment": {
+          "claim_id": "C012",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C012_e1"
+          ],
+          "explanation": "证据明确称学习得到的优化器能够很好地泛化到具有相似结构的新任务。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C013",
+          "text": "论文关于学习优化器优势的结论针对训练任务。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "Scope of learned optimizer advantages is limited to training tasks",
+          "entities": [
+            "learned optimizer",
+            "training tasks"
+          ],
+          "numbers": [],
+          "metric": "optimization performance",
+          "dataset": "training tasks",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C013_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 1.124497
+          },
+          {
+            "evidence_id": "C013_e2",
+            "chunk_id": "p8_b7",
+            "page": 8,
+            "text": "Figure 7: Optimization performance for the CIFAR-10 dataset. Shown on the left is the performance\nof the learned optimizer on problems drawn from the training set; the right plot shows performance\non a held-out test set.",
+            "score": 0.805556
+          },
+          {
+            "evidence_id": "C013_e3",
+            "chunk_id": "p6_b8",
+            "page": 6,
+            "text": "Figure 5: Comparisons between learned and hand-crafted optimizers performance. Units for the\ny axis are logits. Left: Generalization to the different number of hidden units (40 instead of 20).\nCenter: Generalization to the different number of hidden layers (2 instead of 1). This optimization\nproblem is very hard, because the hidden layers are very narrow. Right: Training curves for an MLP\nwith 20 hidden units using ReLU activations. The LSTM optimizer was trained on an MLP with\nsigmoid activations.",
+            "score": 0.779355
+          },
+          {
+            "evidence_id": "C013_e4",
+            "chunk_id": "p7_b8",
+            "page": 7,
+            "text": "Training curves for this optimizer are shown in Figure 7, where the left plot shows training set\nperformance. In this ﬁgure we also show that the learned optimizer can be applied to an additional\ndataset by learning on the held-out test set. We can see that the LSTM optimizer learns much more\nquickly than the standard optimizers and converges to the same value.",
+            "score": 0.726688
+          },
+          {
+            "evidence_id": "C013_e5",
+            "chunk_id": "p5_b14",
+            "page": 5,
+            "text": "Figure 4: Comparisons between learned and hand-crafted optimizers performance. Learned optimiz-\ners are shown with solid lines and hand-crafted optimizers are shown with dashed lines. Units for the\ny axis in the MNIST plots are logits. Left: Performance of different optimizers on randomly sampled\n10-dimensional quadratic functions. Center: the LSTM optimizer outperforms standard methods\ntraining the base network on MNIST. Right: Learning curves for steps 100-200 by an optimizer\ntrained to optimize for 100 steps (continuation of center plot).",
+            "score": 0.725044
+          }
+        ],
+        "judgment": {
+          "claim_id": "C013",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C013_e1"
+          ],
+          "explanation": "证据明确指出，学习优化器在其训练任务上优于通用手工设计方法，支持该结论针对训练任务。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C014",
+          "text": "论文关于泛化的结论限定于结构相似的新任务。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "Generalization conclusion limited to structurally similar new tasks",
+          "entities": [
+            "learned optimizer",
+            "structurally similar new tasks"
+          ],
+          "numbers": [],
+          "metric": "generalization",
+          "dataset": "structurally similar new tasks",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C014_e1",
+            "chunk_id": "p1_b13",
+            "page": 1,
+            "text": "The move from hand-designed features to learned features in machine learning has\nbeen wildly successful. In spite of this, optimization algorithms are still designed\nby hand. In this paper we show how the design of an optimization algorithm can be\ncast as a learning problem, allowing the algorithm to learn to exploit structure in\nthe problems of interest in an automatic way. Our learned algorithms, implemented\nby LSTMs, outperform generic, hand-designed competitors on the tasks for which\nthey are trained, and also generalize well to new tasks with similar structure. We\ndemonstrate this on a number of tasks, including simple convex problems, training\nneural networks, and styling images with neural art.",
+            "score": 0.936118
+          },
+          {
+            "evidence_id": "C014_e2",
+            "chunk_id": "p3_b1",
+            "page": 3,
+            "text": "across many different tasks. In some of the earliest work on meta-learning, Naik and Mammone\n[1992] use the results from previous training runs to modify the descent direction of backpropagation;\nhowever, their update strategy is somewhat more ad-hoc and not directly learned. The work of Santoro\net al. [2016] takes an approach similar to ours in that multi-task learning is cast as generalization,\nhowever they directly train a base learner rather than a higher-level training algorithm.",
+            "score": 0.529201
+          },
+          {
+            "evidence_id": "C014_e3",
+            "chunk_id": "p9_b11",
+            "page": 9,
+            "text": "We have shown how to cast the design of optimization algorithms as a learning problem, which\nenables us to train optimizers that are specialized to particular classes of functions. Our experiments\nhave conﬁrmed that learned neural optimizers compare favorably against state-of-the-art optimization\nmethods used in deep learning. We witnessed a remarkable degree of transfer, with for example the\nLSTM optimizer trained on 12,288 parameter neural art tasks being able to generalize to tasks with\n49,152 parameters, different styles, and different content images all at the same time. We observed\nsimilar impressive results when transferring to different architectures in the MNIST task.",
+            "score": 0.523571
+          },
+          {
+            "evidence_id": "C014_e4",
+            "chunk_id": "p6_b8",
+            "page": 6,
+            "text": "Figure 5: Comparisons between learned and hand-crafted optimizers performance. Units for the\ny axis are logits. Left: Generalization to the different number of hidden units (40 instead of 20).\nCenter: Generalization to the different number of hidden layers (2 instead of 1). This optimization\nproblem is very hard, because the hidden layers are very narrow. Right: Training curves for an MLP\nwith 20 hidden units using ReLU activations. The LSTM optimizer was trained on an MLP with\nsigmoid activations.",
+            "score": 0.458986
+          },
+          {
+            "evidence_id": "C014_e5",
+            "chunk_id": "p7_b4",
+            "page": 7,
+            "text": "Generalization to different architectures\nFigure 5 shows three examples of applying the LSTM\noptimizer to train networks with different architectures than the base network on which it was trained.\nThe modiﬁcations are (from left to right) (1) an MLP with 40 hidden units instead of 20, (2) a\nnetwork with two hidden layers instead of one, and (3) a network using ReLU activations instead of\nsigmoid. In the ﬁrst two cases the LSTM optimizer generalizes well, and continues to outperform\nthe hand-designed baselines despite operating outside of its training regime. However, changing the\nactivation function to ReLU makes the dynamics of the learning procedure sufﬁciently different that\nthe learned optimizer is no longer able to generalize. In all cases, the baseline learning rates were\nre-tuned.",
+            "score": 0.450321
+          }
+        ],
+        "judgment": {
+          "claim_id": "C014",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C014_e1"
+          ],
+          "explanation": "证据明确说明学习优化器能够较好地泛化到具有相似结构的新任务，与该限定一致。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ],
+    "summary": {
+      "grade": "需复核",
+      "total_score": 90.4,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": 100.0,
+        "evidence_completeness": 90.9,
+        "numeric_consistency": 66.7,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 84.6
+      },
+      "critical_count": 0,
+      "high_count": 2,
+      "medium_count": 2,
+      "review_count": 0
+    },
+    "parse_warnings": []
+  }
+}

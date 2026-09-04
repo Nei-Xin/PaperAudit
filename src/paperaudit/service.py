@@ -28,6 +28,7 @@ from .models import (
     ClaimAudit,
     ClaimCategory,
     ClaimJudgment,
+    JudgmentBatch,
     EvidenceAnchor,
     EvidenceCandidate,
     LearningReport,

@@ -1,0 +1,180 @@
+{"report_id": "R001", "claim_no": 1, "category": "research_question", "claim_text": "论文研究能否把优化算法本身的设计转化为学习问题。"}
+{"report_id": "R001", "claim_no": 2, "category": "contribution", "claim_text": "论文将优化算法的设计转化为学习问题。"}
+{"report_id": "R001", "claim_no": 3, "category": "method", "claim_text": "学习到的算法由 LSTM 实现。"}
+{"report_id": "R001", "claim_no": 4, "category": "results", "claim_text": "学习优化器在所有问题上都优于手工设计的优化器。"}
+{"report_id": "R001", "claim_no": 5, "category": "results", "claim_text": "该方法只在训练过的任务上有效，不能泛化到相似新任务。"}
+{"report_id": "R001", "claim_no": 6, "category": "method", "claim_text": "梯度下降更新为 theta(t+1)=theta(t)-eta gradient。"}
+{"report_id": "R001", "claim_no": 7, "category": "results", "claim_text": "论文仅研究分类任务。"}
+{"report_id": "R001", "claim_no": 8, "category": "results", "claim_text": "学习优化器在所有任务上提升 50% 的性能。"}
+{"report_id": "R001", "claim_no": 9, "category": "results", "claim_text": "该方法证明了在真实生产系统中可零样本替代 Adam。"}
+{"report_id": "R001", "claim_no": 10, "category": "limitations", "claim_text": "论文的优势结论针对训练任务，泛化结论限定于结构相似的新任务。"}
+{"report_id": "R002", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。"}
+{"report_id": "R002", "claim_no": 2, "category": "contribution", "claim_text": "DeepFM 同时建模低阶和高阶特征交互。"}
+{"report_id": "R002", "claim_no": 3, "category": "method", "claim_text": "DeepFM 除原始特征外不需要特征工程。"}
+{"report_id": "R002", "claim_no": 4, "category": "method", "claim_text": "DeepFM 同时建模低阶和高阶特征交互。"}
+{"report_id": "R002", "claim_no": 5, "category": "results", "claim_text": "DeepFM 在所有推荐数据集上都显著优于所有基线。"}
+{"report_id": "R002", "claim_no": 6, "category": "results", "claim_text": "DeepFM 的目标是预测用户点击率。"}
+{"report_id": "R002", "claim_no": 7, "category": "method", "claim_text": "DeepFM 的宽部和深部共享相同的原始特征输入与嵌入。"}
+{"report_id": "R002", "claim_no": 8, "category": "results", "claim_text": "DeepFM 在所有商业点击率预测场景中都带来一致提升。"}
+{"report_id": "R002", "claim_no": 9, "category": "results", "claim_text": "论文在基准数据和商业数据上评估 DeepFM。"}
+{"report_id": "R002", "claim_no": 10, "category": "limitations", "claim_text": "论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。"}
+{"report_id": "R003", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何结合神经网络与随机过程，以便根据上下文观测快速适应并表达预测不确定性。"}
+{"report_id": "R003", "claim_no": 2, "category": "contribution", "claim_text": "Neural Processes 结合了神经网络和随机过程的优点。"}
+{"report_id": "R003", "claim_no": 3, "category": "method", "claim_text": "NP 能估计预测中的不确定性，并在测试时根据上下文观测适应。"}
+{"report_id": "R003", "claim_no": 4, "category": "method", "claim_text": "Neural Processes 是概率模型，会定义函数分布。"}
+{"report_id": "R003", "claim_no": 5, "category": "method", "claim_text": "NP 的推理复杂度始终是常数，与上下文和目标点数量无关。"}
+{"report_id": "R003", "claim_no": 6, "category": "results", "claim_text": "NP 在所有任务上都比高斯过程更准确。"}
+{"report_id": "R003", "claim_no": 7, "category": "results", "claim_text": "NP 可用于回归、优化和图像补全等多种任务。"}
+{"report_id": "R003", "claim_no": 8, "category": "results", "claim_text": "NP 的推理复杂度为 O(n+m)，而经典高斯过程为 O((n+m)^3)。"}
+{"report_id": "R003", "claim_no": 9, "category": "method", "claim_text": "NP 为学习函数分布，需要同时使用多个数据集进行训练。"}
+{"report_id": "R003", "claim_no": 10, "category": "limitations", "claim_text": "论文只在一系列具体任务上展示 NP，不能据此外推到所有任务。"}
+{"report_id": "R004", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何利用强化学习自动生成有竞争力的神经网络架构。"}
+{"report_id": "R004", "claim_no": 2, "category": "method", "claim_text": "控制器 RNN 生成神经网络模型描述，并用强化学习最大化验证集准确率。"}
+{"report_id": "R004", "claim_no": 3, "category": "results", "claim_text": "CIFAR-10 模型测试错误率为 3.84。"}
+{"report_id": "R004", "claim_no": 4, "category": "results", "claim_text": "NAS 在 CIFAR-10 上的测试错误率是 3.84。"}
+{"report_id": "R004", "claim_no": 5, "category": "results", "claim_text": "NAS 同时在 CIFAR-10 图像识别和 Penn Treebank 语言建模上进行评估。"}
+{"report_id": "R004", "claim_no": 6, "category": "results", "claim_text": "NAS 在 CIFAR-10 上生成的架构可与最佳人工设计架构相媲美。"}
+{"report_id": "R004", "claim_no": 7, "category": "method", "claim_text": "NAS 控制器使用验证集准确率作为奖励信号，通过策略梯度更新。"}
+{"report_id": "R004", "claim_no": 8, "category": "results", "claim_text": "Penn Treebank 单元的测试困惑度为 62.4。"}
+{"report_id": "R004", "claim_no": 9, "category": "results", "claim_text": "论文表明 NAS 能在 CIFAR-10 和 Penn Treebank 上自动设计有竞争力的架构。"}
+{"report_id": "R004", "claim_no": 10, "category": "limitations", "claim_text": "论文的实证结论来自 CIFAR-10 和 Penn Treebank，不能直接推广为所有领域的最优架构。"}
+{"report_id": "R005", "claim_no": 1, "category": "research_question", "claim_text": "论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。"}
+{"report_id": "R005", "claim_no": 2, "category": "contribution", "claim_text": "随机初始化的网络可以作为图像恢复的手工先验。"}
+{"report_id": "R005", "claim_no": 3, "category": "method", "claim_text": "DIP 可用于去噪、超分辨率和修复。"}
+{"report_id": "R005", "claim_no": 4, "category": "method", "claim_text": "DIP 的网络权重始终随机初始化，不从大型图像数据集预训练。"}
+{"report_id": "R005", "claim_no": 5, "category": "results", "claim_text": "DIP 在论文测试的多种逆问题上表现良好，包括去噪、超分辨率和修复。"}
+{"report_id": "R005", "claim_no": 6, "category": "method", "claim_text": "DIP 可用于去噪、超分辨率和图像修复。"}
+{"report_id": "R005", "claim_no": 7, "category": "method", "claim_text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。"}
+{"report_id": "R005", "claim_no": 8, "category": "method", "claim_text": "DIP 的多数实验使用最多约两百万参数的编码器-解码器沙漏架构。"}
+{"report_id": "R005", "claim_no": 9, "category": "method", "claim_text": "论文提供了 DIP 的代码和补充材料。"}
+{"report_id": "R005", "claim_no": 10, "category": "limitations", "claim_text": "论文报告的是所测试逆问题上的表现，不能据此声称 DIP 在所有图像任务上都达到最先进水平。"}
+{"report_id": "R006", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。"}
+{"report_id": "R006", "claim_no": 2, "category": "contribution", "claim_text": "论文提出了面向深度学习的差分隐私算法技术。"}
+{"report_id": "R006", "claim_no": 3, "category": "results", "claim_text": "实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。"}
+{"report_id": "R006", "claim_no": 4, "category": "method", "claim_text": "该方法能够训练具有非凸目标函数的深度神经网络。"}
+{"report_id": "R006", "claim_no": 5, "category": "results", "claim_text": "隐私保护不会带来任何软件复杂度、训练效率或模型质量成本。"}
+{"report_id": "R006", "claim_no": 6, "category": "results", "claim_text": "论文在适度的个位数隐私预算下训练深度神经网络。"}
+{"report_id": "R006", "claim_no": 7, "category": "limitations", "claim_text": "方法保证模型永远不会泄露任何训练信息。"}
+{"report_id": "R006", "claim_no": 8, "category": "method", "claim_text": "论文明确研究了神经网络的差分隐私训练。"}
+{"report_id": "R006", "claim_no": 9, "category": "results", "claim_text": "实验表明该方法能够在差分隐私约束下训练深度神经网络。"}
+{"report_id": "R006", "claim_no": 10, "category": "limitations", "claim_text": "论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。"}
+{"report_id": "R007", "claim_no": 1, "category": "research_question", "claim_text": "论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。"}
+{"report_id": "R007", "claim_no": 2, "category": "contribution", "claim_text": "随机初始化的网络可以作为图像恢复的手工先验。"}
+{"report_id": "R007", "claim_no": 3, "category": "method", "claim_text": "DIP 可用于去噪、超分辨率和修复。"}
+{"report_id": "R007", "claim_no": 4, "category": "method", "claim_text": "DIP 的网络权重从大型图像数据集预训练得到。"}
+{"report_id": "R007", "claim_no": 5, "category": "results", "claim_text": "DIP 在所有图像任务上都达到最先进性能。"}
+{"report_id": "R007", "claim_no": 6, "category": "method", "claim_text": "DIP 只适用于超分辨率，不能用于去噪。"}
+{"report_id": "R007", "claim_no": 7, "category": "method", "claim_text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。"}
+{"report_id": "R007", "claim_no": 8, "category": "method", "claim_text": "DIP 使用 20 亿个网络参数。"}
+{"report_id": "R007", "claim_no": 9, "category": "method", "claim_text": "DIP 已成为商业照片编辑软件的标准组件。"}
+{"report_id": "R007", "claim_no": 10, "category": "limitations", "claim_text": "论文报告的是所测试逆问题上的表现，不能据此声称 DIP 在所有图像任务上都达到最先进水平。"}
+{"report_id": "R008", "claim_no": 1, "category": "research_question", "claim_text": "论文研究能否把优化算法本身的设计转化为学习问题。"}
+{"report_id": "R008", "claim_no": 2, "category": "contribution", "claim_text": "论文将优化算法的设计转化为学习问题。"}
+{"report_id": "R008", "claim_no": 3, "category": "method", "claim_text": "学习到的算法由 LSTM 实现。"}
+{"report_id": "R008", "claim_no": 4, "category": "results", "claim_text": "学习优化器在训练任务上优于通用的手工设计优化器。"}
+{"report_id": "R008", "claim_no": 5, "category": "results", "claim_text": "学习优化器能够泛化到结构相似的新任务。"}
+{"report_id": "R008", "claim_no": 6, "category": "method", "claim_text": "梯度下降更新为 theta(t+1)=theta(t)-eta gradient。"}
+{"report_id": "R008", "claim_no": 7, "category": "results", "claim_text": "实验覆盖简单凸问题、神经网络训练和神经艺术风格化等任务。"}
+{"report_id": "R008", "claim_no": 8, "category": "results", "claim_text": "论文报告学习优化器在训练任务上优于通用手工优化器，但没有声称统一提升百分之五十。"}
+{"report_id": "R008", "claim_no": 9, "category": "results", "claim_text": "论文研究学习得到的优化器，并评估其在训练任务和结构相似新任务上的表现。"}
+{"report_id": "R008", "claim_no": 10, "category": "limitations", "claim_text": "论文的优势结论针对训练任务，泛化结论限定于结构相似的新任务。"}
+{"report_id": "R009", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何利用强化学习自动生成有竞争力的神经网络架构。"}
+{"report_id": "R009", "claim_no": 2, "category": "method", "claim_text": "控制器 RNN 生成神经网络模型描述，并用强化学习最大化验证集准确率。"}
+{"report_id": "R009", "claim_no": 3, "category": "results", "claim_text": "CIFAR-10 模型测试错误率为 3.84。"}
+{"report_id": "R009", "claim_no": 4, "category": "results", "claim_text": "NAS 在 CIFAR-10 上的测试错误率是 0.384。"}
+{"report_id": "R009", "claim_no": 5, "category": "results", "claim_text": "NAS 只适用于图像识别，不适用于语言建模。"}
+{"report_id": "R009", "claim_no": 6, "category": "results", "claim_text": "NAS 生成的架构在所有数据集上都优于人类设计架构。"}
+{"report_id": "R009", "claim_no": 7, "category": "method", "claim_text": "NAS 的控制器通过监督标签直接训练，不使用奖励信号。"}
+{"report_id": "R009", "claim_no": 8, "category": "results", "claim_text": "Penn Treebank 单元的测试困惑度为 26.4。"}
+{"report_id": "R009", "claim_no": 9, "category": "results", "claim_text": "NAS 已证明能自动发现适用于所有领域的最优架构。"}
+{"report_id": "R009", "claim_no": 10, "category": "limitations", "claim_text": "论文的实证结论来自 CIFAR-10 和 Penn Treebank，不能直接推广为所有领域的最优架构。"}
+{"report_id": "R010", "claim_no": 1, "category": "research_question", "claim_text": "论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。"}
+{"report_id": "R010", "claim_no": 2, "category": "contribution", "claim_text": "随机初始化的网络可以作为图像恢复的手工先验。"}
+{"report_id": "R010", "claim_no": 3, "category": "method", "claim_text": "DIP 可用于所有图像恢复问题。"}
+{"report_id": "R010", "claim_no": 4, "category": "method", "claim_text": "DIP 的网络权重始终随机初始化，不从大型图像数据集预训练。"}
+{"report_id": "R010", "claim_no": 5, "category": "results", "claim_text": "DIP 在所有图像任务上都达到最先进性能。"}
+{"report_id": "R010", "claim_no": 6, "category": "method", "claim_text": "DIP 可用于去噪、超分辨率和图像修复。"}
+{"report_id": "R010", "claim_no": 7, "category": "method", "claim_text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。"}
+{"report_id": "R010", "claim_no": 8, "category": "method", "claim_text": "DIP 的多数实验使用最多约两百万参数的编码器-解码器沙漏架构。"}
+{"report_id": "R010", "claim_no": 9, "category": "method", "claim_text": "论文提供了 DIP 的代码和补充材料。"}
+{"report_id": "R010", "claim_no": 10, "category": "limitations", "claim_text": "论文报告的是所测试逆问题上的表现，不能据此声称 DIP 在所有图像任务上都达到最先进水平。"}
+{"report_id": "R011", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。"}
+{"report_id": "R011", "claim_no": 2, "category": "contribution", "claim_text": "论文提出了面向深度学习的差分隐私算法技术。"}
+{"report_id": "R011", "claim_no": 3, "category": "results", "claim_text": "实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。"}
+{"report_id": "R011", "claim_no": 4, "category": "method", "claim_text": "该方法能够训练具有非凸目标函数的深度神经网络。"}
+{"report_id": "R011", "claim_no": 5, "category": "results", "claim_text": "隐私训练在软件复杂度、训练效率和模型质量方面产生可管理的成本。"}
+{"report_id": "R011", "claim_no": 6, "category": "results", "claim_text": "论文在适度的个位数隐私预算下训练深度神经网络。"}
+{"report_id": "R011", "claim_no": 7, "category": "limitations", "claim_text": "该方法旨在降低模型暴露训练数据中私人信息的风险。"}
+{"report_id": "R011", "claim_no": 8, "category": "method", "claim_text": "论文明确研究了神经网络的差分隐私训练。"}
+{"report_id": "R011", "claim_no": 9, "category": "results", "claim_text": "实验表明该方法能够在差分隐私约束下训练深度神经网络。"}
+{"report_id": "R011", "claim_no": 10, "category": "limitations", "claim_text": "论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。"}
+{"report_id": "R012", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。"}
+{"report_id": "R012", "claim_no": 2, "category": "contribution", "claim_text": "DeepFM 同时建模低阶和高阶特征交互。"}
+{"report_id": "R012", "claim_no": 3, "category": "method", "claim_text": "DeepFM 除原始特征外不需要特征工程。"}
+{"report_id": "R012", "claim_no": 4, "category": "method", "claim_text": "DeepFM 只建模二阶特征交互。"}
+{"report_id": "R012", "claim_no": 5, "category": "results", "claim_text": "DeepFM 在所有推荐数据集上都显著优于所有基线。"}
+{"report_id": "R012", "claim_no": 6, "category": "results", "claim_text": "DeepFM 的目标是预测用户点击率。"}
+{"report_id": "R012", "claim_no": 7, "category": "method", "claim_text": "DeepFM 的宽和深组件使用两个完全不同的输入。"}
+{"report_id": "R012", "claim_no": 8, "category": "results", "claim_text": "DeepFM 在商业数据上提升 CTR 100%。"}
+{"report_id": "R012", "claim_no": 9, "category": "results", "claim_text": "DeepFM 已在所有线上广告平台实时部署。"}
+{"report_id": "R012", "claim_no": 10, "category": "limitations", "claim_text": "论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。"}
+{"report_id": "R013", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何利用强化学习自动生成有竞争力的神经网络架构。"}
+{"report_id": "R013", "claim_no": 2, "category": "method", "claim_text": "控制器 RNN 生成神经网络模型描述，并用强化学习最大化验证集准确率。"}
+{"report_id": "R013", "claim_no": 3, "category": "results", "claim_text": "CIFAR-10 模型测试错误率为 3.84。"}
+{"report_id": "R013", "claim_no": 4, "category": "results", "claim_text": "NAS 在 CIFAR-10 上的测试错误率是 3.84。"}
+{"report_id": "R013", "claim_no": 5, "category": "results", "claim_text": "NAS 同时在 CIFAR-10 图像识别和 Penn Treebank 语言建模上进行评估。"}
+{"report_id": "R013", "claim_no": 6, "category": "results", "claim_text": "NAS 生成的架构在所有数据集上都优于人类设计架构。"}
+{"report_id": "R013", "claim_no": 7, "category": "method", "claim_text": "NAS 控制器使用验证集准确率作为奖励信号，通过策略梯度更新。"}
+{"report_id": "R013", "claim_no": 8, "category": "results", "claim_text": "Penn Treebank 单元的测试困惑度为 62.4。"}
+{"report_id": "R013", "claim_no": 9, "category": "results", "claim_text": "论文表明 NAS 能在 CIFAR-10 和 Penn Treebank 上自动设计有竞争力的架构。"}
+{"report_id": "R013", "claim_no": 10, "category": "limitations", "claim_text": "论文的实证结论来自 CIFAR-10 和 Penn Treebank，不能直接推广为所有领域的最优架构。"}
+{"report_id": "R014", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何结合神经网络与随机过程，以便根据上下文观测快速适应并表达预测不确定性。"}
+{"report_id": "R014", "claim_no": 2, "category": "contribution", "claim_text": "Neural Processes 结合了神经网络和随机过程的优点。"}
+{"report_id": "R014", "claim_no": 3, "category": "method", "claim_text": "NP 能估计预测中的不确定性，并在测试时根据上下文观测适应。"}
+{"report_id": "R014", "claim_no": 4, "category": "method", "claim_text": "Neural Processes 是概率模型，会定义函数分布。"}
+{"report_id": "R014", "claim_no": 5, "category": "method", "claim_text": "训练后的 NP 前向推理复杂度随上下文点和目标点数量按 O(n+m) 线性增长。"}
+{"report_id": "R014", "claim_no": 6, "category": "results", "claim_text": "论文在回归、优化等一系列任务上展示 NP，并与相关模型进行比较。"}
+{"report_id": "R014", "claim_no": 7, "category": "results", "claim_text": "NP 可用于回归、优化和图像补全等多种任务。"}
+{"report_id": "R014", "claim_no": 8, "category": "results", "claim_text": "NP 的推理复杂度为 O(n+m)，而经典高斯过程为 O((n+m)^3)。"}
+{"report_id": "R014", "claim_no": 9, "category": "method", "claim_text": "NP 为学习函数分布，需要同时使用多个数据集进行训练。"}
+{"report_id": "R014", "claim_no": 10, "category": "limitations", "claim_text": "论文只在一系列具体任务上展示 NP，不能据此外推到所有任务。"}
+{"report_id": "R015", "claim_no": 1, "category": "research_question", "claim_text": "论文研究能否把优化算法本身的设计转化为学习问题。"}
+{"report_id": "R015", "claim_no": 2, "category": "contribution", "claim_text": "论文将优化算法的设计转化为学习问题。"}
+{"report_id": "R015", "claim_no": 3, "category": "method", "claim_text": "学习到的算法由 LSTM 实现。"}
+{"report_id": "R015", "claim_no": 4, "category": "results", "claim_text": "学习优化器在所有问题上都优于手工设计的优化器。"}
+{"report_id": "R015", "claim_no": 5, "category": "results", "claim_text": "学习优化器可以泛化到所有结构的新任务。"}
+{"report_id": "R015", "claim_no": 6, "category": "method", "claim_text": "梯度下降更新为 theta(t+1)=theta(t)-eta gradient。"}
+{"report_id": "R015", "claim_no": 7, "category": "results", "claim_text": "实验覆盖简单凸问题、神经网络训练和神经艺术风格化等任务。"}
+{"report_id": "R015", "claim_no": 8, "category": "results", "claim_text": "论文报告学习优化器在训练任务上优于通用手工优化器，但没有声称统一提升百分之五十。"}
+{"report_id": "R015", "claim_no": 9, "category": "results", "claim_text": "论文研究学习得到的优化器，并评估其在训练任务和结构相似新任务上的表现。"}
+{"report_id": "R015", "claim_no": 10, "category": "limitations", "claim_text": "论文的优势结论针对训练任务，泛化结论限定于结构相似的新任务。"}
+{"report_id": "R016", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。"}
+{"report_id": "R016", "claim_no": 2, "category": "contribution", "claim_text": "DeepFM 同时建模低阶和高阶特征交互。"}
+{"report_id": "R016", "claim_no": 3, "category": "method", "claim_text": "DeepFM 除原始特征外不需要特征工程。"}
+{"report_id": "R016", "claim_no": 4, "category": "method", "claim_text": "DeepFM 同时建模低阶和高阶特征交互。"}
+{"report_id": "R016", "claim_no": 5, "category": "results", "claim_text": "论文在基准数据和商业数据上实验，结果显示相对已有模型具有一致改进。"}
+{"report_id": "R016", "claim_no": 6, "category": "results", "claim_text": "DeepFM 的目标是预测用户点击率。"}
+{"report_id": "R016", "claim_no": 7, "category": "method", "claim_text": "DeepFM 的宽部和深部共享相同的原始特征输入与嵌入。"}
+{"report_id": "R016", "claim_no": 8, "category": "results", "claim_text": "DeepFM 在商业数据上相对已有模型表现出一致改进，但论文没有声称点击率提升百分之百。"}
+{"report_id": "R016", "claim_no": 9, "category": "results", "claim_text": "论文在基准数据和商业数据上评估 DeepFM。"}
+{"report_id": "R016", "claim_no": 10, "category": "limitations", "claim_text": "论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。"}
+{"report_id": "R017", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何结合神经网络与随机过程，以便根据上下文观测快速适应并表达预测不确定性。"}
+{"report_id": "R017", "claim_no": 2, "category": "contribution", "claim_text": "Neural Processes 结合了神经网络和随机过程的优点。"}
+{"report_id": "R017", "claim_no": 3, "category": "method", "claim_text": "NP 能估计预测中的不确定性，并在测试时根据上下文观测适应。"}
+{"report_id": "R017", "claim_no": 4, "category": "method", "claim_text": "Neural Processes 是确定性模型，不产生函数分布。"}
+{"report_id": "R017", "claim_no": 5, "category": "method", "claim_text": "NP 的推理复杂度始终是常数，与上下文和目标点数量无关。"}
+{"report_id": "R017", "claim_no": 6, "category": "results", "claim_text": "NP 在所有任务上都比高斯过程更准确。"}
+{"report_id": "R017", "claim_no": 7, "category": "results", "claim_text": "NP 只适用于图像分类，不支持回归或优化。"}
+{"report_id": "R017", "claim_no": 8, "category": "results", "claim_text": "NP 推理复杂度为 O(n+m)^3。"}
+{"report_id": "R017", "claim_no": 9, "category": "method", "claim_text": "NP 使用监督标签训练单一任务模型。"}
+{"report_id": "R017", "claim_no": 10, "category": "limitations", "claim_text": "论文只在一系列具体任务上展示 NP，不能据此外推到所有任务。"}
+{"report_id": "R018", "claim_no": 1, "category": "research_question", "claim_text": "论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。"}
+{"report_id": "R018", "claim_no": 2, "category": "contribution", "claim_text": "论文提出了面向深度学习的差分隐私算法技术。"}
+{"report_id": "R018", "claim_no": 3, "category": "results", "claim_text": "实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。"}
+{"report_id": "R018", "claim_no": 4, "category": "method", "claim_text": "该方法只适用于凸目标函数。"}
+{"report_id": "R018", "claim_no": 5, "category": "results", "claim_text": "隐私保护不会带来任何软件复杂度、训练效率或模型质量成本。"}
+{"report_id": "R018", "claim_no": 6, "category": "results", "claim_text": "论文使用单一隐私预算 epsilon=1。"}
+{"report_id": "R018", "claim_no": 7, "category": "limitations", "claim_text": "方法保证模型永远不会泄露任何训练信息。"}
+{"report_id": "R018", "claim_no": 8, "category": "method", "claim_text": "论文完全不涉及神经网络训练。"}
+{"report_id": "R018", "claim_no": 9, "category": "results", "claim_text": "该隐私训练方法已在医疗生产数据上部署并通过监管认证。"}
+{"report_id": "R018", "claim_no": 10, "category": "limitations", "claim_text": "论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。"}

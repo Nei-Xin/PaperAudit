@@ -1,0 +1,33 @@
+{
+  "dataset_manifest_sha256": "d23f785b6fe78ded0dd0f57d77078d471ba23ff21f143fcd8dc48d84bc29e0e5",
+  "dataset_file_sha256": {
+    "report_index": "320723205b59911857a7f833346a6e0955e93a0791dd6711e3be9afd08ef4a08",
+    "mutations": "a7ca168d146c7ba2f4abeb1a69008958b553e80a5a0320efd5ed4ed454e4152f",
+    "blind_claims": "d2533e71a6aeac4c0c118def9550f6d6037472836a0beafe07ee72926b20cf2a",
+    "human_annotation_template": "49906ae289176839ae741327fc9efb3db62fe3d69a749276c01e1de26c259d72",
+    "papers": "d7cc4cbfbf3533044f02c33a2eea43b78d6f700f3c061bfe3dd84c9820a02eca",
+    "protocol": "0e5076986d4fa54ca155b8107f60f282847f91ee85ed6c7018295ea614816a5e"
+  },
+  "runtime": {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "temperature": 0.2,
+    "top_p": 1.0,
+    "retrieval_top_k": 5,
+    "judge_batch_size": 6,
+    "max_paper_chars": 120000,
+    "prompt_source_sha256": "eb1719871b1d98bfa2bde3faf4cf11eda97e95eda279d017a4b80104887a6955",
+    "audit_rules_sha256": "bcc08c436b7b1cce08753cdaaa8f534c4d88643380ece8bddef18f76575cc772",
+    "scoring_sha256": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "service_sha256": "1d2aa83d32d9f761c390c673eae15346c4d5cf4254975b6e6007aa7cef021e08",
+    "runner_sha256": "772654d28676a3911c8b307b8c04e92021216c80e417537b7207c951eaee93d2"
+  },
+  "git": {
+    "commit": "53025f1f1cff628ab83b7a44d03a76096d66ece9",
+    "working_tree_clean": false,
+    "working_tree_diff_sha256": "7a9352a216957b7fd0bbc15eee3948dfbe237afee9f650674401ec29c6c08c16"
+  },
+  "repeats": 3,
+  "workers": 2,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc"
+}

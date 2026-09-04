@@ -1,0 +1,1538 @@
+{
+  "experiment": "direction-one-report-test-v1",
+  "full_dataset": true,
+  "passed": false,
+  "thresholds": {
+    "ranking_accuracy": 0.8333,
+    "label_pairwise_agreement": 0.9,
+    "mean_report_score_std": 3.0,
+    "mean_audit_coverage": 80.0,
+    "high_risk_recall": 0.8
+  },
+  "checks": {
+    "complete_three_tier_ranking": true,
+    "label_pairwise_agreement": false,
+    "mean_report_score_std": true,
+    "mean_audit_coverage": true,
+    "high_risk_recall": true
+  },
+  "aggregate": {
+    "report_count": 18,
+    "paper_count": 6,
+    "ranking_paper_count": 6,
+    "ranking_accuracy": 1.0,
+    "mean_label_pairwise_agreement": 0.8046,
+    "mean_report_score_std": 2.7066,
+    "max_report_score_std": 7.3557,
+    "mean_audit_coverage": 100.0,
+    "high_risk_mutation_count": 23,
+    "high_risk_recall": 0.913
+  },
+  "ranking": [
+    {
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "scores": {
+        "low": 69.3667,
+        "high": 95.9,
+        "medium": 87.1667
+      },
+      "ordered": true
+    },
+    {
+      "paper_id": "guo2017_deepfm",
+      "scores": {
+        "medium": 87.3333,
+        "low": 75.8,
+        "high": 98.3
+      },
+      "ordered": true
+    },
+    {
+      "paper_id": "garnelo2018_neural_processes",
+      "scores": {
+        "medium": 83.5,
+        "high": 95.6333,
+        "low": 69.1667
+      },
+      "ordered": true
+    },
+    {
+      "paper_id": "zoph2016_nas_rl",
+      "scores": {
+        "high": 98.9,
+        "low": 67.8,
+        "medium": 87.4667
+      },
+      "ordered": true
+    },
+    {
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "scores": {
+        "high": 88.8,
+        "low": 76.0,
+        "medium": 85.7667
+      },
+      "ordered": true
+    },
+    {
+      "paper_id": "abadi2016_differential_privacy",
+      "scores": {
+        "medium": 86.3667,
+        "high": 97.4333,
+        "low": 75.5333
+      },
+      "ordered": true
+    }
+  ],
+  "reports": [
+    {
+      "report_id": "R001",
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "tier": "low",
+      "run_count": 3,
+      "scores": [
+        70.0,
+        71.1,
+        67.0
+      ],
+      "mean_score": 69.3667,
+      "score_std": 1.7327,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.9167,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "report_id": "R002",
+      "paper_id": "guo2017_deepfm",
+      "tier": "medium",
+      "run_count": 3,
+      "scores": [
+        87.9,
+        85.4,
+        88.7
+      ],
+      "mean_score": 87.3333,
+      "score_std": 1.4055,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7138,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        11,
+        9,
+        8
+      ]
+    },
+    {
+      "report_id": "R003",
+      "paper_id": "garnelo2018_neural_processes",
+      "tier": "medium",
+      "run_count": 3,
+      "scores": [
+        88.9,
+        75.7,
+        85.9
+      ],
+      "mean_score": 83.5,
+      "score_std": 5.6498,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.6181,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        11,
+        18,
+        16
+      ]
+    },
+    {
+      "report_id": "R004",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "high",
+      "run_count": 3,
+      "scores": [
+        100.0,
+        96.7,
+        100.0
+      ],
+      "mean_score": 98.9,
+      "score_std": 1.5556,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 1.0,
+      "grades": {
+        "可信": 3
+      },
+      "claim_counts": [
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "report_id": "R005",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "high",
+      "run_count": 3,
+      "scores": [
+        94.2,
+        93.8,
+        78.4
+      ],
+      "mean_score": 88.8,
+      "score_std": 7.3557,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.8114,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        11,
+        9,
+        9
+      ]
+    },
+    {
+      "report_id": "R006",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "medium",
+      "run_count": 3,
+      "scores": [
+        88.4,
+        87.5,
+        83.2
+      ],
+      "mean_score": 86.3667,
+      "score_std": 2.2691,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.8462,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        10,
+        10,
+        13
+      ]
+    },
+    {
+      "report_id": "R007",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "low",
+      "run_count": 3,
+      "scores": [
+        75.0,
+        75.4,
+        77.6
+      ],
+      "mean_score": 76.0,
+      "score_std": 1.1431,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7372,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        9,
+        12,
+        13
+      ]
+    },
+    {
+      "report_id": "R008",
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "tier": "high",
+      "run_count": 3,
+      "scores": [
+        94.2,
+        96.6,
+        96.9
+      ],
+      "mean_score": 95.9,
+      "score_std": 1.2083,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.8333,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        16,
+        13,
+        13
+      ]
+    },
+    {
+      "report_id": "R009",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "low",
+      "run_count": 3,
+      "scores": [
+        69.6,
+        64.2,
+        69.6
+      ],
+      "mean_score": 67.8,
+      "score_std": 2.5456,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.8889,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        10,
+        12,
+        10
+      ]
+    },
+    {
+      "report_id": "R010",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "medium",
+      "run_count": 3,
+      "scores": [
+        83.6,
+        86.4,
+        87.3
+      ],
+      "mean_score": 85.7667,
+      "score_std": 1.5755,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7436,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        10,
+        13,
+        13
+      ]
+    },
+    {
+      "report_id": "R011",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "high",
+      "run_count": 3,
+      "scores": [
+        92.3,
+        100.0,
+        100.0
+      ],
+      "mean_score": 97.4333,
+      "score_std": 3.6298,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7436,
+      "grades": {
+        "需复核": 1,
+        "可信": 2
+      },
+      "claim_counts": [
+        13,
+        10,
+        13
+      ]
+    },
+    {
+      "report_id": "R012",
+      "paper_id": "guo2017_deepfm",
+      "tier": "low",
+      "run_count": 3,
+      "scores": [
+        76.2,
+        76.0,
+        75.2
+      ],
+      "mean_score": 75.8,
+      "score_std": 0.432,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.9394,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        10,
+        10,
+        11
+      ]
+    },
+    {
+      "report_id": "R013",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "medium",
+      "run_count": 3,
+      "scores": [
+        90.4,
+        89.9,
+        82.1
+      ],
+      "mean_score": 87.4667,
+      "score_std": 3.8003,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7282,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        13,
+        9,
+        10
+      ]
+    },
+    {
+      "report_id": "R014",
+      "paper_id": "garnelo2018_neural_processes",
+      "tier": "high",
+      "run_count": 3,
+      "scores": [
+        94.7,
+        97.2,
+        95.0
+      ],
+      "mean_score": 95.6333,
+      "score_std": 1.1146,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7778,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        18,
+        17,
+        20
+      ]
+    },
+    {
+      "report_id": "R015",
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "tier": "medium",
+      "run_count": 3,
+      "scores": [
+        88.8,
+        90.4,
+        82.3
+      ],
+      "mean_score": 87.1667,
+      "score_std": 3.5027,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7032,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        15,
+        14,
+        11
+      ]
+    },
+    {
+      "report_id": "R016",
+      "paper_id": "guo2017_deepfm",
+      "tier": "high",
+      "run_count": 3,
+      "scores": [
+        100.0,
+        97.8,
+        97.1
+      ],
+      "mean_score": 98.3,
+      "score_std": 1.2356,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.7628,
+      "grades": {
+        "可信": 1,
+        "需复核": 2
+      },
+      "claim_counts": [
+        10,
+        13,
+        12
+      ]
+    },
+    {
+      "report_id": "R017",
+      "paper_id": "garnelo2018_neural_processes",
+      "tier": "low",
+      "run_count": 3,
+      "scores": [
+        66.2,
+        74.1,
+        67.2
+      ],
+      "mean_score": 69.1667,
+      "score_std": 3.5122,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.8431,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        17,
+        17,
+        15
+      ]
+    },
+    {
+      "report_id": "R018",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "low",
+      "run_count": 3,
+      "scores": [
+        72.9,
+        71.1,
+        82.6
+      ],
+      "mean_score": 75.5333,
+      "score_std": 5.0506,
+      "mean_audit_coverage": 100.0,
+      "label_pairwise_agreement": 0.875,
+      "grades": {
+        "需复核": 3
+      },
+      "claim_counts": [
+        16,
+        15,
+        16
+      ]
+    }
+  ],
+  "high_risk_mutations": [
+    {
+      "report_id": "R017",
+      "paper_id": "garnelo2018_neural_processes",
+      "tier": "low",
+      "claim_no": 4,
+      "source_sample_id": "np_final_003",
+      "category": "method",
+      "claim_text": "Neural Processes 是确定性模型，不产生函数分布。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "fabricated",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 0.96,
+          "predicted_claim": "Neural Processes 不产生函数分布。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.96,
+          "predicted_claim": "Neural Processes 不产生函数分布。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.96,
+          "predicted_claim": "Neural Processes 不产生函数分布。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R017",
+      "paper_id": "garnelo2018_neural_processes",
+      "tier": "low",
+      "claim_no": 7,
+      "source_sample_id": "np_final_006",
+      "category": "results",
+      "claim_text": "NP 只适用于图像分类，不支持回归或优化。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 0.7943,
+          "predicted_claim": "NP 只适用于图像分类。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.7143,
+          "predicted_claim": "NP 只适用于图像分类。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.7943,
+          "predicted_claim": "NP 不支持回归或优化。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R017",
+      "paper_id": "garnelo2018_neural_processes",
+      "tier": "low",
+      "claim_no": 8,
+      "source_sample_id": "np_final_007",
+      "category": "results",
+      "claim_text": "NP 推理复杂度为 O(n+m)^3。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b12"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NP 推理复杂度为 O(n+m)^3。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NP 推理复杂度为 O(n+m)^3。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NP 推理复杂度为 O(n+m)^3。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R001",
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "tier": "low",
+      "claim_no": 5,
+      "source_sample_id": "l2l_final_004",
+      "category": "results",
+      "claim_text": "该方法只在训练过的任务上有效，不能泛化到相似新任务。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b13"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 0.7368,
+          "predicted_claim": "该方法只在训练过的任务上有效。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.7368,
+          "predicted_claim": "该方法只在训练过的任务上有效。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.7368,
+          "predicted_claim": "该方法只在训练过的任务上有效。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R001",
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "tier": "low",
+      "claim_no": 7,
+      "source_sample_id": "l2l_final_006",
+      "category": "results",
+      "claim_text": "论文仅研究分类任务。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b13"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文仅研究分类任务。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文仅研究分类任务。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文仅研究分类任务。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R001",
+      "paper_id": "andrychowicz2016_learning_to_learn",
+      "tier": "low",
+      "claim_no": 8,
+      "source_sample_id": "l2l_final_007",
+      "category": "results",
+      "claim_text": "学习优化器在所有任务上提升 50% 的性能。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b13"
+      ],
+      "detected_runs": 0,
+      "detected_by_majority": false,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "学习优化器在所有任务上提升 50% 的性能。",
+          "label": "PARTIALLY_SUPPORTED",
+          "severity": "medium",
+          "detected": false
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "学习优化器在所有任务上提升 50% 的性能。",
+          "label": "PARTIALLY_SUPPORTED",
+          "severity": "medium",
+          "detected": false
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "学习优化器在所有任务上提升 50% 的性能。",
+          "label": "PARTIALLY_SUPPORTED",
+          "severity": "medium",
+          "detected": false
+        }
+      ]
+    },
+    {
+      "report_id": "R018",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "low",
+      "claim_no": 4,
+      "source_sample_id": "dp_final_003",
+      "category": "method",
+      "claim_text": "该方法只适用于凸目标函数。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "fabricated",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b7"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "该方法只适用于凸目标函数。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "该方法只适用于凸目标函数。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "该方法只适用于凸目标函数。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R018",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "low",
+      "claim_no": 6,
+      "source_sample_id": "dp_final_005",
+      "category": "results",
+      "claim_text": "论文使用单一隐私预算 epsilon=1。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b10"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文使用单一隐私预算 epsilon=1。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文使用单一隐私预算 epsilon=1。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文使用单一隐私预算epsilon=1。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R018",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "low",
+      "claim_no": 8,
+      "source_sample_id": "dp_final_007",
+      "category": "method",
+      "claim_text": "论文完全不涉及神经网络训练。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b7"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文完全不涉及神经网络训练。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文完全不涉及神经网络训练。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "论文完全不涉及神经网络训练。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R018",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "low",
+      "claim_no": 9,
+      "source_sample_id": "dp_final_008",
+      "category": "results",
+      "claim_text": "该隐私训练方法已在医疗生产数据上部署并通过监管认证。",
+      "gold_label": "NO_SUPPORT_FOUND",
+      "gold_error_type": "external_hallucination",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b7"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 0.9172,
+          "predicted_claim": "该隐私训练方法已在医疗生产数据上部署。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.9172,
+          "predicted_claim": "该隐私训练方法已在医疗生产数据上部署。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "该隐私训练方法已在医疗生产数据上部署并通过监管认证。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R009",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "low",
+      "claim_no": 4,
+      "source_sample_id": "nas_final_003",
+      "category": "results",
+      "claim_text": "NAS 在 CIFAR-10 上的测试错误率是 0.384。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 在 CIFAR-10 上的测试错误率是 0.384。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 在 CIFAR-10 上的测试错误率是 0.384。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 在 CIFAR-10 上的测试错误率是 0.384。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R009",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "low",
+      "claim_no": 5,
+      "source_sample_id": "nas_final_004",
+      "category": "results",
+      "claim_text": "NAS 只适用于图像识别，不适用于语言建模。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 只适用于图像识别，不适用于语言建模。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 0.7333,
+          "predicted_claim": "NAS 不适用于语言建模。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 只适用于图像识别，不适用于语言建模。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R009",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "low",
+      "claim_no": 7,
+      "source_sample_id": "nas_final_006",
+      "category": "method",
+      "claim_text": "NAS 的控制器通过监督标签直接训练，不使用奖励信号。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "fabricated",
+      "source_page": 2,
+      "gold_evidence_chunk_ids": [
+        "p2_b2"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 的控制器通过监督标签直接训练，不使用奖励信号。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 的控制器通过监督标签直接训练，不使用奖励信号。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 的控制器通过监督标签直接训练，不使用奖励信号。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R009",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "low",
+      "claim_no": 8,
+      "source_sample_id": "nas_final_007",
+      "category": "results",
+      "claim_text": "Penn Treebank 单元的测试困惑度为 26.4。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "Penn Treebank 单元的测试困惑度为 26.4。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "Penn Treebank 单元的测试困惑度为 26.4。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "Penn Treebank 单元的测试困惑度为 26.4。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R009",
+      "paper_id": "zoph2016_nas_rl",
+      "tier": "low",
+      "claim_no": 9,
+      "source_sample_id": "nas_final_008",
+      "category": "results",
+      "claim_text": "NAS 已证明能自动发现适用于所有领域的最优架构。",
+      "gold_label": "NO_SUPPORT_FOUND",
+      "gold_error_type": "external_hallucination",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 0,
+      "detected_by_majority": false,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 已证明能自动发现适用于所有领域的最优架构。",
+          "label": "PARTIALLY_SUPPORTED",
+          "severity": "medium",
+          "detected": false
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 已证明能自动发现适用于所有领域的最优架构。",
+          "label": "PARTIALLY_SUPPORTED",
+          "severity": "medium",
+          "detected": false
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "NAS 已证明能自动发现适用于所有领域的最优架构。",
+          "label": "PARTIALLY_SUPPORTED",
+          "severity": "medium",
+          "detected": false
+        }
+      ]
+    },
+    {
+      "report_id": "R012",
+      "paper_id": "guo2017_deepfm",
+      "tier": "low",
+      "claim_no": 4,
+      "source_sample_id": "deepfm_final_003",
+      "category": "method",
+      "claim_text": "DeepFM 只建模二阶特征交互。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "fabricated",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 只建模二阶特征交互。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 只建模二阶特征交互。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 只建模二阶特征交互。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R012",
+      "paper_id": "guo2017_deepfm",
+      "tier": "low",
+      "claim_no": 7,
+      "source_sample_id": "deepfm_final_006",
+      "category": "method",
+      "claim_text": "DeepFM 的宽和深组件使用两个完全不同的输入。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 2,
+      "gold_evidence_chunk_ids": [
+        "p2_b1"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 的宽和深组件使用两个完全不同的输入。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 的宽和深组件使用两个完全不同的输入。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 的宽和深组件使用两个完全不同的输入。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R012",
+      "paper_id": "guo2017_deepfm",
+      "tier": "low",
+      "claim_no": 8,
+      "source_sample_id": "deepfm_final_007",
+      "category": "results",
+      "claim_text": "DeepFM 在商业数据上提升 CTR 100%。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 2,
+      "gold_evidence_chunk_ids": [
+        "p2_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 在商业数据上提升 CTR 100%。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 在商业数据上提升 CTR 100%。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 在商业数据上提升 CTR 100%。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R012",
+      "paper_id": "guo2017_deepfm",
+      "tier": "low",
+      "claim_no": 9,
+      "source_sample_id": "deepfm_final_008",
+      "category": "results",
+      "claim_text": "DeepFM 已在所有线上广告平台实时部署。",
+      "gold_label": "NO_SUPPORT_FOUND",
+      "gold_error_type": "external_hallucination",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b5"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 已在所有线上广告平台实时部署。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 已在所有线上广告平台实时部署。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DeepFM 已在所有线上广告平台实时部署。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R007",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "low",
+      "claim_no": 4,
+      "source_sample_id": "dip_final_003",
+      "category": "method",
+      "claim_text": "DIP 的网络权重从大型图像数据集预训练得到。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "fabricated",
+      "source_page": 2,
+      "gold_evidence_chunk_ids": [
+        "p2_b4"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 的网络权重从大型图像数据集预训练得到。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP的网络权重从大型图像数据集预训练得到。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 的网络权重从大型图像数据集预训练得到。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R007",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "low",
+      "claim_no": 6,
+      "source_sample_id": "dip_final_005",
+      "category": "method",
+      "claim_text": "DIP 只适用于超分辨率，不能用于去噪。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "contradiction",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b9"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 只适用于超分辨率，不能用于去噪。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP只适用于超分辨率，不能用于去噪。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 只适用于超分辨率，不能用于去噪。",
+          "label": "CONTRADICTED",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R007",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "low",
+      "claim_no": 8,
+      "source_sample_id": "dip_final_007",
+      "category": "method",
+      "claim_text": "DIP 使用 20 亿个网络参数。",
+      "gold_label": "CONTRADICTED",
+      "gold_error_type": "numeric_or_metric_mismatch",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 2,
+      "gold_evidence_chunk_ids": [
+        "p2_b18"
+      ],
+      "detected_runs": 3,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 使用 20 亿个网络参数。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP使用20亿个网络参数。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 使用 20 亿个网络参数。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    },
+    {
+      "report_id": "R007",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "low",
+      "claim_no": 9,
+      "source_sample_id": "dip_final_008",
+      "category": "method",
+      "claim_text": "DIP 已成为商业照片编辑软件的标准组件。",
+      "gold_label": "NO_SUPPORT_FOUND",
+      "gold_error_type": "external_hallucination",
+      "gold_severity": "high",
+      "citation_mode": "valid",
+      "source_page": 1,
+      "gold_evidence_chunk_ids": [
+        "p1_b13"
+      ],
+      "detected_runs": 2,
+      "detected_by_majority": true,
+      "alignments": [
+        {
+          "matched": false
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP已成为商业照片编辑软件的标准组件。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        },
+        {
+          "matched": true,
+          "score": 1.0,
+          "predicted_claim": "DIP 已成为商业照片编辑软件的标准组件。",
+          "label": "NO_SUPPORT_FOUND",
+          "severity": "high",
+          "detected": true
+        }
+      ]
+    }
+  ],
+  "policy": "复用冻结 final_holdout 论文做完整报告扩展；正式结果不得用于调参，不作为新的独立论文泛化证明。"
+}

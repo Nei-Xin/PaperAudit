@@ -66,9 +66,12 @@ def _extract_json(text: str) -> object:
         return json.loads(stripped)
     except json.JSONDecodeError:
         start = stripped.find("{")
-        end = stripped.rfind("}")
-        if start >= 0 and end > start:
-            return json.loads(stripped[start : end + 1])
+        if start >= 0:
+            # Hy3 can occasionally append commentary or repeat a JSON object.
+            # Decode the first complete object instead of spanning from the
+            # first opening brace to the final closing brace.
+            value, _ = json.JSONDecoder().raw_decode(stripped[start:])
+            return value
         raise
 
 

@@ -1,0 +1,26 @@
+{
+  "dataset": "direction-one-report-test-v1",
+  "status": "prepared-not-run",
+  "source_dataset": "../final_holdout_resolved_samples.jsonl",
+  "source_papers": "../final_holdout_papers.json",
+  "paper_count": 6,
+  "report_count": 18,
+  "claims_per_report": 10,
+  "repeats": 3,
+  "thresholds": {
+    "ranking_accuracy": 0.8333,
+    "label_pairwise_agreement": 0.9,
+    "mean_report_score_std": 3.0,
+    "mean_audit_coverage": 80.0,
+    "high_risk_recall": 0.8
+  },
+  "policy": "复用冻结 final_holdout 论文做完整报告扩展；正式结果不得用于调参，不作为新的独立论文泛化证明。",
+  "files": {
+    "report_index": "report_index.jsonl",
+    "mutations": "mutations.jsonl",
+    "blind_claims": "blind_claims.jsonl",
+    "human_annotation_template": "human_annotation_template.csv",
+    "papers": "papers.json",
+    "protocol": "protocol.md"
+  }
+}

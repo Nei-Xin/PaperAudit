@@ -1,0 +1,671 @@
+{
+  "report_id": "R013",
+  "paper_id": "zoph2016_nas_rl",
+  "tier": "medium",
+  "repeat": 2,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc",
+  "audit": {
+    "paper_title": "Under review as a conference paper at ICLR 2017",
+    "page_count": 15,
+    "mode": "direction_one_report_test",
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results",
+      "limitations"
+    ],
+    "report_text": "# Neural Architecture Search with Reinforcement Learning 论文讲解报告\n\n本报告围绕论文的研究问题、贡献、方法、实验结果与适用边界进行结构化说明。\n\n## 研究问题\n\n- 论文研究如何利用强化学习自动生成有竞争力的神经网络架构。（证据：论文第1页）\n\n## 方法\n\n- 控制器 RNN 生成神经网络模型描述，并用强化学习最大化验证集准确率。（证据：论文第1页）\n- NAS 控制器使用验证集准确率作为奖励信号，通过策略梯度更新。（证据：论文第2页）\n\n## 主要结果\n\n- CIFAR-10 模型测试错误率为 3.84。\n- NAS 在 CIFAR-10 上的测试错误率是 3.84。（证据：论文第1页）\n- NAS 同时在 CIFAR-10 图像识别和 Penn Treebank 语言建模上进行评估。（证据：论文第1页）\n- NAS 生成的架构在所有数据集上都优于人类设计架构。（证据：论文第1页）\n- Penn Treebank 单元的测试困惑度为 62.4。\n- 论文表明 NAS 能在 CIFAR-10 和 Penn Treebank 上自动设计有竞争力的架构。（证据：论文第1页）\n\n## 局限与边界\n\n- 论文的实证结论来自 CIFAR-10 和 Penn Treebank，不能直接推广为所有领域的最优架构。（证据：论文第1页）\n\n## 阅读结论\n\n以上内容按论文中的研究问题、方法与实验结论组织，便于读者逐项回到原文核验。\n",
+    "audits": [
+      {
+        "claim": {
+          "claim_id": "C001",
+          "text": "论文研究如何利用强化学习自动生成有竞争力的神经网络架构。",
+          "category": "research_question",
+          "key_claim": true,
+          "query_en": "Neural Architecture Search reinforcement learning automatically generate competitive neural network architectures",
+          "entities": [
+            "Neural Architecture Search",
+            "强化学习",
+            "神经网络架构"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C001_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 1.055379
+          },
+          {
+            "evidence_id": "C001_e2",
+            "chunk_id": "p1_b2",
+            "page": 1,
+            "text": "NEURAL ARCHITECTURE SEARCH WITH\nREINFORCEMENT LEARNING",
+            "score": 0.63
+          },
+          {
+            "evidence_id": "C001_e3",
+            "chunk_id": "p10_b18",
+            "page": 10,
+            "text": "In this paper we introduce Neural Architecture Search, an idea of using a recurrent neural network\nto compose neural network architectures. By using recurrent network as the controller, our method\nis ﬂexible so that it can search variable-length architecture space. Our method has strong empirical\nperformance on very challenging benchmarks and presents a new research direction for automat-\nically ﬁnding good neural network architectures. The code for running the models found by the\ncontroller on CIFAR-10 and PTB will be released at https://github.com/tensorﬂow/models .",
+            "score": 0.616501
+          },
+          {
+            "evidence_id": "C001_e4",
+            "chunk_id": "p3_b3",
+            "page": 3,
+            "text": "In Neural Architecture Search, we use a controller to generate architectural hyperparameters of\nneural networks. To be ﬂexible, the controller is implemented as a recurrent neural network. Let’s\nsuppose we would like to predict feedforward neural networks with only convolutional layers, we\ncan use the controller to generate their hyperparameters as a sequence of tokens:",
+            "score": 0.609311
+          },
+          {
+            "evidence_id": "C001_e5",
+            "chunk_id": "p2_b8",
+            "page": 2,
+            "text": "The controller in Neural Architecture Search is auto-regressive, which means it predicts hyperpa-\nrameters one a time, conditioned on previous predictions. This idea is borrowed from the decoder\nin end-to-end sequence to sequence learning (Sutskever et al., 2014). Unlike sequence to sequence\nlearning, our method optimizes a non-differentiable metric, which is the accuracy of the child net-\nwork. It is therefore similar to the work on BLEU optimization in Neural Machine Translation (Shen\net al., 2016; Ranzato et al., 2015). Unlike these approaches, our method learns directly from the re-\nward signal without any supervised bootstrapping.",
+            "score": 0.595676
+          }
+        ],
+        "judgment": {
+          "claim_id": "C001",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C001_e1",
+            "C001_e2",
+            "C001_e3"
+          ],
+          "explanation": "证据明确说明论文使用强化学习训练控制器，以自动生成并搜索神经网络架构，且目标是获得有竞争力的性能。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C002",
+          "text": "控制器 RNN 生成神经网络模型描述，并通过强化学习最大化验证集准确率。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "NAS controller RNN generates neural network descriptions reinforcement learning validation accuracy",
+          "entities": [
+            "控制器 RNN",
+            "神经网络模型",
+            "强化学习"
+          ],
+          "numbers": [],
+          "metric": "验证集准确率",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C002_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 1.134488
+          },
+          {
+            "evidence_id": "C002_e2",
+            "chunk_id": "p3_b5",
+            "page": 3,
+            "text": "In our experiments, the process of generating an architecture stops if the number of layers exceeds\na certain value. This value follows a schedule where we increase it as training progresses. Once the\ncontroller RNN ﬁnishes generating an architecture, a neural network with this architecture is built\nand trained. At convergence, the accuracy of the network on a held-out validation set is recorded.\nThe parameters of the controller RNN, θc, are then optimized in order to maximize the expected\nvalidation accuracy of the proposed architectures. In the next section, we will describe a policy\ngradient method which we use to update parameters θc so that the controller RNN generates better\narchitectures over time.",
+            "score": 0.648273
+          },
+          {
+            "evidence_id": "C002_e3",
+            "chunk_id": "p3_b7",
+            "page": 3,
+            "text": "The list of tokens that the controller predicts can be viewed as a list of actions a1:T to design an\narchitecture for a child network. At convergence, this child network will achieve an accuracy R on\na held-out dataset. We can use this accuracy R as the reward signal and use reinforcement learning\nto train the controller. More concretely, to ﬁnd the optimal architecture, we ask our controller to\nmaximize its expected reward, represented by J(θc):",
+            "score": 0.535486
+          },
+          {
+            "evidence_id": "C002_e4",
+            "chunk_id": "p2_b2",
+            "page": 2,
+            "text": "a recurrent network – the controller – to generate such string to construct a network. Training the\nnetwork – the ”child network” – on the real data will result in an accuracy on a validation set. Using\nthis accuracy as the reward signal, we can compute the policy gradient to update the controller. As a\nresult, in the next iteration, the controller will give higher probabilities to architectures that receive\nhigh accuracies. In other words, the controller will learn to improve its search over time.",
+            "score": 0.533909
+          },
+          {
+            "evidence_id": "C002_e5",
+            "chunk_id": "p7_b4",
+            "page": 7,
+            "text": "Once the controller RNN samples an architecture, a child model is constructed and trained for 50\nepochs. The reward used for updating the controller is the maximum validation accuracy of the last\n5 epochs cubed. The validation set has 5,000 examples randomly sampled from the training set,\nthe remaining 45,000 examples are used for training. The settings for training the CIFAR-10 child\nmodels are the same with those used in (Huang et al., 2016a). We use the Momentum Optimizer\nwith a learning rate of 0.1, weight decay of 1e-4, momentum of 0.9 and used Nesterov Momentum\n(Sutskever et al., 2013).",
+            "score": 0.525171
+          }
+        ],
+        "judgment": {
+          "claim_id": "C002",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C002_e1",
+            "C002_e2",
+            "C002_e3"
+          ],
+          "explanation": "证据明确指出控制器是RNN，用于生成神经网络模型描述，并通过强化学习最大化生成架构在留出验证集上的期望准确率。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C003",
+          "text": "NAS 控制器使用验证集准确率作为奖励信号，并通过策略梯度进行更新。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "NAS controller validation accuracy reward policy gradient update",
+          "entities": [
+            "NAS 控制器",
+            "策略梯度"
+          ],
+          "numbers": [],
+          "metric": "验证集准确率",
+          "dataset": null,
+          "provided_evidence": "论文第2页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C003_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 0.794435
+          },
+          {
+            "evidence_id": "C003_e2",
+            "chunk_id": "p2_b2",
+            "page": 2,
+            "text": "a recurrent network – the controller – to generate such string to construct a network. Training the\nnetwork – the ”child network” – on the real data will result in an accuracy on a validation set. Using\nthis accuracy as the reward signal, we can compute the policy gradient to update the controller. As a\nresult, in the next iteration, the controller will give higher probabilities to architectures that receive\nhigh accuracies. In other words, the controller will learn to improve its search over time.",
+            "score": 0.78125
+          },
+          {
+            "evidence_id": "C003_e3",
+            "chunk_id": "p3_b5",
+            "page": 3,
+            "text": "In our experiments, the process of generating an architecture stops if the number of layers exceeds\na certain value. This value follows a schedule where we increase it as training progresses. Once the\ncontroller RNN ﬁnishes generating an architecture, a neural network with this architecture is built\nand trained. At convergence, the accuracy of the network on a held-out validation set is recorded.\nThe parameters of the controller RNN, θc, are then optimized in order to maximize the expected\nvalidation accuracy of the proposed architectures. In the next section, we will describe a policy\ngradient method which we use to update parameters θc so that the controller RNN generates better\narchitectures over time.",
+            "score": 0.699049
+          },
+          {
+            "evidence_id": "C003_e4",
+            "chunk_id": "p3_b9",
+            "page": 3,
+            "text": "Since the reward signal R is non-differentiable, we need to use a policy gradient method to iteratively\nupdate θc. In this work, we use the REINFORCE rule from (Williams, 1992):",
+            "score": 0.57231
+          },
+          {
+            "evidence_id": "C003_e5",
+            "chunk_id": "p7_b4",
+            "page": 7,
+            "text": "Once the controller RNN samples an architecture, a child model is constructed and trained for 50\nepochs. The reward used for updating the controller is the maximum validation accuracy of the last\n5 epochs cubed. The validation set has 5,000 examples randomly sampled from the training set,\nthe remaining 45,000 examples are used for training. The settings for training the CIFAR-10 child\nmodels are the same with those used in (Huang et al., 2016a). We use the Momentum Optimizer\nwith a learning rate of 0.1, weight decay of 1e-4, momentum of 0.9 and used Nesterov Momentum\n(Sutskever et al., 2013).",
+            "score": 0.546659
+          }
+        ],
+        "judgment": {
+          "claim_id": "C003",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C003_e2",
+            "C003_e3",
+            "C003_e4"
+          ],
+          "explanation": "证据明确说明验证集准确率被用作奖励信号，并使用策略梯度，具体为REINFORCE规则，更新控制器参数。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C004",
+          "text": "NAS 在 CIFAR-10 图像识别和 Penn Treebank 语言建模任务上进行评估。",
+          "category": "dataset_setup",
+          "key_claim": true,
+          "query_en": "Neural Architecture Search evaluation CIFAR-10 image classification Penn Treebank language modeling",
+          "entities": [
+            "NAS",
+            "CIFAR-10",
+            "Penn Treebank"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "CIFAR-10；Penn Treebank",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C004_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 1.099892
+          },
+          {
+            "evidence_id": "C004_e2",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "Our experiments show that Neural Architecture Search can design good models from scratch, an\nachievement considered not possible with other methods. On image recognition with CIFAR-10,\nNeural Architecture Search can ﬁnd a novel ConvNet model that is better than most human-invented\narchitectures. Our CIFAR-10 model achieves a 3.84 test set error, while being 1.2x faster than the\ncurrent best model. On language modeling with Penn Treebank, Neural Architecture Search can\ndesign a novel recurrent cell that is also better than previous RNN and LSTM architectures. The cell\nthat our model found achieves a test set perplexity of 62.4 on the Penn Treebank dataset, which is\n3.6 perplexity better than the previous state-of-the-art.",
+            "score": 0.8125
+          },
+          {
+            "evidence_id": "C004_e3",
+            "chunk_id": "p6_b17",
+            "page": 6,
+            "text": "We apply our method to an image classiﬁcation task with CIFAR-10 and a language modeling task\nwith Penn Treebank, two of the most benchmarked datasets in deep learning. On CIFAR-10, our\ngoal is to ﬁnd a good convolutional architecture whereas on Penn Treebank our goal is to ﬁnd a good\nrecurrent cell. On each dataset, we have a separate held-out validation dataset to compute the reward\nsignal. The reported performance on the test set is computed only once for the network that achieves\nthe best result on the held-out validation dataset. More details about our experimental procedures\nand results are as follows.",
+            "score": 0.763339
+          },
+          {
+            "evidence_id": "C004_e4",
+            "chunk_id": "p8_b6",
+            "page": 8,
+            "text": "Dataset:\nWe apply Neural Architecture Search to the Penn Treebank dataset, a well-known bench-\nmark for language modeling. On this task, LSTM architectures tend to excel (Zaremba et al., 2014;\nGal, 2015), and improving them is difﬁcult (Jozefowicz et al., 2015). As PTB is a small dataset, reg-\nularization methods are needed to avoid overﬁtting. First, we make use of the embedding dropout\nand recurrent dropout techniques proposed in (Zaremba et al., 2014) and (Gal, 2015). We also try\nto combine them with the shared Input/Output embedding method by Press & Wolf (2016). Results\nwith this method are marked with ”shared embeddings.”",
+            "score": 0.59728
+          },
+          {
+            "evidence_id": "C004_e5",
+            "chunk_id": "p7_b16",
+            "page": 7,
+            "text": "Table 1: Performance of Neural Architecture Search and other state-of-the-art models on CIFAR-10.",
+            "score": 0.56502
+          }
+        ],
+        "judgment": {
+          "claim_id": "C004",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C004_e1",
+            "C004_e2",
+            "C004_e3"
+          ],
+          "explanation": "证据明确说明NAS在CIFAR-10图像识别任务和Penn Treebank语言建模任务上进行了应用与评估。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C005",
+          "text": "NAS 在 CIFAR-10 上的模型测试错误率为 3.84。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "NAS CIFAR-10 test error rate 3.84",
+          "entities": [
+            "NAS",
+            "CIFAR-10"
+          ],
+          "numbers": [
+            "3.84"
+          ],
+          "metric": "测试错误率",
+          "dataset": "CIFAR-10",
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C005_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 1.240073
+          },
+          {
+            "evidence_id": "C005_e2",
+            "chunk_id": "p8_b3",
+            "page": 8,
+            "text": "In the second set of experiments, we ask the controller to predict strides in addition to other hyper-\nparameters. As stated earlier, this is more challenging because the search space is larger. In this\ncase, it ﬁnds a 20-layer architecture that achieves 6.01% error rate on the test set, which is not much\nworse than the ﬁrst set of experiments.",
+            "score": 0.803213
+          },
+          {
+            "evidence_id": "C005_e3",
+            "chunk_id": "p8_b2",
+            "page": 8,
+            "text": "First, if we ask the controller to not predict stride or pooling, it can design a 15-layer architecture\nthat achieves 5.50% error rate on the test set. This architecture has a good balance between accuracy\nand depth. In fact, it is the shallowest and perhaps the most inexpensive architecture among the top\nperforming networks in this table. This architecture is shown in Appendix A, Figure 7. A notable\nfeature of this architecture is that it has many rectangular ﬁlters and it prefers larger ﬁlters at the\ntop layers. Like residual networks (He et al., 2016a), the architecture also has many one-step skip\nconnections. This architecture is a local optimum in the sense that if we perturb it, its performance\nbecomes worse. For example, if we densely connect all layers with skip connections, its performance\nbecomes slightly worse: 5.56%. If we remove all skip connections, its performance drops to 7.97%.",
+            "score": 0.785669
+          },
+          {
+            "evidence_id": "C005_e4",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "Our experiments show that Neural Architecture Search can design good models from scratch, an\nachievement considered not possible with other methods. On image recognition with CIFAR-10,\nNeural Architecture Search can ﬁnd a novel ConvNet model that is better than most human-invented\narchitectures. Our CIFAR-10 model achieves a 3.84 test set error, while being 1.2x faster than the\ncurrent best model. On language modeling with Penn Treebank, Neural Architecture Search can\ndesign a novel recurrent cell that is also better than previous RNN and LSTM architectures. The cell\nthat our model found achieves a test set perplexity of 62.4 on the Penn Treebank dataset, which is\n3.6 perplexity better than the previous state-of-the-art.",
+            "score": 0.749697
+          },
+          {
+            "evidence_id": "C005_e5",
+            "chunk_id": "p7_b7",
+            "page": 7,
+            "text": "Model\nDepth\nParameters\nError rate (%)",
+            "score": 0.483333
+          }
+        ],
+        "judgment": {
+          "claim_id": "C005",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C005_e1",
+            "C005_e4"
+          ],
+          "explanation": "证据明确报告NAS在CIFAR-10上的模型测试错误率为3.84。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C006",
+          "text": "Penn Treebank 单元的测试困惑度为 62.4。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "NAS Penn Treebank cell test perplexity 62.4",
+          "entities": [
+            "Penn Treebank",
+            "NAS 单元"
+          ],
+          "numbers": [
+            "62.4"
+          ],
+          "metric": "测试困惑度",
+          "dataset": "Penn Treebank",
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C006_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 1.261844
+          },
+          {
+            "evidence_id": "C006_e2",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "Our experiments show that Neural Architecture Search can design good models from scratch, an\nachievement considered not possible with other methods. On image recognition with CIFAR-10,\nNeural Architecture Search can ﬁnd a novel ConvNet model that is better than most human-invented\narchitectures. Our CIFAR-10 model achieves a 3.84 test set error, while being 1.2x faster than the\ncurrent best model. On language modeling with Penn Treebank, Neural Architecture Search can\ndesign a novel recurrent cell that is also better than previous RNN and LSTM architectures. The cell\nthat our model found achieves a test set perplexity of 62.4 on the Penn Treebank dataset, which is\n3.6 perplexity better than the previous state-of-the-art.",
+            "score": 0.869556
+          },
+          {
+            "evidence_id": "C006_e3",
+            "chunk_id": "p9_b6",
+            "page": 9,
+            "text": "Table 2: Single model perplexity on the test set of the Penn Treebank language modeling task.\nParameter numbers with ‡ are estimates with reference to Merity et al. (2016).",
+            "score": 0.614286
+          },
+          {
+            "evidence_id": "C006_e4",
+            "chunk_id": "p6_b17",
+            "page": 6,
+            "text": "We apply our method to an image classiﬁcation task with CIFAR-10 and a language modeling task\nwith Penn Treebank, two of the most benchmarked datasets in deep learning. On CIFAR-10, our\ngoal is to ﬁnd a good convolutional architecture whereas on Penn Treebank our goal is to ﬁnd a good\nrecurrent cell. On each dataset, we have a separate held-out validation dataset to compute the reward\nsignal. The reported performance on the test set is computed only once for the network that achieves\nthe best result on the held-out validation dataset. More details about our experimental procedures\nand results are as follows.",
+            "score": 0.59254
+          },
+          {
+            "evidence_id": "C006_e5",
+            "chunk_id": "p8_b5",
+            "page": 8,
+            "text": "4.2\nLEARNING RECURRENT CELLS FOR PENN TREEBANK",
+            "score": 0.523826
+          }
+        ],
+        "judgment": {
+          "claim_id": "C006",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C006_e1",
+            "C006_e2"
+          ],
+          "explanation": "证据明确报告NAS生成的Penn Treebank新型循环单元测试困惑度为62.4。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C007",
+          "text": "NAS 生成的架构在所有数据集上都优于人类设计的架构。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "NAS generated architectures outperform human-designed architectures on all datasets",
+          "entities": [
+            "NAS",
+            "NAS 生成的架构",
+            "人类设计的架构"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C007_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 0.982119
+          },
+          {
+            "evidence_id": "C007_e2",
+            "chunk_id": "p9_b2",
+            "page": 9,
+            "text": "Results:\nIn Table 2, we provide a comprehensive list of architectures and their performance on\nthe PTB dataset. As can be seen from the table, the models found by Neural Architecture Search\noutperform other state-of-the-art models on this dataset, and one of our best models achieves a gain\nof almost 3.6 perplexity. Not only is our cell is better, the model that achieves 64 perplexity is also\nmore than two times faster because the previous best network requires running a cell 10 times per\ntime step (Zilly et al., 2016).",
+            "score": 0.521789
+          },
+          {
+            "evidence_id": "C007_e3",
+            "chunk_id": "p4_b11",
+            "page": 4,
+            "text": "Accelerate Training with Parallelism and Asynchronous Updates:\nIn Neural Architecture\nSearch, each gradient update to the controller parameters θc corresponds to training one child net-\nwork to convergence. As training a child network can take hours, we use distributed training and\nasynchronous parameter updates in order to speed up the learning process of the controller (Dean\net al., 2012). We use a parameter-server scheme where we have a parameter server of S shards, that\nstore the shared parameters for K controller replicas. Each controller replica samples m different\nchild architectures that are trained in parallel. The controller then collects gradients according to the\nresults of that minibatch of m architectures at convergence and sends them to the parameter server\nin order to update the weights across all controller replicas. In our implementation, convergence of\neach child network is reached when its training exceeds a certain number of epochs. This scheme of\nparallelism is summarized in Figure 3.",
+            "score": 0.428497
+          },
+          {
+            "evidence_id": "C007_e4",
+            "chunk_id": "p6_b19",
+            "page": 6,
+            "text": "Dataset:\nIn these experiments we use the CIFAR-10 dataset with data preprocessing and aug-\nmentation procedures that are in line with other previous results. We ﬁrst preprocess the data by\nwhitening all the images. Additionally, we upsample each image then choose a random 32x32 crop\nof this upsampled image. Finally, we use random horizontal ﬂips on this 32x32 cropped image.",
+            "score": 0.426356
+          },
+          {
+            "evidence_id": "C007_e5",
+            "chunk_id": "p6_b17",
+            "page": 6,
+            "text": "We apply our method to an image classiﬁcation task with CIFAR-10 and a language modeling task\nwith Penn Treebank, two of the most benchmarked datasets in deep learning. On CIFAR-10, our\ngoal is to ﬁnd a good convolutional architecture whereas on Penn Treebank our goal is to ﬁnd a good\nrecurrent cell. On each dataset, we have a separate held-out validation dataset to compute the reward\nsignal. The reported performance on the test set is computed only once for the network that achieves\nthe best result on the held-out validation dataset. More details about our experimental procedures\nand results are as follows.",
+            "score": 0.425259
+          }
+        ],
+        "judgment": {
+          "claim_id": "C007",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "C007_e1",
+            "C007_e2",
+            "C007_e5"
+          ],
+          "explanation": "证据仅显示 NAS 在 CIFAR-10 上接近最佳人类设计架构、在 Penn Treebank 上优于部分基线；未证明其在所有数据集上都优于人类设计架构。",
+          "claim_error_type": "overgeneralization",
+          "evidence_error_type": "evidence_mismatch",
+          "severity": "medium",
+          "suggestion": "NAS 在 CIFAR-10 和 Penn Treebank 上表现出有竞争力的结果，但不能据此断言其在所有数据集上都优于人类设计的架构。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C008",
+          "text": "NAS 能在 CIFAR-10 和 Penn Treebank 上自动设计有竞争力的架构。",
+          "category": "contribution",
+          "key_claim": true,
+          "query_en": "NAS automatically designs competitive architectures on CIFAR-10 and Penn Treebank",
+          "entities": [
+            "NAS",
+            "CIFAR-10",
+            "Penn Treebank",
+            "有竞争力的架构"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "CIFAR-10；Penn Treebank",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C008_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 1.122784
+          },
+          {
+            "evidence_id": "C008_e2",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "Our experiments show that Neural Architecture Search can design good models from scratch, an\nachievement considered not possible with other methods. On image recognition with CIFAR-10,\nNeural Architecture Search can ﬁnd a novel ConvNet model that is better than most human-invented\narchitectures. Our CIFAR-10 model achieves a 3.84 test set error, while being 1.2x faster than the\ncurrent best model. On language modeling with Penn Treebank, Neural Architecture Search can\ndesign a novel recurrent cell that is also better than previous RNN and LSTM architectures. The cell\nthat our model found achieves a test set perplexity of 62.4 on the Penn Treebank dataset, which is\n3.6 perplexity better than the previous state-of-the-art.",
+            "score": 0.735962
+          },
+          {
+            "evidence_id": "C008_e3",
+            "chunk_id": "p6_b17",
+            "page": 6,
+            "text": "We apply our method to an image classiﬁcation task with CIFAR-10 and a language modeling task\nwith Penn Treebank, two of the most benchmarked datasets in deep learning. On CIFAR-10, our\ngoal is to ﬁnd a good convolutional architecture whereas on Penn Treebank our goal is to ﬁnd a good\nrecurrent cell. On each dataset, we have a separate held-out validation dataset to compute the reward\nsignal. The reported performance on the test set is computed only once for the network that achieves\nthe best result on the held-out validation dataset. More details about our experimental procedures\nand results are as follows.",
+            "score": 0.661849
+          },
+          {
+            "evidence_id": "C008_e4",
+            "chunk_id": "p10_b18",
+            "page": 10,
+            "text": "In this paper we introduce Neural Architecture Search, an idea of using a recurrent neural network\nto compose neural network architectures. By using recurrent network as the controller, our method\nis ﬂexible so that it can search variable-length architecture space. Our method has strong empirical\nperformance on very challenging benchmarks and presents a new research direction for automat-\nically ﬁnding good neural network architectures. The code for running the models found by the\ncontroller on CIFAR-10 and PTB will be released at https://github.com/tensorﬂow/models .",
+            "score": 0.584427
+          },
+          {
+            "evidence_id": "C008_e5",
+            "chunk_id": "p8_b6",
+            "page": 8,
+            "text": "Dataset:\nWe apply Neural Architecture Search to the Penn Treebank dataset, a well-known bench-\nmark for language modeling. On this task, LSTM architectures tend to excel (Zaremba et al., 2014;\nGal, 2015), and improving them is difﬁcult (Jozefowicz et al., 2015). As PTB is a small dataset, reg-\nularization methods are needed to avoid overﬁtting. First, we make use of the embedding dropout\nand recurrent dropout techniques proposed in (Zaremba et al., 2014) and (Gal, 2015). We also try\nto combine them with the shared Input/Output embedding method by Press & Wolf (2016). Results\nwith this method are marked with ”shared embeddings.”",
+            "score": 0.47556
+          }
+        ],
+        "judgment": {
+          "claim_id": "C008",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C008_e1",
+            "C008_e2",
+            "C008_e3"
+          ],
+          "explanation": "证据明确表明 NAS 从零开始在 CIFAR-10 自动设计卷积架构，并在 Penn Treebank 自动设计循环单元，结果分别接近或优于相关基线，支持其能够设计有竞争力的架构。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C009",
+          "text": "论文的实证结论来自 CIFAR-10 和 Penn Treebank，不能直接推广为所有领域的最优架构。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "NAS empirical conclusions limited to CIFAR-10 and Penn Treebank not universally optimal",
+          "entities": [
+            "CIFAR-10",
+            "Penn Treebank",
+            "NAS"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "CIFAR-10；Penn Treebank",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C009_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Neural networks are powerful and ﬂexible models that work well for many difﬁ-\ncult learning tasks in image, speech and natural language understanding. Despite\ntheir success, neural networks are still hard to design. In this paper, we use a re-\ncurrent network to generate the model descriptions of neural networks and train\nthis RNN with reinforcement learning to maximize the expected accuracy of the\ngenerated architectures on a validation set. On the CIFAR-10 dataset, our method,\nstarting from scratch, can design a novel network architecture that rivals the best\nhuman-invented architecture in terms of test set accuracy. Our CIFAR-10 model\nachieves a test error rate of 3.84, which is only 0.1 percent worse and 1.2x faster\nthan the current state-of-the-art model. On the Penn Treebank dataset, our model\ncan compose a novel recurrent cell that outperforms the widely-used LSTM cell,\nand other state-of-the-art baselines. Our cell achieves a test set perplexity of 62.4\non the Penn Treebank, which is 3.6 perplexity better than the previous state-of-\nthe-art.",
+            "score": 0.93979
+          },
+          {
+            "evidence_id": "C009_e2",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "Our experiments show that Neural Architecture Search can design good models from scratch, an\nachievement considered not possible with other methods. On image recognition with CIFAR-10,\nNeural Architecture Search can ﬁnd a novel ConvNet model that is better than most human-invented\narchitectures. Our CIFAR-10 model achieves a 3.84 test set error, while being 1.2x faster than the\ncurrent best model. On language modeling with Penn Treebank, Neural Architecture Search can\ndesign a novel recurrent cell that is also better than previous RNN and LSTM architectures. The cell\nthat our model found achieves a test set perplexity of 62.4 on the Penn Treebank dataset, which is\n3.6 perplexity better than the previous state-of-the-art.",
+            "score": 0.610202
+          },
+          {
+            "evidence_id": "C009_e3",
+            "chunk_id": "p6_b17",
+            "page": 6,
+            "text": "We apply our method to an image classiﬁcation task with CIFAR-10 and a language modeling task\nwith Penn Treebank, two of the most benchmarked datasets in deep learning. On CIFAR-10, our\ngoal is to ﬁnd a good convolutional architecture whereas on Penn Treebank our goal is to ﬁnd a good\nrecurrent cell. On each dataset, we have a separate held-out validation dataset to compute the reward\nsignal. The reported performance on the test set is computed only once for the network that achieves\nthe best result on the held-out validation dataset. More details about our experimental procedures\nand results are as follows.",
+            "score": 0.551587
+          },
+          {
+            "evidence_id": "C009_e4",
+            "chunk_id": "p8_b5",
+            "page": 8,
+            "text": "4.2\nLEARNING RECURRENT CELLS FOR PENN TREEBANK",
+            "score": 0.41
+          },
+          {
+            "evidence_id": "C009_e5",
+            "chunk_id": "p9_b6",
+            "page": 9,
+            "text": "Table 2: Single model perplexity on the test set of the Penn Treebank language modeling task.\nParameter numbers with ‡ are estimates with reference to Merity et al. (2016).",
+            "score": 0.39308
+          }
+        ],
+        "judgment": {
+          "claim_id": "C009",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C009_e1",
+            "C009_e2",
+            "C009_e3"
+          ],
+          "explanation": "证据显示实验证据来自 CIFAR-10 图像分类和 Penn Treebank 语言建模两个任务；因此，不能仅凭这些有限设置直接推出 NAS 在所有领域都能找到最优架构。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ],
+    "summary": {
+      "grade": "需复核",
+      "total_score": 89.9,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 90.0,
+        "evidence_correctness": 85.7,
+        "evidence_completeness": 77.8,
+        "numeric_consistency": 100.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 85.7
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 1,
+      "review_count": 0
+    },
+    "parse_warnings": []
+  }
+}

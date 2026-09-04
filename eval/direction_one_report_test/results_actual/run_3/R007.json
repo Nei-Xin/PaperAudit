@@ -1,0 +1,934 @@
+{
+  "report_id": "R007",
+  "paper_id": "ulyanov2017_deep_image_prior",
+  "tier": "low",
+  "repeat": 3,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc",
+  "audit": {
+    "paper_title": "Deep Image Prior",
+    "page_count": 10,
+    "mode": "direction_one_report_test",
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results",
+      "limitations"
+    ],
+    "report_text": "# Deep Image Prior 论文讲解报告\n\n本报告围绕论文的研究问题、贡献、方法、实验结果与适用边界进行结构化说明。\n\n## 研究问题\n\n- 论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。（证据：论文第1页）\n\n## 核心贡献\n\n- 随机初始化的网络可以作为图像恢复的手工先验。（证据：论文第1页）\n\n## 方法\n\n- DIP 可用于去噪、超分辨率和修复。（证据：论文第1页）\n- DIP 的网络权重从大型图像数据集预训练得到。（证据：论文第999页，表99）\n- DIP 只适用于超分辨率，不能用于去噪。（证据：论文第1页）\n- DIP 通过在单个退化图像上拟合生成器网络来恢复图像。（证据：论文第2页）\n- DIP 使用 20 亿个网络参数。（证据：论文第2页）\n- DIP 已成为商业照片编辑软件的标准组件。（证据：论文第1页）\n\n## 主要结果\n\n- DIP 在所有图像任务上都达到最先进性能。（证据：论文第1页）\n\n## 局限与边界\n\n- 论文报告的是所测试逆问题上的表现，不能据此声称 DIP 在所有图像任务上都达到最先进水平。（证据：论文第1页）\n\n## 阅读结论\n\n以上内容按论文中的研究问题、方法与实验结论组织，便于读者逐项回到原文核验。\n",
+    "audits": [
+      {
+        "claim": {
+          "claim_id": "C001",
+          "text": "论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。",
+          "category": "research_question",
+          "key_claim": true,
+          "query_en": "Deep Image Prior untrained generator network architecture as image restoration prior",
+          "entities": [
+            "Deep Image Prior",
+            "生成网络结构",
+            "图像恢复先验"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C001_e1",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 1.177905
+          },
+          {
+            "evidence_id": "C001_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 1.104067
+          },
+          {
+            "evidence_id": "C001_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.9362
+          },
+          {
+            "evidence_id": "C001_e4",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.878354
+          },
+          {
+            "evidence_id": "C001_e5",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.80595
+          }
+        ],
+        "judgment": {
+          "claim_id": "C001",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C001_e2"
+          ],
+          "explanation": "证据明确说明生成网络结构在学习前即可捕获图像统计，并可作为图像恢复先验，支持该研究问题。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C002",
+          "text": "随机初始化的网络可以作为图像恢复的手工先验。",
+          "category": "contribution",
+          "key_claim": true,
+          "query_en": "Deep Image Prior randomly initialized network handcrafted image restoration prior",
+          "entities": [
+            "Deep Image Prior",
+            "随机初始化网络",
+            "图像恢复先验"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C002_e1",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 1.104689
+          },
+          {
+            "evidence_id": "C002_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 1.099876
+          },
+          {
+            "evidence_id": "C002_e3",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.875934
+          },
+          {
+            "evidence_id": "C002_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.866224
+          },
+          {
+            "evidence_id": "C002_e5",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.80393
+          }
+        ],
+        "judgment": {
+          "claim_id": "C002",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C002_e2"
+          ],
+          "explanation": "证据明确指出，随机初始化的神经网络可作为手工先验用于标准逆问题。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C003",
+          "text": "DIP 可用于去噪。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Deep Image Prior image denoising application",
+          "entities": [
+            "DIP",
+            "去噪"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C003_e1",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 1.045935
+          },
+          {
+            "evidence_id": "C003_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 1.028316
+          },
+          {
+            "evidence_id": "C003_e3",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.951995
+          },
+          {
+            "evidence_id": "C003_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.951306
+          },
+          {
+            "evidence_id": "C003_e5",
+            "chunk_id": "p4_b30",
+            "page": 4,
+            "text": "Figure 4: Blind image denoising. The deep image prior\nis successful at recovering both man-made and natural pat-\nterns. For reference, the result of a state-of-the-art non-\nlearned denoising approach [5] is shown.",
+            "score": 0.666667
+          }
+        ],
+        "judgment": {
+          "claim_id": "C003",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C003_e1",
+            "C003_e5"
+          ],
+          "explanation": "证据明确列出去噪应用，并展示了深度图像先验用于盲图像去噪。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C004",
+          "text": "DIP 可用于超分辨率。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Deep Image Prior super-resolution application",
+          "entities": [
+            "DIP",
+            "超分辨率"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C004_e1",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 1.066667
+          },
+          {
+            "evidence_id": "C004_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 1.049563
+          },
+          {
+            "evidence_id": "C004_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 1.030192
+          },
+          {
+            "evidence_id": "C004_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.953902
+          },
+          {
+            "evidence_id": "C004_e5",
+            "chunk_id": "p2_b5",
+            "page": 2,
+            "text": "In addition to standard image restoration tasks, we show\nan application of our technique to understanding the infor-\nmation contained within the activations of deep neural net-\nworks. For this, we consider the “natural pre-image” tech-\nnique of [20], whose goal is to characterize the invariants\nlearned by a deep network by inverting it on the set of nat-\nural images. We show that an untrained deep convolutional\ngenerator can be used to replace the surrogate natural prior\nused in [20] (the TV norm) with dramatically improved re-\nsults. Since the new regularizer, like the TV norm, is not\nlearned from data but is entirely handcrafted, the resulting\nvisualizations avoid potential biases arising form the use of\npowerful learned regularizers [7].",
+            "score": 0.65149
+          }
+        ],
+        "judgment": {
+          "claim_id": "C004",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C004_e1",
+            "C004_e2"
+          ],
+          "explanation": "证据明确展示并说明了深度图像先验用于超分辨率。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C005",
+          "text": "DIP 可用于修复。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Deep Image Prior image inpainting or restoration application",
+          "entities": [
+            "DIP",
+            "图像修复"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C005_e1",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 1.087721
+          },
+          {
+            "evidence_id": "C005_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 1.073757
+          },
+          {
+            "evidence_id": "C005_e3",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.917632
+          },
+          {
+            "evidence_id": "C005_e4",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.833784
+          },
+          {
+            "evidence_id": "C005_e5",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.823315
+          }
+        ],
+        "judgment": {
+          "claim_id": "C005",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C005_e1"
+          ],
+          "explanation": "证据明确列出图像修复相关的修复任务，包括图像修补（inpainting）及基于闪光灯/非闪光灯输入对的图像恢复。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C006",
+          "text": "DIP 的网络权重从大型图像数据集预训练得到。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "Deep Image Prior network weights pretrained on large image datasets",
+          "entities": [
+            "DIP",
+            "网络权重",
+            "大型图像数据集"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "大型图像数据集",
+          "provided_evidence": "论文第999页，表99",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C006_e1",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.989201
+          },
+          {
+            "evidence_id": "C006_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.980487
+          },
+          {
+            "evidence_id": "C006_e3",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.908398
+          },
+          {
+            "evidence_id": "C006_e4",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.865936
+          },
+          {
+            "evidence_id": "C006_e5",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.841327
+          }
+        ],
+        "judgment": {
+          "claim_id": "C006",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C006_e2"
+          ],
+          "explanation": "证据明确称该方法使用随机初始化网络，且在任何学习之前即可作为先验；这与“网络权重从大型图像数据集预训练得到”直接相反。此外，原报告标注的“论文第999页，表99”超出给定页码范围，属于伪造证据定位。",
+          "claim_error_type": "contradiction",
+          "evidence_error_type": "fabricated_evidence",
+          "severity": "high",
+          "suggestion": "DIP的网络通常采用随机初始化，不依赖大型图像数据集预训练；其网络结构本身作为图像先验。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C007",
+          "text": "DIP 只适用于超分辨率，不能用于去噪。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "Deep Image Prior only applicable to super-resolution and not denoising",
+          "entities": [
+            "DIP",
+            "超分辨率",
+            "去噪"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C007_e1",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 1.001884
+          },
+          {
+            "evidence_id": "C007_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.987013
+          },
+          {
+            "evidence_id": "C007_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.926609
+          },
+          {
+            "evidence_id": "C007_e4",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.84332
+          },
+          {
+            "evidence_id": "C007_e5",
+            "chunk_id": "p2_b4",
+            "page": 2,
+            "text": "We show that this very simple formulation is very com-\npetitive for standard image processing problems such as de-\nnoising, inpainting and super-resolution. This is particu-\nlarly remarkable because no aspect of the network is learned\nfrom data; instead, the weights of the network are always\nrandomly initialized, so that the only prior information is in\nthe structure of the network itself. To the best of our knowl-\nedge, this is the ﬁrst study that directly investigates the prior\ncaptured by deep convolutional generative networks inde-\npendently of learning the network parameters from images.",
+            "score": 0.664952
+          }
+        ],
+        "judgment": {
+          "claim_id": "C007",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C007_e1",
+            "C007_e2",
+            "C007_e5"
+          ],
+          "explanation": "证据明确指出DIP可用于去噪、超分辨率和修复等逆问题，直接否定了“不能用于去噪”。",
+          "claim_error_type": "contradiction",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "DIP不仅适用于超分辨率，也可用于去噪、图像修复等标准逆问题。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C008",
+          "text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Deep Image Prior fit generator network to a single degraded image",
+          "entities": [
+            "DIP",
+            "生成器网络",
+            "退化图像"
+          ],
+          "numbers": [
+            "单个"
+          ],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第2页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C008_e1",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.978113
+          },
+          {
+            "evidence_id": "C008_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.978027
+          },
+          {
+            "evidence_id": "C008_e3",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.847609
+          },
+          {
+            "evidence_id": "C008_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.840566
+          },
+          {
+            "evidence_id": "C008_e5",
+            "chunk_id": "p1_b31",
+            "page": 1,
+            "text": "generate images using such approaches as generative ad-\nversarial networks [10], variational autoencoders [15], and\ndirect pixelwise error minimization [8].",
+            "score": 0.772222
+          }
+        ],
+        "judgment": {
+          "claim_id": "C008",
+          "label": "NO_SUPPORT_FOUND",
+          "evidence_ids": [
+            "C008_e1",
+            "C008_e2",
+            "C008_e3"
+          ],
+          "explanation": "证据支持随机初始化的生成器网络可作为图像先验，但未明确说明在单个退化图像上拟合网络这一完整机制。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": "evidence_mismatch",
+          "severity": "high",
+          "suggestion": "论文指出随机初始化的生成器网络结构可作为无需学习数据先验，用于去噪、超分辨率和修复等逆问题。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C009",
+          "text": "DIP 使用 20 亿个网络参数。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "Deep Image Prior uses two billion network parameters",
+          "entities": [
+            "DIP",
+            "网络参数"
+          ],
+          "numbers": [
+            "20 亿"
+          ],
+          "metric": "网络参数数量",
+          "dataset": null,
+          "provided_evidence": "论文第2页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C009_e1",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.959812
+          },
+          {
+            "evidence_id": "C009_e2",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.905294
+          },
+          {
+            "evidence_id": "C009_e3",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.895874
+          },
+          {
+            "evidence_id": "C009_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.825978
+          },
+          {
+            "evidence_id": "C009_e5",
+            "chunk_id": "p1_b31",
+            "page": 1,
+            "text": "generate images using such approaches as generative ad-\nversarial networks [10], variational autoencoders [15], and\ndirect pixelwise error minimization [8].",
+            "score": 0.76
+          }
+        ],
+        "judgment": {
+          "claim_id": "C009",
+          "label": "NO_SUPPORT_FOUND",
+          "evidence_ids": [
+            "C009_e1",
+            "C009_e2",
+            "C009_e3"
+          ],
+          "explanation": "候选证据未报告DIP使用20亿个网络参数，也未提供任何参数数量。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": "evidence_mismatch",
+          "severity": "high",
+          "suggestion": "删除具体参数数量；可改为“论文强调网络权重随机初始化，先验信息来自网络结构”。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C010",
+          "text": "DIP 已成为商业照片编辑软件的标准组件。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "Deep Image Prior standard component in commercial photo editing software",
+          "entities": [
+            "DIP",
+            "商业照片编辑软件"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C010_e1",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.912101
+          },
+          {
+            "evidence_id": "C010_e2",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.911212
+          },
+          {
+            "evidence_id": "C010_e3",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.850719
+          },
+          {
+            "evidence_id": "C010_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.778098
+          },
+          {
+            "evidence_id": "C010_e5",
+            "chunk_id": "p2_b4",
+            "page": 2,
+            "text": "We show that this very simple formulation is very com-\npetitive for standard image processing problems such as de-\nnoising, inpainting and super-resolution. This is particu-\nlarly remarkable because no aspect of the network is learned\nfrom data; instead, the weights of the network are always\nrandomly initialized, so that the only prior information is in\nthe structure of the network itself. To the best of our knowl-\nedge, this is the ﬁrst study that directly investigates the prior\ncaptured by deep convolutional generative networks inde-\npendently of learning the network parameters from images.",
+            "score": 0.510541
+          }
+        ],
+        "judgment": {
+          "claim_id": "C010",
+          "label": "NO_SUPPORT_FOUND",
+          "evidence_ids": [
+            "C010_e1",
+            "C010_e2",
+            "C010_e5"
+          ],
+          "explanation": "证据讨论了DIP在图像生成、恢复和标准图像处理问题中的应用，但未提及其已成为商业照片编辑软件的标准组件。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": "evidence_mismatch",
+          "severity": "high",
+          "suggestion": "改为“DIP被用于研究图像生成与恢复，并在去噪、修复和超分辨率等问题上具有竞争力”。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C011",
+          "text": "DIP 在所有图像任务上都达到最先进性能。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Deep Image Prior achieves state-of-the-art performance on all image tasks",
+          "entities": [
+            "DIP",
+            "图像任务"
+          ],
+          "numbers": [],
+          "metric": "最先进性能",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C011_e1",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 1.001733
+          },
+          {
+            "evidence_id": "C011_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.921334
+          },
+          {
+            "evidence_id": "C011_e3",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.881417
+          },
+          {
+            "evidence_id": "C011_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.857239
+          },
+          {
+            "evidence_id": "C011_e5",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.842568
+          }
+        ],
+        "judgment": {
+          "claim_id": "C011",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "C011_e1",
+            "C011_e2"
+          ],
+          "explanation": "证据称DIP在所测试的逆问题上表现良好，并在超分辨率中接近最先进方法；没有支持其在所有图像任务上都达到最先进性能。",
+          "claim_error_type": "overgeneralization",
+          "evidence_error_type": null,
+          "severity": "medium",
+          "suggestion": "改为“DIP在论文测试的若干逆问题上表现良好，并在超分辨率任务中取得接近最先进方法的结果”。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C012",
+          "text": "论文报告的是 DIP 在所测试逆问题上的表现。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "Deep Image Prior performance reported on tested inverse problems",
+          "entities": [
+            "DIP",
+            "逆问题"
+          ],
+          "numbers": [],
+          "metric": "表现",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C012_e1",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 1.06599
+          },
+          {
+            "evidence_id": "C012_e2",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 1.005556
+          },
+          {
+            "evidence_id": "C012_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.940686
+          },
+          {
+            "evidence_id": "C012_e4",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.844119
+          },
+          {
+            "evidence_id": "C012_e5",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.804033
+          }
+        ],
+        "judgment": {
+          "claim_id": "C012",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C012_e1",
+            "C012_e2"
+          ],
+          "explanation": "证据明确说明论文展示了随机初始化网络在所测试的标准逆问题中的结果，并称其在测试过的逆问题上表现良好。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C013",
+          "text": "不能据此声称 DIP 在所有图像任务上都达到最先进水平。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "Limitations of claiming state-of-the-art performance for Deep Image Prior on all image tasks",
+          "entities": [
+            "DIP",
+            "图像任务"
+          ],
+          "numbers": [],
+          "metric": "最先进水平",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C013_e1",
+            "chunk_id": "p1_b30",
+            "page": 1,
+            "text": "Figure 1: Super-resolution using the deep image prior.\nOur method uses a randomly-initialized convnet to upsam-\nple an image, using its strucrture as an image prior; similar\nto bicubic upsampling, this method does not require learn-\ning, but produces much cleaner results with sharper edges.\nIn fact, our results are quite close to state-of-the-art super-\nresolution methods that use ConvNets learned from large\ndatasets. The deep image prior works well for all inverse\nproblems we could test.",
+            "score": 0.971178
+          },
+          {
+            "evidence_id": "C013_e2",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Deep convolutional networks have become a popular\ntool for image generation and restoration. Generally, their\nexcellent performance is imputed to their ability to learn re-\nalistic image priors from a large number of example images.\nIn this paper, we show that, on the contrary, the structure of\na generator network is sufﬁcient to capture a great deal of\nlow-level image statistics prior to any learning. In order\nto do so, we show that a randomly-initialized neural net-\nwork can be used as a handcrafted prior with excellent re-\nsults in standard inverse problems such as denoising, super-\nresolution, and inpainting. Furthermore, the same prior\ncan be used to invert deep neural representations to diag-\nnose them, and to restore images based on ﬂash-no ﬂash\ninput pairs.",
+            "score": 0.896889
+          },
+          {
+            "evidence_id": "C013_e3",
+            "chunk_id": "p1_b32",
+            "page": 1,
+            "text": "State-of-the-art ConvNets for image restoration and gen-\neration are almost invariably trained on large datasets of im-\nages. One may thus assume that their excellent performance",
+            "score": 0.863084
+          },
+          {
+            "evidence_id": "C013_e4",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Deep convolutional neural networks (ConvNets) cur-\nrently set the state-of-the-art in inverse image reconstruc-\ntion problems such as denoising [4, 19] or single-image\nsuper-resolution [18, 28, 17]. ConvNets have also been used\nwith great success in more “exotic” problems such as recon-\nstructing an image from its activations within certain deep\nnetworks or from its HOG descriptor [7]. More generally,\nConvNets with similar architectures are nowadays used to",
+            "score": 0.838906
+          },
+          {
+            "evidence_id": "C013_e5",
+            "chunk_id": "p1_b10",
+            "page": 1,
+            "text": "Apart from its diverse applications, our approach high-\nlights the inductive bias captured by standard generator\nnetwork architectures.\nIt also bridges the gap between\ntwo very popular families of image restoration methods:\nlearning-based methods using deep convolutional networks\nand learning-free methods based on handcrafted image pri-\nors such as self-similarity.",
+            "score": 0.824235
+          }
+        ],
+        "judgment": {
+          "claim_id": "C013",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C013_e1",
+            "C013_e2"
+          ],
+          "explanation": "证据仅涉及超分辨率及若干标准逆问题，并表述为“我们测试过的所有逆问题”，未覆盖所有图像任务；因此不能据此宣称DIP在所有图像任务上都达到最先进水平。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ],
+    "summary": {
+      "grade": "需复核",
+      "total_score": 77.6,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 62.5,
+        "evidence_correctness": 61.5,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 50.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 91.7
+      },
+      "critical_count": 0,
+      "high_count": 5,
+      "medium_count": 1,
+      "review_count": 0
+    },
+    "parse_warnings": []
+  }
+}

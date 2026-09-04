@@ -1,0 +1,1135 @@
+{
+  "report_id": "R003",
+  "paper_id": "garnelo2018_neural_processes",
+  "tier": "medium",
+  "repeat": 3,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc",
+  "audit": {
+    "paper_title": "Neural Processes",
+    "page_count": 11,
+    "mode": "direction_one_report_test",
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results",
+      "limitations"
+    ],
+    "report_text": "# Neural Processes 论文讲解报告\n\n本报告围绕论文的研究问题、贡献、方法、实验结果与适用边界进行结构化说明。\n\n## 研究问题\n\n- 论文研究如何结合神经网络与随机过程，以便根据上下文观测快速适应并表达预测不确定性。（证据：论文第1页）\n\n## 核心贡献\n\n- Neural Processes 结合了神经网络和随机过程的优点。（证据：论文第1页）\n\n## 方法\n\n- NP 能估计预测中的不确定性，并在测试时根据上下文观测适应。（证据：论文第1页）\n- Neural Processes 是概率模型，会定义函数分布。\n- NP 的推理复杂度始终是常数，与上下文和目标点数量无关。（证据：论文第1页）\n- NP 为学习函数分布，需要同时使用多个数据集进行训练。（证据：论文第2页）\n\n## 主要结果\n\n- NP 在所有任务上都比高斯过程更准确。（证据：论文第1页）\n- NP 可用于回归、优化和图像补全等多种任务。\n- NP 的推理复杂度为 O(n+m)，而经典高斯过程为 O((n+m)^3)。（证据：论文第1页）\n\n## 局限与边界\n\n- 论文只在一系列具体任务上展示 NP，不能据此外推到所有任务。（证据：论文第1页）\n\n## 阅读结论\n\n以上内容按论文中的研究问题、方法与实验结论组织，便于读者逐项回到原文核验。\n",
+    "audits": [
+      {
+        "claim": {
+          "claim_id": "C001",
+          "text": "论文研究如何结合神经网络与随机过程，以便根据上下文观测快速适应并表达预测不确定性。",
+          "category": "research_question",
+          "key_claim": true,
+          "query_en": "Neural Processes combine neural networks and stochastic processes for fast adaptation and uncertainty",
+          "entities": [
+            "Neural Processes",
+            "神经网络",
+            "随机过程"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C001_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.009516
+          },
+          {
+            "evidence_id": "C001_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.005802
+          },
+          {
+            "evidence_id": "C001_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.936827
+          },
+          {
+            "evidence_id": "C001_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.797042
+          },
+          {
+            "evidence_id": "C001_e5",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "1. We introduce Neural Processes, a class of models that\ncombine beneﬁts of neural networks and stochastic\nprocesses.",
+            "score": 0.64375
+          }
+        ],
+        "judgment": {
+          "claim_id": "C001",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C001_e1",
+            "C001_e2"
+          ],
+          "explanation": "证据明确说明 Neural Processes 结合神经网络与随机过程，并能根据上下文观测估计预测不确定性、快速适应新观测。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C002",
+          "text": "Neural Processes 结合了神经网络和随机过程的优点。",
+          "category": "contribution",
+          "key_claim": true,
+          "query_en": "Neural Processes advantages of neural networks and stochastic processes",
+          "entities": [
+            "Neural Processes",
+            "神经网络",
+            "随机过程"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C002_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.109393
+          },
+          {
+            "evidence_id": "C002_e2",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.99331
+          },
+          {
+            "evidence_id": "C002_e3",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.986973
+          },
+          {
+            "evidence_id": "C002_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.88447
+          },
+          {
+            "evidence_id": "C002_e5",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "1. We introduce Neural Processes, a class of models that\ncombine beneﬁts of neural networks and stochastic\nprocesses.",
+            "score": 0.74
+          }
+        ],
+        "judgment": {
+          "claim_id": "C002",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C002_e1",
+            "C002_e3",
+            "C002_e5"
+          ],
+          "explanation": "证据明确指出 Neural Processes 结合了神经网络和随机过程的优点。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C003",
+          "text": "NP 能估计预测中的不确定性。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Neural Processes estimate predictive uncertainty",
+          "entities": [
+            "NP"
+          ],
+          "numbers": [],
+          "metric": "预测不确定性",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C003_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.154565
+          },
+          {
+            "evidence_id": "C003_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.050429
+          },
+          {
+            "evidence_id": "C003_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.847965
+          },
+          {
+            "evidence_id": "C003_e4",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.654461
+          },
+          {
+            "evidence_id": "C003_e5",
+            "chunk_id": "p8_b23",
+            "page": 8,
+            "text": "Neural processes lend themselves naturally to Thompson\nsampling by instead drawing a function over the space of\ninterest, ﬁnding its minimum and adding the observed out-\ncome to the context set for the next iteration. As shown in\nin Figure 3, function draws show high variance when only\nfew observations are available, modelling uncertainty in a\nsimilar way to draws from a posterior over parameters given\na small data set. An example of this procedure for neural\nprocesses on a 1-D objective function is shown in Figure 5.",
+            "score": 0.56192
+          }
+        ],
+        "judgment": {
+          "claim_id": "C003",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C003_e1",
+            "C003_e2"
+          ],
+          "explanation": "证据明确指出，Neural Processes（NPs）能够在给定上下文观测的条件下估计预测不确定性，支持该核心事实。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C004",
+          "text": "NP 在测试时根据上下文观测进行适应。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Neural Processes adapt at test time using context observations",
+          "entities": [
+            "NP",
+            "上下文观测"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C004_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.113147
+          },
+          {
+            "evidence_id": "C004_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.914314
+          },
+          {
+            "evidence_id": "C004_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.849804
+          },
+          {
+            "evidence_id": "C004_e4",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.647596
+          },
+          {
+            "evidence_id": "C004_e5",
+            "chunk_id": "p9_b16",
+            "page": 9,
+            "text": "context and 50 target points for Neural Processes, and an\nequal amount of data points for the meta- and inner-updates\nin MAML. Note that since gradient steps are necessary for\nMAML to adapt to data from each test problem, we reset\nthe parameters after each evaluation run. This additional\nstep is not necessary for neural processes.",
+            "score": 0.605556
+          }
+        ],
+        "judgment": {
+          "claim_id": "C004",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C004_e1",
+            "C004_e2",
+            "C004_e5"
+          ],
+          "explanation": "证据表明 NP 可在测试时根据新观测或上下文输入进行快速适应，并将部分工作量转移到测试阶段。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C005",
+          "text": "Neural Processes 是概率模型。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Neural Processes probabilistic model",
+          "entities": [
+            "Neural Processes"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C005_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.25
+          },
+          {
+            "evidence_id": "C005_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.093696
+          },
+          {
+            "evidence_id": "C005_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.937266
+          },
+          {
+            "evidence_id": "C005_e4",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "1. We introduce Neural Processes, a class of models that\ncombine beneﬁts of neural networks and stochastic\nprocesses.",
+            "score": 0.705086
+          },
+          {
+            "evidence_id": "C005_e5",
+            "chunk_id": "p9_b19",
+            "page": 9,
+            "text": "We introduce Neural processes, a family of models that\ncombines the beneﬁts of stochastic processes and neural\nnetworks. NPs learn to represent distributions over func-\ntions and make ﬂexible predictions at test time conditioned\non some context input. Instead of requiring a handcrafted\nkernel, NPs learn an implicit measure from the data directly.",
+            "score": 0.692842
+          }
+        ],
+        "judgment": {
+          "claim_id": "C005",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C005_e1",
+            "C005_e2",
+            "C005_e5"
+          ],
+          "explanation": "证据说明 NP 是神经潜变量模型，能够表示函数上的分布并进行不确定性预测，因此支持其作为概率模型的表述。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C006",
+          "text": "Neural Processes 定义函数分布。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Neural Processes define distributions over functions",
+          "entities": [
+            "Neural Processes",
+            "函数分布"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C006_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.226037
+          },
+          {
+            "evidence_id": "C006_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.12782
+          },
+          {
+            "evidence_id": "C006_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.934173
+          },
+          {
+            "evidence_id": "C006_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.932815
+          },
+          {
+            "evidence_id": "C006_e5",
+            "chunk_id": "p9_b19",
+            "page": 9,
+            "text": "We introduce Neural processes, a family of models that\ncombines the beneﬁts of stochastic processes and neural\nnetworks. NPs learn to represent distributions over func-\ntions and make ﬂexible predictions at test time conditioned\non some context input. Instead of requiring a handcrafted\nkernel, NPs learn an implicit measure from the data directly.",
+            "score": 0.74463
+          }
+        ],
+        "judgment": {
+          "claim_id": "C006",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C006_e1",
+            "C006_e2",
+            "C006_e5"
+          ],
+          "explanation": "证据明确指出 Neural Processes 学习或表示函数上的分布。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C007",
+          "text": "NP 的推理复杂度始终是常数，与上下文和目标点数量无关。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Neural Processes inference complexity constant independent of context and target points",
+          "entities": [
+            "NP",
+            "上下文",
+            "目标点"
+          ],
+          "numbers": [],
+          "metric": "推理复杂度",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C007_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.278658
+          },
+          {
+            "evidence_id": "C007_e2",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 1.032767
+          },
+          {
+            "evidence_id": "C007_e3",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.028739
+          },
+          {
+            "evidence_id": "C007_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.770497
+          },
+          {
+            "evidence_id": "C007_e5",
+            "chunk_id": "p3_b17",
+            "page": 3,
+            "text": "are the number of context points and target points respectively and z is the global latent variable. A grey background indicates that the\nvariable is observed. (b) Diagram of our neural process implementation. Variables in circles correspond to the variables of the graphical\nmodel in (a), variables in square boxes to the intermediate representations of NPs and unbound, bold letters to the following computation\nmodules: h - encoder, a - aggregator and g - decoder. In our implementation h and g correspond to neural networks and a to the mean\nfunction. The continuous lines depict the generative process, the dotted lines the inference.",
+            "score": 0.761589
+          }
+        ],
+        "judgment": {
+          "claim_id": "C007",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C007_e1"
+          ],
+          "explanation": "证据明确指出，给定 n 个上下文点和 m 个目标点时，NP 推理复杂度为 O(n+m)，因此依赖上下文点和目标点数量，并非始终为常数。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "NP 的推理复杂度随上下文点数 n 和目标点数 m 线性扩展，为 O(n+m)。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C008",
+          "text": "NP 为学习函数分布，需要同时使用多个数据集进行训练。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "Neural Processes train on multiple datasets to learn function distributions",
+          "entities": [
+            "NP",
+            "函数分布",
+            "多个数据集"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "多个数据集",
+          "provided_evidence": "论文第2页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C008_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.032271
+          },
+          {
+            "evidence_id": "C008_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.968832
+          },
+          {
+            "evidence_id": "C008_e3",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.847258
+          },
+          {
+            "evidence_id": "C008_e4",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.778282
+          },
+          {
+            "evidence_id": "C008_e5",
+            "chunk_id": "p2_b42",
+            "page": 2,
+            "text": "To learn such a distribution over random functions, rather\nthan a single function, it is essential to train the system using\nmultiple datasets concurrently, with each dataset being a se-\nquence of inputs x1:n and outputs y1:n, so that we can learn\nthe variability of the random function from the variability\nof the datasets (see section 2.2).",
+            "score": 0.666667
+          }
+        ],
+        "judgment": {
+          "claim_id": "C008",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C008_e1",
+            "C008_e5"
+          ],
+          "explanation": "证据说明 NP 学习函数上的分布，并明确指出需要同时使用多个数据集，以从数据集间的变化中学习随机函数的变异性。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C009",
+          "text": "NP 在所有任务上都比高斯过程更准确。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Neural Processes more accurate than Gaussian processes on all tasks",
+          "entities": [
+            "NP",
+            "高斯过程"
+          ],
+          "numbers": [],
+          "metric": "准确性",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C009_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.919057
+          },
+          {
+            "evidence_id": "C009_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 0.854421
+          },
+          {
+            "evidence_id": "C009_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.844118
+          },
+          {
+            "evidence_id": "C009_e4",
+            "chunk_id": "p8_b24",
+            "page": 8,
+            "text": "We report the average number of steps required by an NP\nto reach the global minimum of a function generated from\na GP prior in Table 1. For an easier comparison the values\nare normalised by the amount of steps required when doing\noptimisation using random search. On average, NPs take\nfour times fewer iterations than random search on this task.\nAn upper bound on performance is given by a Gaussian\nprocess with the same kernel than the GP that generated\nthe function to be optimised. NPs do not reach this optimal\nperformance, as their samples are more noisy than those\nof a GP, but are faster to evaluate since merely a forward\npass through the network is needed. This difference in\ncomputational speed is bound to get more notable as the\ndimensionality of the problem and the number of necessary",
+            "score": 0.604913
+          },
+          {
+            "evidence_id": "C009_e5",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.581754
+          }
+        ],
+        "judgment": {
+          "claim_id": "C009",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C009_e4"
+          ],
+          "explanation": "在优化任务中，证据明确指出 GP 给出性能上界，而 NP 未达到该最优性能，因此不能声称 NP 在所有任务上都比 GP 更准确。",
+          "claim_error_type": "contradiction",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "论文仅表明 NP 在部分任务上具有竞争力或更快的评估速度；在所述优化任务中，NP 未达到相同性能的 GP 上界。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C010",
+          "text": "NP 可用于回归任务。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "Neural Processes regression applications",
+          "entities": [
+            "NP",
+            "回归"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C010_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.003024
+          },
+          {
+            "evidence_id": "C010_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.998482
+          },
+          {
+            "evidence_id": "C010_e3",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.892235
+          },
+          {
+            "evidence_id": "C010_e4",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.882064
+          },
+          {
+            "evidence_id": "C010_e5",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.718964
+          }
+        ],
+        "judgment": {
+          "claim_id": "C010",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C010_e2"
+          ],
+          "explanation": "证据明确说明论文在包括回归和优化在内的一系列学习任务上展示了 NP 的表现。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C011",
+          "text": "NP 可用于优化任务。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "Neural Processes optimization applications",
+          "entities": [
+            "NP",
+            "优化"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C011_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.007583
+          },
+          {
+            "evidence_id": "C011_e2",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.896638
+          },
+          {
+            "evidence_id": "C011_e3",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.883737
+          },
+          {
+            "evidence_id": "C011_e4",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.60434
+          },
+          {
+            "evidence_id": "C011_e5",
+            "chunk_id": "p1_b9",
+            "page": 1,
+            "text": "Presented at the ICML 2018 workshop on Theoretical Foundations\nand Applications of Deep Generative Models",
+            "score": 0.56
+          }
+        ],
+        "judgment": {
+          "claim_id": "C011",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C011_e3"
+          ],
+          "explanation": "证据明确说明论文在包括优化在内的一系列学习任务上展示了 NP 的表现。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C012",
+          "text": "NP 可用于图像补全任务。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "Neural Processes image completion applications",
+          "entities": [
+            "NP",
+            "图像补全"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": null,
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C012_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 0.943074
+          },
+          {
+            "evidence_id": "C012_e2",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "Function approximation lies at the core of numerous prob-\nlems in machine learning and one approach that has been\nexceptionally popular for this purpose over the past decade\nare deep neural networks. At a high level neural networks\nconstitute black-box function approximators that learn to\nparameterise a single function from a large number of train-\ning data points. As such, the majority of the workload of\na networks falls on the training phase while the evaluation\nand testing phases are reduced to quick forward-passes. Al-\nthough high test-time performance is valuable for many\nreal-world applications, the fact that network outputs cannot\nbe updated after training may be undesirable. Meta-learning,",
+            "score": 0.850788
+          },
+          {
+            "evidence_id": "C012_e3",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.842335
+          },
+          {
+            "evidence_id": "C012_e4",
+            "chunk_id": "p7_b13",
+            "page": 7,
+            "text": "One of the beneﬁts of neural processes is their functional\nﬂexibility as they can learn non-trivial ‘kernels’ from the\ndata directly. In order to test this we apply NPs to a more\ncomplex regression problem. We carry out image com-\npletion as a regression task, where we provide some of the\npixels as context and do pixel-wise prediction over the entire\nimage. In this formulation the xi values would correspond\nto the Cartesian coordinates of each pixel and the yi values",
+            "score": 0.658071
+          },
+          {
+            "evidence_id": "C012_e5",
+            "chunk_id": "p6_b21",
+            "page": 6,
+            "text": "As reﬂected in Figure 2 the main difference between NPs\nand the conditional latent variable models is the lack of an\nx variable that allows for targeted sampling of the latent\ndistribution. This change, despite seeming small, drastically\nchanges the range of applications. Targeted sampling, for\nexample allows for generation and completion tasks (e.g.\nthe image completion tasks) or the addition of some down-\nstream task (like using an NP for reinforcement learning).\nIt is worth mentioning that all of the conditional latent vari-\nable models have also been applied to few-shot classiﬁcation\nproblems, where the data space generally consists of input\ntuples (x, y), rather than just single outputs y. The models\nare able to carry this out by framing classiﬁcation either as\na comparison between the log likelihoods of the different\nclasses or by looking at the KL between the different pos-\nteriors, thereby overcoming the need of working with data\ntuples.",
+            "score": 0.654402
+          }
+        ],
+        "judgment": {
+          "claim_id": "C012",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C012_e4"
+          ],
+          "explanation": "证据明确指出，论文将图像补全作为回归任务应用于 NP，并根据部分像素对整幅图像进行逐像素预测。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C013",
+          "text": "NP 的推理复杂度为 O(n+m)。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "Neural Processes inference complexity O(n+m)",
+          "entities": [
+            "NP"
+          ],
+          "numbers": [
+            "O(n+m)",
+            "n",
+            "m"
+          ],
+          "metric": "推理复杂度",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C013_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.332522
+          },
+          {
+            "evidence_id": "C013_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.202723
+          },
+          {
+            "evidence_id": "C013_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 1.092722
+          },
+          {
+            "evidence_id": "C013_e4",
+            "chunk_id": "p3_b17",
+            "page": 3,
+            "text": "are the number of context points and target points respectively and z is the global latent variable. A grey background indicates that the\nvariable is observed. (b) Diagram of our neural process implementation. Variables in circles correspond to the variables of the graphical\nmodel in (a), variables in square boxes to the intermediate representations of NPs and unbound, bold letters to the following computation\nmodules: h - encoder, a - aggregator and g - decoder. In our implementation h and g correspond to neural networks and a to the mean\nfunction. The continuous lines depict the generative process, the dotted lines the inference.",
+            "score": 0.692501
+          },
+          {
+            "evidence_id": "C013_e5",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.602912
+          }
+        ],
+        "judgment": {
+          "claim_id": "C013",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C013_e1"
+          ],
+          "explanation": "证据明确指出，给定 n 个上下文点和 m 个目标点时，训练后的 NP 推理对应一次深度神经网络前向传播，复杂度为 O(n+m)。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C014",
+          "text": "经典高斯过程的推理复杂度为 O((n+m)^3)。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "classical Gaussian process inference complexity O((n+m)^3)",
+          "entities": [
+            "经典高斯过程"
+          ],
+          "numbers": [
+            "O((n+m)^3)",
+            "n",
+            "m",
+            "3"
+          ],
+          "metric": "推理复杂度",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C014_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 1.245707
+          },
+          {
+            "evidence_id": "C014_e2",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 1.149875
+          },
+          {
+            "evidence_id": "C014_e3",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 1.141697
+          },
+          {
+            "evidence_id": "C014_e4",
+            "chunk_id": "p3_b17",
+            "page": 3,
+            "text": "are the number of context points and target points respectively and z is the global latent variable. A grey background indicates that the\nvariable is observed. (b) Diagram of our neural process implementation. Variables in circles correspond to the variables of the graphical\nmodel in (a), variables in square boxes to the intermediate representations of NPs and unbound, bold letters to the following computation\nmodules: h - encoder, a - aggregator and g - decoder. In our implementation h and g correspond to neural networks and a to the mean\nfunction. The continuous lines depict the generative process, the dotted lines the inference.",
+            "score": 0.654232
+          },
+          {
+            "evidence_id": "C014_e5",
+            "chunk_id": "p7_b11",
+            "page": 7,
+            "text": "Some sample curves are shown in Figure 3. For the same\nunderlying ground truth curve (black line) we run the neu-\nral process using varying numbers of context points and\ngenerate several samples for each run (light-blue lines). As\nevidenced by the results the model has learned some key\nproperties of the 1-D curves from the data such as continuity\nand the general shape of functions sampled from a GP with\na Gaussian kernel. When provided with only one context\npoint the model generates curves that ﬂuctuate around 0, the\nprior of the data-generating GP. Crucially, these curves go\nthrough or near the observed context point and display a\nhigher variance in regions where no observations are present.\nAs the number of context points increases this uncertainty is\nreduced and the model’s predictions better match the under-\nlying ground truth. Given that this is a neural approximation\nthe curves will sometimes only approach the observations\npoints as opposed to go through them as it is the case for\nGPs. On the other hand once the model is trained it can\nregress more than just one data set i.e. it will produce sensi-\nble results for curves generated using any kernel parameters\nobserved during training.",
+            "score": 0.637347
+          }
+        ],
+        "judgment": {
+          "claim_id": "C014",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C014_e1"
+          ],
+          "explanation": "证据明确将 NP 的 O(n+m) 与经典高斯过程的 O((n+m)^3) 运行时间进行对比，支持该复杂度表述。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C015",
+          "text": "论文只在一系列具体任务上展示 NP。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "Neural Processes demonstrated only on a specific set of tasks",
+          "entities": [
+            "NP"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "一系列具体任务",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C015_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 0.876419
+          },
+          {
+            "evidence_id": "C015_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.8739
+          },
+          {
+            "evidence_id": "C015_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.792012
+          },
+          {
+            "evidence_id": "C015_e4",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.620922
+          },
+          {
+            "evidence_id": "C015_e5",
+            "chunk_id": "p8_b30",
+            "page": 8,
+            "text": "Finally, we apply neural processes to the wheel bandit prob-\nlem introduced in Riquelme et al. (2018), which constitutes\na contextual bandit task on the unit circle with varying needs\nfor exploration that can be smoothly parameterised. The\nproblem can be summarised as follows (see Figure 6 for\nclarity): a unit circle is divided into a low-reward region\n(blue area) and four high-reward regions (the other four\ncoloured areas). The size of the low-reward region is de-\nﬁned by a scalar δ. At every episode a different value for δ is\nselected. The agent is then provided with some coordinates\nX = (X1, X2) within the circle and has to choose among\nk = 5 arms depending on the area the coordinates fall into.\nIf ||X|| ≤δ, the sample falls within the low-reward region\n(blue). In this case k = 1 is the optimal action, as it pro-\nvides a reward drawn from r ∼N(1.2, 0.012), while all\nother actions only return r ∼N(1.0, 0.012). If the sample\nfalls within any of the four high-reward region (||X|| > δ),\nthe optimal arm will be any of the remaining four k = 2−5,\ndepending on the speciﬁc area. Pulling the optimal arm here\nresults in a high reward r ∼N(50.0, 0.012), and as before\nall other arms receive N(1.0, 0.012) except for arm k = 1\nwhich again returns N(1.2, 0.012).",
+            "score": 0.611604
+          }
+        ],
+        "judgment": {
+          "claim_id": "C015",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C015_e2",
+            "C015_e4",
+            "C015_e5"
+          ],
+          "explanation": "证据表明论文在一系列具体学习任务上展示 NP，包括回归、优化、1-D 函数回归和 wheel bandit 任务。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C016",
+          "text": "不能据此将 NP 的表现外推到所有任务。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "limitations of generalizing Neural Processes results to all tasks",
+          "entities": [
+            "NP"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C016_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "As a result, there is growing interest in combining aspects of\nneural networks and inference on stochastic processes as a\npotential solution to some of the downsides of both (Huang\net al., 2015; Wilson et al., 2016). In this work we intro-\nduce a neural network-based formulation that learns an ap-\nproximation of a stochastic process, which we term Neural\nProcesses (NPs). NPs display some of the fundamental\nproperties of GPs, namely they learn to model distributions\nover functions, are able to estimate the uncertainty over\ntheir predictions conditioned on context observations, and\nshift some of the workload from training to test time, which\nallows for model ﬂexibility. Crucially, NPs generate predic-\ntions in a computationally efﬁcient way. Given n context\npoints and m target points, inference with a trained NP cor-\nresponds to a forward pass in a deep NN, which scales with\nO(n+m) as opposed to the O((n+m)3) runtime of classic\nGPs. Furthermore the model overcomes many functional\ndesign restrictions by learning an implicit kernel from the\ndata directly.",
+            "score": 0.950964
+          },
+          {
+            "evidence_id": "C016_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "A neural network (NN) is a parameterised func-\ntion that can be tuned via gradient descent to ap-\nproximate a labelled collection of data with high\nprecision. A Gaussian process (GP), on the other\nhand, is a probabilistic model that deﬁnes a dis-\ntribution over possible functions, and is updated\nin light of data via the rules of probabilistic in-\nference. GPs are probabilistic, data-efﬁcient and\nﬂexible, however they are also computationally in-\ntensive and thus limited in their applicability. We\nintroduce a class of neural latent variable models\nwhich we call Neural Processes (NPs), combin-\ning the best of both worlds. Like GPs, NPs deﬁne\ndistributions over functions, are capable of rapid\nadaptation to new observations, and can estimate\nthe uncertainty in their predictions. Like NNs,\nNPs are computationally efﬁcient during training\nand evaluation but also learn to adapt their priors\nto data. We demonstrate the performance of NPs\non a range of learning tasks, including regression\nand optimisation, and compare and contrast with\nrelated models in the literature.",
+            "score": 0.878973
+          },
+          {
+            "evidence_id": "C016_e3",
+            "chunk_id": "p1_b11",
+            "page": 1,
+            "text": "As an alternative to using neural networks one can also per-\nform inference on a stochastic process in order to carry out\nfunction regression. The most common instantiation of this\napproach is a Gaussian process (GP), a model with compli-\nmentary properties to those of neural networks: GPs do not\nrequire a costly training phase and can carry out inference\nabout the underlying ground truth function conditioned on\nsome observations, which renders them very ﬂexible at test-\ntime. In addition GPs represent inﬁnitely many different\nfunctions at locations that have not been observed thereby\ncapturing the uncertainty over their predictions given some\nobservations. However, GPs are computationally expen-\nsive: in their original formulation they scale cubically with\nrespect to the number of data points, and current state of\nthe art approximations still scale quadratically (Qui˜nonero-\nCandela & Rasmussen, 2005). Furthermore, the available\nkernels are usually restricted in their functional form and an\nadditional optimisation procedure is required to identify the\nmost suitable kernel, as well as its hyperparameters, for any\ngiven task.",
+            "score": 0.793309
+          },
+          {
+            "evidence_id": "C016_e4",
+            "chunk_id": "p8_b30",
+            "page": 8,
+            "text": "Finally, we apply neural processes to the wheel bandit prob-\nlem introduced in Riquelme et al. (2018), which constitutes\na contextual bandit task on the unit circle with varying needs\nfor exploration that can be smoothly parameterised. The\nproblem can be summarised as follows (see Figure 6 for\nclarity): a unit circle is divided into a low-reward region\n(blue area) and four high-reward regions (the other four\ncoloured areas). The size of the low-reward region is de-\nﬁned by a scalar δ. At every episode a different value for δ is\nselected. The agent is then provided with some coordinates\nX = (X1, X2) within the circle and has to choose among\nk = 5 arms depending on the area the coordinates fall into.\nIf ||X|| ≤δ, the sample falls within the low-reward region\n(blue). In this case k = 1 is the optimal action, as it pro-\nvides a reward drawn from r ∼N(1.2, 0.012), while all\nother actions only return r ∼N(1.0, 0.012). If the sample\nfalls within any of the four high-reward region (||X|| > δ),\nthe optimal arm will be any of the remaining four k = 2−5,\ndepending on the speciﬁc area. Pulling the optimal arm here\nresults in a high reward r ∼N(50.0, 0.012), and as before\nall other arms receive N(1.0, 0.012) except for arm k = 1\nwhich again returns N(1.2, 0.012).",
+            "score": 0.619786
+          },
+          {
+            "evidence_id": "C016_e5",
+            "chunk_id": "p6_b24",
+            "page": 6,
+            "text": "In order to test whether neural processes indeed learn to\nmodel distributions over functions we ﬁrst apply them to a\n1-D function regression task. The functions for this experi-\nment are generated using a GP with varying kernel parame-\nters for each function. At every training step we sample a set\nof values for the Gaussian kernel of a GP and use those to\nsample a function fD(x). A random number of the (x, y)C\npairs are passed into the decoder of the NP as context points.\nWe pick additional unobserved pairs (x, y)U which we com-\nbine with the observed context points (x, y)C as targets and\nfeed xT to the decoder that returns its estimate ˆ\nyT of the\nunderlying value of yT .",
+            "score": 0.547912
+          }
+        ],
+        "judgment": {
+          "claim_id": "C016",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "C016_e2",
+            "C016_e4",
+            "C016_e5"
+          ],
+          "explanation": "证据显示论文只报告了若干特定任务上的表现，因此不足以支持对所有任务的普遍外推；但证据没有明确作出“不能外推到所有任务”的结论。",
+          "claim_error_type": "missing_condition",
+          "evidence_error_type": null,
+          "severity": "medium",
+          "suggestion": "更严谨地表述为：论文仅在若干特定任务上评估 NP，因此其表现能否推广到其他任务仍有待验证。"
+        }
+      }
+    ],
+    "summary": {
+      "grade": "需复核",
+      "total_score": 85.9,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 95.5,
+        "evidence_correctness": 81.8,
+        "evidence_completeness": 84.6,
+        "numeric_consistency": 60.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 93.3
+      },
+      "critical_count": 0,
+      "high_count": 2,
+      "medium_count": 1,
+      "review_count": 0
+    },
+    "parse_warnings": []
+  }
+}

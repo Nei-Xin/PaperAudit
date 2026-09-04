@@ -1,0 +1,722 @@
+{
+  "report_id": "R012",
+  "paper_id": "guo2017_deepfm",
+  "tier": "low",
+  "repeat": 1,
+  "run_config_sha256": "e513df742f627517c017cff442fb0b351ae8b663451fd3a44cd405b6150c97bc",
+  "audit": {
+    "paper_title": "DeepFM: A Factorization-Machine based Neural Network for CTR Prediction",
+    "page_count": 8,
+    "mode": "direction_one_report_test",
+    "scope": [
+      "research_question",
+      "contribution",
+      "method",
+      "results",
+      "limitations"
+    ],
+    "report_text": "# DeepFM: A Factorization-Machine based Neural Network for CTR Prediction 论文讲解报告\n\n本报告围绕论文的研究问题、贡献、方法、实验结果与适用边界进行结构化说明。\n\n## 研究问题\n\n- 论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。（证据：论文第1页）\n\n## 核心贡献\n\n- DeepFM 同时建模低阶和高阶特征交互。（证据：论文第1页）\n\n## 方法\n\n- DeepFM 除原始特征外不需要特征工程。（证据：论文第1页）\n- DeepFM 只建模二阶特征交互。（证据：论文第999页，表99）\n- DeepFM 的宽和深组件使用两个完全不同的输入。（证据：论文第2页）\n\n## 主要结果\n\n- DeepFM 在所有推荐数据集上都显著优于所有基线。（证据：论文第1页）\n- DeepFM 的目标是预测用户点击率。（证据：论文第1页）\n- DeepFM 在商业数据上提升 CTR 100%。（证据：论文第2页）\n- DeepFM 已在所有线上广告平台实时部署。（证据：论文第1页）\n\n## 局限与边界\n\n- 论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。（证据：论文第1页）\n\n## 阅读结论\n\n以上内容按论文中的研究问题、方法与实验结论组织，便于读者逐项回到原文核验。\n",
+    "audits": [
+      {
+        "claim": {
+          "claim_id": "C001",
+          "text": "论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。",
+          "category": "research_question",
+          "key_claim": true,
+          "query_en": "DeepFM CTR prediction low- and high-order feature interactions reduce feature engineering",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [],
+          "metric": "点击率（CTR）",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C001_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 1.186742
+          },
+          {
+            "evidence_id": "C001_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 0.998559
+          },
+          {
+            "evidence_id": "C001_e3",
+            "chunk_id": "p2_b1",
+            "page": 2,
+            "text": "(FM) [Rendle, 2010] model pairwise feature interactions as\ninner product of latent vectors between features and show\nvery promising results. While in principle FM can model\nhigh-order feature interaction, in practice usually only order-\n2 feature interactions are considered due to high complexity.\nAs a powerful approach to learning feature representa-\ntion, deep neural networks have the potential to learn so-\nphisticated feature interactions.\nSome ideas extend CNN\nand RNN for CTR predition [Liu et al., 2015; Zhang et\nal., 2014], but CNN-based models are biased to the in-\nteractions between neighboring features while RNN-based\nmodels are more suitable for click data with sequential de-\npendency. [Zhang et al., 2016] studies feature representa-\ntions and proposes Factorization-machine supported Neural\nNetwork (FNN). This model pre-trains FM before applying\nDNN, thus limited by the capability of FM. Feature interac-\ntion is studied in [Qu et al., 2016], by introducing a prod-\nuct layer between embedding layer and fully-connected layer,\nand proposing the Product-based Neural Network (PNN). As\nnoted in [Cheng et al., 2016], PNN and FNN, like other deep\nmodels, capture little low-order feature interactions, which\nare also essential for CTR prediction. To model both low-\nand high-order feature interactions, [Cheng et al., 2016] pro-\nposes an interesting hybrid network structure (Wide & Deep)\nthat combines a linear (“wide”) model and a deep model. In\nthis model, two different inputs are required for the “wide\npart” and “deep part”, respectively, and the input of “wide\npart” still relies on expertise feature engineering.",
+            "score": 0.707087
+          },
+          {
+            "evidence_id": "C001_e4",
+            "chunk_id": "p4_b10",
+            "page": 4,
+            "text": "Summarizations: To summarize, the relationship between\nDeepFM and the other deep models in four aspects is pre-\nsented in Table 1. As can be seen, DeepFM is the only model\nthat requires no pre-training and no feature engineering, and\ncaptures both low- and high-order feature interactions.",
+            "score": 0.666667
+          },
+          {
+            "evidence_id": "C001_e5",
+            "chunk_id": "p2_b9",
+            "page": 2,
+            "text": "2.1\nDeepFM\nWe aim to learn both low- and high-order feature interactions.\nTo this end, we propose a Factorization-Machine based neu-\nral network (DeepFM). As depicted in Figure 11, DeepFM\nconsists of two components, FM component and deep com-\nponent, that share the same input. For feature i, a scalar wi\nis used to weigh its order-1 importance, a latent vector Vi is\nused to measure its impact of interactions with other features.\nVi is fed in FM component to model order-2 feature interac-\ntions, and fed in deep component to model high-order feature\ninteractions. All parameters, including wi, Vi, and the net-\nwork parameters (W (l), b(l) below) are trained jointly for the\ncombined prediction model:",
+            "score": 0.653017
+          }
+        ],
+        "judgment": {
+          "claim_id": "C001",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C001_e1",
+            "C001_e2"
+          ],
+          "explanation": "证据明确说明DeepFM面向CTR预测，同时学习低阶和高阶特征交互，并且除原始特征外无需人工特征工程。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C002",
+          "text": "DeepFM 同时建模低阶和高阶特征交互。",
+          "category": "contribution",
+          "key_claim": true,
+          "query_en": "DeepFM jointly models low-order and high-order feature interactions",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C002_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 1.071986
+          },
+          {
+            "evidence_id": "C002_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 0.996537
+          },
+          {
+            "evidence_id": "C002_e3",
+            "chunk_id": "p2_b3",
+            "page": 2,
+            "text": "• We propose a new neural network model DeepFM\n(Figure 1) that integrates the architectures of FM and\ndeep neural networks (DNN). It models low-order fea-\nture interactions like FM and models high-order fea-\nture interactions like DNN. Unlike the wide & deep\nmodel [Cheng et al., 2016], DeepFM can be trained end-\nto-end without any feature engineering.",
+            "score": 0.771429
+          },
+          {
+            "evidence_id": "C002_e4",
+            "chunk_id": "p5_b12",
+            "page": 5,
+            "text": "• Learning high- and low-order feature interactions si-\nmultaneously and properly improves the performance\nof CTR prediction model.\nDeepFM outperforms the\nmodels that learn only low-order feature interactions\n(namely, FM) or high-order feature interactions (namely,\nFNN, IPNN, OPNN, PNN∗). Compared to the second\nbest model, DeepFM achieves more than 0.37% and\n0.25% in terms of AUC (0.42% and 0.29% in terms of\nLogloss) on Company∗and Criteo datasets.",
+            "score": 0.769869
+          },
+          {
+            "evidence_id": "C002_e5",
+            "chunk_id": "p2_b9",
+            "page": 2,
+            "text": "2.1\nDeepFM\nWe aim to learn both low- and high-order feature interactions.\nTo this end, we propose a Factorization-Machine based neu-\nral network (DeepFM). As depicted in Figure 11, DeepFM\nconsists of two components, FM component and deep com-\nponent, that share the same input. For feature i, a scalar wi\nis used to weigh its order-1 importance, a latent vector Vi is\nused to measure its impact of interactions with other features.\nVi is fed in FM component to model order-2 feature interac-\ntions, and fed in deep component to model high-order feature\ninteractions. All parameters, including wi, Vi, and the net-\nwork parameters (W (l), b(l) below) are trained jointly for the\ncombined prediction model:",
+            "score": 0.759902
+          }
+        ],
+        "judgment": {
+          "claim_id": "C002",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C002_e2",
+            "C002_e3",
+            "C002_e5"
+          ],
+          "explanation": "证据明确指出DeepFM通过FM组件建模低阶交互、通过深度组件建模高阶交互，且两者共享输入并联合训练。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C003",
+          "text": "DeepFM 除原始特征外不需要特征工程。",
+          "category": "method",
+          "key_claim": true,
+          "query_en": "DeepFM requires no feature engineering beyond raw features",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C003_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 1.162766
+          },
+          {
+            "evidence_id": "C003_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 0.961011
+          },
+          {
+            "evidence_id": "C003_e3",
+            "chunk_id": "p4_b10",
+            "page": 4,
+            "text": "Summarizations: To summarize, the relationship between\nDeepFM and the other deep models in four aspects is pre-\nsented in Table 1. As can be seen, DeepFM is the only model\nthat requires no pre-training and no feature engineering, and\ncaptures both low- and high-order feature interactions.",
+            "score": 0.71159
+          },
+          {
+            "evidence_id": "C003_e4",
+            "chunk_id": "p4_b8",
+            "page": 4,
+            "text": "Wide & Deep: Wide & Deep (Figure 5 (right)) is proposed\nby Google to model low- and high-order feature interactions\nsimultaneously. As shown in [Cheng et al., 2016], there is\na need for expertise feature engineering on the input to the\n“wide” part (for instance, cross-product of users’ install apps\nand impression apps in app recommendation). In contrast,\nDeepFM needs no such expertise knowledge to handle the\ninput by learning directly from the input raw features.",
+            "score": 0.698342
+          },
+          {
+            "evidence_id": "C003_e5",
+            "chunk_id": "p3_b21",
+            "page": 3,
+            "text": "It is worth pointing out that FM component and deep com-\nponent share the same feature embedding, which brings two\nimportant beneﬁts: 1) it learns both low- and high-order fea-\nture interactions from raw features; 2) there is no need for ex-\npertise feature engineering of the input, as required in Wide\n& Deep [Cheng et al., 2016].",
+            "score": 0.632724
+          }
+        ],
+        "judgment": {
+          "claim_id": "C003",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C003_e1",
+            "C003_e3",
+            "C003_e5"
+          ],
+          "explanation": "证据明确表述DeepFM除原始特征外不需要特征工程，并可直接从原始特征学习交互。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C004",
+          "text": "DeepFM 只建模二阶特征交互。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "DeepFM models only second-order feature interactions",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [
+            "二阶"
+          ],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第999页，表99",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C004_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 1.044008
+          },
+          {
+            "evidence_id": "C004_e2",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 0.953265
+          },
+          {
+            "evidence_id": "C004_e3",
+            "chunk_id": "p4_b10",
+            "page": 4,
+            "text": "Summarizations: To summarize, the relationship between\nDeepFM and the other deep models in four aspects is pre-\nsented in Table 1. As can be seen, DeepFM is the only model\nthat requires no pre-training and no feature engineering, and\ncaptures both low- and high-order feature interactions.",
+            "score": 0.758333
+          },
+          {
+            "evidence_id": "C004_e4",
+            "chunk_id": "p5_b12",
+            "page": 5,
+            "text": "• Learning high- and low-order feature interactions si-\nmultaneously and properly improves the performance\nof CTR prediction model.\nDeepFM outperforms the\nmodels that learn only low-order feature interactions\n(namely, FM) or high-order feature interactions (namely,\nFNN, IPNN, OPNN, PNN∗). Compared to the second\nbest model, DeepFM achieves more than 0.37% and\n0.25% in terms of AUC (0.42% and 0.29% in terms of\nLogloss) on Company∗and Criteo datasets.",
+            "score": 0.755486
+          },
+          {
+            "evidence_id": "C004_e5",
+            "chunk_id": "p5_b11",
+            "page": 5,
+            "text": "• Learning feature interactions improves the performance\nof CTR prediction model. This observation is from the\nfact that LR (which is the only model that does not con-\nsider feature interactions) performs worse than the other\nmodels. As the best model, DeepFM outperforms LR by\n0.86% and 4.18% in terms of AUC (1.15% and 5.60% in\nterms of Logloss) on Company∗and Criteo datasets.",
+            "score": 0.74939
+          }
+        ],
+        "judgment": {
+          "claim_id": "C004",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C004_e2",
+            "C004_e3",
+            "C004_e4"
+          ],
+          "explanation": "证据明确指出DeepFM同时捕获低阶和高阶特征交互，而非只建模二阶交互。",
+          "claim_error_type": "contradiction",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "DeepFM同时建模低阶和高阶特征交互，其中FM组件建模二阶交互，深度组件建模高阶交互。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C005",
+          "text": "DeepFM 的宽和深组件使用两个完全不同的输入。",
+          "category": "method",
+          "key_claim": false,
+          "query_en": "DeepFM wide and deep components use completely different inputs",
+          "entities": [
+            "DeepFM",
+            "宽组件",
+            "深组件"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第2页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C005_e1",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 1.028189
+          },
+          {
+            "evidence_id": "C005_e2",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 0.945205
+          },
+          {
+            "evidence_id": "C005_e3",
+            "chunk_id": "p2_b1",
+            "page": 2,
+            "text": "(FM) [Rendle, 2010] model pairwise feature interactions as\ninner product of latent vectors between features and show\nvery promising results. While in principle FM can model\nhigh-order feature interaction, in practice usually only order-\n2 feature interactions are considered due to high complexity.\nAs a powerful approach to learning feature representa-\ntion, deep neural networks have the potential to learn so-\nphisticated feature interactions.\nSome ideas extend CNN\nand RNN for CTR predition [Liu et al., 2015; Zhang et\nal., 2014], but CNN-based models are biased to the in-\nteractions between neighboring features while RNN-based\nmodels are more suitable for click data with sequential de-\npendency. [Zhang et al., 2016] studies feature representa-\ntions and proposes Factorization-machine supported Neural\nNetwork (FNN). This model pre-trains FM before applying\nDNN, thus limited by the capability of FM. Feature interac-\ntion is studied in [Qu et al., 2016], by introducing a prod-\nuct layer between embedding layer and fully-connected layer,\nand proposing the Product-based Neural Network (PNN). As\nnoted in [Cheng et al., 2016], PNN and FNN, like other deep\nmodels, capture little low-order feature interactions, which\nare also essential for CTR prediction. To model both low-\nand high-order feature interactions, [Cheng et al., 2016] pro-\nposes an interesting hybrid network structure (Wide & Deep)\nthat combines a linear (“wide”) model and a deep model. In\nthis model, two different inputs are required for the “wide\npart” and “deep part”, respectively, and the input of “wide\npart” still relies on expertise feature engineering.",
+            "score": 0.551458
+          },
+          {
+            "evidence_id": "C005_e4",
+            "chunk_id": "p4_b8",
+            "page": 4,
+            "text": "Wide & Deep: Wide & Deep (Figure 5 (right)) is proposed\nby Google to model low- and high-order feature interactions\nsimultaneously. As shown in [Cheng et al., 2016], there is\na need for expertise feature engineering on the input to the\n“wide” part (for instance, cross-product of users’ install apps\nand impression apps in app recommendation). In contrast,\nDeepFM needs no such expertise knowledge to handle the\ninput by learning directly from the input raw features.",
+            "score": 0.550078
+          },
+          {
+            "evidence_id": "C005_e5",
+            "chunk_id": "p2_b9",
+            "page": 2,
+            "text": "2.1\nDeepFM\nWe aim to learn both low- and high-order feature interactions.\nTo this end, we propose a Factorization-Machine based neu-\nral network (DeepFM). As depicted in Figure 11, DeepFM\nconsists of two components, FM component and deep com-\nponent, that share the same input. For feature i, a scalar wi\nis used to weigh its order-1 importance, a latent vector Vi is\nused to measure its impact of interactions with other features.\nVi is fed in FM component to model order-2 feature interac-\ntions, and fed in deep component to model high-order feature\ninteractions. All parameters, including wi, Vi, and the net-\nwork parameters (W (l), b(l) below) are trained jointly for the\ncombined prediction model:",
+            "score": 0.549497
+          }
+        ],
+        "judgment": {
+          "claim_id": "C005",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C005_e1",
+            "C005_e5"
+          ],
+          "explanation": "证据明确说明DeepFM的宽组件和深组件共享同一个输入，而不是使用两个完全不同的输入。",
+          "claim_error_type": "contradiction",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "DeepFM的宽组件和深组件共享相同的原始特征输入；使用不同输入的是其对比方法Wide & Deep。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C006",
+          "text": "DeepFM 在所有推荐数据集上都显著优于所有基线。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "DeepFM significantly outperforms all baselines on recommendation datasets",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "所有推荐数据集",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C006_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 0.820128
+          },
+          {
+            "evidence_id": "C006_e2",
+            "chunk_id": "p7_b1",
+            "page": 7,
+            "text": "DeepFM and the state-of-the-art models. Our experiment re-\nsults demonstrate that 1) DeepFM outperforms the state-of-\nthe-art models in terms of AUC and Logloss on both datasets;\n2) The efﬁciency of DeepFM is comparable to the most efﬁ-\ncient deep model in the state-of-the-art.",
+            "score": 0.535714
+          },
+          {
+            "evidence_id": "C006_e3",
+            "chunk_id": "p5_b14",
+            "page": 5,
+            "text": "DeepFM outperforms the models that learn high- and\nlow-order feature interactions using separate feature em-\nbeddings (namely, LR & DNN and FM & DNN). Com-\npared to these two models, DeepFM achieves more than\n0.48% and 0.33% in terms of AUC (0.61% and 0.66%\nin terms of Logloss) on Company∗and Criteo datasets.",
+            "score": 0.528712
+          },
+          {
+            "evidence_id": "C006_e4",
+            "chunk_id": "p5_b12",
+            "page": 5,
+            "text": "• Learning high- and low-order feature interactions si-\nmultaneously and properly improves the performance\nof CTR prediction model.\nDeepFM outperforms the\nmodels that learn only low-order feature interactions\n(namely, FM) or high-order feature interactions (namely,\nFNN, IPNN, OPNN, PNN∗). Compared to the second\nbest model, DeepFM achieves more than 0.37% and\n0.25% in terms of AUC (0.42% and 0.29% in terms of\nLogloss) on Company∗and Criteo datasets.",
+            "score": 0.5225
+          },
+          {
+            "evidence_id": "C006_e5",
+            "chunk_id": "p5_b11",
+            "page": 5,
+            "text": "• Learning feature interactions improves the performance\nof CTR prediction model. This observation is from the\nfact that LR (which is the only model that does not con-\nsider feature interactions) performs worse than the other\nmodels. As the best model, DeepFM outperforms LR by\n0.86% and 4.18% in terms of AUC (1.15% and 5.60% in\nterms of Logloss) on Company∗and Criteo datasets.",
+            "score": 0.51994
+          }
+        ],
+        "judgment": {
+          "claim_id": "C006",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "C006_e2",
+            "C006_e3",
+            "C006_e4"
+          ],
+          "explanation": "证据仅支持DeepFM在论文所测试的两个数据集上优于所比较的部分基线或当时的先进模型，不能支持“所有推荐数据集”和“所有基线”的普遍结论；证据也未明确给出统计显著性。",
+          "claim_error_type": "overgeneralization",
+          "evidence_error_type": null,
+          "severity": "medium",
+          "suggestion": "在论文测试的Company*和Criteo两个数据集上，DeepFM在AUC和Logloss方面优于所比较的基线模型。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C007",
+          "text": "DeepFM 的目标是预测用户点击率。",
+          "category": "results",
+          "key_claim": false,
+          "query_en": "DeepFM objective user click-through rate prediction",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [],
+          "metric": "点击率（CTR）",
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C007_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 0.986644
+          },
+          {
+            "evidence_id": "C007_e2",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "The prediction of click-through rate (CTR) is critical in rec-\nommender system, where the task is to estimate the probabil-\nity a user will click on a recommended item. In many recom-\nmender systems the goal is to maximize the number of clicks,\nand so the items returned to a user can be ranked by estimated\nCTR; while in other application scenarios such as online ad-\nvertising it is also important to improve revenue, and so the\nranking strategy can be adjusted as CTR×bid across all can-\ndidates, where “bid” is the beneﬁt the system receives if the\nitem is clicked by a user. In either case, it is clear that the key\nis in estimating CTR correctly.",
+            "score": 0.692857
+          },
+          {
+            "evidence_id": "C007_e3",
+            "chunk_id": "p4_b13",
+            "page": 4,
+            "text": "3.1\nExperiment Setup\nDatasets\nWe evaluate the effectiveness and efﬁciency of our proposed\nDeepFM on the following two datasets.\n1) Criteo Dataset: Criteo dataset 5 includes 45 million users’\nclick records. There are 13 continuous features and 26 cate-\ngorical ones. We split the dataset randomly into two parts:\n90% is for training, while the rest 10% is for testing.\n2) Company∗Dataset: In order to verify the performance of\nDeepFM in real industrial CTR prediction, we conduct exper-\niment on Company∗dataset. We collect 7 consecutive days\nof users’ click records from the game center of the Company∗\nApp Store for training, and the next 1 day for testing. There\nare around 1 billion records in the whole collected dataset.\nIn this dataset, there are app features (e.g., identiﬁcation, cat-\negory, and etc), user features (e.g., user’s downloaded apps,\nand etc), and context features (e.g., operation time, and etc).",
+            "score": 0.585116
+          },
+          {
+            "evidence_id": "C007_e4",
+            "chunk_id": "p7_b7",
+            "page": 7,
+            "text": "Candela, Thomas Borchert, and Ralf Herbrich.\nWeb-\nscale bayesian click-through rate prediction for sponsored\nsearch advertising in microsoft’s bing search engine. In\nICML, pages 13–20, 2010.\n[He et al., 2014] Xinran He, Junfeng Pan, Ou Jin, Tianbing",
+            "score": 0.53181
+          },
+          {
+            "evidence_id": "C007_e5",
+            "chunk_id": "p1_b1",
+            "page": 1,
+            "text": "DeepFM: A Factorization-Machine based Neural Network for CTR Prediction",
+            "score": 0.516772
+          }
+        ],
+        "judgment": {
+          "claim_id": "C007",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C007_e1"
+          ],
+          "explanation": "证据明确说明 DeepFM 用于 CTR prediction（点击率预测），支持该目标描述。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C008",
+          "text": "DeepFM 在商业数据上提升 CTR 100%。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "DeepFM improves CTR by 100 percent on commercial data",
+          "entities": [
+            "DeepFM"
+          ],
+          "numbers": [
+            "100%"
+          ],
+          "metric": "CTR",
+          "dataset": "商业数据",
+          "provided_evidence": "论文第2页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C008_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 0.989385
+          },
+          {
+            "evidence_id": "C008_e2",
+            "chunk_id": "p2_b5",
+            "page": 2,
+            "text": "• We evaluate DeepFM on both benchmark data and com-\nmercial data, which shows consistent improvement over\nexisting models for CTR prediction.",
+            "score": 0.614286
+          },
+          {
+            "evidence_id": "C008_e3",
+            "chunk_id": "p5_b17",
+            "page": 5,
+            "text": "Overall, our proposed DeepFM model beats the competi-\ntors by more than 0.37% and 0.42% in terms of AUC and\nLogloss on Company∗dataset, respectively. In fact, a small\nimprovement in ofﬂine AUC evaluation is likely to lead to a\nsigniﬁcant increase in online CTR. As reported in [Cheng et\nal., 2016], compared with LR, Wide & Deep improves AUC\nby 0.275% (ofﬂine) and the improvement of online CTR is\n3.9%. The daily turnover of Company∗’s App Store is mil-\nlions of dollars, therefore even several percents lift in CTR\nbrings extra millions of dollars each year.",
+            "score": 0.581003
+          },
+          {
+            "evidence_id": "C008_e4",
+            "chunk_id": "p5_b12",
+            "page": 5,
+            "text": "• Learning high- and low-order feature interactions si-\nmultaneously and properly improves the performance\nof CTR prediction model.\nDeepFM outperforms the\nmodels that learn only low-order feature interactions\n(namely, FM) or high-order feature interactions (namely,\nFNN, IPNN, OPNN, PNN∗). Compared to the second\nbest model, DeepFM achieves more than 0.37% and\n0.25% in terms of AUC (0.42% and 0.29% in terms of\nLogloss) on Company∗and Criteo datasets.",
+            "score": 0.505215
+          },
+          {
+            "evidence_id": "C008_e5",
+            "chunk_id": "p5_b11",
+            "page": 5,
+            "text": "• Learning feature interactions improves the performance\nof CTR prediction model. This observation is from the\nfact that LR (which is the only model that does not con-\nsider feature interactions) performs worse than the other\nmodels. As the best model, DeepFM outperforms LR by\n0.86% and 4.18% in terms of AUC (1.15% and 5.60% in\nterms of Logloss) on Company∗and Criteo datasets.",
+            "score": 0.503364
+          }
+        ],
+        "judgment": {
+          "claim_id": "C008",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "C008_e2",
+            "C008_e3"
+          ],
+          "explanation": "证据支持 DeepFM 在商业数据上相较现有模型有改进，但报告的是 AUC 和 Logloss 的约 0.37%/0.42% 改进，并未支持 CTR 提升 100%。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "改为：DeepFM 在商业数据上相较竞争模型的 AUC 和 Logloss 分别改善超过约 0.37% 和 0.42%；论文未报告 CTR 提升 100%。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C009",
+          "text": "DeepFM 已在所有线上广告平台实时部署。",
+          "category": "results",
+          "key_claim": true,
+          "query_en": "DeepFM deployed in real time on all online advertising platforms",
+          "entities": [
+            "DeepFM",
+            "线上广告平台"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": null,
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C009_e1",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "The prediction of click-through rate (CTR) is critical in rec-\nommender system, where the task is to estimate the probabil-\nity a user will click on a recommended item. In many recom-\nmender systems the goal is to maximize the number of clicks,\nand so the items returned to a user can be ranked by estimated\nCTR; while in other application scenarios such as online ad-\nvertising it is also important to improve revenue, and so the\nranking strategy can be adjusted as CTR×bid across all can-\ndidates, where “bid” is the beneﬁt the system receives if the\nitem is clicked by a user. In either case, it is clear that the key\nis in estimating CTR correctly.",
+            "score": 0.50625
+          },
+          {
+            "evidence_id": "C009_e2",
+            "chunk_id": "p4_b13",
+            "page": 4,
+            "text": "3.1\nExperiment Setup\nDatasets\nWe evaluate the effectiveness and efﬁciency of our proposed\nDeepFM on the following two datasets.\n1) Criteo Dataset: Criteo dataset 5 includes 45 million users’\nclick records. There are 13 continuous features and 26 cate-\ngorical ones. We split the dataset randomly into two parts:\n90% is for training, while the rest 10% is for testing.\n2) Company∗Dataset: In order to verify the performance of\nDeepFM in real industrial CTR prediction, we conduct exper-\niment on Company∗dataset. We collect 7 consecutive days\nof users’ click records from the game center of the Company∗\nApp Store for training, and the next 1 day for testing. There\nare around 1 billion records in the whole collected dataset.\nIn this dataset, there are app features (e.g., identiﬁcation, cat-\negory, and etc), user features (e.g., user’s downloaded apps,\nand etc), and context features (e.g., operation time, and etc).",
+            "score": 0.494035
+          },
+          {
+            "evidence_id": "C009_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 0.479993
+          },
+          {
+            "evidence_id": "C009_e4",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 0.474295
+          },
+          {
+            "evidence_id": "C009_e5",
+            "chunk_id": "p5_b17",
+            "page": 5,
+            "text": "Overall, our proposed DeepFM model beats the competi-\ntors by more than 0.37% and 0.42% in terms of AUC and\nLogloss on Company∗dataset, respectively. In fact, a small\nimprovement in ofﬂine AUC evaluation is likely to lead to a\nsigniﬁcant increase in online CTR. As reported in [Cheng et\nal., 2016], compared with LR, Wide & Deep improves AUC\nby 0.275% (ofﬂine) and the improvement of online CTR is\n3.9%. The daily turnover of Company∗’s App Store is mil-\nlions of dollars, therefore even several percents lift in CTR\nbrings extra millions of dollars each year.",
+            "score": 0.425412
+          }
+        ],
+        "judgment": {
+          "claim_id": "C009",
+          "label": "NO_SUPPORT_FOUND",
+          "evidence_ids": [
+            "C009_e2",
+            "C009_e4"
+          ],
+          "explanation": "证据仅说明 DeepFM 在基准数据和一个商业数据集上进行了 CTR 预测实验，并讨论了线上广告场景；没有证据表明其已在所有线上广告平台实时部署。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "改为：论文报告了 DeepFM 在基准数据和商业数据上的 CTR 预测实验，未证明其已在所有线上广告平台实时部署。"
+        }
+      },
+      {
+        "claim": {
+          "claim_id": "C010",
+          "text": "论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。",
+          "category": "limitations",
+          "key_claim": true,
+          "query_en": "DeepFM evidence limited to benchmark and commercial data cannot establish deployment on all online advertising platforms",
+          "entities": [
+            "DeepFM",
+            "线上广告平台"
+          ],
+          "numbers": [],
+          "metric": null,
+          "dataset": "基准数据、商业数据",
+          "provided_evidence": "论文第1页",
+          "report_location": null
+        },
+        "candidates": [
+          {
+            "evidence_id": "C010_e1",
+            "chunk_id": "p1_b5",
+            "page": 1,
+            "text": "Learning sophisticated feature interactions behind\nuser behaviors is critical in maximizing CTR for\nrecommender systems. Despite great progress, ex-\nisting methods seem to have a strong bias towards\nlow- or high-order interactions, or require exper-\ntise feature engineering. In this paper, we show\nthat it is possible to derive an end-to-end learn-\ning model that emphasizes both low- and high-\norder feature interactions.\nThe proposed model,\nDeepFM, combines the power of factorization ma-\nchines for recommendation and deep learning for\nfeature learning in a new neural network architec-\nture. Compared to the latest Wide & Deep model\nfrom Google, DeepFM has a shared input to its\n“wide” and “deep” parts, with no need of feature\nengineering besides raw features. Comprehensive\nexperiments are conducted to demonstrate the ef-\nfectiveness and efﬁciency of DeepFM over the ex-\nisting models for CTR prediction, on both bench-\nmark data and commercial data.",
+            "score": 0.841287
+          },
+          {
+            "evidence_id": "C010_e2",
+            "chunk_id": "p2_b5",
+            "page": 2,
+            "text": "• We evaluate DeepFM on both benchmark data and com-\nmercial data, which shows consistent improvement over\nexisting models for CTR prediction.",
+            "score": 0.469231
+          },
+          {
+            "evidence_id": "C010_e3",
+            "chunk_id": "p1_b12",
+            "page": 1,
+            "text": "Figure 1: Wide & deep architecture of DeepFM. The wide and deep\ncomponent share the same input raw feature vector, which enables\nDeepFM to learn low- and high-order feature interactions simulta-\nneously from the input raw features.",
+            "score": 0.446258
+          },
+          {
+            "evidence_id": "C010_e4",
+            "chunk_id": "p1_b7",
+            "page": 1,
+            "text": "The prediction of click-through rate (CTR) is critical in rec-\nommender system, where the task is to estimate the probabil-\nity a user will click on a recommended item. In many recom-\nmender systems the goal is to maximize the number of clicks,\nand so the items returned to a user can be ranked by estimated\nCTR; while in other application scenarios such as online ad-\nvertising it is also important to improve revenue, and so the\nranking strategy can be adjusted as CTR×bid across all can-\ndidates, where “bid” is the beneﬁt the system receives if the\nitem is clicked by a user. In either case, it is clear that the key\nis in estimating CTR correctly.",
+            "score": 0.394489
+          },
+          {
+            "evidence_id": "C010_e5",
+            "chunk_id": "p5_b17",
+            "page": 5,
+            "text": "Overall, our proposed DeepFM model beats the competi-\ntors by more than 0.37% and 0.42% in terms of AUC and\nLogloss on Company∗dataset, respectively. In fact, a small\nimprovement in ofﬂine AUC evaluation is likely to lead to a\nsigniﬁcant increase in online CTR. As reported in [Cheng et\nal., 2016], compared with LR, Wide & Deep improves AUC\nby 0.275% (ofﬂine) and the improvement of online CTR is\n3.9%. The daily turnover of Company∗’s App Store is mil-\nlions of dollars, therefore even several percents lift in CTR\nbrings extra millions of dollars each year.",
+            "score": 0.347934
+          }
+        ],
+        "judgment": {
+          "claim_id": "C010",
+          "label": "SUPPORTED",
+          "evidence_ids": [
+            "C010_e1",
+            "C010_e2"
+          ],
+          "explanation": "证据明确将评估范围限定为基准数据和商业数据，并未提供所有线上广告平台部署的证据，因此不能据此推出普遍部署结论。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ],
+    "summary": {
+      "grade": "需复核",
+      "total_score": 76.2,
+      "audit_coverage": 100.0,
+      "evidence_discovery_rate": 100.0,
+      "dimensions": {
+        "factual_support": 58.3,
+        "evidence_correctness": 60.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": 50.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 88.9
+      },
+      "critical_count": 0,
+      "high_count": 4,
+      "medium_count": 1,
+      "review_count": 0
+    },
+    "parse_warnings": []
+  }
+}
