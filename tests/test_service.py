@@ -1,4 +1,5 @@
 from paperaudit.config import Settings
+from paperaudit.hy3_client import Hy3ResponseError
 from paperaudit.models import (
     AtomicClaim,
     AutoLabel,
@@ -98,6 +99,24 @@ class LabelCalibrationRequiresEvidenceClient(FakeHy3Client):
         return self.judge_claims([(claim, candidates)], page_count)
 
 
+class BatchFailureFallbackClient(FakeHy3Client):
+    def judge_claims(self, claims: list[tuple], page_count: int) -> JudgmentBatch:
+        raise Hy3ResponseError("invalid batch JSON")
+
+    def adjudicate_claim(self, claim, candidates, page_count: int) -> JudgmentBatch:
+        return JudgmentBatch(
+            judgments=[
+                ClaimJudgment(
+                    claim_id=claim.claim_id,
+                    label=AutoLabel.SUPPORTED,
+                    evidence_ids=[candidates[0].evidence_id],
+                    explanation="单条回退成功。",
+                    severity=Severity.NONE,
+                )
+            ]
+        )
+
+
 def test_service_runs_claim_to_evidence_flow() -> None:
     settings = Settings(
         api_base="https://example.invalid/v1",
@@ -176,6 +195,27 @@ def test_service_validates_evidence_after_label_calibration() -> None:
 
     assert run.audits[0].judgment.label == AutoLabel.ABSTAIN
     assert run.audits[0].judgment.evidence_ids == []
+
+
+def test_service_falls_back_to_single_claim_when_batch_response_is_invalid() -> None:
+    settings = Settings(api_base="https://example.invalid/v1", api_key="test", model="hy3")
+    paper = ParsedPaper(
+        title="Test Paper",
+        page_count=1,
+        chunks=[
+            PaperChunk(
+                chunk_id="p1_b1",
+                page=1,
+                content="On Dataset A, the method improves F1 by 3.2 points.",
+            )
+        ],
+    )
+    service = AuditService(settings, client=BatchFailureFallbackClient())  # type: ignore[arg-type]
+
+    run = service.audit(paper, "测试论断。", [ClaimCategory.RESULTS])
+
+    assert run.audits[0].judgment.label == AutoLabel.SUPPORTED
+    assert run.audits[0].judgment.evidence_ids == ["C001_e1"]
 
 
 def test_service_rejects_oversized_report_before_model_call() -> None:

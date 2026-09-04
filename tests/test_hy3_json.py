@@ -45,6 +45,13 @@ def test_extract_unfenced_json_with_markdown_code_block() -> None:
     assert _extract_json(json.dumps(payload, ensure_ascii=False)) == payload
 
 
+def test_extract_json_uses_first_complete_object_when_model_appends_content() -> None:
+    first = {"judgments": [{"claim_id": "C001"}]}
+    response = json.dumps(first) + "\n" + json.dumps({"note": "duplicate"})
+
+    assert _extract_json(response) == first
+
+
 def test_format_paper_context_keeps_head_and_tail_under_budget() -> None:
     chunks = [
         PaperChunk(chunk_id="head", page=1, content="METHOD_START " + "a" * 40),
