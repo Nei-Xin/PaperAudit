@@ -160,7 +160,10 @@ def calibrate_judgment(judgment: ClaimJudgment) -> ClaimJudgment:
     elif error in _MEDIUM_RISK_ERRORS:
         target_label = AutoLabel.PARTIALLY_SUPPORTED
     elif error is None:
-        target_label = AutoLabel.SUPPORTED
+        # A missing optional taxonomy field must never promote a negative
+        # model judgment to SUPPORTED. Preserve the label and let the
+        # evidence validator enforce the requirements for that label.
+        target_label = judgment.label
     else:
         target_label = judgment.label
     aligned = (

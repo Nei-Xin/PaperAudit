@@ -14,6 +14,16 @@ def test_claim_extraction_prompt_has_no_fixed_thirty_claim_limit() -> None:
     assert "all material claims" in source
 
 
+def test_judgment_prompts_define_error_type_priority() -> None:
+    batch_source = inspect.getsource(Hy3Client.judge_claims)
+    adjudication_source = inspect.getsource(Hy3Client.adjudicate_claim)
+
+    for source in (batch_source, adjudication_source):
+        assert "numeric_or_metric_mismatch" in source
+        assert "core fact remains supported" in source
+        assert "universal word does not override" in source
+
+
 def test_extract_json_preserves_markdown_code_fence_inside_answer() -> None:
     payload = {
         "answer": "运行命令：\n```bash\npython scripts/amg.py --input image.jpg\n```",

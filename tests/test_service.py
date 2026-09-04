@@ -3,14 +3,17 @@ from paperaudit.models import (
     AtomicClaim,
     AutoLabel,
     ClaimCategory,
+    ClaimErrorType,
     ClaimExtraction,
     ClaimJudgment,
+    EvidenceCandidate,
     JudgmentBatch,
     PaperChunk,
     ParsedPaper,
     Severity,
 )
-from paperaudit.service import AuditService
+from paperaudit.service import AuditService, MAX_AUDIT_REPORT_CHARS
+from eval.run_eval import _validated_judgment
 
 
 class FakeHy3Client:
@@ -75,6 +78,26 @@ class InvalidEvidenceThenValidClient(FakeHy3Client):
         )
 
 
+class LabelCalibrationRequiresEvidenceClient(FakeHy3Client):
+    def judge_claims(self, claims: list[tuple], page_count: int) -> JudgmentBatch:
+        claim, _ = claims[0]
+        return JudgmentBatch(
+            judgments=[
+                ClaimJudgment(
+                    claim_id=claim.claim_id,
+                    label=AutoLabel.NO_SUPPORT_FOUND,
+                    evidence_ids=[],
+                    explanation="错误归属。",
+                    claim_error_type="wrong_attribution",
+                    severity=Severity.HIGH,
+                )
+            ]
+        )
+
+    def adjudicate_claim(self, claim, candidates, page_count: int) -> JudgmentBatch:
+        return self.judge_claims([(claim, candidates)], page_count)
+
+
 def test_service_runs_claim_to_evidence_flow() -> None:
     settings = Settings(
         api_base="https://example.invalid/v1",
@@ -125,3 +148,77 @@ def test_service_retries_invalid_evidence_ids_automatically() -> None:
 
     assert run.audits[0].judgment.label == AutoLabel.SUPPORTED
     assert run.audits[0].judgment.evidence_ids == ["C001_e1"]
+
+
+def test_service_validates_evidence_after_label_calibration() -> None:
+    settings = Settings(api_base="https://example.invalid/v1", api_key="test", model="hy3")
+    paper = ParsedPaper(
+        title="Test Paper",
+        page_count=1,
+        chunks=[
+            PaperChunk(
+                chunk_id="p1_b1",
+                page=1,
+                content="On Dataset A, the method improves F1 by 3.2 points.",
+            )
+        ],
+    )
+    service = AuditService(  # type: ignore[arg-type]
+        settings,
+        client=LabelCalibrationRequiresEvidenceClient(),
+    )
+
+    run = service.audit(
+        paper,
+        "该结果被归属于另一团队。",
+        [ClaimCategory.RESULTS],
+    )
+
+    assert run.audits[0].judgment.label == AutoLabel.ABSTAIN
+    assert run.audits[0].judgment.evidence_ids == []
+
+
+def test_service_rejects_oversized_report_before_model_call() -> None:
+    settings = Settings(api_base="https://example.invalid/v1", api_key="test", model="hy3")
+    paper = ParsedPaper(
+        title="Test Paper",
+        page_count=1,
+        chunks=[PaperChunk(chunk_id="p1_b1", page=1, content="Evidence")],
+    )
+    service = AuditService(settings, client=FakeHy3Client())  # type: ignore[arg-type]
+
+    try:
+        service.audit(
+            paper,
+            "x" * (MAX_AUDIT_REPORT_CHARS + 1),
+            [ClaimCategory.RESULTS],
+        )
+    except ValueError as exc:
+        assert "100,000" in str(exc)
+    else:
+        raise AssertionError("oversized report was accepted")
+
+
+def test_evaluation_validates_evidence_after_label_calibration() -> None:
+    judgment = ClaimJudgment(
+        claim_id="C001",
+        label=AutoLabel.NO_SUPPORT_FOUND,
+        evidence_ids=[],
+        explanation="错误归属。",
+        claim_error_type=ClaimErrorType.WRONG_ATTRIBUTION,
+        severity=Severity.HIGH,
+    )
+    candidates = [
+        EvidenceCandidate(
+            evidence_id="C001_e1",
+            chunk_id="p1_b1",
+            page=1,
+            text="Evidence",
+            score=1.0,
+        )
+    ]
+
+    validated = _validated_judgment(judgment, candidates)
+
+    assert validated.label == AutoLabel.ABSTAIN
+    assert validated.evidence_ids == []

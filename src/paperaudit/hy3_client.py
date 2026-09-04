@@ -752,6 +752,11 @@ Label rules:
 - For attribution claims, if the evidence explicitly credits a different person/team (for
   example, the paper lists its own authors while the report credits another team), use
   CONTRADICTED with error type wrong_attribution; do not use NO_SUPPORT_FOUND.
+- When error types overlap, apply this priority: an explicit conflicting value, count, metric,
+  time, or resource quantity is numeric_or_metric_mismatch; otherwise an explicit negation of
+  the same proposition is contradiction; only then use missing_condition or overgeneralization
+  when the core fact remains supported. A universal word does not override an exact numeric
+  mismatch or direct negation.
 - NO_SUPPORT_FOUND: candidates were searched but none support the claim.
 - ABSTAIN: candidates are ambiguous, incomplete, or parsing quality prevents a reliable decision.
 
@@ -794,6 +799,11 @@ Resolve these boundaries carefully:
   CONTRADICTED.
 - Use missing_condition for an omitted necessary setup or applicability condition; use
   overgeneralization when a bounded experiment is expanded to all/every/always settings.
+- When error types overlap, use numeric_or_metric_mismatch first for conflicting explicit values,
+  counts, metrics, times, or resource quantities. Otherwise use contradiction for an explicit
+  negation of the same proposition. Use missing_condition or overgeneralization only when the
+  core fact remains supported; a universal word does not override an exact numeric mismatch or
+  direct negation.
 - Use NO_SUPPORT_FOUND with external_hallucination when the claimed subject, dataset, or result is
   absent; do not call an absent setting a numeric mismatch merely because another number appears.
 - An exact supported fact remains SUPPORTED when evidence includes extra context that is not a
