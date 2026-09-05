@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+import re
 
 from .models import AutoLabel, ClaimErrorType, ClaimJudgment, EvidenceCandidate, Severity
 
@@ -99,6 +100,11 @@ def needs_second_pass(judgment: ClaimJudgment, claim_text: str = "") -> bool:
 
     error = judgment.claim_error_type
     lowered = claim_text.casefold()
+    # Review suspiciously mild results, without assigning risk from keywords.
+    if error in _MEDIUM_RISK_ERRORS and (
+        re.search(r"\d|证明|最优|保证|\b(?:prov\w*|optimal\w*|guarantee\w*)\b", lowered)
+    ):
+        return True
     if any(
         marker in lowered
         for marker in (

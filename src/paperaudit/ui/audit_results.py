@@ -15,7 +15,7 @@ from paperaudit.models import (
     ParsedPaper,
     Severity,
 )
-from paperaudit.reporting import render_markdown
+from paperaudit.reporting import SKIP_REASON_LABELS, render_markdown
 from paperaudit.service import refresh_evidence_anchors
 from paperaudit.ui.components import (
     audit_evidence_label,
@@ -133,6 +133,11 @@ def render_audit_results(
     evidence_anchors = _audit_evidence_anchors(run, paper)
 
     render_audit_summary(run.summary, run.audits)
+    if run.source_count:
+        with st.expander(f"原文抽取核对 · {run.source_count} 句 · {len(run.skipped_sources)} 句未抽取"):
+            st.caption("已核对每句均有返回。模型跳过的内容列在下方；句内是否漏掉事实仍需结合原文复核。")
+            for source in run.skipped_sources:
+                st.text(f"{source.report_location} · {SKIP_REASON_LABELS[source.reason]}\n{source.text}")
     tab_audit, tab_dimensions, tab_report = st.tabs(
         ["逐条审计", "六维分析", "报告导出"]
     )

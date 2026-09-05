@@ -218,6 +218,34 @@ def build_claim_query(claim: AtomicClaim) -> str:
     return " ".join(values)
 
 
+def report_evidence_pages(anchor: str | None) -> set[int]:
+    """Recognize explicit paper page references, never slide provenance."""
+    return {int(a or b) for a, b in re.findall(
+        r"第\s*(\d+)\s*页|\b(?:pages?|p\.?)[ \t]*(\d+)\b", anchor or "", re.I
+    )}
+
+
+def supplement_claim_evidence(
+    claim: AtomicClaim, chunks: list[PaperChunk], candidates: list[EvidenceCandidate],
+) -> list[EvidenceCandidate]:
+    """Add at most five local chunks, preserving all existing evidence IDs."""
+    existing = {item.chunk_id for item in candidates}
+    pages = report_evidence_pages(claim.provided_evidence)
+    cited = [chunk for chunk in chunks if chunk.page in pages and chunk.chunk_id not in existing]
+    additions = []
+    if cited:
+        with EvidenceRetriever(cited) as retriever:
+            additions = retriever.search(claim.query_en, claim.claim_id, 5)
+    # Search beyond the original top-k; do not simply rejudge the same pool.
+    remaining = [chunk for chunk in chunks if chunk.chunk_id not in existing | {c.chunk_id for c in additions}]
+    if len(additions) < 5 and remaining:
+        with EvidenceRetriever(remaining) as retriever:
+            additions.extend(retriever.search(claim.query_en, claim.claim_id, 5 - len(additions)))
+    return candidates + [item.model_copy(update={
+        "evidence_id": f"{claim.claim_id}_e{len(candidates) + index + 1}",
+    }) for index, item in enumerate(additions)]
+
+
 class EvidenceRetriever:
     def __init__(self, chunks: list[PaperChunk]):
         self._chunks = chunks

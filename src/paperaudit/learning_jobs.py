@@ -74,15 +74,7 @@ class LearningJobManager:
         try:
             saved = self._store.load_learning_project(project_id)
             report = self._service_factory(settings).generate_learning_report(saved.paper)
-            self._store.save_learning_project(
-                saved.pdf_bytes,
-                saved.metadata.original_filename,
-                saved.paper,
-                report,
-                saved.codebase,
-                saved.paper_history,
-                saved.joint_history,
-            )
+            self._store.save_learning_report(project_id, report)
             completed = job.model_copy(
                 update={
                     "status": AuditJobStatus.SUCCEEDED,

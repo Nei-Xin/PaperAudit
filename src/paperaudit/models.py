@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -512,10 +513,21 @@ class AtomicClaim(StrictModel):
     dataset: str | None = None
     provided_evidence: str | None = None
     report_location: str | None = None
+    source_id: str | None = None
+    source_quote: str | None = None
+
+
+class SkippedReportSource(StrictModel):
+    source_id: str
+    text: str
+    report_location: str
+    reason: Literal["heading", "opinion", "out_of_scope", "non_claim"]
 
 
 class ClaimExtraction(StrictModel):
     claims: list[AtomicClaim]
+    source_count: int = 0
+    skipped_sources: list[SkippedReportSource] = Field(default_factory=list)
 
 
 class EvidenceCandidate(StrictModel):
@@ -539,6 +551,11 @@ class ClaimJudgment(StrictModel):
 
 class JudgmentBatch(StrictModel):
     judgments: list[ClaimJudgment]
+
+
+class EvidenceReview(StrictModel):
+    evidence_sufficient: bool
+    judgment: ClaimJudgment
 
 
 class ClaimAudit(StrictModel):
@@ -577,6 +594,8 @@ class AuditRun(StrictModel):
     audits: list[ClaimAudit]
     summary: AuditSummary
     parse_warnings: list[str] = Field(default_factory=list)
+    source_count: int = 0
+    skipped_sources: list[SkippedReportSource] = Field(default_factory=list)
 
 
 class AuditJobStatus(str, Enum):

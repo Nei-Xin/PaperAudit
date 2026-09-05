@@ -261,6 +261,21 @@ def test_adding_learning_report_upgrades_audit_only_project(tmp_path: Path) -> N
     assert store.load_learning_project(upgraded.project_id).report == _report()
 
 
+def test_regenerating_same_pdf_preserves_all_conversations(tmp_path: Path) -> None:
+    store, project_id = _saved_store(tmp_path)
+    first, second = [replace(make_conversation(title), paper_history=[PaperAnswer(
+        question=title, answer="answer", status=AnswerStatus.ANSWERED,
+    )]) for title in ("方法问题", "实验问题")]
+    store.save_conversations(project_id, [first, second], second.conversation_id)
+    before = (store._project_dir(project_id) / "session.json").read_bytes()
+    store.save_learning_project(b"audit-paper", "renamed.pdf", _paper(), _report())
+
+    assert (store._project_dir(project_id) / "session.json").read_bytes() == before
+    restored = store.load_learning_project(project_id)
+    assert restored.conversations == [first, second]
+    assert restored.active_conversation_id == second.conversation_id
+
+
 def test_invalid_project_id_is_rejected(tmp_path: Path) -> None:
     store = ProjectStore(tmp_path / "library")
 
