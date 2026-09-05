@@ -171,11 +171,12 @@ def render_audit_summary(summary: AuditSummary, audits: list[ClaimAudit]) -> Non
         f"未找到支持 {counts[AutoLabel.NO_SUPPORT_FOUND]} · "
         f"证据不足 {counts[AutoLabel.ABSTAIN]} · "
         f"完全支持率 {fully_supported_rate(audits):.1f}% · "
+        f"已抽取论断非弃权比例 {summary.audit_coverage:.1f}% · "
         f"候选证据检索覆盖率 {summary.evidence_discovery_rate:.1f}%"
     )
     st.markdown(
         f'<div class="pa-audit-summary-meta"><span>{summary_details}</span>'
-        f'<small>综合总分同时考虑内容覆盖和引用情况，不等同于事实正确率。</small></div>',
+        f'<small>综合总分不等同于事实正确率；非弃权比例不代表报告原文抽取完整率。</small></div>',
         unsafe_allow_html=True,
     )
 

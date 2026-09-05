@@ -57,3 +57,22 @@ def test_calibrate_judgment_does_not_promote_negative_label_without_error_type()
         calibrated = calibrate_judgment(_judgment(label, None, Severity.NONE))
 
         assert calibrated.label == label
+
+
+def test_mild_numeric_and_proof_errors_get_review_without_keyword_escalation() -> None:
+    mild = _judgment(AutoLabel.PARTIALLY_SUPPORTED, ClaimErrorType.OVERGENERALIZATION, Severity.MEDIUM)
+    for text in ("提升了 50%", "已证明最优性", "provably optimal"):
+        assert needs_second_pass(mild, text)
+    assert not needs_second_pass(mild, "方法适用范围更广")
+    supported = _judgment(AutoLabel.SUPPORTED, None, Severity.NONE)
+    assert not needs_second_pass(supported, "在数据集 A 上提升 50%")
+    assert calibrate_judgment(supported).severity == Severity.NONE
+
+
+def test_unsupported_core_result_is_high_but_scope_only_error_is_medium() -> None:
+    invented = _judgment(AutoLabel.PARTIALLY_SUPPORTED, ClaimErrorType.EXTERNAL_HALLUCINATION, Severity.MEDIUM)
+    result = calibrate_judgment(invented)
+    assert result.label == AutoLabel.NO_SUPPORT_FOUND
+    assert result.severity == Severity.HIGH
+    scoped = _judgment(AutoLabel.PARTIALLY_SUPPORTED, ClaimErrorType.OVERGENERALIZATION, Severity.MEDIUM)
+    assert calibrate_judgment(scoped).severity == Severity.MEDIUM

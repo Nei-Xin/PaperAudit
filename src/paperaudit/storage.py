@@ -466,24 +466,32 @@ class ProjectStore:
         paper_history: Sequence[PaperAnswer] = (),
         joint_history: Sequence[JointAnswer] = (),
     ) -> ProjectMetadata:
-        metadata = self.save_paper_project(pdf_bytes, original_filename, paper)
-        project_id = metadata.project_id
+        project_id = self.project_id(pdf_bytes)
         project_dir = self._project_dir(project_id)
-        metadata_path = project_dir / "metadata.json"
-        metadata = ProjectMetadata(
-            project_id=project_id,
-            title=report.paper_title,
-            original_filename=original_filename,
-            created_at=metadata.created_at,
-            updated_at=_utc_now(),
-            has_code=codebase is not None or (project_dir / "codebase.json").exists(),
-            has_learning_report=True,
-            has_peer_review=bool(getattr(metadata, "has_peer_review", False)),
-        )
-        _atomic_write(project_dir / "learning-report.json", report.model_dump_json(indent=2).encode("utf-8"))
+        if not (project_dir / "metadata.json").exists():
+            self.save_paper_project(pdf_bytes, original_filename, paper)
+            self._save_session(project_dir, paper_history, joint_history)
+        # Existing conversations belong to their own save path. Re-uploading
+        # the same PDF must not reset them to empty or legacy history snapshots.
         if codebase is not None:
             _atomic_write(project_dir / "codebase.json", codebase.model_dump_json(indent=2).encode("utf-8"))
-        self._save_session(project_dir, paper_history, joint_history)
+        return self.save_learning_report(project_id, report)
+
+    def save_learning_report(self, project_id: str, report: LearningReport) -> ProjectMetadata:
+        """Save a generated report without writing a stale project snapshot."""
+        project_dir = self._require_project_dir(project_id)
+        metadata_path = project_dir / "metadata.json"
+        try:
+            current = _metadata_from_dict(json.loads(metadata_path.read_text(encoding="utf-8")))
+        except (OSError, KeyError, TypeError, ValueError) as exc:
+            raise StorageError("项目元数据已损坏，无法保存讲解。") from exc
+        _atomic_write(project_dir / "learning-report.json", report.model_dump_json(indent=2).encode("utf-8"))
+        metadata = replace(
+            current,
+            updated_at=_utc_now(),
+            has_learning_report=True,
+            has_code=(project_dir / "codebase.json").exists(),
+        )
         _atomic_write_json(metadata_path, metadata.__dict__)
         return metadata
 

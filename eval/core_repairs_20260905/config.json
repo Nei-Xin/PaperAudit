@@ -1,0 +1,653 @@
+{
+  "created_at": "2026-09-05T03:13:09.495601+00:00",
+  "runtime": {
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "temperature": 0.2,
+    "top_p": 1.0,
+    "retrieval_top_k": 5,
+    "judge_batch_size": 6,
+    "max_paper_chars": 120000,
+    "prompt_source_sha256": "0caf57f60a04ecd0bd20e8afccb3146f71d2249d47c7ee996bf92a4ea1ab701b",
+    "audit_rules_sha256": "948ad1e0c7d538744622d811207f931431696a243666ec5b6e5c5974d831fd07",
+    "scoring_sha256": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "service_sha256": "0629be5f58f398c1c359010b117ddc3f716e928e974445f6d63fe017a4295097",
+    "runner_sha256": "772654d28676a3911c8b307b8c04e92021216c80e417537b7207c951eaee93d2"
+  },
+  "reports": [
+    {
+      "report_id": "R002",
+      "paper_id": "guo2017_deepfm",
+      "tier": "medium",
+      "report_path": "reports/R002.md",
+      "report_sha256": "b9eedcfa9490b433609284a5e531291b6332534632778b6e40205d4c48d141e3",
+      "character_count": 588,
+      "claim_count": 10
+    },
+    {
+      "report_id": "R005",
+      "paper_id": "ulyanov2017_deep_image_prior",
+      "tier": "high",
+      "report_path": "reports/R005.md",
+      "report_sha256": "785b65c3e9e521e02bb8af5eb79383d774f31922a53393ab428cf09f7291c78f",
+      "character_count": 568,
+      "claim_count": 10
+    },
+    {
+      "report_id": "R018",
+      "paper_id": "abadi2016_differential_privacy",
+      "tier": "low",
+      "report_path": "reports/R018.md",
+      "report_sha256": "50ab32d4232b042c8a3c87fd8d5aed6d5fb0530a5cda38699b7e018d70a9d4ac",
+      "character_count": 562,
+      "claim_count": 10
+    }
+  ],
+  "expected": {
+    "R002": [
+      {
+        "source_sample_id": "guo2017_deepfm_research_question",
+        "category": "research_question",
+        "high_text": "论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "text": "论文研究如何在点击率预测中同时学习低阶和高阶特征交互，并减少人工特征工程。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0004",
+        "report_location": "第 7 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_001",
+        "category": "contribution",
+        "high_text": "DeepFM 同时建模低阶和高阶特征交互。",
+        "low_text": "DeepFM 同时建模低阶和高阶特征交互。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "DeepFM 同时建模低阶和高阶特征交互。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0006",
+        "report_location": "第 11 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_002",
+        "category": "method",
+        "high_text": "DeepFM 除原始特征外不需要特征工程。",
+        "low_text": "DeepFM 除原始特征外不需要特征工程。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "DeepFM 除原始特征外不需要特征工程。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0008",
+        "report_location": "第 15 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_003",
+        "category": "method",
+        "high_text": "DeepFM 同时建模低阶和高阶特征交互。",
+        "low_text": "DeepFM 只建模二阶特征交互。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "contradiction",
+        "source_gold_severity": "high",
+        "text": "DeepFM 同时建模低阶和高阶特征交互。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0009",
+        "report_location": "第 16 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_004",
+        "category": "results",
+        "high_text": "论文在基准数据和商业数据上实验，结果显示相对已有模型具有一致改进。",
+        "low_text": "DeepFM 在所有推荐数据集上都显著优于所有基线。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "source_gold_label": "PARTIALLY_SUPPORTED",
+        "source_gold_error_type": "overgeneralization",
+        "source_gold_severity": "medium",
+        "text": "DeepFM 在所有推荐数据集上都显著优于所有基线。",
+        "gold_label": "PARTIALLY_SUPPORTED",
+        "gold_error_type": "overgeneralization",
+        "gold_severity": "medium",
+        "citation_mode": "valid",
+        "source_id": "S0012",
+        "report_location": "第 21 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_005",
+        "category": "results",
+        "high_text": "DeepFM 的目标是预测用户点击率。",
+        "low_text": "DeepFM 的目标是预测用户点击率。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "DeepFM 的目标是预测用户点击率。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0013",
+        "report_location": "第 22 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_006",
+        "category": "method",
+        "high_text": "DeepFM 的宽部和深部共享相同的原始特征输入与嵌入。",
+        "low_text": "DeepFM 的宽和深组件使用两个完全不同的输入。",
+        "source_page": 2,
+        "gold_evidence_chunk_ids": [
+          "p2_b1"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "contradiction",
+        "source_gold_severity": "high",
+        "text": "DeepFM 的宽部和深部共享相同的原始特征输入与嵌入。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0010",
+        "report_location": "第 17 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_007",
+        "category": "results",
+        "high_text": "DeepFM 在商业数据上相对已有模型表现出一致改进，但论文没有声称点击率提升百分之百。",
+        "low_text": "DeepFM 在商业数据上提升 CTR 100%。",
+        "source_page": 2,
+        "gold_evidence_chunk_ids": [
+          "p2_b5"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "numeric_or_metric_mismatch",
+        "source_gold_severity": "high",
+        "text": "DeepFM 在所有商业点击率预测场景中都带来一致提升。",
+        "gold_label": "PARTIALLY_SUPPORTED",
+        "gold_error_type": "overgeneralization",
+        "gold_severity": "medium",
+        "citation_mode": "valid",
+        "source_id": "S0014",
+        "report_location": "第 23 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "deepfm_final_008",
+        "category": "results",
+        "high_text": "论文在基准数据和商业数据上评估 DeepFM。",
+        "low_text": "DeepFM 已在所有线上广告平台实时部署。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "source_gold_label": "NO_SUPPORT_FOUND",
+        "source_gold_error_type": "external_hallucination",
+        "source_gold_severity": "high",
+        "text": "论文在基准数据和商业数据上评估 DeepFM。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0015",
+        "report_location": "第 24 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "guo2017_deepfm_limitation",
+        "category": "limitations",
+        "high_text": "论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b5"
+        ],
+        "text": "论文只报告基准数据和商业数据上的改进，不能据此推出所有线上广告平台都已部署。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0017",
+        "report_location": "第 28 行 · 第 1 句"
+      }
+    ],
+    "R005": [
+      {
+        "source_sample_id": "ulyanov2017_deep_image_prior_research_question",
+        "category": "research_question",
+        "high_text": "论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b9"
+        ],
+        "text": "论文研究未经数据集预训练的生成网络结构能否充当图像恢复先验。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0004",
+        "report_location": "第 7 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_001",
+        "category": "contribution",
+        "high_text": "随机初始化的网络可以作为图像恢复的手工先验。",
+        "low_text": "随机初始化的网络可以作为图像恢复的手工先验。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b9"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "随机初始化的网络可以作为图像恢复的手工先验。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0006",
+        "report_location": "第 11 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_002",
+        "category": "method",
+        "high_text": "DIP 可用于去噪、超分辨率和修复。",
+        "low_text": "DIP 可用于去噪、超分辨率和修复。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b9"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "DIP 可用于去噪、超分辨率和修复。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0008",
+        "report_location": "第 15 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_003",
+        "category": "method",
+        "high_text": "DIP 的网络权重始终随机初始化，不从大型图像数据集预训练。",
+        "low_text": "DIP 的网络权重从大型图像数据集预训练得到。",
+        "source_page": 2,
+        "gold_evidence_chunk_ids": [
+          "p2_b4"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "contradiction",
+        "source_gold_severity": "high",
+        "text": "DIP 的网络权重始终随机初始化，不从大型图像数据集预训练。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0009",
+        "report_location": "第 16 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_004",
+        "category": "results",
+        "high_text": "DIP 在论文测试的多种逆问题上表现良好，包括去噪、超分辨率和修复。",
+        "low_text": "DIP 在所有图像任务上都达到最先进性能。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b30"
+        ],
+        "source_gold_label": "PARTIALLY_SUPPORTED",
+        "source_gold_error_type": "overgeneralization",
+        "source_gold_severity": "medium",
+        "text": "DIP 在论文测试的多种逆问题上表现良好，包括去噪、超分辨率和修复。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0015",
+        "report_location": "第 24 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_005",
+        "category": "method",
+        "high_text": "DIP 可用于去噪、超分辨率和图像修复。",
+        "low_text": "DIP 只适用于超分辨率，不能用于去噪。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b9"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "contradiction",
+        "source_gold_severity": "high",
+        "text": "DIP 可用于去噪、超分辨率和图像修复。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0010",
+        "report_location": "第 17 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_006",
+        "category": "method",
+        "high_text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。",
+        "low_text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。",
+        "source_page": 2,
+        "gold_evidence_chunk_ids": [
+          "p2_b3"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "DIP 通过在单个退化图像上拟合生成器网络来恢复图像。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0011",
+        "report_location": "第 18 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_007",
+        "category": "method",
+        "high_text": "DIP 的多数实验使用最多约两百万参数的编码器-解码器沙漏架构。",
+        "low_text": "DIP 使用 20 亿个网络参数。",
+        "source_page": 2,
+        "gold_evidence_chunk_ids": [
+          "p2_b18"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "numeric_or_metric_mismatch",
+        "source_gold_severity": "high",
+        "text": "DIP 的多数实验使用最多约两百万参数的编码器-解码器沙漏架构。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0012",
+        "report_location": "第 19 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dip_final_008",
+        "category": "method",
+        "high_text": "论文提供了 DIP 的代码和补充材料。",
+        "low_text": "DIP 已成为商业照片编辑软件的标准组件。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b13"
+        ],
+        "source_gold_label": "NO_SUPPORT_FOUND",
+        "source_gold_error_type": "external_hallucination",
+        "source_gold_severity": "high",
+        "text": "论文提供了 DIP 的代码和补充材料。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0013",
+        "report_location": "第 20 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "ulyanov2017_deep_image_prior_limitation",
+        "category": "limitations",
+        "high_text": "论文报告的是所测试逆问题上的表现，不能据此声称 DIP 在所有图像任务上都达到最先进水平。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b30"
+        ],
+        "text": "论文报告的是所测试逆问题上的表现，不能据此声称 DIP 在所有图像任务上都达到最先进水平。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0017",
+        "report_location": "第 28 行 · 第 1 句"
+      }
+    ],
+    "R018": [
+      {
+        "source_sample_id": "abadi2016_differential_privacy_research_question",
+        "category": "research_question",
+        "high_text": "论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "text": "论文研究如何在差分隐私框架下训练具有非凸目标的深度神经网络。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0004",
+        "report_location": "第 7 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_001",
+        "category": "contribution",
+        "high_text": "论文提出了面向深度学习的差分隐私算法技术。",
+        "low_text": "论文提出了面向深度学习的差分隐私算法技术。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "论文提出了面向深度学习的差分隐私算法技术。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0006",
+        "report_location": "第 11 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_002",
+        "category": "results",
+        "high_text": "实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。",
+        "low_text": "实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b15"
+        ],
+        "source_gold_label": "SUPPORTED",
+        "source_gold_error_type": null,
+        "source_gold_severity": "none",
+        "text": "实验在 MNIST 和 CIFAR-10 图像分类任务上评估方法。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0011",
+        "report_location": "第 20 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_003",
+        "category": "method",
+        "high_text": "该方法能够训练具有非凸目标函数的深度神经网络。",
+        "low_text": "该方法只适用于凸目标函数。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "contradiction",
+        "source_gold_severity": "high",
+        "text": "该方法只适用于凸目标函数。",
+        "gold_label": "CONTRADICTED",
+        "gold_error_type": "contradiction",
+        "gold_severity": "high",
+        "citation_mode": "valid",
+        "source_id": "S0008",
+        "report_location": "第 15 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_004",
+        "category": "results",
+        "high_text": "隐私训练在软件复杂度、训练效率和模型质量方面产生可管理的成本。",
+        "low_text": "隐私保护不会带来任何软件复杂度、训练效率或模型质量成本。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "PARTIALLY_SUPPORTED",
+        "source_gold_error_type": "overgeneralization",
+        "source_gold_severity": "medium",
+        "text": "隐私保护不会带来任何软件复杂度、训练效率或模型质量成本。",
+        "gold_label": "PARTIALLY_SUPPORTED",
+        "gold_error_type": "overgeneralization",
+        "gold_severity": "medium",
+        "citation_mode": "valid",
+        "source_id": "S0012",
+        "report_location": "第 21 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_005",
+        "category": "results",
+        "high_text": "论文在适度的个位数隐私预算下训练深度神经网络。",
+        "low_text": "论文使用单一隐私预算 epsilon=1。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b10"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "numeric_or_metric_mismatch",
+        "source_gold_severity": "high",
+        "text": "论文使用单一隐私预算 epsilon=1。",
+        "gold_label": "CONTRADICTED",
+        "gold_error_type": "numeric_or_metric_mismatch",
+        "gold_severity": "high",
+        "citation_mode": "valid",
+        "source_id": "S0013",
+        "report_location": "第 22 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_006",
+        "category": "limitations",
+        "high_text": "该方法旨在降低模型暴露训练数据中私人信息的风险。",
+        "low_text": "方法保证模型永远不会泄露任何训练信息。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "PARTIALLY_SUPPORTED",
+        "source_gold_error_type": "overgeneralization",
+        "source_gold_severity": "medium",
+        "text": "方法保证模型永远不会泄露任何训练信息。",
+        "gold_label": "PARTIALLY_SUPPORTED",
+        "gold_error_type": "overgeneralization",
+        "gold_severity": "medium",
+        "citation_mode": "valid",
+        "source_id": "S0016",
+        "report_location": "第 27 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_007",
+        "category": "method",
+        "high_text": "论文明确研究了神经网络的差分隐私训练。",
+        "low_text": "论文完全不涉及神经网络训练。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "CONTRADICTED",
+        "source_gold_error_type": "contradiction",
+        "source_gold_severity": "high",
+        "text": "论文完全不涉及神经网络训练。",
+        "gold_label": "CONTRADICTED",
+        "gold_error_type": "contradiction",
+        "gold_severity": "high",
+        "citation_mode": "valid",
+        "source_id": "S0009",
+        "report_location": "第 16 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "dp_final_008",
+        "category": "results",
+        "high_text": "实验表明该方法能够在差分隐私约束下训练深度神经网络。",
+        "low_text": "该隐私训练方法已在医疗生产数据上部署并通过监管认证。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "source_gold_label": "NO_SUPPORT_FOUND",
+        "source_gold_error_type": "external_hallucination",
+        "source_gold_severity": "high",
+        "text": "该隐私训练方法已在医疗生产数据上部署并通过监管认证。",
+        "gold_label": "NO_SUPPORT_FOUND",
+        "gold_error_type": "external_hallucination",
+        "gold_severity": "high",
+        "citation_mode": "valid",
+        "source_id": "S0014",
+        "report_location": "第 23 行 · 第 1 句"
+      },
+      {
+        "source_sample_id": "abadi2016_differential_privacy_limitation",
+        "category": "limitations",
+        "high_text": "论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。",
+        "source_page": 1,
+        "gold_evidence_chunk_ids": [
+          "p1_b7"
+        ],
+        "text": "论文将隐私训练的代价描述为可管理，而不是完全没有软件、效率或模型质量成本。",
+        "gold_label": "SUPPORTED",
+        "gold_error_type": null,
+        "gold_severity": "none",
+        "citation_mode": "valid",
+        "source_id": "S0017",
+        "report_location": "第 28 行 · 第 1 句"
+      }
+    ]
+  },
+  "source_sha256": {
+    "src\\paperaudit\\audit_jobs.py": "4d351f03545cafc8a8ce3171e16abc96af7ea08d69efdaab62b4aadbc239ca1e",
+    "src\\paperaudit\\audit_rules.py": "948ad1e0c7d538744622d811207f931431696a243666ec5b6e5c5974d831fd07",
+    "src\\paperaudit\\claim_extraction.py": "af8ebc15593749a3af504b5188628ee1f1783f28c4c9acde7cd7a990bf9a04d7",
+    "src\\paperaudit\\code_parser.py": "8aaa4fd2f5089a1b66641d2d1d29c1094feff6975b920023e55fb1fc065ddbce",
+    "src\\paperaudit\\code_retrieval.py": "ece1873c5025902b4342b76ef2c0644a5baca038184f6d60c14f50be3c9e462a",
+    "src\\paperaudit\\code_service.py": "6921c327284d1af75edcd0c3585affc3fed8b1ce12c3efecf91581747daf6c0f",
+    "src\\paperaudit\\config.py": "c4b720b8fc2b207fe77a242c3c8a4f219eb2f9a6a4c733c19b8fb4665977c7af",
+    "src\\paperaudit\\display.py": "a9cf821bb6a763765f607fd0224df37839952340adf67b710ad25325ec84bdb2",
+    "src\\paperaudit\\hy3_client.py": "0caf57f60a04ecd0bd20e8afccb3146f71d2249d47c7ee996bf92a4ea1ab701b",
+    "src\\paperaudit\\learning_jobs.py": "ca416d995af25ed617c9cb6425e00526b473fb9eb236fd41d67d7d1ab2b4cbb3",
+    "src\\paperaudit\\models.py": "234920d79ff62f6cea15c5de4eaba8a269ca0a6e4b5c9a95eb396b4b605130e7",
+    "src\\paperaudit\\pdf_parser.py": "d7900f1bde27444372fd2c5ec3ba79094c769419c50486865fff1a7277aad803",
+    "src\\paperaudit\\peer_review_jobs.py": "a6d9f186daebc5c45fd57d79699062fae397a5d7bdabf61552b07a26d5e461ae",
+    "src\\paperaudit\\reporting.py": "1e8db00c7e23a66be8188cc2ccf8a4ec068500feff65d2d08164691f23b505c7",
+    "src\\paperaudit\\report_input.py": "aab2816c84563ae3e2b4467488e7c176fd3a9c7ac922ce148f94fdb880618539",
+    "src\\paperaudit\\retrieval.py": "15f94e541593c88b7c916e646a44f4d3fb2ee1cda66064e1ddc998a17ef0c5f0",
+    "src\\paperaudit\\scoring.py": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "src\\paperaudit\\service.py": "0629be5f58f398c1c359010b117ddc3f716e928e974445f6d63fe017a4295097",
+    "src\\paperaudit\\storage.py": "1e82a5e1ed087af062d88418f884ceac0730edcf244e70fa96e5dc1332b303b4",
+    "src\\paperaudit\\__init__.py": "8df01b7e92930dd8d5376d9f1b462cc914e33c5eed77546f52706441949d8e5c"
+  },
+  "policy": "Known failing development reports, one run each. Preserve old validation; no independent quality claim."
+}

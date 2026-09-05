@@ -1,0 +1,140 @@
+{
+  "production_code_unchanged": true,
+  "citations": [
+    {
+      "report_id": "R002",
+      "repeat": 1,
+      "expected_anchored_sources": 8,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 87.5,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 75.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 62.5
+      }
+    },
+    {
+      "report_id": "R002",
+      "repeat": 2,
+      "expected_anchored_sources": 8,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 66.7,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 71.4
+      }
+    },
+    {
+      "report_id": "R002",
+      "repeat": 3,
+      "expected_anchored_sources": 8,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 100.0,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 75.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 75.0
+      }
+    },
+    {
+      "report_id": "R005",
+      "repeat": 1,
+      "expected_anchored_sources": 10,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 90.0,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 100.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      }
+    },
+    {
+      "report_id": "R005",
+      "repeat": 2,
+      "expected_anchored_sources": 10,
+      "retained_anchored_sources": 3,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 88.9,
+        "evidence_correctness": 100.0,
+        "evidence_completeness": 33.3,
+        "numeric_consistency": 100.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      }
+    },
+    {
+      "report_id": "R005",
+      "repeat": 3,
+      "expected_anchored_sources": 10,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 90.0,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 100.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      }
+    },
+    {
+      "report_id": "R018",
+      "repeat": 1,
+      "expected_anchored_sources": 10,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 42.9,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      }
+    },
+    {
+      "report_id": "R018",
+      "repeat": 2,
+      "expected_anchored_sources": 10,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 37.5,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      }
+    },
+    {
+      "report_id": "R018",
+      "repeat": 3,
+      "expected_anchored_sources": 10,
+      "retained_anchored_sources": 0,
+      "fabricated_evidence_detected": false,
+      "dimensions": {
+        "factual_support": 33.3,
+        "evidence_correctness": null,
+        "evidence_completeness": 0.0,
+        "numeric_consistency": 0.0,
+        "content_coverage": 100.0,
+        "conclusion_boundary": 100.0
+      }
+    }
+  ]
+}

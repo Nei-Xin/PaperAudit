@@ -31,6 +31,7 @@ from .models import (
     JudgmentBatch,
     EvidenceAnchor,
     EvidenceCandidate,
+    EvidenceErrorType,
     LearningReport,
     PeerReviewReport,
     PeerReviewRevision,
@@ -56,7 +57,7 @@ from .models import (
     Severity,
 )
 from .pdf_parser import parse_pdf
-from .retrieval import EvidenceRetriever, build_claim_query
+from .retrieval import EvidenceRetriever, build_claim_query, report_evidence_pages, supplement_claim_evidence
 from .scoring import build_summary
 
 
@@ -1957,6 +1958,34 @@ class AuditService:
                 )
             judgment = calibrate_judgment(judgment)
             judgment = validate_judgment_references(judgment, candidates)
+            if judgment.label == AutoLabel.NO_SUPPORT_FOUND and judgment.severity == Severity.HIGH:
+                notify("正在补查高风险无支持结论", 0.9)
+                candidates = supplement_claim_evidence(claim, paper.chunks, candidates)
+                review = None
+                try:
+                    review = self.client.review_missing_support(claim, candidates, paper.page_count)
+                except Hy3ResponseError:
+                    pass
+                if (review is not None and review.evidence_sufficient
+                        and review.judgment.claim_id == claim.claim_id
+                        and review.judgment.evidence_ids):
+                    judgment = validate_judgment_references(calibrate_judgment(review.judgment), candidates)
+                else:
+                    judgment = ClaimJudgment(
+                        claim_id=claim.claim_id, label=AutoLabel.ABSTAIN,
+                        explanation="已补查引用页及其他候选片段，现有证据仍不足以可靠判断，请结合论文原文人工复核。",
+                        severity=Severity.NONE,
+                    )
+            invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
+                                   if not 1 <= page <= paper.page_count)
+            if invalid_pages:
+                # A locally provable citation error remains visible even if the
+                # claim's support relationship is unresolved or supported.
+                judgment = judgment.model_copy(update={
+                    "evidence_error_type": EvidenceErrorType.FABRICATED_EVIDENCE,
+                    "severity": Severity.HIGH,
+                    "explanation": judgment.explanation + f" 报告引用页码 {invalid_pages} 超出论文的 1–{paper.page_count} 页范围。",
+                })
             audits.append(ClaimAudit(claim=claim, candidates=candidates, judgment=judgment))
 
         notify("正在生成审计摘要", 0.95)
@@ -1971,4 +2000,6 @@ class AuditService:
             audits=audits,
             summary=summary,
             parse_warnings=paper.warnings,
+            source_count=extraction.source_count,
+            skipped_sources=extraction.skipped_sources,
         )

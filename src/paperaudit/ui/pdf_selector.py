@@ -79,9 +79,21 @@ _PDF_SELECTOR_CSS = """
   user-select: text;
   transform-origin: left top;
 }
-.pa-pdf-word::selection {
+.pa-pdf-text-layer::selection,
+.pa-pdf-text-layer *::selection {
   color: transparent;
-  background: rgba(37, 99, 235, .34);
+  background: transparent;
+}
+.pa-pdf-user-selection {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.pa-pdf-selection-mark {
+  position: absolute;
+  background: rgba(37, 99, 235, .25);
+  border-radius: 2px;
 }
 .pa-pdf-selection-action {
   position: absolute;
@@ -123,6 +135,7 @@ _PDF_SELECTOR_CSS = """
   font-weight: 650;
   letter-spacing: .01em;
   cursor: pointer;
+  user-select: none;
 }
 .pa-pdf-selection-action:hover { background: #0f6047; }
 .pa-pdf-selection-action:hover::after { border-top-color: #0f6047; }
@@ -187,6 +200,9 @@ export default function(component) {
     wordNodes.push(span);
   }
   frame.appendChild(textLayer);
+  const selectionLayer = document.createElement('div');
+  selectionLayer.className = 'pa-pdf-user-selection';
+  frame.appendChild(selectionLayer);
 
   const action = document.createElement('div');
   action.className = 'pa-pdf-selection-action';
@@ -201,6 +217,7 @@ export default function(component) {
 
   const positionWords = () => {
     const scale = frame.clientWidth / data.page_width;
+    const measure = document.createElement('canvas').getContext('2d');
     for (const span of wordNodes) {
       const x0 = Number(span.dataset.x0);
       const y0 = Number(span.dataset.y0);
@@ -208,9 +225,14 @@ export default function(component) {
       const y1 = Number(span.dataset.y1);
       span.style.left = `${x0 * scale}px`;
       span.style.top = `${y0 * scale}px`;
-      span.style.width = `${Math.max((x1 - x0) * scale, 1)}px`;
       span.style.height = `${Math.max((y1 - y0) * scale, 1)}px`;
-      span.style.fontSize = `${Math.max((y1 - y0) * scale * .88, 4)}px`;
+      const fontSize = Math.max((y1 - y0) * scale * .88, 4);
+      span.style.fontSize = `${fontSize}px`;
+      span.style.fontFamily = 'serif';
+      measure.font = `${fontSize}px serif`;
+      const textWidth = Math.max(measure.measureText(span.textContent.trimEnd()).width, 1);
+      span.style.width = `${textWidth}px`;
+      span.style.transform = `scaleX(${Math.max((x1 - x0) * scale, 1) / textWidth})`;
     }
   };
 
@@ -241,7 +263,20 @@ export default function(component) {
   };
   const hideAction = () => {
     pendingSelection = null;
+    selectionLayer.replaceChildren();
     action.classList.remove('is-visible');
+  };
+  const showSelection = (rects) => {
+    selectionLayer.replaceChildren();
+    for (const rect of rects) {
+      const marker = document.createElement('div');
+      marker.className = 'pa-pdf-selection-mark';
+      marker.style.left = `${rect.x0 / data.page_width * 100}%`;
+      marker.style.top = `${rect.y0 / data.page_height * 100}%`;
+      marker.style.width = `${(rect.x1 - rect.x0) / data.page_width * 100}%`;
+      marker.style.height = `${(rect.y1 - rect.y0) / data.page_height * 100}%`;
+      selectionLayer.appendChild(marker);
+    }
   };
   const positionAction = (anchorBox, frameBox) => {
     const edge = 12;
@@ -256,12 +291,14 @@ export default function(component) {
     const preferredLeft = anchorBox.left - frameBox.left;
     const maxLeft = Math.max(edge, frameBox.width - actionWidth - edge);
     const localLeft = Math.max(edge, Math.min(preferredLeft, maxLeft));
+    const visibleTop = Math.max(edge, -frameBox.top + edge);
+    const visibleBottom = Math.min(frameBox.height - edge, window.innerHeight - frameBox.top - edge);
     const above = anchorBox.top - frameBox.top - actionHeight - gap;
     const below = anchorBox.bottom - frameBox.top + gap;
-    const placeAbove = above >= edge;
+    const placeAbove = below + actionHeight > visibleBottom && above >= visibleTop;
     const preferredTop = placeAbove ? above : below;
-    const maxTop = Math.max(edge, frameBox.height - actionHeight - edge);
-    const localTop = Math.max(edge, Math.min(preferredTop, maxTop));
+    const maxTop = Math.max(visibleTop, visibleBottom - actionHeight);
+    const localTop = Math.max(visibleTop, Math.min(preferredTop, maxTop));
 
     action.classList.toggle('is-above', placeAbove);
     action.classList.toggle('is-below', !placeAbove);
@@ -276,24 +313,41 @@ export default function(component) {
       return;
     }
     const range = readRange(selection);
-    if (!range || range.collapsed) {
+    if (!range || range.collapsed || !textLayer.contains(range.startContainer) || !textLayer.contains(range.endContainer)) {
       hideAction();
       return;
     }
     const text = range.toString().replace(/\s+/g, ' ').trim();
-    if (text.length < 4) {
+    if (!text) {
       hideAction();
       return;
     }
     const frameBox = frame.getBoundingClientRect();
     const scaleX = data.page_width / frameBox.width;
     const scaleY = data.page_height / frameBox.height;
-    const clientRects = Array.from(range.getClientRects())
-      .filter(rect =>
-        rect.width > 0 && rect.height > 0 &&
-        rect.right >= frameBox.left && rect.left <= frameBox.right &&
-        rect.bottom >= frameBox.top && rect.top <= frameBox.bottom
-      );
+    // Range rectangles may include ancestor boxes spanning whitespace or a
+    // whole column. Measure only selected text inside actual PDF words.
+    const clientRects = [];
+    for (const word of wordNodes) {
+      if (!range.intersectsNode(word)) continue;
+      const part = document.createRange();
+      part.selectNodeContents(word);
+      if (word.contains(range.startContainer)) part.setStart(range.startContainer, range.startOffset);
+      if (word.contains(range.endContainer)) part.setEnd(range.endContainer, range.endOffset);
+      if (!part.toString().trim()) continue;
+      const box = part.getBoundingClientRect();
+      const wordBox = word.getBoundingClientRect();
+      const rect = {left: Math.max(box.left, wordBox.left), right: Math.min(box.right, wordBox.right),
+        top: wordBox.top, bottom: wordBox.bottom};
+      if (rect.right <= rect.left || rect.bottom <= rect.top) continue;
+      const previous = clientRects[clientRects.length - 1];
+      if (previous && Math.abs(previous.top - rect.top) < 2 && Math.abs(previous.bottom - rect.bottom) < 2
+          && rect.left >= previous.left && rect.left - previous.right < (rect.bottom - rect.top) * .6) {
+        previous.right = Math.max(previous.right, rect.right);
+      } else {
+        clientRects.push(rect);
+      }
+    }
     if (!clientRects.length) {
       hideAction();
       return;
@@ -310,17 +364,25 @@ export default function(component) {
       text: text.slice(0, 2000),
       rects,
     };
-    const anchorBox = {
-      left: Math.min(...clientRects.map(rect => rect.left)),
-      top: Math.min(...clientRects.map(rect => rect.top)),
-      right: Math.max(...clientRects.map(rect => rect.right)),
-      bottom: Math.max(...clientRects.map(rect => rect.bottom)),
-    };
+    showSelection(rects);
+    const anchorBox = clientRects[clientRects.length - 1];
     positionAction(anchorBox, frameBox);
   };
   const handleWordPick = (event) => {
+    const selection = readSelection();
+    const range = selection && readRange(selection);
+    if (range && !range.collapsed && textLayer.contains(range.startContainer) && textLayer.contains(range.endContainer)) {
+      handleSelection(event);
+      return;
+    }
     const word = event.target.closest?.('.pa-pdf-word');
     if (!word) return;
+    const wordRange = document.createRange();
+    wordRange.selectNodeContents(word);
+    if (selection) {
+      selection.removeAllRanges();
+      selection.addRange(wordRange);
+    }
     const text = word.textContent.replace(/\s+/g, ' ').trim();
     if (!text) return;
     const frameBox = frame.getBoundingClientRect();
@@ -337,6 +399,7 @@ export default function(component) {
         y1: Math.min(data.page_height, (wordBox.bottom - frameBox.top) * scaleY),
       }],
     };
+    showSelection(pendingSelection.rects);
     positionAction(wordBox, frameBox);
   };
   const submitSelection = (event) => {
@@ -344,15 +407,40 @@ export default function(component) {
     if (pendingSelection) setTriggerValue('selected', pendingSelection);
   };
 
-  const selectionChanged = () => requestAnimationFrame(() => handleSelection(null));
+  let dragging = false;
+  const selectionChanged = () => {
+    requestAnimationFrame(() => {
+      handleSelection(null);
+      if (dragging) action.classList.remove('is-visible');
+    });
+  };
+  const pointerDown = () => { dragging = true; hideAction(); };
+  const pointerUp = () => {
+    if (!dragging) return;
+    dragging = false;
+    handleSelection(null);
+  };
+  const dismissSelection = (event) => {
+    if (!frame.contains(event.target)) hideAction();
+  };
+  const keyDown = (event) => {
+    if (event.key === 'Escape') {
+      const selection = readSelection();
+      const range = selection && readRange(selection);
+      if (range && textLayer.contains(range.startContainer)) selection.removeAllRanges();
+      hideAction();
+    }
+  };
   if (data.selection_enabled !== false) {
     button.addEventListener('mousedown', event => event.preventDefault());
     button.addEventListener('click', submitSelection);
-    textLayer.addEventListener('mouseup', handleSelection);
-    textLayer.addEventListener('pointerup', handleSelection);
+    textLayer.addEventListener('pointerdown', pointerDown);
+    document.addEventListener('pointerup', pointerUp);
     textLayer.addEventListener('click', handleWordPick);
     textLayer.addEventListener('dblclick', handleWordPick);
     document.addEventListener('selectionchange', selectionChanged);
+    document.addEventListener('pointerdown', dismissSelection);
+    document.addEventListener('keydown', keyDown);
   }
   const resizePage = () => {
     const currentZoom = Math.max(50, Math.min(Number(data.zoom_percent || 100), 180));
@@ -411,11 +499,13 @@ export default function(component) {
     hostResizeObserver.disconnect();
     window.removeEventListener('resize', resizePage);
     button.removeEventListener('click', submitSelection);
-    textLayer.removeEventListener('mouseup', handleSelection);
-    textLayer.removeEventListener('pointerup', handleSelection);
+    textLayer.removeEventListener('pointerdown', pointerDown);
+    document.removeEventListener('pointerup', pointerUp);
     textLayer.removeEventListener('click', handleWordPick);
     textLayer.removeEventListener('dblclick', handleWordPick);
     document.removeEventListener('selectionchange', selectionChanged);
+    document.removeEventListener('pointerdown', dismissSelection);
+    document.removeEventListener('keydown', keyDown);
   };
 }
 """

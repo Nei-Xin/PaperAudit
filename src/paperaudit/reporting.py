@@ -21,6 +21,13 @@ _DIMENSION_LABELS = {
     "conclusion_boundary": "结论边界",
 }
 
+SKIP_REASON_LABELS = {
+    "heading": "标题或页码标记",
+    "opinion": "主观意见",
+    "out_of_scope": "不在本次审计范围",
+    "non_claim": "非事实论断",
+}
+
 
 def render_markdown(run: AuditRun) -> str:
     summary = run.summary
@@ -32,7 +39,7 @@ def render_markdown(run: AuditRun) -> str:
         f"- 页数：{run.page_count}",
         f"- 可信等级：{summary.grade.value}",
         f"- 总分：{summary.total_score if summary.total_score is not None else 'N/A'}",
-        f"- 自动审计覆盖率：{summary.audit_coverage}%",
+        f"- 已抽取论断的非弃权比例：{summary.audit_coverage}%（不代表报告原文抽取完整率）",
         f"- 本次审计论断：{len(run.audits)} 条（根据报告内容自动拆分，数量并非固定）",
         f"- 完全支持论断率：{fully_supported_rate(run.audits)}%",
         f"- 候选证据检索覆盖率：{summary.evidence_discovery_rate}%",
@@ -55,6 +62,15 @@ def render_markdown(run: AuditRun) -> str:
     ]
     for key, value in summary.dimensions.model_dump().items():
         lines.append(f"| {_DIMENSION_LABELS[key]} | {value if value is not None else 'N/A'} |")
+
+    if run.source_count:
+        lines.extend([
+            "", "## 报告原文抽取核对", "",
+            f"原文 {run.source_count} 句；其中 {len(run.skipped_sources)} 句被模型标记为不抽取。",
+            "逐句返回已校验；跳过理由和句内论断完整性仍需结合原文复核。", "",
+        ])
+        for source in run.skipped_sources:
+            lines.append(f"- {source.report_location} · {SKIP_REASON_LABELS[source.reason]}：{source.text}")
 
     attention = sorted(
         [
@@ -155,6 +171,8 @@ def _render_issue(audit: ClaimAudit) -> list[str]:
     ]
     if judgment.suggestion:
         lines.append(f"- 修改建议：{judgment.suggestion}")
+    if audit.claim.source_quote:
+        lines.append(f"- 报告原句摘录：{audit.claim.source_quote}")
     key_evidence = selected_evidence(audit)[:2]
     if key_evidence:
         lines.append(f"- {_evidence_heading(audit)}：")

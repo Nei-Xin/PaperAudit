@@ -7,6 +7,7 @@ from paperaudit.models import (
     EvidenceErrorType,
     PaperChunk,
     ParsedPaper,
+    SkippedReportSource,
 )
 from paperaudit.reporting import render_markdown
 from paperaudit.ui.demo_data import get_demo_audit_run
@@ -60,6 +61,19 @@ def test_no_support_evidence_is_named_as_insufficient_candidate() -> None:
 
     assert "候选片段（不足以支持该论断）" in report
     assert "C004 · 未找到支持证据" in report
+
+
+def test_report_distinguishes_extraction_accounting_from_non_abstention_rate() -> None:
+    run = _report_run().model_copy(update={
+        "source_count": 7,
+        "skipped_sources": [SkippedReportSource(
+            source_id="S0001", text="# 标题", report_location="第 1 行", reason="heading",
+        )],
+    })
+    report = render_markdown(run)
+    assert "不代表报告原文抽取完整率" in report
+    assert "原文 7 句；其中 1 句" in report
+    assert "第 1 行 · 标题或页码标记：# 标题" in report
 
 
 def test_existing_truncated_title_is_recovered_from_first_page_title_block() -> None:

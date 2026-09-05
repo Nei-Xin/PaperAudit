@@ -1,0 +1,49 @@
+{
+  "passed": false,
+  "checks": {
+    "all_expected_facts_extracted": true,
+    "all_citations_preserved": true,
+    "no_supported_high_risk_false_positive": true,
+    "known_high_risk_errors_detected": false,
+    "fake_page_detected": true
+  },
+  "reports": [
+    {
+      "report_id": "R002",
+      "claim_count": 11,
+      "expected_sources": 10,
+      "extracted_sources": 10,
+      "expected_citations": 8,
+      "retained_citations": 8,
+      "supported_high_risk_false_positives": [],
+      "high_risk_expected": 0,
+      "high_risk_detected": 0,
+      "fabricated_page_detected": false
+    },
+    {
+      "report_id": "R005",
+      "claim_count": 10,
+      "expected_sources": 10,
+      "extracted_sources": 10,
+      "expected_citations": 10,
+      "retained_citations": 10,
+      "supported_high_risk_false_positives": [],
+      "high_risk_expected": 0,
+      "high_risk_detected": 0,
+      "fabricated_page_detected": false
+    },
+    {
+      "report_id": "R018",
+      "claim_count": 11,
+      "expected_sources": 10,
+      "extracted_sources": 10,
+      "expected_citations": 10,
+      "retained_citations": 10,
+      "supported_high_risk_false_positives": [],
+      "high_risk_expected": 4,
+      "high_risk_detected": 3,
+      "fabricated_page_detected": true
+    }
+  ],
+  "limitation": "One run of three known development reports, not a new full stability benchmark."
+}

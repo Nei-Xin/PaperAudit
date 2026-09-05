@@ -1711,8 +1711,7 @@ if run_clicked and pdf_file is not None:
                     learning_report,
                     parsed_codebase,
                 )
-                st.session_state["active_project_id"] = metadata.project_id
-                st.session_state["project_original_filename"] = metadata.original_filename
+                _restore_learning_project(project_store, metadata.project_id)
                 st.session_state.pop("project_save_error", None)
                 st.query_params["project"] = metadata.project_id
             except StorageError as exc:
