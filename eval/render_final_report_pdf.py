@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, KeepTogether
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -38,7 +38,14 @@ def main():
         block=block.strip()
         if not block:
             continue
-        if block.startswith('|'):
+        if block.startswith('!['):
+            match=re.fullmatch(r'!\[([^]]*)\]\(([^)]+)\)',block)
+            if not match: raise ValueError('Invalid figure block')
+            figure=Image(str(source.parent/match.group(2)))
+            ratio=491/figure.imageWidth
+            figure.drawWidth=491;figure.drawHeight=figure.imageHeight*ratio
+            story.append(KeepTogether([figure,para(match.group(1)),Spacer(1,10)]))
+        elif block.startswith('|'):
             rows=[[c.strip() for c in line.strip().strip('|').split('|')] for line in block.splitlines()]
             rows=[r for r in rows if not all(re.fullmatch(r'[-: ]+',c) for c in r)]
             count=len(rows[0]); width=491/count
