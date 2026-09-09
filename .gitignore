@@ -22,6 +22,10 @@ docs/*
 !docs/release_v1.md
 !docs/typical_cases.md
 !docs/demo_script.md
+!docs/demo/
+docs/demo/*
+!docs/demo/paperaudit-demo.mp4
+!docs/demo/paperaudit-overview.png
 
 # Evaluation source, manifests and fixed JSONL samples remain visible. Large
 # paper PDFs and exploratory/generated runs are local-only; only the compact

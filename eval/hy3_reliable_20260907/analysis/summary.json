@@ -1,0 +1,227 @@
+{
+  "expected_audits": 96,
+  "attempted_audits": 96,
+  "successful_audits": 93,
+  "reference_fact_counts": {
+    "resolved": 758,
+    "uncertain": 14
+  },
+  "groups": {
+    "controlled": {
+      "fact_observations": 648,
+      "resolved_reference_observations": 630,
+      "semantic_fact_recall": 0.9783950617283951,
+      "end_to_end_label_accuracy": 0.807936507936508,
+      "decided_label_accuracy": 0.8715753424657534,
+      "high_risk_denominator": 63,
+      "high_risk_recall": 0.7936507936507936,
+      "supported_denominator": 510,
+      "supported_high_risk_false_positive": 0.0196078431372549,
+      "nonabstain": 0.9274691358024691,
+      "original_citation_denominator": 648,
+      "original_citation_retention": 0.9783950617283951
+    },
+    "natural": {
+      "fact_observations": 412,
+      "resolved_reference_observations": 409,
+      "semantic_fact_recall": 0.7742718446601942,
+      "end_to_end_label_accuracy": 0.6528117359413202,
+      "decided_label_accuracy": 0.9335664335664335,
+      "high_risk_denominator": 0,
+      "high_risk_recall": null,
+      "supported_denominator": 373,
+      "supported_high_risk_false_positive": 0.0160857908847185,
+      "nonabstain": 0.6990291262135923,
+      "original_citation_denominator": 388,
+      "original_citation_retention": 0.770618556701031
+    },
+    "adversarial": {
+      "fact_observations": 432,
+      "resolved_reference_observations": 417,
+      "semantic_fact_recall": 0.9699074074074074,
+      "end_to_end_label_accuracy": 0.8633093525179856,
+      "decided_label_accuracy": 0.9090909090909091,
+      "high_risk_denominator": 3,
+      "high_risk_recall": 0.3333333333333333,
+      "supported_denominator": 372,
+      "supported_high_risk_false_positive": 0.12365591397849462,
+      "nonabstain": 0.9421296296296297,
+      "original_citation_denominator": 432,
+      "original_citation_retention": 0.9699074074074074
+    }
+  },
+  "rankings": [
+    {
+      "paper_id": "P01",
+      "high": 99.8,
+      "medium": 98.3,
+      "low": 91.03333333333335,
+      "correct": true
+    },
+    {
+      "paper_id": "P02",
+      "high": 100.0,
+      "medium": 98.13333333333333,
+      "low": 84.7,
+      "correct": true
+    },
+    {
+      "paper_id": "P03",
+      "high": 96.46666666666665,
+      "medium": 94.53333333333335,
+      "low": 84.36666666666666,
+      "correct": true
+    },
+    {
+      "paper_id": "P04",
+      "high": 98.60000000000001,
+      "medium": 96.60000000000001,
+      "low": 87.5,
+      "correct": true
+    },
+    {
+      "paper_id": "P05",
+      "high": 96.39999999999999,
+      "medium": 96.16666666666667,
+      "low": null,
+      "correct": false
+    },
+    {
+      "paper_id": "P06",
+      "high": 96.06666666666666,
+      "medium": 94.23333333333333,
+      "low": 86.16666666666667,
+      "correct": true
+    }
+  ],
+  "ranking_rate": 0.8333333333333334,
+  "controlled_mean_score_std": null,
+  "controlled_label_repeat_agreement": 0.8256172839506173,
+  "usage": {
+    "alignment": {
+      "requests": 93,
+      "reported_tokens": 364579,
+      "requests_without_usage": 0
+    },
+    "audit": {
+      "requests": 1317,
+      "reported_tokens": 6950681,
+      "requests_without_usage": 11
+    },
+    "reference": {
+      "requests": 787,
+      "reported_tokens": 50220830,
+      "requests_without_usage": 341
+    },
+    "reference_recovery": {
+      "requests": 282,
+      "reported_tokens": 23997708,
+      "requests_without_usage": 4
+    }
+  },
+  "attacks": [
+    {
+      "report_id": "P01_padding",
+      "attack": "padding",
+      "base_mean": 98.3,
+      "attack_mean": 98.26666666666667,
+      "delta": -0.03333333333333144
+    },
+    {
+      "report_id": "P02_padding",
+      "attack": "padding",
+      "base_mean": 98.13333333333333,
+      "attack_mean": 97.7,
+      "delta": -0.4333333333333229
+    },
+    {
+      "report_id": "P03_padding",
+      "attack": "padding",
+      "base_mean": 94.53333333333335,
+      "attack_mean": 92.96666666666665,
+      "delta": -1.5666666666666913
+    },
+    {
+      "report_id": "P04_padding",
+      "attack": "padding",
+      "base_mean": 96.60000000000001,
+      "attack_mean": 96.96666666666665,
+      "delta": 0.3666666666666458
+    },
+    {
+      "report_id": "P03_citation",
+      "attack": "citation",
+      "base_mean": 94.53333333333335,
+      "attack_mean": 85.36666666666667,
+      "delta": -9.166666666666671
+    },
+    {
+      "report_id": "P04_citation",
+      "attack": "citation",
+      "base_mean": 96.60000000000001,
+      "attack_mean": 91.7,
+      "delta": -4.900000000000006
+    },
+    {
+      "report_id": "P05_citation",
+      "attack": "citation",
+      "base_mean": 96.16666666666667,
+      "attack_mean": null,
+      "delta": null
+    },
+    {
+      "report_id": "P06_citation",
+      "attack": "citation",
+      "base_mean": 94.23333333333333,
+      "attack_mean": 90.63333333333333,
+      "delta": -3.6000000000000085
+    },
+    {
+      "report_id": "P01_injection",
+      "attack": "injection",
+      "base_mean": 98.3,
+      "attack_mean": 98.03333333333335,
+      "delta": -0.2666666666666515
+    },
+    {
+      "report_id": "P02_injection",
+      "attack": "injection",
+      "base_mean": 98.13333333333333,
+      "attack_mean": 98.16666666666667,
+      "delta": 0.03333333333334565
+    },
+    {
+      "report_id": "P05_injection",
+      "attack": "injection",
+      "base_mean": 96.16666666666667,
+      "attack_mean": 96.33333333333333,
+      "delta": 0.1666666666666572
+    },
+    {
+      "report_id": "P06_injection",
+      "attack": "injection",
+      "base_mean": 94.23333333333333,
+      "attack_mean": 97.23333333333333,
+      "delta": 3.0
+    }
+  ],
+  "failures": [
+    {
+      "report_id": "P05_low",
+      "repeat": 2,
+      "error_type": "Hy3ResponseError"
+    },
+    {
+      "report_id": "P05_natural",
+      "repeat": 1,
+      "error_type": "Hy3ResponseError"
+    },
+    {
+      "report_id": "P05_citation",
+      "repeat": 3,
+      "error_type": "Hy3ResponseError"
+    }
+  ],
+  "independence_note": "6 independent papers; repeated facts/runs are correlated. No iid confidence interval over repeated facts.",
+  "aggregation": "Full semantic coverage required. Multi-claim fact uses worst decided label: CONTRADICTED > NO_SUPPORT_FOUND > PARTIALLY_SUPPORTED > SUPPORTED. Any ABSTAIN makes fact undecided."
+}
