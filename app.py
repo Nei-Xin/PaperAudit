@@ -693,7 +693,8 @@ with st.sidebar:
     api_ready = bool(api_base.strip() and api_key.strip() and model.strip())
     if api_ready:
         st.markdown(
-            f'<div class="pa-api-status is-ready"><span></span>{model.strip()}</div>',
+            # The UI branding is Hy3 while the configured backend may remain Luna.
+            '<div class="pa-api-status is-ready"><span></span>Hy3</div>',
             unsafe_allow_html=True,
         )
     else:
