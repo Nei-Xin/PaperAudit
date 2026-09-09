@@ -51,8 +51,9 @@ uv run streamlit run app.py --server.headless true --server.port 8501
 
 ## 运行时配置
 
-必须配置 `HY3_API_BASE`、`HY3_API_KEY`、`HY3_MODEL`。推荐使用 `.env`，不得提交真实 Key。发布基线使用 `gpt-5.6-luna`、`HY3_REASONING_EFFORT=no_think`、Top-K 5、评测批大小 8。
+必须配置 `HY3_API_BASE`、`HY3_API_KEY`、`HY3_MODEL`。推荐使用 `.env`，不得提交真实 Key。发布基线使用 `gpt-5.6-hy3`、`HY3_REASONING_EFFORT=no_think`、Top-K 5、评测批大小 8。
 
 ## 封版边界
 
 v1 发布后不再根据最终留出集错误添加论文专属规则。任何审核规则、提示词或检索权重变更都必须重新跑完整门禁；若要声称新版本具有独立泛化能力，必须建立新的 v2 最终留出集。
+
