@@ -1,0 +1,251 @@
+{
+  "config": {
+    "dry_run": true,
+    "retrieval_top_k": 5,
+    "oracle_evidence": false
+  },
+  "metrics": {
+    "sample_count": 48,
+    "label_accuracy": 0.0,
+    "label_macro_f1": 0.0,
+    "error_type_accuracy": 0.0,
+    "severity_accuracy": 0.3125,
+    "abstain_rate": 1.0,
+    "gold_evidence_count": 48,
+    "retrieval_hit_rate": 0.875,
+    "label_distribution": {
+      "ABSTAIN": 48
+    },
+    "by_category": {
+      "contribution": {
+        "sample_count": 5,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 5,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 5
+        }
+      },
+      "limitations": {
+        "sample_count": 1,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 1,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 1
+        }
+      },
+      "method": {
+        "sample_count": 19,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.3684,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 19,
+        "retrieval_hit_rate": 0.6842,
+        "label_distribution": {
+          "ABSTAIN": 19
+        }
+      },
+      "results": {
+        "sample_count": 23,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.1304,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 23,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 23
+        }
+      }
+    },
+    "by_construction": {
+      "contradiction": {
+        "sample_count": 12,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 12,
+        "retrieval_hit_rate": 0.8333,
+        "label_distribution": {
+          "ABSTAIN": 12
+        }
+      },
+      "external_hallucination": {
+        "sample_count": 6,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 6,
+        "retrieval_hit_rate": 0.6667,
+        "label_distribution": {
+          "ABSTAIN": 6
+        }
+      },
+      "numeric_mutation": {
+        "sample_count": 7,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 7,
+        "retrieval_hit_rate": 0.8571,
+        "label_distribution": {
+          "ABSTAIN": 7
+        }
+      },
+      "overgeneralization": {
+        "sample_count": 8,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": 0.0,
+        "severity_accuracy": 0.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 8,
+        "retrieval_hit_rate": 1.0,
+        "label_distribution": {
+          "ABSTAIN": 8
+        }
+      },
+      "supported": {
+        "sample_count": 15,
+        "label_accuracy": 0.0,
+        "label_macro_f1": 0.0,
+        "error_type_accuracy": null,
+        "severity_accuracy": 1.0,
+        "abstain_rate": 1.0,
+        "gold_evidence_count": 15,
+        "retrieval_hit_rate": 0.9333,
+        "label_distribution": {
+          "ABSTAIN": 15
+        }
+      }
+    }
+  },
+  "paper_summaries": {
+    "garnelo2018_neural_processes": {
+      "grade": "无法评级",
+      "total_score": 53.3,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 60.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "andrychowicz2016_learning_to_learn": {
+      "grade": "无法评级",
+      "total_score": 53.3,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 60.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "abadi2016_differential_privacy": {
+      "grade": "无法评级",
+      "total_score": 60.0,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 80.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "zoph2016_nas_rl": {
+      "grade": "无法评级",
+      "total_score": 46.7,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 40.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "guo2017_deepfm": {
+      "grade": "无法评级",
+      "total_score": 53.3,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 60.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    },
+    "ulyanov2017_deep_image_prior": {
+      "grade": "无法评级",
+      "total_score": 53.3,
+      "audit_coverage": 0.0,
+      "evidence_discovery_rate": 0.0,
+      "dimensions": {
+        "factual_support": null,
+        "evidence_correctness": 0.0,
+        "evidence_completeness": 100.0,
+        "numeric_consistency": null,
+        "content_coverage": 60.0,
+        "conclusion_boundary": null
+      },
+      "critical_count": 0,
+      "high_count": 0,
+      "medium_count": 0,
+      "review_count": 8
+    }
+  }
+}
