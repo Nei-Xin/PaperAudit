@@ -3,8 +3,9 @@ from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from threading import Event, Lock
 from datetime import datetime, timezone
 from dataclasses import asdict
+from contextlib import contextmanager
 import json
-import msvcrt
+import os
 from eval import luna_reliable_experiment as base
 from eval.durable_requests import DurableRequests, TransportPaused, write
 from eval.reference_annotation_v2 import read
@@ -12,6 +13,35 @@ from eval.final_hy3_experiment import sha
 
 OUT=base.OUT
 REV=OUT/'amendments/concurrency2'
+
+@contextmanager
+def exclusive_run_lock(path):
+    """Hold a nonblocking process lock until the run exits, including on failure."""
+    # Keep the file in place: unlinking it could let another process lock a
+    # different inode while an existing waiter still refers to the old one.
+    with path.open('a+b') as lock:
+        if os.name == 'nt':
+            import msvcrt
+
+            lock.seek(0, os.SEEK_END)
+            if lock.tell() == 0:
+                lock.write(b'0')
+                lock.flush()
+            lock.seek(0)
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 class Guard:
     def __init__(self):
@@ -57,9 +87,7 @@ def dispatch(jobs,workers,job,guard):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    with (OUT/'concurrent.lock').open('a+b') as lock:
-        lock.seek(0); lock.write(b'0'); lock.flush(); lock.seek(0)
-        msvcrt.locking(lock.fileno(),msvcrt.LK_NBLCK,1)
+    with exclusive_run_lock(OUT/'concurrent.lock'):
         execute()
 
 def execute():

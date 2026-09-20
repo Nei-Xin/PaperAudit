@@ -3,9 +3,23 @@
 ## 环境
 
 - Python 3.11+
-- 推荐使用项目自带 `.venv` 或 `uv`
+- Windows、macOS 或 Linux；推荐使用 `uv` 在当前机器创建 `.venv`
 - 可用的 Hy3 OpenAI-compatible API
 - 本地可读写项目数据目录
+
+## 安装与跨平台环境
+
+先安装 [uv](https://docs.astral.sh/uv/getting-started/installation/)，再在项目根目录执行：
+
+```shell
+uv sync --locked --dev --python 3.12
+```
+
+使用 `--locked` 校验锁文件与项目声明一致，并安装锁定版本。Python 3.12 是本轮验证环境，项目最低要求仍为 3.11。
+
+`.venv` 不可跨操作系统搬运。若目录中是其他平台的虚拟环境，先将它移出项目并保留备份，再重新同步；不要复制 Windows 的 `Scripts/` 环境到 macOS/Linux 使用。
+
+实验并发运行器使用非阻塞进程文件锁：Windows 使用 `msvcrt`，macOS/Linux 使用 `fcntl.flock`。同一锁文件被占用时，新运行立即失败；退出或异常会释放锁，锁文件本身保留。冻结实验目录中的历史源码副本保持原样；它们不属于当前运行入口。
 
 ## 配置
 
@@ -22,7 +36,7 @@ API Key 不会写入任务、审计历史或评测产物。
 ## 启动
 
 ```powershell
-uv run streamlit run app.py
+uv run --locked streamlit run app.py
 ```
 
 默认访问地址：`http://127.0.0.1:8501/`。
@@ -32,17 +46,40 @@ uv run streamlit run app.py
 ## 测试
 
 ```powershell
-uv run python -m pytest -q
+uv run --locked python -m pytest -q
 ```
 
-当前工作区基线为 164 个测试通过。
+2026-09-20 本地验证基线：macOS arm64、Python 3.12.14，按 `uv.lock` 安装依赖后完整测试 **215 passed**，未跳过测试。包含跨进程锁竞争、正常释放和异常释放测试。Windows/Linux 分支尚未在对应系统实跑。
+
+离线回归（不调用 API；需要本地已有评测 PDF）：
+
+```shell
+uv run --locked python eval/check_holdout_isolation.py
+uv run --locked python eval/run_regression.py --output-dir tmp/regression-local --top-k 5
+```
+
+本轮 10 个数据集、264 条样本全部达到既定检索门槛，最终留出集 ID 隔离检查通过。Streamlit 首次配置页与进入工作区的 AppTest 均通过，独立启动的首页和健康检查均返回 HTTP 200。上述检查不包含真实 API 验收；历史冻结实验结果没有更新。
+
+如果当前终端尚未配置 `uv`，环境创建完成后也可直接使用项目解释器：
+
+```bash
+# macOS / Linux
+.venv/bin/python -m streamlit run app.py
+.venv/bin/python -m pytest -q
+```
+
+```powershell
+# Windows
+.venv\Scripts\python.exe -m streamlit run app.py
+.venv\Scripts\python.exe -m pytest -q
+```
 
 ## 方向一自动有效性复现
 
 完整固定集一致性实验会真实调用 API 3 次，共评测 40 条固定论断：
 
 ```powershell
-uv run python eval/run_validation.py `
+uv run --locked python eval/run_validation.py `
   --samples eval/resolved_samples.jsonl `
   --output-dir eval/validation_full `
   --consistency --repeats 3 --count 40
@@ -56,7 +93,7 @@ uv run python eval/run_validation.py `
 
 ```powershell
 $env:PYTHONPATH='src'
-uv run python eval/release_gate.py
+uv run --locked python eval/release_gate.py
 ```
 
 门禁检查完整测试、最终留出集论文隔离、全部固定评测集离线回归、`app.py` 编译和最终留出集真实 API 快照。快照门槛为 48 条样本、Top-5 证据召回率至少 85%、标签准确率至少 80%、错误类型准确率至少 75%、风险准确率至少 80%、`ABSTAIN=0%`。门禁不调用 API，也不修改规则。
@@ -65,7 +102,7 @@ uv run python eval/release_gate.py
 
 ```powershell
 $env:PYTHONPATH='src'
-uv run python eval/aggregate_production_diagnostics.py `
+uv run --locked python eval/aggregate_production_diagnostics.py `
   --storage-root 'D:\PaperAuditData' `
   --output-dir eval/production_observations_v1
 ```
@@ -76,13 +113,13 @@ uv run python eval/aggregate_production_diagnostics.py `
 
 ```powershell
 $env:PYTHONPATH='src'
-uv run python eval/e2e_smoke.py --pdf tmp/release_smoke/mamba.pdf
+uv run --locked python eval/e2e_smoke.py --pdf tmp/release_smoke/mamba.pdf
 ```
 
 ## 启动与 HTTP 检查
 
 ```powershell
-uv run streamlit run app.py --server.headless true --server.port 8501
+uv run --locked streamlit run app.py --server.headless true --server.port 8501
 ```
 
 另开终端检查 `http://127.0.0.1:8501/` 应返回 HTTP `200`。若 8501 已有本项目实例，直接复用，不重复启动。
@@ -93,7 +130,7 @@ uv run streamlit run app.py --server.headless true --server.port 8501
 
 ```powershell
 $env:PYTHONPATH='src'
-uv run python eval/prepare_evidence.py `
+uv run --locked python eval/prepare_evidence.py `
   --samples eval/body_samples.jsonl `
   --papers eval/broad_papers.json `
   --output eval/body_resolved_samples.jsonl
@@ -102,7 +139,7 @@ uv run python eval/prepare_evidence.py `
 离线检索评测：
 
 ```powershell
-uv run python eval/run_eval.py `
+uv run --locked python eval/run_eval.py `
   --samples eval/body_resolved_samples.jsonl `
   --papers eval/broad_papers.json `
   --output-dir eval/results_body_retrieval_latest `
@@ -117,7 +154,7 @@ uv run python eval/run_eval.py `
 
 ```powershell
 $env:PYTHONPATH='src'
-uv run python eval/run_regression.py
+uv run --locked python eval/run_regression.py
 ```
 
 该命令固定运行全部评测集，并在 `eval/results_regression_latest/summary.md` 与 `summary.json` 输出门槛判定。需要调用真实 API 时显式增加 `--actual`，并指定新的 `--output-dir` 保存历史结果。规则冻结约束见 [`eval/REGRESSION_BASELINE.md`](../eval/REGRESSION_BASELINE.md)。
