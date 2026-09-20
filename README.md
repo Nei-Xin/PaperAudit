@@ -113,11 +113,26 @@ flowchart LR
 
 ## 安装
 
-在项目根目录执行：
+先安装 [uv](https://docs.astral.sh/uv/getting-started/installation/)，然后在项目根目录执行：
+
+```shell
+uv sync --locked --dev --python 3.12
+```
+
+该命令按 `uv.lock` 创建当前操作系统的 `.venv`。不要从其他机器复制虚拟环境；如果已有其他平台的 `.venv`，先将其移出项目并保留备份，再执行上述命令。
+
+首次配置时复制示例文件（已有 `.env` 时请直接编辑，不要覆盖）：
+
+Windows PowerShell：
 
 ```powershell
-uv sync --dev
 Copy-Item .env.example .env
+```
+
+macOS / Linux：
+
+```bash
+cp .env.example .env
 ```
 
 编辑本地 `.env`，将以下示例地址、密钥和模型名称替换为实际服务配置：
@@ -135,9 +150,19 @@ HY3_MODEL=hy3
 在项目根目录执行：
 
 ```powershell
-uv run streamlit run app.py
+uv run --locked streamlit run app.py
 ```
 
 启动后在浏览器访问 [http://localhost:8501](http://localhost:8501)。
 
 首次打开会要求选择本地项目保存目录。应用只在固定的本机设置文件中记录该目录，不会把 API Key 写入项目文件。
+
+## 本地验证
+
+```shell
+uv run --locked python -m pytest -q
+uv run --locked python eval/check_holdout_isolation.py
+uv run --locked python eval/run_regression.py --output-dir tmp/regression-local --top-k 5
+```
+
+以上命令不调用模型 API；检索回归需要本地已有评测 PDF。运行基线、跨平台说明和更多命令见 [部署说明](docs/deployment.md)。
