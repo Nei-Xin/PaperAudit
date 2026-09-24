@@ -1,0 +1,9 @@
+# Keep source and documentation diffs stable across macOS, Linux and Windows.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.mp4 binary
+*.pdf binary
