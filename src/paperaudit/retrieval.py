@@ -85,6 +85,21 @@ _CONFIG_TERMS = {
     "config",
 }
 _SPECIFIC_CONFIG_TERMS = {"base", "large", "small", "medium", "xl", "variant"}
+_TABLE_HEADER_TERMS = {
+    "model",
+    "complexity",
+    "accuracy",
+    "error",
+    "err",
+    "score",
+    "metric",
+    "dataset",
+    "baseline",
+    "approach",
+    "data",
+    "type",
+    "reduction",
+}
 
 
 def _normalize_for_search(text: str) -> str:
@@ -221,9 +236,23 @@ def build_claim_query(claim: AtomicClaim) -> str:
 
 def report_evidence_pages(anchor: str | None) -> set[int]:
     """Recognize explicit paper page references, never slide provenance."""
-    return {int(a or b) for a, b in re.findall(
-        r"第\s*(\d+)\s*页|\b(?:pages?|p\.?)[ \t]*(\d+)\b", anchor or "", re.I
-    )}
+    text = anchor or ""
+    pages: set[int] = set()
+
+    def add_expression(expression: str) -> None:
+        for first, last in re.findall(r"(\d+)(?:\s*[-–~至]\s*(\d+))?", expression):
+            start = int(first)
+            end = int(last) if last else start
+            if 1 <= start <= end and end - start <= 100:
+                pages.update(range(start, end + 1))
+
+    for expression in re.findall(
+        r"第\s*([0-9][0-9、,，\s\-–~至]*)\s*页", text, re.I
+    ):
+        add_expression(expression)
+    for expression in re.findall(r"\b(?:pages?|p\.?)[ \t]*([0-9]+)", text, re.I):
+        add_expression(expression)
+    return pages
 
 
 def _continues_across_pages(left: PaperChunk, right: PaperChunk) -> bool:
@@ -300,6 +329,71 @@ def expand_claim_evidence(
     return result
 
 
+def _is_table_caption(text: str) -> bool:
+    # "Table 5 compares ..." is prose, not the beginning of a table.
+    return bool(re.match(r"^\s*(?:table|tab\.|表)\s*\d+[A-Za-z]?(?:\s*[:：.]|\s*$)", text, re.I))
+
+
+def _is_table_fragment(text: str) -> bool:
+    """Recognize compact headers/rows, including one numeric cell per line."""
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if not lines or len(text) > 600 or any(len(line.split()) > 12 for line in lines):
+        return False
+    normalized = _normalize_for_search(text)
+    header_hits = len(set(re.findall(r"[a-z]+", normalized)) & _TABLE_HEADER_TERMS)
+    numbers = re.findall(r"\d+(?:\.\d+)?", text)
+    # Long prose lines are not rows even if the parser marked them as tables.
+    short_lines = sum(len(line.split()) <= 6 for line in lines)
+    return (header_hits >= 2 or len(numbers) >= 2) and short_lines >= len(lines) * .7
+
+
+def _cited_table_candidates(
+    claim: AtomicClaim,
+    cited_chunks: list[PaperChunk],
+    local: list[EvidenceCandidate],
+    global_seed_ids: set[str],
+) -> list[EvidenceCandidate]:
+    """Reserve at most three slots for a matching caption, header and ranked rows."""
+    positions = {chunk.chunk_id: index for index, chunk in enumerate(cited_chunks)}
+    for hit in local:
+        if not _is_table_caption(hit.text):
+            continue
+        index = positions[hit.chunk_id]
+        fragments: list[PaperChunk] = []
+        # Stop at another caption, prose, or a page boundary. Never select an
+        # entire cited page; even a large table gets a bounded local scan.
+        for chunk in cited_chunks[index + 1:index + 13]:
+            if chunk.page != hit.page or _is_table_caption(chunk.content) or not _is_table_fragment(chunk.content):
+                break
+            fragments.append(chunk)
+        if not fragments:
+            continue
+        with EvidenceRetriever(fragments) as table_retriever:
+            rows = table_retriever.search(build_claim_query(claim), claim.claim_id, len(fragments))
+        # The first fragment is a header only if it has no numeric values.
+        # Ranking rows separately avoids preferring the first model/config in
+        # a table, and also retrieves counter-evidence for incorrect values.
+        header = fragments[0] if not re.search(r"\d", fragments[0].content) else None
+        ordered = [hit]
+        if header is not None:
+            ordered.append(EvidenceCandidate(
+                evidence_id=f"{claim.claim_id}_context", chunk_id=header.chunk_id,
+                page=header.page, text=header.content, score=hit.score,
+            ))
+        ordered.extend(rows)
+        ordered.extend(local)
+        additions: list[EvidenceCandidate] = []
+        seen = set(global_seed_ids)
+        for candidate in ordered:
+            if candidate.chunk_id not in seen:
+                additions.append(candidate)
+                seen.add(candidate.chunk_id)
+            if len(additions) == 3:
+                break
+        return additions
+    return [candidate for candidate in local if candidate.chunk_id not in global_seed_ids][:3]
+
+
 def budget_claim_evidence(
     claim_id: str, candidates: Iterable[EvidenceCandidate], *,
     max_candidates: int = 10, max_chars: int = 18_000,
@@ -354,7 +448,16 @@ def retrieve_claim_evidence(
                 local = cited_retriever.search(
                     build_claim_query(claim), claim.claim_id, seed_limit + 3
                 )
-            additions = [candidate for candidate in local if candidate.chunk_id not in seed_ids][:3]
+            # A table caption/header often wins lexical ranking while its row
+            # carries the value needed by the claim. Complete cited-page
+            # table regions first so ordinary prose cannot consume the local
+            # expansion budget.
+            additions = _cited_table_candidates(
+                claim,
+                cited_chunks,
+                local,
+                seed_ids,
+            )
         ordered = seeds + additions + ranked[seed_limit:]
     elif strategy == "structural":
         ordered = expand_claim_evidence(claim, chunks, seeds) + ranked[seed_limit:]

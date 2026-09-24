@@ -281,6 +281,14 @@ def test_invalid_absent_or_unmatched_citation_does_not_replace_global_evidence()
             assert retrieve_claim_evidence(retriever, changed, chunks, strategy='cited') == baseline
 
 
+def test_report_evidence_pages_accepts_chinese_lists_and_ranges():
+    from paperaudit.retrieval import report_evidence_pages
+
+    assert report_evidence_pages("论文第5、7页；第9-11页；pages 13；p. 15") == {5, 7, 9, 10, 11, 13, 15}
+    assert report_evidence_pages("第5、7-9、12页") == {5, 7, 8, 9, 12}
+    assert report_evidence_pages("第9-5页、第1-999页、第0页") == set()
+
+
 def test_wrong_cited_page_is_only_a_hint_and_budget_remains_shared():
     from paperaudit.retrieval import retrieve_claim_evidence
     chunks = [PaperChunk(chunk_id=f't{i}', page=2, content=f'Optimization learning algorithm exact result {i}.') for i in range(10)]
@@ -294,3 +302,83 @@ def test_wrong_cited_page_is_only_a_hint_and_budget_remains_shared():
     assert result[:5] == baseline[:5]
     assert sum(c.page == 3 for c in result) <= 3
     assert sum(len(c.text) for c in bounded) <= 230
+
+
+def test_cited_page_expands_table_hit_to_adjacent_header_and_value_row():
+    from paperaudit.retrieval import retrieve_claim_evidence
+
+    chunks = [
+        PaperChunk(chunk_id=f"global{i}", page=1, content="ModelZ DatasetR comparison overview.")
+        for i in range(8)
+    ] + [
+        PaperChunk(chunk_id="caption", page=3, content="Table 2: ModelZ compared with BaseA."),
+        PaperChunk(chunk_id="header", page=3, content="Model Accuracy Error (%)"),
+        PaperChunk(chunk_id="row", page=3, content="ModelZ 82.4 17.6\nBaseA 73.2 26.8"),
+    ]
+    claim = AtomicClaim(
+        claim_id="C",
+        text="ModelZ在Table 2中的错误率为17.6%。",
+        category=ClaimCategory.RESULTS,
+        query_en="ModelZ Table 2 error 17.6 BaseA",
+        numbers=["17.6"],
+        provided_evidence="论文第3页Table 2",
+    )
+    with EvidenceRetriever(chunks) as retriever:
+        result = retrieve_claim_evidence(retriever, claim, chunks, strategy="cited")
+    ids = {candidate.chunk_id for candidate in result}
+    assert "row" in ids
+    assert len(result) <= 10
+    assert sum(len(candidate.text) for candidate in result) <= 18_000
+
+
+
+def test_cited_table_prioritizes_caption_header_and_matching_row_over_prose():
+    from paperaudit.models import EvidenceCandidate
+    from paperaudit.retrieval import retrieve_claim_evidence
+
+    chunks = [PaperChunk(chunk_id=f"g{i}", page=1, content="Global result") for i in range(10)]
+    chunks += [
+        PaperChunk(chunk_id="prose", page=7, content="Table 5 compares ModelZ DatasetR error 34.1 140."),
+        PaperChunk(chunk_id="caption", page=7, content="Table 5: ModelZ on DatasetR"),
+        PaperChunk(chunk_id="header", page=7, content="Model\nComplexity (MFLOPs)\nCls err. (%)"),
+        PaperChunk(chunk_id="first", page=7, content="BaseA\n524\n29.1\n0.3"),
+        PaperChunk(chunk_id="second", page=7, content="BaseB\n292\n31.0\n0.6"),
+        PaperChunk(chunk_id="target", page=7, content="ModelZ\n140\n34.1\n2.2"),
+        PaperChunk(chunk_id="next-caption", page=7, content="Table 6: Other ModelZ results"),
+        PaperChunk(chunk_id="next-row", page=7, content="ModelZ\n140\n34.1\n34.1"),
+    ]
+    ranked = [EvidenceCandidate(evidence_id=f"C_e{i+1}", chunk_id=c.chunk_id,
+                               page=c.page, text=c.content, score=1) for i, c in enumerate(chunks[:10])]
+
+    class Retriever:
+        def search(self, query, claim_id, limit):
+            return ranked[:limit]
+
+    claim = AtomicClaim(claim_id="C", text="ModelZ结果", category=ClaimCategory.RESULTS,
+                        query_en="ModelZ DatasetR error 34.1 140", provided_evidence="论文第5、7页 Table 5")
+    result = retrieve_claim_evidence(Retriever(), claim, chunks, strategy="cited")
+    assert result[:5] == ranked[:5]
+    assert [c.chunk_id for c in result[5:8]] == ["caption", "header", "target"]
+    assert [c.chunk_id for c in result[8:]] == ["g5", "g6"]
+    assert [c.evidence_id for c in result] == [f"C_e{i+1}" for i in range(10)]
+    source = {c.chunk_id: c for c in chunks}
+    assert all(c.text == source[c.chunk_id].content and c.page == source[c.chunk_id].page for c in result)
+    bounded = retrieve_claim_evidence(Retriever(), claim, chunks, strategy="cited", max_chars=100)
+    assert sum(len(c.text) for c in bounded) <= 100
+    assert all(c.text == source[c.chunk_id].content for c in bounded)
+
+
+def test_cited_table_does_not_follow_fragments_to_another_page():
+    from paperaudit.models import EvidenceCandidate
+    from paperaudit.retrieval import _cited_table_candidates
+
+    claim = AtomicClaim(claim_id="C", text="结果", category=ClaimCategory.RESULTS,
+                        query_en="ModelZ error 34.1")
+    chunks = [
+        PaperChunk(chunk_id="caption", page=2, content="Table 2: ModelZ"),
+        PaperChunk(chunk_id="header", page=2, content="Model Error"),
+        PaperChunk(chunk_id="row", page=3, content="ModelZ 34.1 140"),
+    ]
+    hit = EvidenceCandidate(evidence_id="C_e1", chunk_id="caption", page=2, text=chunks[0].content, score=1)
+    result = _cited_table_candidates(claim, chunks, [hit], set())
+    assert [c.chunk_id for c in result] == ["caption", "header"]
