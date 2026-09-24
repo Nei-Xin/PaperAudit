@@ -283,3 +283,27 @@ def test_audit_sends_ranked_extension_with_verified_ids_and_original_text():
     run = service.audit(paper, '结果提升3.2。', [ClaimCategory.RESULTS])
     source = {c.chunk_id: c for c in paper.chunks}
     assert all(c.text == source[c.chunk_id].content for c in run.audits[0].candidates)
+
+
+def test_first_judgment_receives_cited_page_evidence_as_a_search_hint():
+    class CitedClient(FakeHy3Client):
+        def extract_claims(self, *args):
+            extraction = super().extract_claims(*args)
+            extraction.claims[0] = extraction.claims[0].model_copy(update={'provided_evidence': '第3页'})
+            return extraction
+
+        def judge_claims(self, batch, page_count):
+            claim, candidates = batch[0]
+            assert len(candidates) == 10
+            assert all(c.page == 2 for c in candidates[:5])
+            assert any(c.chunk_id == 'cited_result' and c.page == 3 for c in candidates)
+            return super().judge_claims(batch, page_count)
+
+    paper = ParsedPaper(title='Cited paper', page_count=3, chunks=[
+        *[PaperChunk(chunk_id=f'global{i}', page=2, content=f'Dataset A improves F1 by 3.2 points. Result {i}.')
+          for i in range(11)],
+        PaperChunk(chunk_id='cited_result', page=3, content='Dataset A\nF1\n3.2'),
+    ])
+    service = AuditService(Settings(api_base='https://example.invalid', api_key='test', model='fake'), CitedClient())
+    run = service.audit(paper, '结果提升3.2。', [ClaimCategory.RESULTS])
+    assert run.audits[0].claim.provided_evidence == '第3页'

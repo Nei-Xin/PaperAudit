@@ -1,0 +1,263 @@
+{
+  "review_type": "Codex-assisted source/PDF inspection; not independent human gold",
+  "scope": "Three single-judgment diagnostic failures; not final production audit failures.",
+  "reference_policy": "Frozen reference untouched; supplementary evidence is recorded separately.",
+  "remaining_issue": "MobileNet judgment selects only prose, omitting the table needed to establish the 224 configuration.",
+  "cases": [
+    {
+      "case_id": "P02_natural_1_C021",
+      "claim": {
+        "claim_id": "C021",
+        "text": "RACE阅读理解单模型准确率达到81.75%，远超BERT的72.0%。",
+        "category": "results",
+        "key_claim": true,
+        "query_en": "XLNet single-model RACE reading comprehension accuracy 81.75% versus BERT 72.0%",
+        "entities": [
+          "RACE",
+          "XLNet",
+          "BERT"
+        ],
+        "numbers": [
+          "81.75%",
+          "72.0%"
+        ],
+        "metric": "准确率",
+        "dataset": "RACE",
+        "provided_evidence": "（证据：论文第8页表1）",
+        "report_location": "第 16 行 · 第 1 句",
+        "source_id": "S0020",
+        "source_quote": "RACE阅读理解准确率单模型达81.75%，远超BERT的72.0%"
+      },
+      "reference_label": "SUPPORTED",
+      "pdf_path": "eval/hy3_reliable_20260907/inputs/1906.08237v1.pdf",
+      "pdf_sha256": "dc7f53ab0acafd8836ca23d5a024df0df9a46fd09fd0cc7d8075fadca787c685",
+      "visually_checked_page": 8,
+      "verified_evidence": [
+        {
+          "chunk_id": "p8_b1",
+          "page": 8,
+          "quote": "RACE\nAccuracy\nMiddle\nHigh"
+        },
+        {
+          "chunk_id": "p8_b2",
+          "page": 8,
+          "quote": "BERT [22]\n72.0\n76.6\n70.1"
+        },
+        {
+          "chunk_id": "p8_b3",
+          "page": 8,
+          "quote": "XLNet\n81.75\n85.45\n80.21"
+        }
+      ],
+      "review_label": "SUPPORTED",
+      "frozen_reference_modified": false,
+      "previous_supplement_can_retrieve_all_review_chunks": true,
+      "plain_judgment": {
+        "claim_id": "C021",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "C021_e2",
+          "C021_e8"
+        ],
+        "explanation": "表1支持XLNet在RACE单模型的准确率为81.75%，但候选证据未给出BERT的72.0%或支持两者相差多远；相关段落仅定性称XLNet优于BERT，不足以核实该数值比较。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "high",
+        "suggestion": "可表述为：表1报告XLNet在RACE上的单模型准确率为81.75%；当前候选证据不足以确认BERT为72.0%。"
+      },
+      "cited_judgment": {
+        "claim_id": "C021",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C021_e2",
+          "C021_e7"
+        ],
+        "explanation": "表1列出XLNet准确率81.75%，表中BERT准确率为72.0%，支持所述数值及比较。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "required_substantive_quotes_in_selected_citations": true,
+      "cited_candidate_chunk_ids": [
+        "p1_b7",
+        "p8_b3",
+        "p9_b8",
+        "p2_b6",
+        "p9_b10",
+        "p8_b1",
+        "p8_b2",
+        "p8_b5",
+        "p11_b9",
+        "p11_b2"
+      ],
+      "result_sha256": {
+        "plain": "95966a40b87e99b2633c6c714f7374fb17d8868d3dee3e79f1102ccfb09b4247",
+        "cited": "823a003d581499d5e8d55dfbfde8617b0e362605628639d96751f9cb5c3c510e"
+      }
+    },
+    {
+      "case_id": "P03_natural_1_C022",
+      "claim": {
+        "claim_id": "C022",
+        "text": "训练采用随机梯度下降",
+        "category": "dataset_setup",
+        "key_claim": false,
+        "query_en": "DenseNet training uses stochastic gradient descent",
+        "entities": [
+          "随机梯度下降"
+        ],
+        "numbers": [],
+        "metric": null,
+        "dataset": null,
+        "provided_evidence": "（证据：论文第6页）",
+        "report_location": "第 13 行 · 第 2 句",
+        "source_id": "S0018",
+        "source_quote": "训练采用随机梯度下降"
+      },
+      "reference_label": "SUPPORTED",
+      "pdf_path": "eval/hy3_reliable_20260907/inputs/1608.06993v1.pdf",
+      "pdf_sha256": "93309db2c48716275db09e82446c6acc827be1b9a33222ee214c5e6dee05551b",
+      "visually_checked_page": 6,
+      "verified_evidence": [
+        {
+          "chunk_id": "p6_b4",
+          "page": 6,
+          "quote": "The network is trained using SGD for 300 epochs on CIFAR and 40 epochs\non SVHN"
+        }
+      ],
+      "review_label": "SUPPORTED",
+      "frozen_reference_modified": false,
+      "previous_supplement_can_retrieve_all_review_chunks": true,
+      "plain_judgment": {
+        "claim_id": "C022",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "C022_e1",
+          "C022_e2",
+          "C022_e3",
+          "C022_e4",
+          "C022_e10"
+        ],
+        "explanation": "候选证据未说明 DenseNet 训练采用随机梯度下降。C022_e10 提到 SGD，但说的是 Highway Networks；其余候选也未支持该训练设置。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "high",
+        "suggestion": "改为：候选证据未能确认 DenseNet 的训练优化方法。"
+      },
+      "cited_judgment": {
+        "claim_id": "C022",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C022_e6"
+        ],
+        "explanation": "候选证据明确说明网络使用 SGD 训练，支持该主张；证据所在页为第6页，与报告所引页码一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "required_substantive_quotes_in_selected_citations": true,
+      "cited_candidate_chunk_ids": [
+        "p1_b7",
+        "p1_b10",
+        "p8_b51",
+        "p3_b2",
+        "p9_b6",
+        "p6_b4",
+        "p6_b1",
+        "p6_b2",
+        "p8_b63",
+        "p10_b12"
+      ],
+      "result_sha256": {
+        "plain": "3127f1b0b884b441dfea7a4c4d3646b262e7e7120d113cf4b09e01f5fade935d",
+        "cited": "ff7d88fbee8c883ef1a95ba07a4cf1da940e95d7b1053ec0e2ca7430c06f1b9e"
+      }
+    },
+    {
+      "case_id": "P04_natural_1_C023",
+      "claim": {
+        "claim_id": "C023",
+        "text": "MobileNet-224计算少27倍。",
+        "category": "results",
+        "key_claim": true,
+        "query_en": "MobileNet-224 requires 27 times less computation",
+        "entities": [
+          "MobileNet-224",
+          "VGG16"
+        ],
+        "numbers": [
+          "224",
+          "27倍"
+        ],
+        "metric": "计算量",
+        "dataset": null,
+        "provided_evidence": "（证据：论文第6页 Table 8）",
+        "report_location": "第 16 行 · 第 2 句",
+        "source_id": "S0021",
+        "source_quote": "计算少27倍"
+      },
+      "reference_label": "SUPPORTED",
+      "pdf_path": "eval/hy3_reliable_20260907/inputs/1704.04861v1.pdf",
+      "pdf_sha256": "9fd87b02ecc96c1ecf2b8c2166faf969a2acb187ab3e1e9333b26d226387ff55",
+      "visually_checked_page": 6,
+      "verified_evidence": [
+        {
+          "chunk_id": "p6_b6",
+          "page": 6,
+          "quote": "MobileNet is nearly\nas accurate as VGG16 while being 32 times smaller and\n27 times less compute intensive."
+        },
+        {
+          "chunk_id": "p6_b9",
+          "page": 6,
+          "quote": "1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138"
+        }
+      ],
+      "review_label": "SUPPORTED",
+      "frozen_reference_modified": false,
+      "previous_supplement_can_retrieve_all_review_chunks": true,
+      "plain_judgment": {
+        "claim_id": "C023",
+        "label": "PARTIALLY_SUPPORTED",
+        "evidence_ids": [
+          "C023_e1"
+        ],
+        "explanation": "证据 C023_e1 明确支持 MobileNet 相比 VGG16 的计算量少 27 倍这一数值和比较关系，但该段仅称“full MobileNet”，未明确说明是 MobileNet-224。因此数值核心基本得到支持，但具体 224 设置未被候选证据确认。",
+        "claim_error_type": "missing_condition",
+        "evidence_error_type": null,
+        "severity": "medium",
+        "suggestion": "改为“Full MobileNet 相比 VGG16 的计算量少 27 倍”；若确为 224 输入分辨率，应补充候选证据中明确说明该设置的表格或上下文。"
+      },
+      "cited_judgment": {
+        "claim_id": "C023",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C023_e1"
+        ],
+        "explanation": "候选证据明确称 MobileNet 比 VGG16 少 27 倍计算量；该结果与“MobileNet-224计算少27倍”一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "required_substantive_quotes_in_selected_citations": false,
+      "cited_candidate_chunk_ids": [
+        "p6_b6",
+        "p1_b9",
+        "p3_b21",
+        "p1_b14",
+        "p4_b14",
+        "p6_b7",
+        "p6_b12",
+        "p6_b9",
+        "p4_b11",
+        "p1_b11"
+      ],
+      "result_sha256": {
+        "plain": "b09e6751d2dfdea2c23e21f4cd768e1ec0bb03138dcb293ebd5bd820c8b85243",
+        "cited": "6e20f96f0db19121c0e209162fb5c60f0fd9e58081c018755bfece8333362342"
+      }
+    }
+  ]
+}

@@ -168,7 +168,7 @@ def render_sidebar(
                 env_settings.retrieval_top_k,
                 key="retrieval_top_k_control",
                 label_visibility="collapsed",
-                help="基础检索数量；审计首次裁决按相关度扩展5块，完整原文合计不超过18,000字符；高风险补查可另加候选。",
+                help="基础检索数量；首次审计再扩展至多5块，其中至多3块优先查找报告引用页，原文合计不超过18,000字符；高风险补查可另加候选。",
             )
             batch_display = int(
                 st.session_state.get("judge_batch_size_control", env_settings.judge_batch_size)

@@ -44,7 +44,9 @@ def tags_for(row: dict, chunks: dict) -> list[str]:
     return sorted(tags) or ['prose']
 
 
-def prepare(root: Path, output: Path) -> dict:
+def prepare(root: Path, output: Path, arms: tuple[str, ...] = ARMS) -> dict:
+    if not arms or len(set(arms)) != len(arms) or set(arms) - {'plain', 'structural', 'hybrid', 'cited'}:
+        raise ValueError('Unknown or duplicate strategies')
     if output.resolve().is_relative_to(root.resolve()):
         raise ValueError('Output must be outside the frozen experiment')
     if (output / 'protocol.json').exists():
@@ -52,8 +54,8 @@ def prepare(root: Path, output: Path) -> dict:
     diagnostic, facts, hashes = diagnose(root)
     source = Inputs(root)
     records, cache, mapped = [], {}, defaultdict(list)
-    counts = {arm: Counter() for arm in ARMS}
-    groups = {arm: defaultdict(Counter) for arm in ARMS}
+    counts = {arm: Counter() for arm in arms}
+    groups = {arm: defaultdict(Counter) for arm in arms}
     natural = [r for r in facts if r['kind'] == 'natural']
     for row in natural:
         for cid in row['claim_ids']:
@@ -65,13 +67,13 @@ def prepare(root: Path, output: Path) -> dict:
             for row in natural:
                 if row['paper_id'] != pid or row['coverage'] != 'full' or row['reference_status'] != 'resolved':
                     continue
-                pools = {arm: [] for arm in ARMS}
+                pools = {arm: [] for arm in arms}
                 for selected in row['claims']:
                     key = (row['report_id'], row['repeat'], selected['claim']['claim_id'])
                     if key not in cache:
                         claim = AtomicClaim.model_validate(selected['claim'])
                         candidates = {arm: [c.model_dump(mode='json') for c in retrieve_claim_evidence(
-                            retriever, claim, paper.chunks, strategy=arm)] for arm in ARMS}
+                            retriever, claim, paper.chunks, strategy=arm)] for arm in arms}
                         linked = mapped[key]
                         labels = {r['reference_label'] for r in linked}
                         eligible = (len(labels) == 1 and all(r['coverage'] == 'full'
@@ -86,11 +88,11 @@ def prepare(root: Path, output: Path) -> dict:
                             'tags': sorted({t for r in linked for t in tags_for(r, chunks)}),
                             'previous_error': any(r['outcome'] in {'abstain', 'label_disagreement'} for r in linked),
                         }
-                    for arm in ARMS:
+                    for arm in arms:
                         pools[arm].append({'candidates': cache[key]['candidates'][arm]})
                 tags = tags_for(row, chunks)
-                overlap = {arm: evidence_overlap({'evidence': row['reference_evidence']}, pools[arm], chunks) for arm in ARMS}
-                for arm in ARMS:
+                overlap = {arm: evidence_overlap({'evidence': row['reference_evidence']}, pools[arm], chunks) for arm in arms}
+                for arm in arms:
                     status = overlap[arm]['status']
                     if status == 'invalid_reference_quote':
                         raise ValueError('Invalid frozen reference quote')
@@ -100,7 +102,7 @@ def prepare(root: Path, output: Path) -> dict:
                 records.append({'report_id': row['report_id'], 'repeat': row['repeat'], 'fact_id': row['fact_id'],
                                 'tags': tags, 'overlap': overlap})
     costs = {}
-    for arm in ARMS:
+    for arm in arms:
         pools = [case['candidates'][arm] for case in cache.values()]
         lengths = [sum(len(c['text']) for c in candidates) for candidates in pools]
         costs[arm] = {'mean_candidates': sum(map(len, pools)) / len(pools),
@@ -121,7 +123,7 @@ def prepare(root: Path, output: Path) -> dict:
     sources = [Path(__file__), Path('src/paperaudit/retrieval.py'), Path('src/paperaudit/pdf_parser.py'),
                Path('src/paperaudit/hy3_client.py'), Path('src/paperaudit/audit_rules.py')]
     protocol = {
-        'schema_version': 1, 'arms': ARMS, 'seed_limit': 5, 'max_candidates': 10, 'max_text_chars': 18_000,
+        'schema_version': 1, 'arms': arms, 'seed_limit': 5, 'max_candidates': 10, 'max_text_chars': 18_000,
         'cases': pilot, 'input_sha256': {**hashes, **source.hashes},
         'source_sha256': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},
         'selection': 'Deterministic SHA256 order, at most one historical error, one structured case and one remaining control per paper; only single-claim, resolved, homogeneous references.',
@@ -131,9 +133,9 @@ def prepare(root: Path, output: Path) -> dict:
                         'Structure tags are heuristic and overlap; cross_page requires references on multiple pages.'],
     }
     summary = {'fact_observations': len(records), 'unique_claims': len(cache),
-               'overlap': {arm: dict(counts[arm]) for arm in ARMS},
-               'by_structure': {arm: {tag: dict(value) for tag, value in groups[arm].items()} for arm in ARMS},
-               'cost': costs, 'pilot_cases': len(pilot), 'planned_judgments': len(pilot) * len(ARMS),
+               'overlap': {arm: dict(counts[arm]) for arm in arms},
+               'by_structure': {arm: {tag: dict(value) for tag, value in groups[arm].items()} for arm in arms},
+               'cost': costs, 'pilot_cases': len(pilot), 'planned_judgments': len(pilot) * len(arms),
                'frozen_integrity': diagnostic['integrity']}
     output.mkdir(parents=True, exist_ok=True)
     save(output / 'protocol.json', protocol)
@@ -144,9 +146,9 @@ def prepare(root: Path, output: Path) -> dict:
 
 def summarize(output: Path) -> dict:
     protocol = json.loads((output / 'protocol.json').read_text())
-    values = {arm: [] for arm in ARMS}
+    values = {arm: [] for arm in protocol.get('arms', ARMS)}
     for case in protocol['cases']:
-        for arm in ARMS:
+        for arm in values:
             path = output / 'results' / f"{case['case_id']}_{arm}.json"
             if path.exists():
                 values[arm].append(json.loads(path.read_text()))
@@ -183,11 +185,18 @@ def run(output: Path, *, api_base: str, model: str, api_key: str, limit: int | N
     results.mkdir(exist_ok=True)
     stop = Event()
     jobs = []
+    arms = tuple(protocol.get('arms', ARMS))
     for index, case in enumerate(protocol['cases']):
-        order = ARMS[index % len(ARMS):] + ARMS[:index % len(ARMS)]
+        order = arms[index % len(arms):] + arms[:index % len(arms)]
         for arm in order:
             path = results / f"{case['case_id']}_{arm}.json"
-            if not path.exists():
+            if path.exists():
+                saved = json.loads(path.read_text())
+                if saved.get('case_sha256') != digest(case) or saved.get('runtime_sha256') != digest(runtime):
+                    raise ValueError('Saved result does not match the frozen case/runtime')
+            elif path.with_suffix('.requests.json').exists():
+                raise ValueError('Interrupted request exists; explicit recovery required')
+            else:
                 jobs.append((case, arm, path))
     if limit is not None:
         jobs = jobs[:limit]
@@ -263,9 +272,10 @@ def main() -> None:
     parser.add_argument('--api-base')
     parser.add_argument('--model')
     parser.add_argument('--limit', type=int)
+    parser.add_argument('--strategies', nargs='+', choices=[*ARMS, 'cited'], default=list(ARMS))
     args = parser.parse_args()
     if args.phase == 'prepare':
-        summary = prepare(args.experiment, args.output_dir)
+        summary = prepare(args.experiment, args.output_dir, tuple(args.strategies))
     elif args.phase == 'summarize':
         summary = summarize(args.output_dir)
     else:

@@ -244,3 +244,53 @@ def test_all_strategies_have_equal_caps_and_keep_ranked_seeds():
     assert all(c.chunk_id.startswith('f') for c in pools['structural'][5:])
     assert [c.chunk_id for c in pools['hybrid'][:8]] == [f't{i}' for i in range(8)]
     assert all(c.chunk_id.startswith('f') for c in pools['hybrid'][8:])
+
+
+def test_cited_page_retrieval_finds_comparison_row_without_displacing_seeds():
+    from paperaudit.retrieval import retrieve_claim_evidence
+    chunks = [PaperChunk(chunk_id=f'd{i}', page=1, content='The ModelZ DatasetR comparison overview.') for i in range(16)]
+    chunks += [
+        PaperChunk(chunk_id='caption', page=3, content='Table 2: ModelZ 82.4 on DatasetR, compared with BaseA.'),
+        PaperChunk(chunk_id='row', page=3, content='BaseA\n73.2\n71.4'),
+        PaperChunk(chunk_id='header', page=3, content='DatasetR accuracy'),
+    ]
+    claim = AtomicClaim(claim_id='C', text='结果比较', category=ClaimCategory.RESULTS,
+                        query_en='ModelZ DatasetR compared BaseA 82.4 73.2', provided_evidence='论文第3页表2')
+    with EvidenceRetriever(chunks) as retriever:
+        baseline = retrieve_claim_evidence(retriever, claim, chunks, strategy='plain')
+        result = retrieve_claim_evidence(retriever, claim, chunks, strategy='cited')
+    assert result[:5] == baseline[:5]
+    assert 'row' not in {c.chunk_id for c in baseline}
+    assert 'row' in {c.chunk_id for c in result}
+    assert len(result) <= 10
+    assert len({c.chunk_id for c in result}) == len(result)
+    assert [c.evidence_id for c in result] == [f'C_e{i+1}' for i in range(len(result))]
+    source = {c.chunk_id: c for c in chunks}
+    assert all(c.page == source[c.chunk_id].page and c.text == source[c.chunk_id].content for c in result)
+
+
+def test_invalid_absent_or_unmatched_citation_does_not_replace_global_evidence():
+    from paperaudit.retrieval import retrieve_claim_evidence
+    chunks = [PaperChunk(chunk_id=f'd{i}', page=2, content=f'Gradient training settings {i}.') for i in range(12)]
+    chunks.append(PaperChunk(chunk_id='unrelated', page=3, content='zebra habitat'))
+    claim = AtomicClaim(claim_id='C', text='训练', category=ClaimCategory.METHOD, query_en='Gradient training settings')
+    with EvidenceRetriever(chunks) as retriever:
+        baseline = retrieve_claim_evidence(retriever, claim, chunks, strategy='plain')
+        for anchor in (None, '第999页', 'Table 3', '第3页'):
+            changed = claim.model_copy(update={'provided_evidence': anchor})
+            assert retrieve_claim_evidence(retriever, changed, chunks, strategy='cited') == baseline
+
+
+def test_wrong_cited_page_is_only_a_hint_and_budget_remains_shared():
+    from paperaudit.retrieval import retrieve_claim_evidence
+    chunks = [PaperChunk(chunk_id=f't{i}', page=2, content=f'Optimization learning algorithm exact result {i}.') for i in range(10)]
+    chunks += [PaperChunk(chunk_id=f'c{i}', page=3, content=f'Historical optimization proposal {i}.') for i in range(4)]
+    claim = AtomicClaim(claim_id='C', text='优化方法', category=ClaimCategory.METHOD,
+                        query_en='Optimization learning algorithm exact result', provided_evidence='第3页')
+    with EvidenceRetriever(chunks) as retriever:
+        baseline = retrieve_claim_evidence(retriever, claim, chunks, strategy='plain')
+        result = retrieve_claim_evidence(retriever, claim, chunks, strategy='cited')
+        bounded = retrieve_claim_evidence(retriever, claim, chunks, strategy='cited', max_chars=230)
+    assert result[:5] == baseline[:5]
+    assert sum(c.page == 3 for c in result) <= 3
+    assert sum(len(c.text) for c in bounded) <= 230
