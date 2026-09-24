@@ -264,19 +264,22 @@ def test_evaluation_validates_evidence_after_label_calibration() -> None:
     assert validated.evidence_ids == []
 
 
-def test_audit_sends_structural_context_as_separate_verified_candidates():
+def test_audit_sends_ranked_extension_with_verified_ids_and_original_text():
     class ContextClient(FakeHy3Client):
         def judge_claims(self, batch, page_count):
             claim, candidates = batch[0]
-            assert [c.chunk_id for c in candidates] == ['result', 'formula']
-            assert [c.evidence_id for c in candidates] == ['C001_e1', 'C001_e2']
+            assert len(candidates) == 6
+            assert {c.chunk_id for c in candidates} == {f'result{i}' for i in range(6)}
+            assert [c.evidence_id for c in candidates] == [f'C001_e{i}' for i in range(1, 7)]
             return super().judge_claims(batch, page_count)
 
     paper = ParsedPaper(title='Context', page_count=2, chunks=[
-        PaperChunk(chunk_id='result', page=2, content='Dataset A improves F1 by 3.2 points.'),
+        *[PaperChunk(chunk_id=f'result{i}', page=2, content=f'Dataset A improves F1 by 3.2 points. Study {i}.')
+          for i in range(6)],
         PaperChunk(chunk_id='formula', page=2, content='L = ∑ (y - x)²'),
     ])
     service = AuditService(Settings(api_base='https://example.invalid', api_key='test',
                                     model='fake', retrieval_top_k=1), ContextClient())
     run = service.audit(paper, '结果提升3.2。', [ClaimCategory.RESULTS])
-    assert run.audits[0].candidates[1].text == paper.chunks[1].content
+    source = {c.chunk_id: c for c in paper.chunks}
+    assert all(c.text == source[c.chunk_id].content for c in run.audits[0].candidates)

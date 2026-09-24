@@ -46,7 +46,7 @@ from .pdf_parser import parse_pdf
 from .retrieval import (
     EvidenceRetriever,
     build_claim_query,
-    expand_claim_evidence,
+    retrieve_claim_evidence,
     report_evidence_pages,
     supplement_claim_evidence,
 )
@@ -1082,13 +1082,9 @@ class AuditService:
         candidates_by_claim: dict[str, list] = {}
         with EvidenceRetriever(paper.chunks) as retriever:
             for claim in claims:
-                ranked_candidates = retriever.search(
-                    build_claim_query(claim),
-                    claim.claim_id,
-                    self.settings.retrieval_top_k,
-                )
-                candidates_by_claim[claim.claim_id] = expand_claim_evidence(
-                    claim, paper.chunks, ranked_candidates
+                candidates_by_claim[claim.claim_id] = retrieve_claim_evidence(
+                    retriever, claim, paper.chunks, strategy="plain",
+                    seed_limit=self.settings.retrieval_top_k,
                 )
 
         judgments: dict[str, ClaimJudgment] = {}
