@@ -50,6 +50,15 @@ from paperaudit.ui.learning import (
 )
 from paperaudit.ui.pdf_selector import get_pdf_page_count, render_selectable_pdf_page
 from paperaudit.ui.peer_review import render_peer_review
+from paperaudit.ui.constants import (
+    CATEGORY_LABELS,
+    DIMENSION_NAMES,
+    FULL_SCOPE,
+    PEER_REVIEW_VENUE_OPTIONS,
+    PEER_REVIEW_WEIGHT_LABELS,
+)
+from paperaudit.ui.project_session import PROJECT_SESSION_KEYS, ProjectSession
+from paperaudit.ui.rubric_controls import render_peer_review_rubric_controls
 from paperaudit.ui.styles import inject_custom_styles
 
 
@@ -60,81 +69,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 inject_custom_styles()
-
-CATEGORY_LABELS = {
-    ClaimCategory.RESEARCH_QUESTION: "研究问题",
-    ClaimCategory.CONTRIBUTION: "核心贡献",
-    ClaimCategory.METHOD: "方法",
-    ClaimCategory.DATASET_SETUP: "数据集与实验设置",
-    ClaimCategory.RESULTS: "主要结果",
-    ClaimCategory.LIMITATIONS: "局限性",
-}
-FULL_SCOPE = list(CATEGORY_LABELS)
-DIMENSION_NAMES = {
-    "factual_support": "事实支持度",
-    "evidence_correctness": "证据正确性",
-    "evidence_completeness": "证据完整性",
-    "numeric_consistency": "数字与指标一致性",
-    "content_coverage": "内容覆盖度",
-    "conclusion_boundary": "结论边界",
-}
-
-PEER_REVIEW_VENUE_OPTIONS = {
-    PeerReviewVenue.GENERAL.value: "通用 AI/ML",
-    PeerReviewVenue.IJCAI.value: "IJCAI",
-    PeerReviewVenue.NEURIPS.value: "NeurIPS",
-    PeerReviewVenue.ICLR.value: "ICLR",
-    PeerReviewVenue.AAAI.value: "AAAI",
-    PeerReviewVenue.CUSTOM.value: "自定义标准",
-}
-PEER_REVIEW_WEIGHT_LABELS = {
-    "significance": "研究价值",
-    "novelty": "创新性",
-    "soundness": "技术可靠性",
-    "experimental_rigor": "实验充分性",
-    "clarity": "表达清晰度",
-    "reproducibility": "可复现性",
-}
-
-
-def _render_peer_review_rubric_controls() -> None:
-    """Render the venue/rubric selector used before a peer-review job starts."""
-    venue_value = st.session_state.get(
-        "peer_review_venue", PeerReviewVenue.GENERAL.value
-    )
-    if venue_value not in PEER_REVIEW_VENUE_OPTIONS:
-        st.session_state["peer_review_venue"] = PeerReviewVenue.GENERAL.value
-    st.selectbox(
-        "评审标准",
-        list(PEER_REVIEW_VENUE_OPTIONS),
-        format_func=PEER_REVIEW_VENUE_OPTIONS.get,
-        key="peer_review_venue",
-        help="选择会议标准；自定义标准可调整六个评审维度的权重。",
-    )
-    if st.session_state.get("peer_review_venue") == PeerReviewVenue.CUSTOM.value:
-        custom_weights: dict[str, float] = {}
-        with st.expander("自定义维度权重", expanded=True):
-            for weight_name, weight_label in PEER_REVIEW_WEIGHT_LABELS.items():
-                custom_weights[weight_name] = st.slider(
-                    weight_label,
-                    min_value=0.0,
-                    max_value=2.0,
-                    value=1.0,
-                    step=0.1,
-                    key=f"peer-review-weight-{weight_name}",
-                )
-        total_weight = sum(custom_weights.values())
-        st.session_state["peer_review_rubric_weights"] = (
-            {
-                name: value / total_weight
-                for name, value in custom_weights.items()
-            }
-            if total_weight > 0
-            else {}
-        )
-    else:
-        st.session_state["peer_review_rubric_weights"] = {}
-
 
 @st.cache_data(show_spinner=False, max_entries=4)
 def _parse_uploaded_code(zip_bytes: bytes, filename: str) -> ParsedCodebase:
@@ -379,100 +313,22 @@ def _restore_learning_project(store: ProjectStore, project_id: str) -> None:
     st.query_params["project"] = saved.metadata.project_id
 
 
-_PROJECT_SESSION_KEYS = (
-    "learning_report",
-    "peer_review",
-    "learning_pdf_bytes",
-    "learning_paper",
-    "parsed_codebase",
-    "audit_run",
-    "active_audit_id",
-    "audit_record_metadata",
-    "audit_origin",
-    "audit_save_error",
-    "audit_submit_notice",
-    "launch_audit_job_id",
-    "learning_job_id",
-    "peer_review_job_id",
-    "result_mode",
-    "learning_selected_evidence",
-    "learning_evidence_group",
-    "learning_evidence_section",
-    "learning_active_section",
-    "learning_active_point",
-    "learning_pdf_page",
-    "learning_pdf_zoom",
-    "learning_pdf_anchor_sync",
-    "learning_focus_evidence",
-    "qa_selected_evidence",
-    "qa_evidence_group",
-    "qa_pdf_page",
-    "qa_pdf_zoom",
-    "qa_pdf_anchor_sync",
-    "qa_focus_evidence",
-    "paper_qa_history",
-    "paper_qa_pending",
-    "paper_text_selection",
-    "learning_workspace_mode",
-    "learning_switch_to_qa",
-    "learning_pdf_focus",
-    "joint_qa_history",
-    "project_conversations",
-    "active_conversation_id",
-    "joint_qa_pending",
-    "joint_paper_selection",
-    "joint_active_paper_citation",
-    "joint_active_code_citation",
-    "joint_code_selection",
-    "joint_code_path",
-    "joint_code_path_pending",
-    "joint_code_rendered_path",
-    "joint_pdf_page",
-    "joint_paper_sync",
-    "joint_layout_mode",
-    "joint_layout_mode_pending",
-    "code_parse_warning",
-    "active_project_id",
-    "project_original_filename",
-    "project_save_error",
-    "paper_pdf_upload",
-    "source_code_upload",
-    "workspace_audit_input_mode",
-    "workspace_audit_pasted_text",
-    "workspace_audit_report_file",
-    "workspace_audit_scope_mode",
-    "workspace_audit_scope_values",
-)
+_PROJECT_SESSION_KEYS = PROJECT_SESSION_KEYS
+
+def _project_session() -> ProjectSession:
+    return ProjectSession(st.session_state, st.query_params)
 
 
 def _clear_project_session() -> None:
-    for state_key in _PROJECT_SESSION_KEYS:
-        st.session_state.pop(state_key, None)
-    st.query_params.pop("project", None)
+    _project_session().clear()
 
 
 def _save_active_conversations(store: ProjectStore, project_id: str) -> None:
-    conversations = st.session_state.get("project_conversations")
-    if isinstance(conversations, list) and conversations:
-        store.save_conversations(
-            project_id,
-            conversations,
-            str(st.session_state.get("active_conversation_id", "")),
-        )
-        return
-    store.save_histories(
-        project_id,
-        st.session_state.get("paper_qa_history", []),
-        st.session_state.get("joint_qa_history", []),
-    )
+    _project_session().save_conversations(store, project_id)
 
 
 def _open_saved_project(store: ProjectStore, project_id: str) -> None:
-    current_id = st.session_state.get("active_project_id")
-    if current_id and current_id != project_id:
-        _save_active_conversations(store, str(current_id))
-    _clear_project_session()
-    _restore_learning_project(store, project_id)
+    _project_session().open(store, project_id)
 
 
 storage_settings_error: str | None = None
@@ -1352,7 +1208,7 @@ with st.container(key=launch_shell_key):
         if mode == "peer_review":
             with st.container(border=True, key="peer_review_rubric_empty"):
                 st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
-                _render_peer_review_rubric_controls()
+                render_peer_review_rubric_controls()
                 st.caption("上传论文后将按所选标准生成五档投稿预审建议。")
         with st.expander("高级选项", expanded=False):
             if mode == "learn":
@@ -1464,7 +1320,7 @@ with st.container(key=launch_shell_key):
                         unsafe_allow_html=True,
                     )
                     st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
-                    _render_peer_review_rubric_controls()
+                    render_peer_review_rubric_controls()
                     st.caption("结果为 Strong Accept / Weak Accept / Borderline / Weak Reject / Strong Reject 的预审建议，不代表真实录用决定。")
                     st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
                     privacy_ack = st.checkbox(
