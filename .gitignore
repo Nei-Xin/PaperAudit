@@ -49,3 +49,12 @@ eval/validation*/
 !eval/validation_full/**
 !eval/validation_adversarial/
 !eval/validation_adversarial/**
+
+# Local dated Hy3/Luna experiment workspaces (existing tracked release snapshots
+# remain versioned). Put new ad-hoc runs under tmp/experiments/.
+eval/hy3_*_20*/
+eval/luna_*_20*/
+eval/luna_migration_smoke/
+eval/**/*_checkpoints/
+eval/**/*.log
+eval/**/*.lock

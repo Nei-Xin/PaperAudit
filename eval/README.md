@@ -60,3 +60,31 @@ uv run python eval/run_eval.py --oracle-evidence --output-dir eval/validation/or
 自动验证结论见 `validation_report.md`。自动自洽性不能替代与独立人工标注的一致性验证。
 
 样本中的论文链接、页码和摘录用于可追溯性；批量运行时仍必须以本地解析出的真实 chunk 为证据，不得只根据 `source_quote` 直接给分。
+
+## 实验产物与提交边界
+
+源码、固定样本、论文清单和已跟踪的冻结结果继续进入 Git。历史冻结快照只记录
+对应实验的结果，不被新的验证命令覆盖；同模型参考一致性、独立人工标签、离线
+检索指标仍按各自实验口径分别报告。
+
+| 产物 | 保存位置与提交方式 |
+| --- | --- |
+| 评测脚本、固定样本、协议 | `eval/` 下按文件审阅后提交 |
+| 已封版的指标、报告、必要预测 | 保留现有 tracked 文件；增加快照前明确实验目录、模型、数据集及统计口径 |
+| 新的试验、原始响应、checkpoint、恢复记录 | 默认写到 `tmp/experiments/<实验名>/`，不提交 |
+| 论文 PDF、页面图、运行日志 | 保留本地，遵循 `.gitignore`，不加入普通源码提交 |
+
+历史 `hy3_*_20*`、`luna_*_20*` 目录的未跟踪内容已加入忽略规则，磁盘文件仍然
+保留。目录内此前已提交的紧凑报告和指标仍由 Git 管理。忽略文件不等于删除，
+也不等于脱敏；分享原始实验包前需单独检查内容。新的发布快照应显式添加必要
+文件并记录来源，不对整个实验目录执行强制添加。
+
+推荐当前验证输出目录：
+
+```shell
+.venv/bin/python eval/run_regression.py --output-dir tmp/regression-local --top-k 5
+.venv/bin/python eval/release_gate.py --output tmp/release-gate-local.json
+```
+
+仓库通过 `.gitattributes` 将文本统一为 LF，PDF、图片和视频按二进制处理。
+迁移平台时应使用新建的虚拟环境，避免复制 `.venv`。
