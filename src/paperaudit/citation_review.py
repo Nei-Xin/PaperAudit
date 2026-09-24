@@ -27,13 +27,21 @@ def review_citations(
     except Hy3ResponseError:
         pass
     final = apply_citation_review(judgment, candidates, review)
+    # A suggestion gap (including missing verification) is semantic, even when
+    # complete=True for the verdict or a quotation also has formatting errors.
     if (review is not None and review.complete and not review.missing_aspects
             and review.aspects and review.claim_id == claim.claim_id == judgment.claim_id
             and review.reviewed_label == judgment.label.value
+            and (not judgment.suggestion or (
+                review.suggestion_verified is True
+                and not review.suggestion_missing_aspects
+            ))
             and final.label == AutoLabel.ABSTAIN):
         before_repair, review = review, None
         try:
-            review = client.repair_citation_coverage(claim, candidates, before_repair)
+            review = client.repair_citation_coverage(
+                claim, candidates, before_repair, judgment,
+            )
         except Hy3ResponseError:
             pass
         final = apply_citation_review(judgment, candidates, review)
