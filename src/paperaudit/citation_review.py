@@ -1,4 +1,4 @@
-"""Bounded review of the citations behind a supported audit judgment."""
+"""Bounded review of citations behind support and contradiction judgments."""
 from __future__ import annotations
 
 from .audit_rules import apply_citation_review
@@ -6,7 +6,7 @@ from .hy3_client import Hy3Client, Hy3ResponseError
 from .models import AtomicClaim, AutoLabel, CitationReview, ClaimJudgment, EvidenceCandidate
 
 
-def review_supported_citations(
+def review_citations(
     client: Hy3Client,
     claim: AtomicClaim,
     candidates: list[EvidenceCandidate],
@@ -18,7 +18,7 @@ def review_supported_citations(
     review. Provider errors propagate as in the rest of the audit pipeline;
     malformed structured responses fail closed without an extra semantic retry.
     """
-    if judgment.label != AutoLabel.SUPPORTED:
+    if judgment.label not in {AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED}:
         return judgment, None, None
     review = None
     before_repair = None
@@ -29,6 +29,7 @@ def review_supported_citations(
     final = apply_citation_review(judgment, candidates, review)
     if (review is not None and review.complete and not review.missing_aspects
             and review.aspects and review.claim_id == claim.claim_id == judgment.claim_id
+            and review.reviewed_label == judgment.label.value
             and final.label == AutoLabel.ABSTAIN):
         before_repair, review = review, None
         try:
@@ -37,3 +38,10 @@ def review_supported_citations(
             pass
         final = apply_citation_review(judgment, candidates, review)
     return final, review, before_repair
+
+
+def review_supported_citations(client, claim, candidates, judgment):
+    """Keep historical support-only experiment entry points unchanged."""
+    if judgment.label != AutoLabel.SUPPORTED:
+        return judgment, None, None
+    return review_citations(client, claim, candidates, judgment)

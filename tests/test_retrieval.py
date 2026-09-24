@@ -382,3 +382,63 @@ def test_cited_table_does_not_follow_fragments_to_another_page():
     hit = EvidenceCandidate(evidence_id="C_e1", chunk_id="caption", page=2, text=chunks[0].content, score=1)
     result = _cited_table_candidates(claim, chunks, [hit], set())
     assert [c.chunk_id for c in result] == ["caption", "header"]
+
+
+def test_bottom_caption_recovers_abbreviation_header_before_numeric_rows():
+    from paperaudit.models import EvidenceCandidate
+    from paperaudit.retrieval import _cited_table_candidates
+
+    chunks = [
+        PaperChunk(chunk_id='boundary', page=3, content='Discussion of prior work.'),
+        PaperChunk(chunk_id='header', page=3, content='Method\nTASK-A\nTASK-B\nTASK-C'),
+        PaperChunk(chunk_id='row', page=3, content='OurModel\n0.77\n0.82\n0.91'),
+        PaperChunk(chunk_id='caption', page=3, content='Table 2: OurModel task scores.'),
+        PaperChunk(chunk_id='prose', page=3, content='OurModel evaluation is discussed here.'),
+    ]
+    hit = EvidenceCandidate(evidence_id='C_e1', chunk_id='caption', page=3, text=chunks[3].content, score=1)
+    claim = AtomicClaim(claim_id='C', text='结果', category=ClaimCategory.RESULTS,
+                        query_en='OurModel TASK-A score', provided_evidence='第3页 Table 2')
+    result = _cited_table_candidates(claim, chunks, [hit], set())
+    assert [c.chunk_id for c in result] == ['caption', 'header', 'row']
+
+
+def test_bottom_caption_geometry_excludes_interleaved_other_column():
+    from paperaudit.models import EvidenceCandidate, PageRect
+    from paperaudit.retrieval import _cited_table_candidates
+
+    def chunk(cid, content, x, y, height=10):
+        return PaperChunk(chunk_id=cid, page=3, content=content,
+                          rects=[PageRect(x0=x, y0=y, x1=x + 190, y1=y + height)])
+
+    chunks = [
+        chunk('header', 'Model\nAccuracy', 50, 100),
+        chunk('other-row', 'OtherModel 82 91', 300, 100),
+        chunk('row', 'OurModel 77 88', 50, 115),
+        chunk('other-caption', 'Table 3: OurModel comparison.', 300, 130),
+        chunk('other-prose', 'A paragraph from the other column.', 300, 145),
+        chunk('caption', 'Table 2: OurModel accuracy.', 50, 145),
+        chunk('next-row', 'Unrelated 72 89', 50, 175),
+        chunk('next-caption', 'Table 4: Next table.', 50, 190),
+    ]
+    # The higher-ranked caption is for another table on the same cited page.
+    hits = [EvidenceCandidate(evidence_id=f'C_e{i+1}', chunk_id=c.chunk_id, page=3,
+                              text=c.content, score=1) for i, c in enumerate([chunks[3], chunks[5]])]
+    claim = AtomicClaim(claim_id='C', text='结果', category=ClaimCategory.RESULTS,
+                        query_en='OurModel accuracy', provided_evidence='第3页 Table 2')
+    result = _cited_table_candidates(claim, chunks, hits, set())
+    assert [c.chunk_id for c in result] == ['caption', 'header', 'row']
+
+
+def test_geometry_does_not_cross_prose_or_a_large_gap_to_collect_table_rows():
+    from paperaudit.models import PageRect
+    from paperaudit.retrieval import _table_fragments
+
+    def chunk(cid, text, y):
+        return PaperChunk(chunk_id=cid, page=1, content=text,
+                          rects=[PageRect(x0=50, y0=y, x1=250, y1=y + 10)])
+
+    chunks = [chunk('row', 'A 17 45', 50),
+              chunk('prose', 'Results are reported in the following discussion.', 65),
+              chunk('caption', 'Table 2: Results', 80),
+              chunk('far', 'B 20 45', 150)]
+    assert _table_fragments(chunks, 2) == []

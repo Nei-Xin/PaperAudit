@@ -1,0 +1,621 @@
+{
+  "experiment_kind": "seen_case_development_regression",
+  "model": "gpt-6-luna",
+  "protocol_sha256": "ded5ab37686a6f025259678dbf2acf203e706a1166910d8920552f013ed3d86a",
+  "baseline_protocol_sha256": "3dd2907833fd034c1515f34e45208b73c5c2d66965f6af7605b8af7b420a7b72",
+  "frozen_sources_verified": true,
+  "source_sha256": {
+    "/Users/arkie/Documents/data/code/PaperAudit/eval/unseen_e2e_experiment.py": "8300870b1d711e85f4268db17b2ddc417a02980948fe51de13db42b7a21ee4f6",
+    "eval/durable_requests.py": "1e86e779046c7aca041f98e61554a405e04ade2df5a6ca40e1e3a2eb6ea61954",
+    "src/paperaudit/service.py": "0117d261f3f6549a0ffd438440c8bad40b428f8f26cf1e180235c5dad68c7cf5",
+    "src/paperaudit/pdf_parser.py": "4340c6d595dffafee6613488192d2114d3f48296b31ea4e40a25e6a84eacfaac",
+    "src/paperaudit/report_input.py": "aab2816c84563ae3e2b4467488e7c176fd3a9c7ac922ce148f94fdb880618539",
+    "src/paperaudit/config.py": "c4b720b8fc2b207fe77a242c3c8a4f219eb2f9a6a4c733c19b8fb4665977c7af",
+    "src/paperaudit/models.py": "9e551915810a3179a96341108c0f22457a79898d4d5ddc9c3e123ac4c928c303",
+    "src/paperaudit/peer_review_service.py": "911ddb54094102a194124cb622a1c2bcef793260dd5f387254d629d123f223d8",
+    "src/paperaudit/scoring.py": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "src/paperaudit/__init__.py": "8df01b7e92930dd8d5376d9f1b462cc914e33c5eed77546f52706441949d8e5c",
+    "src/paperaudit/hy3_client.py": "f2df939728491c4c96f23076cbaf3965ea5aeb8194084995423e0b8c1ad0d6c1",
+    "src/paperaudit/code_service.py": "6921c327284d1af75edcd0c3585affc3fed8b1ce12c3efecf91581747daf6c0f",
+    "src/paperaudit/display.py": "a9cf821bb6a763765f607fd0224df37839952340adf67b710ad25325ec84bdb2",
+    "src/paperaudit/audit_rules.py": "a65c88fc831517a111e4c8193c73d474a517d036588e63e5ef9e6d13ae771d42",
+    "src/paperaudit/evidence_gap.py": "1ba0e7bbc88600aba00d7d2ea6fc1f094989a04dd17ec171a137a67bb00fa851",
+    "src/paperaudit/peer_review_revision.py": "28c243003a13db0a3a6bab2448ed3cf39a26bc44a145f239a114faa348da0a99",
+    "src/paperaudit/learning_jobs.py": "25641008c3981808234f1a0132e4607de41fd6d2e1831ad4d89cf32709b597c3",
+    "src/paperaudit/storage.py": "2c424911e00d24b8fa04ee014dfa6ae90371703ec3fdf4e737a69bc330b0877b",
+    "src/paperaudit/retrieval.py": "c32dce8112329952cd7e41bb7ea3c05706f1f5a939a66cd1476bf6e79c7e6663",
+    "src/paperaudit/peer_review_rules.py": "f66ae403b5a47eaac4f69f8da434594f21a8b16a12ea04eccfc206d256975832",
+    "src/paperaudit/code_retrieval.py": "ece1873c5025902b4342b76ef2c0644a5baca038184f6d60c14f50be3c9e462a",
+    "src/paperaudit/code_parser.py": "8aaa4fd2f5089a1b66641d2d1d29c1094feff6975b920023e55fb1fc065ddbce",
+    "src/paperaudit/job_runner.py": "260a8b15ff93835ce7c6aa0f38221241538db2d0f546d0adc0363134b8197be4",
+    "src/paperaudit/citation_review.py": "2a2ed2f19df57b0be33fb4a70f6f419d08fef28ee4c1ee442587a626d1c473d7",
+    "src/paperaudit/peer_review_jobs.py": "de7898f5a6d85b0682f076a5cc8040d3654d209abf87a083d481a72e1bd5d20f",
+    "src/paperaudit/evidence.py": "558c6f610e9b3e385e4528a88739fe81e65cef96a20b7b17171370881f01f144",
+    "src/paperaudit/claim_extraction.py": "af8ebc15593749a3af504b5188628ee1f1783f28c4c9acde7cd7a990bf9a04d7",
+    "src/paperaudit/audit_jobs.py": "af5e4b2ef809649053d05db6badec86bfffc673e5f81d033672c3760e16cae7a",
+    "src/paperaudit/reporting.py": "c89dd0fd95d724db29ca5170df17ed9bc3b83cdf1739f9d1efadf2e60f8a740c",
+    "/Users/arkie/Documents/data/code/PaperAudit/eval/contradiction_gate_regression.py": "62398eeaa764fe627eba5aa81c5e04a2c9d4af50d9cb51630560f198513fa3b8"
+  },
+  "note": "Same 18 previously seen sentences; not independent generalization. No label-driven rerun. Quote/ID checks are local; semantic sufficiency is model-assessed.",
+  "baseline": {
+    "path": "eval/unseen_e2e_results_20260924.json",
+    "exact_agreement": 16,
+    "sources": 18,
+    "missed_support": 2,
+    "contradictions_with_insufficient_citations": 2
+  },
+  "end_to_end": {
+    "planned_reports": 3,
+    "completed_reports": 3,
+    "successful_reports": 3,
+    "planned_sources": 18,
+    "evaluated_sources": 18,
+    "extracted_sources": 18,
+    "extracted_claims": 18,
+    "exact_agreement": 18,
+    "supported_reference_count": 9,
+    "missed_support": 0,
+    "false_support": 0,
+    "unsupported_safely_withheld": 3,
+    "labels": {
+      "SUPPORTED": 9,
+      "CONTRADICTED": 6,
+      "NO_SUPPORT_FOUND": 3
+    },
+    "supported_claims": 9,
+    "supported_locally_valid_citations": 9,
+    "candidate_rechecks": 9,
+    "citation_repairs": 1,
+    "logical_requests": 37,
+    "by_phase": {
+      "extract_claims": {
+        "requests": 3,
+        "seconds": 148.720871041005,
+        "tokens": 8711
+      },
+      "judge_claims": {
+        "requests": 3,
+        "seconds": 92.87106916704215,
+        "tokens": 44490
+      },
+      "adjudicate_claim": {
+        "requests": 3,
+        "seconds": 43.120368623989634,
+        "tokens": 10763
+      },
+      "review_missing_support": {
+        "requests": 3,
+        "seconds": 22.929274083988275,
+        "tokens": 11968
+      },
+      "review_candidate_gap": {
+        "requests": 9,
+        "seconds": 74.45149045897415,
+        "tokens": 31411
+      },
+      "review_citation_coverage": {
+        "requests": 15,
+        "seconds": 528.7918290820089,
+        "tokens": 58746
+      },
+      "repair_citation_coverage": {
+        "requests": 1,
+        "seconds": 50.780759583984036,
+        "tokens": 5144
+      }
+    },
+    "usage_missing_requests": 0,
+    "prompt_tokens": 148860,
+    "completion_tokens": 22373,
+    "total_tokens": 171233,
+    "mean_report_seconds": 320.9005435556367,
+    "p95_report_seconds": 635.9407494589686,
+    "latency_note": "Concurrent reports; nearest-rank P95 on only three reports is descriptive, not an SLA.",
+    "sources": [
+      {
+        "case_id": "LN01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      }
+    ],
+    "network_attempts": 38,
+    "transport_errors": 1,
+    "contradicted_claims": 6,
+    "contradicted_locally_valid_citations": 6,
+    "cumulative_report_seconds": 962.7016306669102,
+    "cumulative_logical_request_seconds": 961.6656620409922
+  },
+  "per_paper": [
+    {
+      "paper_id": "resnext",
+      "seconds": 184.54068929096684,
+      "sources": 6,
+      "exact_agreement": 6,
+      "labels": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2,
+        "NO_SUPPORT_FOUND": 1
+      },
+      "locally_valid_citations": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2
+      },
+      "logical_requests": 12,
+      "extraction_seconds": 63.559148083033506,
+      "total_tokens": 54249,
+      "storage_round_trip_equal": true
+    },
+    {
+      "paper_id": "layernorm",
+      "seconds": 635.9407494589686,
+      "sources": 6,
+      "exact_agreement": 6,
+      "labels": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2,
+        "NO_SUPPORT_FOUND": 1
+      },
+      "locally_valid_citations": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2
+      },
+      "logical_requests": 13,
+      "extraction_seconds": 64.38308041699929,
+      "total_tokens": 62339,
+      "storage_round_trip_equal": true
+    },
+    {
+      "paper_id": "senet",
+      "seconds": 142.22019191697473,
+      "sources": 6,
+      "exact_agreement": 6,
+      "labels": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2,
+        "NO_SUPPORT_FOUND": 1
+      },
+      "locally_valid_citations": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2
+      },
+      "logical_requests": 12,
+      "extraction_seconds": 20.778642540972214,
+      "total_tokens": 54645,
+      "storage_round_trip_equal": true
+    }
+  ],
+  "gate_controls": {
+    "count": 6,
+    "passed": 6,
+    "logical_requests": 6,
+    "network_attempts": 6,
+    "total_tokens": 21318,
+    "cases": [
+      {
+        "case_id": "LN04",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "seconds": 13.791507959016599,
+        "logical_requests": 1,
+        "total_tokens": 3727
+      },
+      {
+        "case_id": "LN05",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "seconds": 6.5678300830186345,
+        "logical_requests": 1,
+        "total_tokens": 2902
+      },
+      {
+        "case_id": "RX04",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "seconds": 16.793829999980517,
+        "logical_requests": 1,
+        "total_tokens": 3960
+      },
+      {
+        "case_id": "RX05",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "seconds": 8.472420124977361,
+        "logical_requests": 1,
+        "total_tokens": 3208
+      },
+      {
+        "case_id": "SE04",
+        "expected": "ABSTAIN",
+        "actual": "ABSTAIN",
+        "passed": true,
+        "seconds": 57.93158370797755,
+        "logical_requests": 1,
+        "total_tokens": 3811
+      },
+      {
+        "case_id": "SE05",
+        "expected": "ABSTAIN",
+        "actual": "ABSTAIN",
+        "passed": true,
+        "seconds": 11.631158083037008,
+        "logical_requests": 1,
+        "total_tokens": 3710
+      }
+    ]
+  },
+  "combined_usage": {
+    "logical_requests": 43,
+    "network_attempts": 44,
+    "transport_errors": 1,
+    "error_types": {
+      "APITimeoutError": 1
+    },
+    "reported_total_tokens": 192551,
+    "unreported_error_attempt_usage": 1,
+    "billing_note": "Timeout attempt has no usage; reported tokens are not a complete billing total. Currency cost unavailable without provider billing rates.",
+    "wall_clock_note": "Per-report durations include waiting/retries. Reports and controls run concurrently; cumulative durations are not total experiment wall time, which was not independently recorded."
+  },
+  "offline_retrieval": {
+    "reference_cases": 15,
+    "before_complete": 8,
+    "after_complete": 15,
+    "historical_datasets": 9,
+    "historical_all_passed": true,
+    "historical_gained": 7,
+    "historical_lost": 0,
+    "shufflenet_squeezenet_complete": 10,
+    "shufflenet_squeezenet_cases": 14
+  },
+  "manual_review_limitations": [
+    {
+      "case_id": "LN04",
+      "finding": "Decisive conflict is quoted with header, dagger row and training context (0.270 vs asserted 0.277). The inherited suggestion additionally attributes 0.277 to the non-dagger 1M model, but the final review does not quote that comparison row. Local validation proves quote presence, not coverage of every auxiliary sentence.",
+      "impact": "Label and decisive contradiction are evidenced; full correction-suggestion coverage is not established.",
+      "next_step": "Separately validate or generate corrections from verified quotations; include auxiliary comparison coverage cases in a new frozen regression."
+    }
+  ],
+  "verification": {
+    "pytest_passed": 338,
+    "holdout_isolation_passed": true,
+    "storage_round_trips": 3
+  },
+  "artifacts": [
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/protocol.json",
+      "sha256": "ded5ab37686a6f025259678dbf2acf203e706a1166910d8920552f013ed3d86a"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/summary.json",
+      "sha256": "12fda5f534f3f926a8aa123326b1c6881040c8f39df21d763eda8712d6ed4cbf"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_summary.json",
+      "sha256": "dec78ad0e6ab83604ace21b29f904335591737bd4e23549d4d86b7a01273d589"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/paired_retrieval.json",
+      "sha256": "86486a4c833b26db0438cf72655d89e9d2b4cd2c48bc27f4e68170b80ed7b856"
+    },
+    {
+      "path": "tmp/experiments/cited-table-bottom-regression-20260924.json",
+      "sha256": "b36b79350f7ecdbcdc95ab493ed1cce292665a32e6d00ec147c81d636d29bd14"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/runs/layernorm/result.json",
+      "sha256": "af92cd47459a2a9784fd2b0fb52193d6cba3b4c915011c05e6f4bfb764662ff3"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/runs/senet/result.json",
+      "sha256": "1198f6159faae2d512004901023399765399eb49ef84e6e3cdb8d9853f616487"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/runs/resnext/result.json",
+      "sha256": "59689526e0facb59f4d988858efd35e18f963f6aea1424968e6499822d44dde4"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/runs/layernorm/storage_check.json",
+      "sha256": "b4f92b104a7361d5190d0e18c8a68e9e30510a22713e0481881d458e0032e355"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/runs/senet/storage_check.json",
+      "sha256": "0e120666bd266bffdb70788f52310521936f7cf52912d0093eb9af6ba34f9898"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/runs/resnext/storage_check.json",
+      "sha256": "548f18e3ae814c84af0ee24890eae657250377795458d3fd4e05a09a53b69658"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_controls/SE04/result.json",
+      "sha256": "97a921d01290200b5d9338157bdfe88fadb670cf434a9e479c0166bd27b8be36"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_controls/SE05/result.json",
+      "sha256": "637ea5e1a2dbbadd48ac28a24d1473c6f7c7bbd0b96f3029fe7db9674db2d5c7"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_controls/LN05/result.json",
+      "sha256": "d4b6415ef94d7dc6c5513281950ff5c7c0c63448d695f0562dab8217912cba2c"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_controls/LN04/result.json",
+      "sha256": "cc8a0bfde77ad89a1f5c85a053cdf0556703bef31fe545207087015afe15e25c"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_controls/RX04/result.json",
+      "sha256": "7bad59ec90af68ef0e1bed71d3aa49bb047ba26ef43205b68b864a432c435580"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-20260924/gate_controls/RX05/result.json",
+      "sha256": "d3b653bd8b0a4cae85116818374e1fa7380b90b37bcfdaefc641638151cd834e"
+    }
+  ]
+}

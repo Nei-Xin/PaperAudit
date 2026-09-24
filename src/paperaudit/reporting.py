@@ -9,7 +9,7 @@ from paperaudit.display import (
     label_counts,
 )
 from paperaudit.models import AuditRun, AutoLabel, ClaimAudit, LearningReport, Severity
-from paperaudit.ui.audit_view import normalize_evidence_display, selected_evidence
+from paperaudit.ui.audit_view import citation_review_passed, normalize_evidence_display, selected_evidence
 
 
 _DIMENSION_LABELS = {
@@ -208,8 +208,10 @@ def _render_review(audit: ClaimAudit) -> list[str]:
         )
         lines.extend([f"- 候选证据复审：{status}", f"- 复审说明：{gap.explanation}"])
     review = audit.citation_review or audit.citation_review_before_repair
+    if review is None and audit.judgment_before_citation_review is not None:
+        lines.append("- 引用完整性复核：未通过，未获得有效的结构化复核结果，需人工核对。")
     if review is not None:
-        status = "通过" if audit.citation_review is not None and review.complete and not review.missing_aspects else "未通过，需人工核对"
+        status = "通过" if citation_review_passed(audit) else "未通过，需人工核对"
         lines.extend([f"- 引用完整性复核：{status}", f"- 引用复核说明：{review.explanation}"])
         for aspect in review.aspects:
             citation_text = "；".join(f"{item.evidence_id}：{item.quote}" for item in aspect.citations)

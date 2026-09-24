@@ -155,7 +155,7 @@ def test_semantic_equivalence_does_not_require_literal_claim_words_or_ratio():
     assert result.evidence_ids == ['C1_e2']
 
 
-@pytest.mark.parametrize('label', ['ABSTAIN', 'CONTRADICTED', 'PARTIALLY_SUPPORTED', 'NO_SUPPORT_FOUND'])
+@pytest.mark.parametrize('label', ['ABSTAIN', 'PARTIALLY_SUPPORTED', 'NO_SUPPORT_FOUND'])
 def test_non_supported_judgments_do_not_get_promoted_by_coverage_review(label):
     judgment = original().model_copy(update={'label': AutoLabel(label)})
     assert apply_citation_review(judgment, candidates(), review()) == judgment

@@ -6,6 +6,16 @@ from collections.abc import Sequence
 import re
 
 from paperaudit.models import AutoLabel, ClaimAudit, ClaimCategory, Severity
+from paperaudit.audit_rules import apply_citation_review
+
+
+def citation_review_passed(audit: ClaimAudit) -> bool:
+    before = audit.judgment_before_citation_review or audit.judgment
+    return bool(
+        audit.citation_review is not None
+        and before.label in {AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED}
+        and apply_citation_review(before, audit.candidates, audit.citation_review).label == before.label
+    )
 
 
 QUICK_ALL = "all"

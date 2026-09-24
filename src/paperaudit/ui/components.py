@@ -22,7 +22,7 @@ from paperaudit.models import (
     Severity,
     TrustGrade,
 )
-from paperaudit.ui.audit_view import normalize_evidence_display, selected_evidence
+from paperaudit.ui.audit_view import citation_review_passed, normalize_evidence_display, selected_evidence
 
 
 _STATUS_BADGES = {
@@ -287,10 +287,14 @@ def build_review_status_html(audit: ClaimAudit) -> str:
 
     review = audit.citation_review
     review_before_repair = audit.citation_review_before_repair
+    if review is None and review_before_repair is None and audit.judgment_before_citation_review is not None:
+        panels.append('<section class="pa-audit-detail-section pa-audit-review-panel">'
+                      '<div class="pa-audit-detail-label">引用完整性复核</div>'
+                      '<div class="pa-audit-detail-copy">未通过：未获得有效的结构化复核结果，需人工核对。</div></section>')
     if review is not None or review_before_repair is not None:
         displayed = review or review_before_repair
         assert displayed is not None
-        passed = review is not None and review.complete and not review.missing_aspects
+        passed = citation_review_passed(audit)
         status = "通过" if passed else "未通过，需人工核对"
         details = [
             '<section class="pa-audit-detail-section pa-audit-review-panel">',

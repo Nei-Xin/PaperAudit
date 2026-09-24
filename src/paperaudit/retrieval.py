@@ -344,7 +344,63 @@ def _is_table_fragment(text: str) -> bool:
     numbers = re.findall(r"\d+(?:\.\d+)?", text)
     # Long prose lines are not rows even if the parser marked them as tables.
     short_lines = sum(len(line.split()) <= 6 for line in lines)
-    return (header_hits >= 2 or len(numbers) >= 2) and short_lines >= len(lines) * .7
+    # Task headers may consist entirely of abbreviations unknown to retrieval.
+    header = not numbers and len(lines) >= 3 and short_lines == len(lines)
+    return (header or header_hits >= 2 or len(numbers) >= 2) and short_lines >= len(lines) * .7
+
+
+def _table_fragments(chunks: list[PaperChunk], index: int) -> list[PaperChunk]:
+    """Find a bounded table above or below its caption, respecting PDF columns."""
+    caption = chunks[index]
+
+    def bounds(chunk):
+        return (min(r.x0 for r in chunk.rects), min(r.y0 for r in chunk.rects),
+                max(r.x1 for r in chunk.rects), max(r.y1 for r in chunk.rects))
+
+    if caption.rects:
+        box = bounds(caption)
+        aligned = []
+        for chunk in chunks:
+            if chunk.page != caption.page or not chunk.rects:
+                continue
+            other = bounds(chunk)
+            overlap = max(0, min(box[2], other[2]) - max(box[0], other[0]))
+            if overlap >= .7 * min(box[2] - box[0], other[2] - other[0]):
+                aligned.append(chunk)
+        aligned.sort(key=lambda c: bounds(c)[1])
+        at = next(i for i, c in enumerate(aligned) if c.chunk_id == caption.chunk_id)
+    else:
+        aligned, at = chunks, index
+
+    sides = []
+    for direction in (1, -1):
+        fragments = []
+        distance = None
+        previous = caption
+        for offset in range(1, 13):
+            pos = at + direction * offset
+            if not 0 <= pos < len(aligned):
+                break
+            chunk = aligned[pos]
+            if chunk.page != caption.page or _is_table_caption(chunk.content) or not _is_table_fragment(chunk.content):
+                break
+            if caption.rects:
+                current_box, previous_box = bounds(chunk), bounds(previous)
+                gap = (current_box[1] - previous_box[3] if direction == 1
+                       else previous_box[1] - current_box[3])
+                if gap < -2 or gap > 36:
+                    break
+                if distance is None:
+                    distance = max(0, gap)
+            fragments.append(chunk)
+            previous = chunk
+        if fragments:
+            if direction == -1:
+                fragments.reverse()
+            # Without geometry preserve caption-first behavior when both sides
+            # look plausible. With geometry prefer the nearer table boundary.
+            sides.append((distance if distance is not None else (direction == -1), fragments))
+    return min(sides, key=lambda side: (side[0], -len(side[1])))[1] if sides else []
 
 
 def _cited_table_candidates(
@@ -355,17 +411,17 @@ def _cited_table_candidates(
 ) -> list[EvidenceCandidate]:
     """Reserve at most three slots for a matching caption, header and ranked rows."""
     positions = {chunk.chunk_id: index for index, chunk in enumerate(cited_chunks)}
-    for hit in local:
+    requested_tables = set(re.findall(r"(?:\btable|\btab\.|表)\s*(\d+[A-Za-z]?)", claim.provided_evidence or "", re.I))
+
+    def explicitly_cited(hit):
+        number = re.match(r"\s*(?:table|tab\.|表)\s*(\d+[A-Za-z]?)", hit.text, re.I)
+        return bool(number and number.group(1).casefold() in {n.casefold() for n in requested_tables})
+
+    for hit in sorted(local, key=lambda c: not explicitly_cited(c)):
         if not _is_table_caption(hit.text):
             continue
         index = positions[hit.chunk_id]
-        fragments: list[PaperChunk] = []
-        # Stop at another caption, prose, or a page boundary. Never select an
-        # entire cited page; even a large table gets a bounded local scan.
-        for chunk in cited_chunks[index + 1:index + 13]:
-            if chunk.page != hit.page or _is_table_caption(chunk.content) or not _is_table_fragment(chunk.content):
-                break
-            fragments.append(chunk)
+        fragments = _table_fragments(cited_chunks, index)
         if not fragments:
             continue
         with EvidenceRetriever(fragments) as table_retriever:
