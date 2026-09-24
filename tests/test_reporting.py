@@ -8,6 +8,8 @@ from paperaudit.models import (
     PaperChunk,
     ParsedPaper,
     SkippedReportSource,
+    CandidateGapReview,
+    CitationReview,
 )
 from paperaudit.reporting import render_markdown
 from paperaudit.ui.demo_data import get_demo_audit_run
@@ -90,3 +92,26 @@ def test_existing_truncated_title_is_recovered_from_first_page_title_block() -> 
     )
 
     assert recover_paper_title(paper).endswith("without Human Labeling")
+
+
+def test_markdown_includes_recheck_provenance() -> None:
+    run = get_demo_audit_run()
+    audit = run.audits[3]
+    before = audit.judgment
+    final = before.model_copy(update={"label": AutoLabel.SUPPORTED, "evidence_ids": [audit.candidates[0].evidence_id]})
+    updated = audit.model_copy(update={
+        "judgment": final,
+        "judgment_before_candidate_gap_review": before,
+        "candidate_gap_review": CandidateGapReview(
+            claim_id=before.claim_id, evidence_relevant=True, judgment=final, explanation="表格直接支持。",
+        ),
+        "citation_review": CitationReview(
+            claim_id=before.claim_id, complete=True, evidence_ids=[audit.candidates[0].evidence_id],
+            missing_aspects=[], aspects=[{"aspect": "数值", "reasoning": "一致。", "citations": [{
+                "evidence_id": audit.candidates[0].evidence_id, "quote": audit.candidates[0].text,
+            }]}], explanation="覆盖完整。",
+        ),
+    })
+    report = render_markdown(run.model_copy(update={"audits": [*run.audits[:3], updated, *run.audits[4:]]}))
+    assert "候选证据复审：复审后恢复支持" in report
+    assert "引用完整性复核：通过" in report

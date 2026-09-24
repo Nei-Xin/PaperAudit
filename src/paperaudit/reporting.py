@@ -100,6 +100,9 @@ def render_markdown(run: AuditRun) -> str:
     for audit in confirmed:
         location = f" · {audit.claim.report_location}" if audit.claim.report_location else ""
         lines.append(f"- **{audit.claim.claim_id}{location}**：{audit.claim.text}")
+        review_lines = _render_review(audit)
+        if review_lines:
+            lines.extend(review_lines)
     lines.append("")
 
     lines.extend(["## 完整原文依据附录", ""])
@@ -169,6 +172,7 @@ def _render_issue(audit: ClaimAudit) -> list[str]:
         f"- 证据问题：{evidence_error_name(judgment.evidence_error_type)}",
         f"- 判断说明：{judgment.explanation}",
     ]
+    lines.extend(_render_review(audit))
     if judgment.suggestion:
         lines.append(f"- 修改建议：{judgment.suggestion}")
     if audit.claim.source_quote:
@@ -188,6 +192,30 @@ def _render_issue(audit: ClaimAudit) -> list[str]:
                 ]
             )
     lines.append("")
+    return lines
+
+
+def _render_review(audit: ClaimAudit) -> list[str]:
+    lines: list[str] = []
+    gap = audit.candidate_gap_review
+    if gap is not None:
+        changed = (
+            audit.judgment_before_candidate_gap_review is not None
+            and audit.judgment_before_candidate_gap_review.label != audit.judgment.label
+        )
+        status = "复审后恢复支持" if changed and audit.judgment.label == AutoLabel.SUPPORTED else (
+            "复审完成，最终判断未改变" if gap.evidence_relevant else "复审未发现足够依据"
+        )
+        lines.extend([f"- 候选证据复审：{status}", f"- 复审说明：{gap.explanation}"])
+    review = audit.citation_review or audit.citation_review_before_repair
+    if review is not None:
+        status = "通过" if audit.citation_review is not None and review.complete and not review.missing_aspects else "未通过，需人工核对"
+        lines.extend([f"- 引用完整性复核：{status}", f"- 引用复核说明：{review.explanation}"])
+        for aspect in review.aspects:
+            citation_text = "；".join(f"{item.evidence_id}：{item.quote}" for item in aspect.citations)
+            lines.append(f"  - {aspect.aspect}：{aspect.reasoning}（引文：{citation_text}）")
+        if review.missing_aspects:
+            lines.append(f"- 引用缺口：{'、'.join(review.missing_aspects)}")
     return lines
 
 
