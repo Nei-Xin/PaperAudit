@@ -19,6 +19,7 @@ from paperaudit.ui.audit_view import (
 from paperaudit.ui.components import (
     build_audit_detail_html,
     build_audit_summary_html,
+    build_review_status_html,
 )
 from paperaudit.ui.demo_data import get_demo_audit_run
 
@@ -174,3 +175,31 @@ def test_no_support_detail_shows_ranked_candidates_without_verified_evidence() -
     assert "候选 1" in html and "候选 2" in html
     assert "p1_b1" in html and "p1_b2" in html
     assert "p1_b3" not in html
+
+
+def test_detail_shows_candidate_and_citation_review_provenance() -> None:
+    from paperaudit.models import CandidateGapReview, CitationReview
+
+    audit = get_demo_audit_run().audits[3]
+    before = audit.judgment
+    final = before.model_copy(update={"label": AutoLabel.SUPPORTED, "evidence_ids": [audit.candidates[0].evidence_id]})
+    updated = audit.model_copy(update={
+        "judgment": final,
+        "judgment_before_candidate_gap_review": before,
+        "candidate_gap_review": CandidateGapReview(
+            claim_id=before.claim_id, evidence_relevant=True, judgment=final,
+            explanation="候选表格直接给出该值。",
+        ),
+        "citation_review": CitationReview(
+            claim_id=before.claim_id, complete=True,
+            evidence_ids=[audit.candidates[0].evidence_id], missing_aspects=[],
+            aspects=[{"aspect": "数值", "reasoning": "原文一致。", "citations": [{
+                "evidence_id": audit.candidates[0].evidence_id, "quote": audit.candidates[0].text,
+            }]}], explanation="引用覆盖完整。",
+        ),
+    })
+    html = build_audit_detail_html(updated, "主要结果")
+    assert "候选证据复审" in html
+    assert "复审后恢复支持" in html
+    assert "引用完整性复核" in html
+    assert "引用覆盖完整" in html

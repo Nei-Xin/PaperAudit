@@ -203,6 +203,8 @@ def build_audit_detail_html(
             f'{escape(audit.judgment.suggestion.strip())}</div></section>'
         )
 
+    review_html = build_review_status_html(audit)
+
     selected = _detail_evidence(audit)[:evidence_limit]
     if selected:
         is_candidate_only = audit.judgment.label in {
@@ -256,8 +258,66 @@ def build_audit_detail_html(
         '<div class="pa-audit-detail-label">问题分类</div>'
         f'<div class="pa-audit-detail-copy">论断：{escape(claim_error_name(audit.judgment.claim_error_type))} · '
         f'证据：{escape(evidence_error_name(audit.judgment.evidence_error_type))}</div></section></div>'
-        f'{suggestion_html}{evidence_html}</div>'
+        f'{suggestion_html}{review_html}{evidence_html}</div>'
     )
+
+
+def build_review_status_html(audit: ClaimAudit) -> str:
+    """Render bounded recheck provenance without exposing raw model payloads."""
+
+    panels: list[str] = []
+    gap = audit.candidate_gap_review
+    if gap is not None:
+        changed = (
+            audit.judgment_before_candidate_gap_review is not None
+            and audit.judgment_before_candidate_gap_review.label != audit.judgment.label
+        )
+        if changed and audit.judgment.label == AutoLabel.SUPPORTED:
+            status = "复审后恢复支持"
+        elif gap.evidence_relevant:
+            status = "复审完成，最终判断未改变"
+        else:
+            status = "复审未发现足够依据"
+        panels.append(
+            '<section class="pa-audit-detail-section pa-audit-review-panel">'
+            '<div class="pa-audit-detail-label">候选证据复审</div>'
+            f'<div class="pa-audit-detail-copy"><strong>{escape(status)}</strong> · '
+            f'{escape(gap.explanation)}</div></section>'
+        )
+
+    review = audit.citation_review
+    review_before_repair = audit.citation_review_before_repair
+    if review is not None or review_before_repair is not None:
+        displayed = review or review_before_repair
+        assert displayed is not None
+        passed = review is not None and review.complete and not review.missing_aspects
+        status = "通过" if passed else "未通过，需人工核对"
+        details = [
+            '<section class="pa-audit-detail-section pa-audit-review-panel">',
+            '<div class="pa-audit-detail-label">引用完整性复核</div>',
+            f'<div class="pa-audit-detail-copy"><strong>{escape(status)}</strong> · '
+            f'{escape(displayed.explanation)}</div>',
+        ]
+        if displayed.missing_aspects:
+            missing = "、".join(displayed.missing_aspects)
+            details.append(f'<div class="pa-audit-detail-copy">缺少：{escape(missing)}</div>')
+        if displayed.aspects:
+            details.append('<ul class="pa-audit-review-list">')
+            for aspect in displayed.aspects:
+                quotes = "；".join(
+                    f"{citation.evidence_id}: {normalize_evidence_display(citation.quote)}"
+                    for citation in aspect.citations
+                )
+                details.append(
+                    f'<li><strong>{escape(aspect.aspect)}</strong>：'
+                    f'{escape(aspect.reasoning)}<br><small>引文：{escape(quotes)}</small></li>'
+                )
+            details.append('</ul>')
+        if review_before_repair is not None and review is not None:
+            details.append('<div class="pa-audit-detail-copy">已执行一次引文格式修复，当前显示修复后的结果。</div>')
+        details.append('</section>')
+        panels.append("".join(details))
+    return "".join(panels)
 
 
 def _detail_evidence(audit: ClaimAudit):
