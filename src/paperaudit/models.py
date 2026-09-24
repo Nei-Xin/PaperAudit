@@ -592,6 +592,13 @@ class CitationReview(StrictModel):
     explanation: str
 
 
+class CandidateGapReview(StrictModel):
+    claim_id: str
+    evidence_relevant: bool
+    judgment: ClaimJudgment
+    explanation: str
+
+
 class ClaimAudit(StrictModel):
     claim: AtomicClaim
     candidates: list[EvidenceCandidate]
@@ -599,6 +606,8 @@ class ClaimAudit(StrictModel):
     citation_review: CitationReview | None = None
     citation_review_before_repair: CitationReview | None = None
     judgment_before_citation_review: ClaimJudgment | None = None
+    candidate_gap_review: CandidateGapReview | None = None
+    judgment_before_candidate_gap_review: ClaimJudgment | None = None
 
 
 class DimensionScores(StrictModel):

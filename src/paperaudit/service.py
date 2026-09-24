@@ -16,6 +16,7 @@ from .audit_rules import (
 )
 from .hy3_client import Hy3Client, Hy3ResponseError
 from .citation_review import review_supported_citations
+from .evidence_gap import recheck_candidate_gap
 from .models import (
     AnswerConclusion,
     AnswerStatus,
@@ -1210,6 +1211,13 @@ class AuditService:
             citation_review = None
             citation_review_before_repair = None
             before_citation_review = None
+            candidate_gap_review = None
+            before_candidate_gap_review = None
+            if judgment.label != AutoLabel.SUPPORTED and candidates:
+                before_candidate_gap_review = judgment
+                judgment, candidate_gap_review = recheck_candidate_gap(
+                    self.client, claim, candidates, judgment, paper.page_count,
+                )
             if judgment.label == AutoLabel.SUPPORTED:
                 notify("正在复核支持结论的引用完整性", 0.92)
                 before_citation_review = judgment
@@ -1231,6 +1239,8 @@ class AuditService:
                 citation_review=citation_review,
                 citation_review_before_repair=citation_review_before_repair,
                 judgment_before_citation_review=before_citation_review,
+                candidate_gap_review=candidate_gap_review,
+                judgment_before_candidate_gap_review=before_candidate_gap_review,
             ))
 
         notify("正在生成审计摘要", 0.95)
