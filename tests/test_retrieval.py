@@ -203,3 +203,44 @@ def test_structure_alone_cannot_produce_candidates_for_an_unmatched_query() -> N
     ]
     with EvidenceRetriever(chunks) as retriever:
         assert retriever.search("constraint quaternion", "C") == []
+
+
+def test_budget_preserves_whole_passages_deduplicates_and_backfills():
+    from paperaudit.models import EvidenceCandidate
+    from paperaudit.retrieval import budget_claim_evidence
+    def candidate(cid, text):
+        return EvidenceCandidate(evidence_id='old', chunk_id=cid, page=3, text=text, score=1)
+    a, b, c = candidate('a', '1234'), candidate('b', 'long passage'), candidate('c', '5678')
+    result = budget_claim_evidence('C', [a, a, b, c], max_candidates=2, max_chars=8)
+    assert [r.chunk_id for r in result] == ['a', 'c']
+    assert [r.evidence_id for r in result] == ['C_e1', 'C_e2']
+    assert [r.text for r in result] == ['1234', '5678']
+    assert a.evidence_id == 'old'
+
+
+def test_all_strategies_have_equal_caps_and_keep_ranked_seeds():
+    from paperaudit.models import EvidenceCandidate
+    from paperaudit.retrieval import retrieve_claim_evidence
+    # Lexical results alternate with unsearchable formulas in document order.
+    chunks = []
+    for index in range(12):
+        chunks.extend([
+            PaperChunk(chunk_id=f't{index}', page=2, content=f'Model result {index}.'),
+            PaperChunk(chunk_id=f'f{index}', page=2, content='L = ∑ (y - x)²'),
+        ])
+    ranked = [EvidenceCandidate(evidence_id=f'C_e{i+1}', chunk_id=f't{i}', page=2,
+                               text=chunks[i*2].content, score=1-i/100) for i in range(12)]
+    class Retriever:
+        def search(self, query, claim_id, limit):
+            return ranked[:limit]
+    claim = AtomicClaim(claim_id='C', text='结果', category=ClaimCategory.RESULTS, query_en='result')
+    pools = {arm: retrieve_claim_evidence(Retriever(), claim, chunks, strategy=arm)
+             for arm in ('plain', 'structural', 'hybrid')}
+    for pool in pools.values():
+        assert pool[:5] == ranked[:5]
+        assert len(pool) == len({c.chunk_id for c in pool}) == 10
+        assert [c.evidence_id for c in pool] == [f'C_e{i}' for i in range(1, 11)]
+    assert all(c.chunk_id.startswith('t') for c in pools['plain'])
+    assert all(c.chunk_id.startswith('f') for c in pools['structural'][5:])
+    assert [c.chunk_id for c in pools['hybrid'][:8]] == [f't{i}' for i in range(8)]
+    assert all(c.chunk_id.startswith('f') for c in pools['hybrid'][8:])

@@ -300,6 +300,62 @@ def expand_claim_evidence(
     return result
 
 
+def budget_claim_evidence(
+    claim_id: str, candidates: Iterable[EvidenceCandidate], *,
+    max_candidates: int = 10, max_chars: int = 18_000,
+) -> list[EvidenceCandidate]:
+    """Keep whole local passages under one shared count and text budget."""
+    if max_candidates < 1 or max_chars < 1:
+        raise ValueError("Candidate count and character budgets must be positive.")
+    result: list[EvidenceCandidate] = []
+    seen: set[str] = set()
+    chars = 0
+    for candidate in candidates:
+        if candidate.chunk_id in seen:
+            continue
+        seen.add(candidate.chunk_id)
+        if chars + len(candidate.text) > max_chars:
+            continue
+        result.append(candidate.model_copy(update={"evidence_id": f"{claim_id}_e{len(result) + 1}"}))
+        chars += len(candidate.text)
+        if len(result) == max_candidates:
+            break
+    return result
+
+
+def retrieve_claim_evidence(
+    retriever: EvidenceRetriever, claim: AtomicClaim, chunks: list[PaperChunk], *,
+    strategy: str, seed_limit: int = 5, max_chars: int = 18_000,
+) -> list[EvidenceCandidate]:
+    """Compare lexical, structural-first and mixed expansion with equal caps.
+
+    All strategies start with the same ranked seed. Structural takes up to five
+    neighbors before lexical backfill; hybrid reserves three of those five
+    additional slots for lexical results and two for neighbors. No gold data is
+    involved in selection.
+    """
+    if strategy not in {"plain", "structural", "hybrid"}:
+        raise ValueError(f"Unknown retrieval strategy: {strategy}")
+    if seed_limit < 1:
+        raise ValueError("seed_limit must be positive")
+    ranked = retriever.search(build_claim_query(claim), claim.claim_id, seed_limit + 5)
+    seeds = ranked[:seed_limit]
+    if strategy == "plain":
+        ordered = ranked
+    elif strategy == "structural":
+        ordered = expand_claim_evidence(claim, chunks, seeds) + ranked[seed_limit:]
+    else:
+        lexical = ranked[:seed_limit + 3]
+        # Expand original seeds; ignore neighbors already included lexically.
+        neighbors = expand_claim_evidence(claim, chunks, seeds, max_additions=10)[len(seeds):]
+        lexical_ids = {candidate.chunk_id for candidate in lexical}
+        additions = [candidate for candidate in neighbors if candidate.chunk_id not in lexical_ids][:2]
+        ordered = lexical + additions + ranked[seed_limit + 3:]
+    return budget_claim_evidence(
+        claim.claim_id, ordered, max_candidates=seed_limit + 5, max_chars=max_chars,
+    )
+
+
 def supplement_claim_evidence(
     claim: AtomicClaim, chunks: list[PaperChunk], candidates: list[EvidenceCandidate],
 ) -> list[EvidenceCandidate]:
