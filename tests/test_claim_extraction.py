@@ -73,6 +73,34 @@ def test_batched_extraction_retries_missing_source_and_never_returns_partial_res
         client.extract_claims("提升 3.2%。", ["results"])
 
 
+def test_invalid_source_isolated_without_discarding_valid_batch_sources():
+    client = object.__new__(Hy3Client)
+    calls = []
+    text = "结果甲为 3.2%。结果乙为 4.1%。"
+    sources = split_report_sources(text)
+
+    def respond(prompt, response_model, effort):
+        payload = json.loads(
+            prompt.split("<untrusted_report>\n")[1].split("\n</untrusted_report>")[0]
+        )
+        calls.append([item["source_id"] for item in payload])
+        if len(calls) <= 2:
+            return _response(*[
+                {"source_id": sources[0].source_id, "claims": [_claim(sources[0].text)]},
+                {"source_id": sources[1].source_id, "claims": [_claim("不存在的引文")]},
+            ])
+        assert payload == [{"source_id": sources[1].source_id, "text": sources[1].text,
+                            "report_location": sources[1].report_location,
+                            "section_title": sources[1].section_title}]
+        return _response({"source_id": sources[1].source_id, "claims": [_claim(sources[1].text)]})
+
+    client._json_call = respond
+    result = client.extract_claims(text, ["results"])
+
+    assert [claim.source_id for claim in result.claims] == ["S0001", "S0002"]
+    assert calls == [["S0001", "S0002"], ["S0001", "S0002"], ["S0002"]]
+
+
 def test_multiple_batches_account_for_every_input_source():
     client = object.__new__(Hy3Client)
     batch_sizes = []
