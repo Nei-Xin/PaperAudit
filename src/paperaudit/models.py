@@ -557,6 +557,20 @@ class EvidenceReview(StrictModel):
     evidence_sufficient: bool
     judgment: ClaimJudgment
 
+    @model_validator(mode="after")
+    def require_evidence_for_sufficient_review(self) -> "EvidenceReview":
+        """A positive supplementary review must point to at least one passage.
+
+        The audit service still validates each ID against the candidate set. This
+        model check catches the earlier failure mode where a review claimed the
+        evidence was sufficient while returning an empty evidence list.
+        """
+        if self.evidence_sufficient and not self.judgment.evidence_ids:
+            raise ValueError(
+                "证据充分的补查裁决必须返回至少一个 evidence_id。"
+            )
+        return self
+
 
 class ClaimAudit(StrictModel):
     claim: AtomicClaim

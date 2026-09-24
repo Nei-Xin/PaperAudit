@@ -33,6 +33,18 @@ def test_supplement_prefers_cited_page_and_preserves_evidence_ids():
     assert report_evidence_pages("第2页；page 999；p. 3；表99") == {2, 3, 999}
 
 
+def test_sufficient_review_requires_evidence_id():
+    with pytest.raises(ValueError, match="evidence_id"):
+        EvidenceReview(
+            evidence_sufficient=True,
+            judgment=ClaimJudgment(
+                claim_id="C001",
+                label=AutoLabel.SUPPORTED,
+                explanation="Evidence is sufficient.",
+            ),
+        )
+
+
 class MissingClient:
     def __init__(self, *, outcome="supported", anchor="（证据：论文第2页）"):
         self.outcome, self.anchor, self.reviews = outcome, anchor, 0
