@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections import Counter
 from collections.abc import Sequence
 from typing import TypeVar
 
@@ -10,6 +11,7 @@ from pydantic import BaseModel, ValidationError
 
 from .config import Settings
 from .claim_extraction import (
+    ReportSource,
     SourceExtractionBatch,
     source_batches,
     source_payload,
@@ -738,8 +740,8 @@ Rules:
 
     def _claim_extraction_prompt(
         self,
-        batch: Sequence[object],
-        neighbors: Sequence[object],
+        batch: Sequence[ReportSource],
+        neighbors: Sequence[ReportSource],
         scope: Sequence[str],
         validation_error: str | None = None,
     ) -> str:
@@ -820,9 +822,12 @@ Adjacent sentences are context only. Do not return entries for their source_ids:
                     if response is not None
                     else {}
                 )
-                unrecovered: list[object] = []
-                for source in batch:
-                    source_response = by_id.get(source.source_id)
+                counts = Counter(item.source_id for item in response.sources) if response else Counter()
+                unrecovered: list[ReportSource] = []
+                for source_index, source in enumerate(batch, offset):
+                    # Duplicate entries may contain conflicting claims or skips;
+                    # never silently keep whichever entry happened to be last.
+                    source_response = by_id.get(source.source_id) if counts[source.source_id] == 1 else None
                     source_result: ClaimExtraction | None = None
                     if source_response is not None:
                         try:
@@ -834,10 +839,10 @@ Adjacent sentences are context only. Do not return entries for their source_ids:
                         except ValueError as exc:
                             last_error = exc
                     if source_result is None:
-                        single_neighbors = [
-                            item for item in neighbors
-                            if item.source_id != source.source_id
-                        ]
+                        single_neighbors = (
+                            sources[max(0, source_index - 1):source_index]
+                            + sources[source_index + 1:source_index + 2]
+                        )
                         single_prompt = self._claim_extraction_prompt(
                             [source], single_neighbors, scope, str(last_error) if last_error else None
                         )

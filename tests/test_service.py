@@ -262,3 +262,21 @@ def test_evaluation_validates_evidence_after_label_calibration() -> None:
 
     assert validated.label == AutoLabel.ABSTAIN
     assert validated.evidence_ids == []
+
+
+def test_audit_sends_structural_context_as_separate_verified_candidates():
+    class ContextClient(FakeHy3Client):
+        def judge_claims(self, batch, page_count):
+            claim, candidates = batch[0]
+            assert [c.chunk_id for c in candidates] == ['result', 'formula']
+            assert [c.evidence_id for c in candidates] == ['C001_e1', 'C001_e2']
+            return super().judge_claims(batch, page_count)
+
+    paper = ParsedPaper(title='Context', page_count=2, chunks=[
+        PaperChunk(chunk_id='result', page=2, content='Dataset A improves F1 by 3.2 points.'),
+        PaperChunk(chunk_id='formula', page=2, content='L = ∑ (y - x)²'),
+    ])
+    service = AuditService(Settings(api_base='https://example.invalid', api_key='test',
+                                    model='fake', retrieval_top_k=1), ContextClient())
+    run = service.audit(paper, '结果提升3.2。', [ClaimCategory.RESULTS])
+    assert run.audits[0].candidates[1].text == paper.chunks[1].content

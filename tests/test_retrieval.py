@@ -1,5 +1,5 @@
 from paperaudit.models import AtomicClaim, ClaimCategory, PaperChunk
-from paperaudit.retrieval import EvidenceRetriever, build_claim_query
+from paperaudit.retrieval import EvidenceRetriever, build_claim_query, expand_claim_evidence
 
 
 def test_retrieval_finds_numeric_evidence() -> None:
@@ -106,13 +106,12 @@ def test_retrieval_matches_configuration_entity_to_nearby_resource() -> None:
     assert results[0].chunk_id == "p4_b1"
 
 
-def test_retrieval_boosts_formula_blocks_for_equation_queries() -> None:
+def test_formula_context_recovers_unsearchable_equation_from_legacy_index() -> None:
     chunks = [
         PaperChunk(
             chunk_id="p3_formula",
             page=3,
-            content="The objective loss L = sum_i (y_i - f(x_i))^2.",
-            content_type="formula",
+            content="L = ∑ (y - x)²",
         ),
         PaperChunk(
             chunk_id="p3_text",
@@ -122,7 +121,14 @@ def test_retrieval_boosts_formula_blocks_for_equation_queries() -> None:
     ]
     with EvidenceRetriever(chunks) as retriever:
         results = retriever.search("equation objective loss", "C006", limit=1)
-    assert results[0].chunk_id == "p3_formula"
+    assert results[0].chunk_id == "p3_text"
+    claim = AtomicClaim(claim_id="C006", text="平方误差目标", category=ClaimCategory.METHOD,
+                        query_en="equation objective loss")
+    expanded = expand_claim_evidence(claim, chunks, results)
+    assert expanded[0] == results[0]
+    assert expanded[1].chunk_id == "p3_formula"
+    assert expanded[1].text == chunks[0].content
+    assert expanded[1].evidence_id == "C006_e2"
 
 
 def test_retrieval_recovers_cross_page_table_continuation() -> None:
@@ -136,7 +142,7 @@ def test_retrieval_recovers_cross_page_table_continuation() -> None:
         PaperChunk(
             chunk_id="p5_row",
             page=5,
-            content="Ours 91.2 accuracy on Dataset Z",
+            content="Ours 91.2 8.8",
             content_type="table",
         ),
         PaperChunk(
@@ -146,5 +152,54 @@ def test_retrieval_recovers_cross_page_table_continuation() -> None:
         ),
     ]
     with EvidenceRetriever(chunks) as retriever:
-        results = retriever.search("Table 2 Dataset Z accuracy", "C007", limit=2)
-    assert {result.chunk_id for result in results} == {"p4_caption", "p5_row"}
+        results = retriever.search("Table 2 results", "C007", limit=1)
+    claim = AtomicClaim(claim_id="C007", text="表2结果", category=ClaimCategory.RESULTS,
+                        query_en="Table 2 results")
+    expanded = expand_claim_evidence(claim, chunks, results)
+    assert expanded[:len(results)] == results
+    assert [result.chunk_id for result in expanded] == ["p4_caption", "p5_row"]
+    assert expanded[1].page == 5
+    assert expanded[1].text == chunks[1].content
+
+
+def test_context_is_bounded_deduplicated_and_does_not_join_distant_pages() -> None:
+    chunks = [
+        PaperChunk(chunk_id=f"p{page}", page=page, content=f"Table {page}: Results")
+        for page in (1, 2, 9)
+    ]
+    claim = AtomicClaim(claim_id="C", text="表1", category=ClaimCategory.RESULTS,
+                        query_en="Table 1 results")
+    with EvidenceRetriever(chunks) as retriever:
+        seed = retriever.search(claim.query_en, "C", limit=1)
+    # Appending to IDs with gaps must not create duplicate evidence IDs.
+    seed = [seed[0].model_copy(update={"evidence_id": "C_e2"})]
+    expanded = expand_claim_evidence(claim, chunks, seed, max_additions=1)
+    assert [c.chunk_id for c in expanded] == ["p1", "p2"]
+    assert len({c.evidence_id for c in expanded}) == 2
+    assert expand_claim_evidence(claim, chunks, expanded) == expanded
+    assert expand_claim_evidence(claim, chunks, []) == []
+    assert expand_claim_evidence(claim, chunks, seed, max_additions=0) == seed
+
+
+def test_cross_page_prose_requires_continuation_not_just_proximity() -> None:
+    claim = AtomicClaim(claim_id="C", text="收敛前提", category=ClaimCategory.METHOD,
+                        query_en="convergence assumptions")
+    chunks = [
+        PaperChunk(chunk_id="a", page=2, content="The convergence assumptions require"),
+        PaperChunk(chunk_id="b", page=3, content="a bounded gradient and smooth loss."),
+        PaperChunk(chunk_id="c", page=4, content="Unrelated experiment overview."),
+    ]
+    with EvidenceRetriever(chunks) as retriever:
+        seed = retriever.search(claim.query_en, "C", limit=1)
+    expanded = expand_claim_evidence(claim, chunks, seed)
+    assert [c.chunk_id for c in expanded] == ["a", "b"]
+    assert expand_claim_evidence(claim, chunks, expanded) == expanded
+
+
+def test_structure_alone_cannot_produce_candidates_for_an_unmatched_query() -> None:
+    chunks = [
+        PaperChunk(chunk_id="a", page=2, content="L = ∑ (y - x)²", content_type="formula"),
+        PaperChunk(chunk_id="b", page=3, content="Table 2: Scores", content_type="table"),
+    ]
+    with EvidenceRetriever(chunks) as retriever:
+        assert retriever.search("constraint quaternion", "C") == []

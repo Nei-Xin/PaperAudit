@@ -170,3 +170,26 @@ def test_section_context_survives_batch_boundaries():
     sources = split_report_sources("## 主要结果\n" + "\n".join(f"实验结果 {i}。" for i in range(15)))
     batches = list(source_batches(sources))
     assert batches[1][0].section_title == "主要结果"
+
+
+def test_duplicate_source_is_retried_with_its_actual_adjacent_context():
+    client = object.__new__(Hy3Client)
+    text = '甲结果为3%。乙结果为4%。丙结果为5%。'
+    sources = split_report_sources(text)
+    calls = []
+
+    def respond(prompt, *args):
+        calls.append(prompt)
+        entries = [{"source_id": s.source_id, "claims": [_claim(s.text)]} for s in sources]
+        if len(calls) <= 2:
+            return _response(*entries, entries[1])
+        payload = json.loads(prompt.split('<untrusted_report>\n')[1].split('\n</untrusted_report>')[0])
+        context = json.loads(prompt.split('<untrusted_context>\n')[1].split('\n</untrusted_context>')[0])
+        assert [s['source_id'] for s in payload] == ['S0002']
+        assert [s['source_id'] for s in context] == ['S0001', 'S0003']
+        return _response(entries[1])
+
+    client._json_call = respond
+    result = client.extract_claims(text, ['results'])
+    assert len(calls) == 3
+    assert [c.source_id for c in result.claims] == ['S0001', 'S0002', 'S0003']
