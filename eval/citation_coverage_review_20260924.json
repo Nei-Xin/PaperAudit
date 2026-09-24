@@ -1,0 +1,872 @@
+{
+  "date": "2026-09-24",
+  "model": "gpt-6-luna",
+  "method": "Replay 15 frozen cited-retrieval judgments plus one prose-only control. Reuse initial reviews when testing bounded repair; not a fresh end-to-end audit.",
+  "initial_review_summary": {
+    "completed": 16,
+    "planned": 16,
+    "natural_cases": 15,
+    "before_reference_agreement": 15,
+    "after_reference_agreement": 12,
+    "abstain": 3,
+    "invalid_complete_reviews": 3,
+    "requests": 14,
+    "tokens": 53385,
+    "controls": [
+      {
+        "case_id": "P04_natural_1_C023_prose_only",
+        "status": "ok",
+        "after": {
+          "claim_id": "C023",
+          "label": "ABSTAIN",
+          "evidence_ids": [],
+          "explanation": "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ]
+  },
+  "final_repair_summary": {
+    "completed": 16,
+    "planned": 16,
+    "natural_cases": 15,
+    "before_reference_agreement": 15,
+    "after_reference_agreement": 15,
+    "abstain": 0,
+    "invalid_complete_reviews": 0,
+    "requests": 3,
+    "tokens": 14371,
+    "controls": [
+      {
+        "case_id": "P04_natural_1_C023_prose_only",
+        "status": "ok",
+        "after": {
+          "claim_id": "C023",
+          "label": "ABSTAIN",
+          "evidence_ids": [],
+          "explanation": "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": null
+        }
+      }
+    ]
+  },
+  "measured_api_requests": 17,
+  "measured_tokens": 67756,
+  "protocol_sha256": "e0d20c67faa120090b5f7132a7303fde2e795c9291bb985855d0e9778b8f5795",
+  "implementation_sha256": {
+    "/Users/arkie/Documents/data/code/PaperAudit/eval/citation_coverage_experiment.py": "77289106fe9c720996b2dd8c5efc1983894c2e96dcd260c6b6b61d79a13f7005",
+    "src/paperaudit/hy3_client.py": "608a1ad4fb784d5e88777d9ccfa9e51029ca5b5b7b3952314262fc5f2416b3eb",
+    "src/paperaudit/models.py": "ba6b6024b0b3a3e3cf16717abfb73ab94cef19fc442ca64880da82f5553739d3",
+    "src/paperaudit/audit_rules.py": "7e9fb596743ec897c66c6f8def5be2925e2c8b313108716a41878f13313b2750",
+    "src/paperaudit/citation_review.py": "938e4dfcd854a305fff4c0751f08ff9360f0393021435ac4df9eeaee74876a81",
+    "eval/retrieval_strategy_experiment.py": "10fd2076d32d980809bc7cc8921d7aae8ced5ec13fe6809aec2da6b709be5b25"
+  },
+  "limitations": [
+    "Diagnostic sample only; model-assisted references are not independent human gold.",
+    "Exact quote provenance is checked locally; completeness of semantic decomposition is still model judgment.",
+    "Only SUPPORTED judgments receive coverage review. Earlier extraction/retrieval and negative labels are not improved by this change.",
+    "Two exploratory API calls preceded the frozen protocol; their token usage is not included."
+  ],
+  "cases": [
+    {
+      "case_id": "P01_natural_1_C017",
+      "claim": "因子化嵌入将O(V×H)矩阵拆为O(V×E+E×H)，默认E=128。",
+      "control": false,
+      "before": {
+        "claim_id": "C017",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C017_e4",
+          "C017_e9"
+        ],
+        "explanation": "C017_e4支持将参数量从O(V×H)分解为O(V×E+E×H)；C017_e9说明后续设置均采用E=128。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C017",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C017_e4",
+          "C017_e9"
+        ],
+        "explanation": "C017_e4支持将参数量从O(V×H)分解为O(V×E+E×H)；C017_e9说明后续设置均采用E=128。 引用完整性复核：最终引用共同支持ALBERT因子化嵌入的复杂度变化及后续设置采用E=128；没有额外的指标或单位需要核验。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C017_e4",
+          "chunk_id": "p4_b9",
+          "page": 4
+        },
+        {
+          "evidence_id": "C017_e9",
+          "chunk_id": "p7_b13",
+          "page": 7
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P01_natural_1_C030",
+      "claim": "最终集成模型在RACE达89.4。",
+      "control": false,
+      "before": {
+        "claim_id": "C030",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C030_e2",
+          "C030_e5"
+        ],
+        "explanation": "候选证据明确支持最终ALBERT集成模型在RACE测试集上的准确率为89.4；表14列出该值，正文也明确称RACE测试准确率为89.4。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C030",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C030_e2",
+          "C030_e4",
+          "C030_e5"
+        ],
+        "explanation": "候选证据明确支持最终ALBERT集成模型在RACE测试集上的准确率为89.4；表14列出该值，正文也明确称RACE测试准确率为89.4。 引用完整性复核：修正后的引文均为候选文本中的连续片段。e4支持最终集成模型及其预测平均方式，e5以表头、Ensembles分组和ALBERT行确立模型、RACE测试列及数值，e2明确说明89.4是RACE测试准确率。证据ID与各方面实际引用的ID一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C030_e2",
+          "chunk_id": "p11_b3",
+          "page": 11
+        },
+        {
+          "evidence_id": "C030_e4",
+          "chunk_id": "p11_b2",
+          "page": 11
+        },
+        {
+          "evidence_id": "C030_e5",
+          "chunk_id": "p11_b6",
+          "page": 11
+        }
+      ],
+      "quote_repair_used": true
+    },
+    {
+      "case_id": "P01_natural_1_C022",
+      "claim": "评测涵盖GLUE、SQuAD v1.1/v2.0、RACE。",
+      "control": false,
+      "before": {
+        "claim_id": "C022",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C022_e1",
+          "C022_e2",
+          "C022_e8"
+        ],
+        "explanation": "候选证据支持该评测范围：C022_e1明确提到GLUE、RACE和SQuAD基准；C022_e2列出SQuAD v1.1、SQuAD v2.0和RACE，并包含GLUE任务；C022_e8也明确提到两个版本的SQuAD及RACE。因此，GLUE、SQuAD v1.1/v2.0和RACE均有证据支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C022",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C022_e2",
+          "C022_e4"
+        ],
+        "explanation": "候选证据支持该评测范围：C022_e1明确提到GLUE、RACE和SQuAD基准；C022_e2列出SQuAD v1.1、SQuAD v2.0和RACE，并包含GLUE任务；C022_e8也明确提到两个版本的SQuAD及RACE。因此，GLUE、SQuAD v1.1/v2.0和RACE均有证据支持。 引用完整性复核：GLUE由论文对基准的明确表述支持；配置表分别列出SQuAD v1.1、SQuAD v2.0和RACE。引文均为对应候选中的连续原文片段。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C022_e2",
+          "chunk_id": "p16_b8",
+          "page": 16
+        },
+        {
+          "evidence_id": "C022_e4",
+          "chunk_id": "p2_b21",
+          "page": 2
+        }
+      ],
+      "quote_repair_used": true
+    },
+    {
+      "case_id": "P02_natural_1_C021",
+      "claim": "RACE阅读理解单模型准确率达到81.75%，远超BERT的72.0%。",
+      "control": false,
+      "before": {
+        "claim_id": "C021",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C021_e2",
+          "C021_e7"
+        ],
+        "explanation": "表1列出XLNet准确率81.75%，表中BERT准确率为72.0%，支持所述数值及比较。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C021",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C021_e2",
+          "C021_e6",
+          "C021_e7"
+        ],
+        "explanation": "表1列出XLNet准确率81.75%，表中BERT准确率为72.0%，支持所述数值及比较。 引用完整性复核：所引连续表格片段及表注共同覆盖RACE阅读理解测试集、Accuracy表头、XLNet单模型值和BERT对照值；两项准确率的差值为9.75个百分点。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C021_e2",
+          "chunk_id": "p8_b3",
+          "page": 8
+        },
+        {
+          "evidence_id": "C021_e6",
+          "chunk_id": "p8_b1",
+          "page": 8
+        },
+        {
+          "evidence_id": "C021_e7",
+          "chunk_id": "p8_b2",
+          "page": 8
+        }
+      ],
+      "quote_repair_used": true
+    },
+    {
+      "case_id": "P02_natural_1_C025",
+      "claim": "文本分类错误率显著下降。",
+      "control": false,
+      "before": {
+        "claim_id": "C025",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C025_e1"
+        ],
+        "explanation": "候选证据 C025_e1 明确说明，XLNet 在多个文本分类数据集上相较 BERT 将错误率降低了 16%、18%、5%、9% 和 5%，支持“文本分类错误率显著下降”的核心结果。该证据实际引用的是表3，而非报告中所标注的表5。",
+        "claim_error_type": null,
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C025",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C025_e1"
+        ],
+        "explanation": "候选证据 C025_e1 明确说明，XLNet 在多个文本分类数据集上相较 BERT 将错误率降低了 16%、18%、5%、9% 和 5%，支持“文本分类错误率显著下降”的核心结果。该证据实际引用的是表3，而非报告中所标注的表5。 引用完整性复核：现有证据支持 XLNet 相较 BERT 在所列文本分类数据集上降低错误率，且报告了具体降幅；无需额外候选证据。",
+        "claim_error_type": null,
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C025_e1",
+          "chunk_id": "p10_b9",
+          "page": 10
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P02_natural_1_C031",
+      "claim": "排列语言建模优化更难",
+      "control": false,
+      "before": {
+        "claim_id": "C031",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C031_e8"
+        ],
+        "explanation": "候选段落 C031_e8 明确指出，排列语言建模目标因排列而成为更具挑战性的优化问题，并导致初步实验中收敛较慢，支持该说法。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C031",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C031_e8"
+        ],
+        "explanation": "候选段落 C031_e8 明确指出，排列语言建模目标因排列而成为更具挑战性的优化问题，并导致初步实验中收敛较慢，支持该说法。 引用完整性复核：该主张只断言排列语言建模优化更难；所选引文直接支持这一关系与强度，无需额外补入未陈述的模型变体、数据集、指标或数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C031_e8",
+          "chunk_id": "p5_b23",
+          "page": 5
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P03_natural_1_C042",
+      "claim": "实验未涉及ImageNet等超大规模数据集。",
+      "control": false,
+      "before": {
+        "claim_id": "C042",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "C042_e1",
+          "C042_e2",
+          "C042_e9"
+        ],
+        "explanation": "候选证据未说明本文实验是否使用 ImageNet 或其他超大规模数据集。C042_e1 提到 ImageNet 是相关工作的评测数据集，不能证明本文实验未涉及；C042_e9 仅是数据集章节标题。因此该限制性结论在候选证据中缺乏支持。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "high",
+        "suggestion": "候选证据不足以判断实验是否涉及 ImageNet 等超大规模数据集；需核对本文实验所用数据集后再作结论。"
+      },
+      "after": {
+        "claim_id": "C042",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "C042_e1",
+          "C042_e2",
+          "C042_e9"
+        ],
+        "explanation": "候选证据未说明本文实验是否使用 ImageNet 或其他超大规模数据集。C042_e1 提到 ImageNet 是相关工作的评测数据集，不能证明本文实验未涉及；C042_e9 仅是数据集章节标题。因此该限制性结论在候选证据中缺乏支持。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "high",
+        "suggestion": "候选证据不足以判断实验是否涉及 ImageNet 等超大规模数据集；需核对本文实验所用数据集后再作结论。"
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C042_e1",
+          "chunk_id": "p3_b7",
+          "page": 3
+        },
+        {
+          "evidence_id": "C042_e2",
+          "chunk_id": "p7_b21",
+          "page": 7
+        },
+        {
+          "evidence_id": "C042_e9",
+          "chunk_id": "p5_b6",
+          "page": 5
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P03_natural_1_C022",
+      "claim": "训练采用随机梯度下降",
+      "control": false,
+      "before": {
+        "claim_id": "C022",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C022_e6"
+        ],
+        "explanation": "候选证据明确说明网络使用 SGD 训练，支持该主张；证据所在页为第6页，与报告所引页码一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C022",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C022_e6"
+        ],
+        "explanation": "候选证据明确说明网络使用 SGD 训练，支持该主张；证据所在页为第6页，与报告所引页码一致。 引用完整性复核：所选证据直接支持“训练采用随机梯度下降”（SGD）。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C022_e6",
+          "chunk_id": "p6_b4",
+          "page": 6
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P03_natural_1_C032",
+      "claim": "最优配置DenseNet(L=100, k=24)在SVHN达1.59%错误率",
+      "control": false,
+      "before": {
+        "claim_id": "C032",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C032_e5",
+          "C032_e6"
+        ],
+        "explanation": "表1明确列出DenseNet（L=100、k=24）在SVHN上的错误率为1.59%；表注说明SVHN结果使用Dropout。候选证据支持配置、数值和指标。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C032",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C032_e2",
+          "C032_e5",
+          "C032_e6"
+        ],
+        "explanation": "表1明确列出DenseNet（L=100、k=24）在SVHN上的错误率为1.59%；表注说明SVHN结果使用Dropout。候选证据支持配置、数值和指标。 引用完整性复核：所选证据共同支持配置、SVHN、错误率及 1.59% 数值，并说明该 SVHN 结果使用 Dropout 且超过当时 wide ResNet 的最佳结果。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C032_e2",
+          "chunk_id": "p6_b7",
+          "page": 6
+        },
+        {
+          "evidence_id": "C032_e5",
+          "chunk_id": "p6_b1",
+          "page": 6
+        },
+        {
+          "evidence_id": "C032_e6",
+          "chunk_id": "p6_b2",
+          "page": 6
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P04_natural_1_C033",
+      "claim": "论文未充分探讨极端资源下的结构搜索",
+      "control": false,
+      "before": {
+        "claim_id": "C033",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "C033_e1",
+          "C033_e2",
+          "C033_e3",
+          "C033_e9"
+        ],
+        "explanation": "候选证据介绍了 MobileNet 的资源约束设计、架构及探索网络拓扑的能力，但没有讨论其是否充分探索了极端资源条件下的结构搜索。因此，这一具体局限在候选证据中缺乏支持。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "high",
+        "suggestion": "改为仅陈述候选证据支持的内容：论文介绍了面向资源约束的 MobileNet 设计，并称其简洁结构便于探索网络拓扑；候选证据未说明其对极端资源下结构搜索的探讨是否充分。"
+      },
+      "after": {
+        "claim_id": "C033",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "C033_e1",
+          "C033_e2",
+          "C033_e3",
+          "C033_e9"
+        ],
+        "explanation": "候选证据介绍了 MobileNet 的资源约束设计、架构及探索网络拓扑的能力，但没有讨论其是否充分探索了极端资源条件下的结构搜索。因此，这一具体局限在候选证据中缺乏支持。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "high",
+        "suggestion": "改为仅陈述候选证据支持的内容：论文介绍了面向资源约束的 MobileNet 设计，并称其简洁结构便于探索网络拓扑；候选证据未说明其对极端资源下结构搜索的探讨是否充分。"
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C033_e1",
+          "chunk_id": "p1_b7",
+          "page": 1
+        },
+        {
+          "evidence_id": "C033_e2",
+          "chunk_id": "p1_b13",
+          "page": 1
+        },
+        {
+          "evidence_id": "C033_e3",
+          "chunk_id": "p1_b10",
+          "page": 1
+        },
+        {
+          "evidence_id": "C033_e9",
+          "chunk_id": "p3_b37",
+          "page": 3
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P04_natural_1_C023",
+      "claim": "MobileNet-224计算少27倍。",
+      "control": false,
+      "before": {
+        "claim_id": "C023",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C023_e1"
+        ],
+        "explanation": "候选证据明确称 MobileNet 比 VGG16 少 27 倍计算量；该结果与“MobileNet-224计算少27倍”一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C023",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C023_e8"
+        ],
+        "explanation": "候选证据明确称 MobileNet 比 VGG16 少 27 倍计算量；该结果与“MobileNet-224计算少27倍”一致。 引用完整性复核：现有表格证据明确给出 MobileNet-224 与 VGG 16 在 ImageNet 设置下的百万次 Mult-Adds 数值；由 15300÷569 得约 26.9，支持约少 27 倍。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C023_e8",
+          "chunk_id": "p6_b9",
+          "page": 6
+        }
+      ],
+      "quote_repair_used": false,
+      "review": {
+        "claim_id": "C023",
+        "complete": true,
+        "evidence_ids": [
+          "C023_e8"
+        ],
+        "aspects": [
+          {
+            "aspect": "模型",
+            "citations": [
+              {
+                "evidence_id": "C023_e8",
+                "quote": "Model\nImageNet\nMillion\nMillion\nAccuracy\nMult-Adds\nParameters\n1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138"
+              }
+            ],
+            "reasoning": "表中明确列出 1.0 MobileNet-224 和 VGG 16，支持所比较模型的具体变体。"
+          },
+          {
+            "aspect": "比较关系",
+            "citations": [
+              {
+                "evidence_id": "C023_e8",
+                "quote": "Model\nImageNet\nMillion\nMillion\nAccuracy\nMult-Adds\nParameters\n1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138"
+              }
+            ],
+            "reasoning": "同一表中列出 MobileNet-224 与 VGG 16，且给出两者各自的 Mult-Adds 数值，可作计算量比较。"
+          },
+          {
+            "aspect": "数据集/设置",
+            "citations": [
+              {
+                "evidence_id": "C023_e8",
+                "quote": "Model\nImageNet\nMillion\nMillion\nAccuracy\nMult-Adds\nParameters\n1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138"
+              }
+            ],
+            "reasoning": "表头标明 ImageNet，比较双方在同一表格设置中列出。"
+          },
+          {
+            "aspect": "指标、数值与单位",
+            "citations": [
+              {
+                "evidence_id": "C023_e8",
+                "quote": "Model\nImageNet\nMillion\nMillion\nAccuracy\nMult-Adds\nParameters\n1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138"
+              }
+            ],
+            "reasoning": "表头给出 Mult-Adds 及 Million 单位；MobileNet-224 为 569，VGG 16 为 15300。15300÷569≈26.9，因此可表述为约少 27 倍。"
+          },
+          {
+            "aspect": "结论强度",
+            "citations": [
+              {
+                "evidence_id": "C023_e8",
+                "quote": "Model\nImageNet\nMillion\nMillion\nAccuracy\nMult-Adds\nParameters\n1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138"
+              }
+            ],
+            "reasoning": "由同一设置下两者的 Mult-Adds 数值计算，约 26.9 倍支持“少 27 倍”的近似结论。"
+          }
+        ],
+        "missing_aspects": [],
+        "explanation": "现有表格证据明确给出 MobileNet-224 与 VGG 16 在 ImageNet 设置下的百万次 Mult-Adds 数值；由 15300÷569 得约 26.9，支持约少 27 倍。"
+      },
+      "selected_passages": [
+        {
+          "evidence_id": "C023_e8",
+          "chunk_id": "p6_b9",
+          "page": 6,
+          "text": "Model\nImageNet\nMillion\nMillion\nAccuracy\nMult-Adds\nParameters\n1.0 MobileNet-224\n70.6%\n569\n4.2\nGoogleNet\n69.8%\n1550\n6.8\nVGG 16\n71.5%\n15300\n138",
+          "score": 0.130689
+        }
+      ]
+    },
+    {
+      "case_id": "P04_natural_1_C024",
+      "claim": "0.5 MobileNet-160精度为60.2%，超过AlexNet的57.2%。",
+      "control": false,
+      "before": {
+        "claim_id": "C024",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C024_e1",
+          "C024_e8"
+        ],
+        "explanation": "表9列出0.50 MobileNet-160的ImageNet准确率为60.2%，AlexNet为57.2%；相邻说明也称该MobileNet比AlexNet高4%。核心数值和比较均有支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C024",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C024_e1",
+          "C024_e8"
+        ],
+        "explanation": "表9列出0.50 MobileNet-160的ImageNet准确率为60.2%，AlexNet为57.2%；相邻说明也称该MobileNet比AlexNet高4%。核心数值和比较均有支持。 引用完整性复核：当前选用的表格和相邻说明共同支持模型配置、ImageNet准确率、两方数值及MobileNet优于AlexNet的结论。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C024_e1",
+          "chunk_id": "p6_b11",
+          "page": 6
+        },
+        {
+          "evidence_id": "C024_e8",
+          "chunk_id": "p6_b7",
+          "page": 6
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P06_natural_1_C041",
+      "claim": "未尝试复杂交互函数",
+      "control": false,
+      "before": {
+        "claim_id": "C041",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C041_e6"
+        ],
+        "explanation": "证据 C041_e6 明确说明该工作仅采用简单的内积交互函数，其他更复杂的神经网络交互函数留待未来探索，直接支持“未尝试复杂交互函数”。该主张不包含数值改进或证明、最优性保证等额外断言。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C041",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C041_e6"
+        ],
+        "explanation": "证据 C041_e6 明确说明该工作仅采用简单的内积交互函数，其他更复杂的神经网络交互函数留待未来探索，直接支持“未尝试复杂交互函数”。该主张不包含数值改进或证明、最优性保证等额外断言。 引用完整性复核：证据明确说明该工作仅采用内积交互函数，并将更复杂的交互函数留待未来探索，覆盖“未尝试复杂交互函数”的主体、关系及结论强度。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C041_e6",
+          "chunk_id": "p4_b42",
+          "page": 4
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P06_natural_1_C026",
+      "claim": "实验指标为recall@20与ndcg@20",
+      "control": false,
+      "before": {
+        "claim_id": "C026",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C026_e1"
+        ],
+        "explanation": "候选证据C026_e1明确说明采用recall@K和ndcg@K，并默认设置K=20，因此支持实验指标为recall@20与ndcg@20。该主张未包含额外的数值改进、证明或最优性保证。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C026",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C026_e1"
+        ],
+        "explanation": "候选证据C026_e1明确说明采用recall@K和ndcg@K，并默认设置K=20，因此支持实验指标为recall@20与ndcg@20。该主张未包含额外的数值改进、证明或最优性保证。 引用完整性复核：所选证据明确给出两项评估指标及其默认 K 值；该主张未涉及模型、对比对象、数据集、数值结果或结论强度。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C026_e1",
+          "chunk_id": "p6_b16",
+          "page": 6
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P06_natural_1_C033",
+      "claim": "表2显示NGCF全面最优：recall@20较最强基线提升10.18%、12.88%、11.32%，且t检验显著",
+      "control": false,
+      "before": {
+        "claim_id": "C033",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C033_e1"
+        ],
+        "explanation": "候选证据明确称 NGCF 在所有数据集上表现最佳，并支持其在 Gowalla、Yelp2018、Amazon-Book 的 recall@20 分别提升 10.18%、12.88%、11.32%；还说明对最强基线进行单样本 t 检验且 p<0.05，提升具有统计显著性。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C033",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C033_e1"
+        ],
+        "explanation": "候选证据明确称 NGCF 在所有数据集上表现最佳，并支持其在 Gowalla、Yelp2018、Amazon-Book 的 recall@20 分别提升 10.18%、12.88%、11.32%；还说明对最强基线进行单样本 t 检验且 p<0.05，提升具有统计显著性。 引用完整性复核：候选证据 C033_e1 覆盖了最优结论、指标与数据集、最强基线比较、三个提升值及 t 检验显著性；各项主张均有直接文本支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [
+        {
+          "evidence_id": "C033_e1",
+          "chunk_id": "p7_b11",
+          "page": 7
+        }
+      ],
+      "quote_repair_used": false
+    },
+    {
+      "case_id": "P04_natural_1_C023_prose_only",
+      "claim": "MobileNet-224计算少27倍。",
+      "control": true,
+      "before": {
+        "claim_id": "C023",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "C023_e1"
+        ],
+        "explanation": "候选证据明确称 MobileNet 比 VGG16 少 27 倍计算量；该结果与“MobileNet-224计算少27倍”一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "after": {
+        "claim_id": "C023",
+        "label": "ABSTAIN",
+        "evidence_ids": [],
+        "explanation": "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "selected_chunks": [],
+      "quote_repair_used": false,
+      "review": {
+        "claim_id": "C023",
+        "complete": false,
+        "evidence_ids": [
+          "C023_e1"
+        ],
+        "aspects": [
+          {
+            "aspect": "模型与配置",
+            "citations": [
+              {
+                "evidence_id": "C023_e1",
+                "quote": "Table 8 compares full MobileNet to the original\nGoogleNet [30] and VGG16 [27]."
+              }
+            ],
+            "reasoning": "引文指明比较对象是 full MobileNet，但没有说明 MobileNet-224 或输入尺寸为 224；因此不能确认所述配置。"
+          },
+          {
+            "aspect": "比较对象与计算量",
+            "citations": [
+              {
+                "evidence_id": "C023_e1",
+                "quote": "MobileNet is nearly\nas accurate as VGG16 while being 32 times smaller and\n27 times less compute intensive."
+              }
+            ],
+            "reasoning": "该句将 MobileNet 与 VGG16 比较，并称其计算密集度低 27 倍，支持该比较关系及计算量数值，但未弥补 MobileNet-224 配置缺失。"
+          },
+          {
+            "aspect": "结论强度",
+            "citations": [
+              {
+                "evidence_id": "C023_e1",
+                "quote": "27 times less compute intensive."
+              }
+            ],
+            "reasoning": "引文以明确的 27 倍表述计算量差异；但其适用对象是前述 full MobileNet，而非已证实的 MobileNet-224。"
+          }
+        ],
+        "missing_aspects": [
+          "模型与配置：未证实 MobileNet-224（输入尺寸 224）"
+        ],
+        "explanation": "现有引文支持 full MobileNet 相比 VGG16 计算量低 27 倍，但不能确认 claim 指定的 MobileNet-224 配置，因此证据未覆盖全部主张。"
+      },
+      "selected_passages": []
+    }
+  ]
+}
