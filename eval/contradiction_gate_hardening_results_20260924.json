@@ -1,0 +1,624 @@
+{
+  "experiment_kind": "seen_case_development_regression",
+  "hardening": true,
+  "model": "gpt-6-luna",
+  "protocol_sha256": "dbca019d9b240a65d32a1b7f7852a120c3c6fea0194a38eaa9c728e380f1433d",
+  "baseline_protocol_sha256": "3dd2907833fd034c1515f34e45208b73c5c2d66965f6af7605b8af7b420a7b72",
+  "frozen_sources_verified": true,
+  "source_sha256": {
+    "/Users/arkie/Documents/data/code/PaperAudit/eval/unseen_e2e_experiment.py": "8300870b1d711e85f4268db17b2ddc417a02980948fe51de13db42b7a21ee4f6",
+    "eval/durable_requests.py": "1e86e779046c7aca041f98e61554a405e04ade2df5a6ca40e1e3a2eb6ea61954",
+    "src/paperaudit/service.py": "c0915e36e11c8fb758726f2b71bc2976a70318ec2fb911a47749b0b7c804a4e6",
+    "src/paperaudit/pdf_parser.py": "4340c6d595dffafee6613488192d2114d3f48296b31ea4e40a25e6a84eacfaac",
+    "src/paperaudit/report_input.py": "aab2816c84563ae3e2b4467488e7c176fd3a9c7ac922ce148f94fdb880618539",
+    "src/paperaudit/config.py": "c4b720b8fc2b207fe77a242c3c8a4f219eb2f9a6a4c733c19b8fb4665977c7af",
+    "src/paperaudit/models.py": "78c1f4f58ae1869e786ae702ab287d56dcb132fbef2c4d489451a19236a5075c",
+    "src/paperaudit/peer_review_service.py": "911ddb54094102a194124cb622a1c2bcef793260dd5f387254d629d123f223d8",
+    "src/paperaudit/scoring.py": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "src/paperaudit/__init__.py": "8df01b7e92930dd8d5376d9f1b462cc914e33c5eed77546f52706441949d8e5c",
+    "src/paperaudit/hy3_client.py": "18900e526d3e45f0d9a3a1cb69b220d88fbd352eed4ae3df595c674a6f06ed03",
+    "src/paperaudit/code_service.py": "6921c327284d1af75edcd0c3585affc3fed8b1ce12c3efecf91581747daf6c0f",
+    "src/paperaudit/display.py": "a9cf821bb6a763765f607fd0224df37839952340adf67b710ad25325ec84bdb2",
+    "src/paperaudit/audit_rules.py": "548d5cff82356395e373d3260fb81138bce751eb5719ce72bc37f3bc55f4908b",
+    "src/paperaudit/evidence_gap.py": "1ba0e7bbc88600aba00d7d2ea6fc1f094989a04dd17ec171a137a67bb00fa851",
+    "src/paperaudit/peer_review_revision.py": "28c243003a13db0a3a6bab2448ed3cf39a26bc44a145f239a114faa348da0a99",
+    "src/paperaudit/learning_jobs.py": "25641008c3981808234f1a0132e4607de41fd6d2e1831ad4d89cf32709b597c3",
+    "src/paperaudit/storage.py": "2c424911e00d24b8fa04ee014dfa6ae90371703ec3fdf4e737a69bc330b0877b",
+    "src/paperaudit/retrieval.py": "c32dce8112329952cd7e41bb7ea3c05706f1f5a939a66cd1476bf6e79c7e6663",
+    "src/paperaudit/peer_review_rules.py": "f66ae403b5a47eaac4f69f8da434594f21a8b16a12ea04eccfc206d256975832",
+    "src/paperaudit/code_retrieval.py": "ece1873c5025902b4342b76ef2c0644a5baca038184f6d60c14f50be3c9e462a",
+    "src/paperaudit/code_parser.py": "8aaa4fd2f5089a1b66641d2d1d29c1094feff6975b920023e55fb1fc065ddbce",
+    "src/paperaudit/job_runner.py": "260a8b15ff93835ce7c6aa0f38221241538db2d0f546d0adc0363134b8197be4",
+    "src/paperaudit/citation_review.py": "2a2ed2f19df57b0be33fb4a70f6f419d08fef28ee4c1ee442587a626d1c473d7",
+    "src/paperaudit/peer_review_jobs.py": "de7898f5a6d85b0682f076a5cc8040d3654d209abf87a083d481a72e1bd5d20f",
+    "src/paperaudit/evidence.py": "558c6f610e9b3e385e4528a88739fe81e65cef96a20b7b17171370881f01f144",
+    "src/paperaudit/claim_extraction.py": "af8ebc15593749a3af504b5188628ee1f1783f28c4c9acde7cd7a990bf9a04d7",
+    "src/paperaudit/audit_jobs.py": "af5e4b2ef809649053d05db6badec86bfffc673e5f81d033672c3760e16cae7a",
+    "src/paperaudit/reporting.py": "4384305d465162a53c4dd7aa3cdcbb413c1a1192424f3fa594c84589c101c0d9",
+    "/Users/arkie/Documents/data/code/PaperAudit/eval/contradiction_gate_regression.py": "62398eeaa764fe627eba5aa81c5e04a2c9d4af50d9cb51630560f198513fa3b8"
+  },
+  "note": "Same 18 previously seen sentences; not independent generalization. New correction-suggestion verification is exercised here.",
+  "comparison": {
+    "previous_logical_requests": 37,
+    "current_logical_requests": 33,
+    "reduction": 4,
+    "previous_report_mean_seconds": 320.9005435556367,
+    "current_report_mean_seconds": 255.01309156932015
+  },
+  "end_to_end": {
+    "planned_reports": 3,
+    "completed_reports": 3,
+    "successful_reports": 3,
+    "planned_sources": 18,
+    "evaluated_sources": 18,
+    "extracted_sources": 18,
+    "extracted_claims": 18,
+    "exact_agreement": 18,
+    "supported_reference_count": 9,
+    "missed_support": 0,
+    "false_support": 0,
+    "unsupported_safely_withheld": 3,
+    "labels": {
+      "SUPPORTED": 9,
+      "CONTRADICTED": 6,
+      "NO_SUPPORT_FOUND": 3
+    },
+    "supported_claims": 9,
+    "supported_locally_valid_citations": 9,
+    "candidate_rechecks": 3,
+    "citation_repairs": 3,
+    "logical_requests": 33,
+    "by_phase": {
+      "extract_claims": {
+        "requests": 3,
+        "seconds": 138.22083516494604,
+        "tokens": 8636
+      },
+      "judge_claims": {
+        "requests": 3,
+        "seconds": 44.8351205419749,
+        "tokens": 43616
+      },
+      "adjudicate_claim": {
+        "requests": 3,
+        "seconds": 34.03142062400002,
+        "tokens": 10236
+      },
+      "review_missing_support": {
+        "requests": 3,
+        "seconds": 19.515128917002585,
+        "tokens": 10866
+      },
+      "review_candidate_gap": {
+        "requests": 3,
+        "seconds": 21.295381582982372,
+        "tokens": 10822
+      },
+      "review_citation_coverage": {
+        "requests": 15,
+        "seconds": 393.8597378761042,
+        "tokens": 61123
+      },
+      "repair_citation_coverage": {
+        "requests": 3,
+        "seconds": 112.22887137398357,
+        "tokens": 14597
+      }
+    },
+    "usage_missing_requests": 0,
+    "prompt_tokens": 137838,
+    "completion_tokens": 22058,
+    "total_tokens": 159896,
+    "mean_report_seconds": 255.01309156932015,
+    "p95_report_seconds": 446.7725073749898,
+    "latency_note": "Concurrent reports; nearest-rank P95 on only three reports is descriptive, not an SLA.",
+    "sources": [
+      {
+        "case_id": "LN01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      }
+    ],
+    "network_attempts": 33,
+    "transport_errors": 0
+  },
+  "per_paper": [
+    {
+      "paper_id": "resnext",
+      "seconds": 168.68205270799808,
+      "logical_requests": 10,
+      "total_tokens": 48027,
+      "labels": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2,
+        "NO_SUPPORT_FOUND": 1
+      },
+      "locally_valid_citations": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2
+      },
+      "contradiction_suggestions_verified": 2
+    },
+    {
+      "paper_id": "layernorm",
+      "seconds": 446.7725073749898,
+      "logical_requests": 12,
+      "total_tokens": 58155,
+      "labels": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2,
+        "NO_SUPPORT_FOUND": 1
+      },
+      "locally_valid_citations": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2
+      },
+      "contradiction_suggestions_verified": 2
+    },
+    {
+      "paper_id": "senet",
+      "seconds": 149.58471462497255,
+      "logical_requests": 11,
+      "total_tokens": 53714,
+      "labels": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2,
+        "NO_SUPPORT_FOUND": 1
+      },
+      "locally_valid_citations": {
+        "SUPPORTED": 3,
+        "CONTRADICTED": 2
+      },
+      "contradiction_suggestions_verified": 2
+    }
+  ],
+  "suggestion_verification": {
+    "contradicted_claims": 6,
+    "all_explicitly_verified": true,
+    "checks": [
+      {
+        "paper_id": "resnext",
+        "source_id": "S0004",
+        "verified": true,
+        "missing": []
+      },
+      {
+        "paper_id": "resnext",
+        "source_id": "S0005",
+        "verified": true,
+        "missing": []
+      },
+      {
+        "paper_id": "layernorm",
+        "source_id": "S0004",
+        "verified": true,
+        "missing": []
+      },
+      {
+        "paper_id": "layernorm",
+        "source_id": "S0005",
+        "verified": true,
+        "missing": []
+      },
+      {
+        "paper_id": "senet",
+        "source_id": "S0004",
+        "verified": true,
+        "missing": []
+      },
+      {
+        "paper_id": "senet",
+        "source_id": "S0005",
+        "verified": true,
+        "missing": []
+      }
+    ]
+  },
+  "gate_controls": {
+    "count": 6,
+    "passed": 6,
+    "cases": [
+      {
+        "case_id": "LN04",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "suggestion_verified": true,
+        "suggestion_missing_aspects": [],
+        "seconds": 20.0754731670022
+      },
+      {
+        "case_id": "LN05",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "suggestion_verified": true,
+        "suggestion_missing_aspects": [],
+        "seconds": 7.0932481669588014
+      },
+      {
+        "case_id": "RX04",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "suggestion_verified": true,
+        "suggestion_missing_aspects": [],
+        "seconds": 10.585679167008493
+      },
+      {
+        "case_id": "RX05",
+        "expected": "CONTRADICTED",
+        "actual": "CONTRADICTED",
+        "passed": true,
+        "suggestion_verified": true,
+        "suggestion_missing_aspects": [],
+        "seconds": 6.900970207992941
+      },
+      {
+        "case_id": "SE04",
+        "expected": "ABSTAIN",
+        "actual": "ABSTAIN",
+        "passed": true,
+        "suggestion_verified": false,
+        "suggestion_missing_aspects": [
+          "SE-ResNet-50、ImageNet单裁剪、r=8配置下23.19%的表头、行标签和数值单元格"
+        ],
+        "seconds": 10.670879749988671
+      },
+      {
+        "case_id": "SE05",
+        "expected": "ABSTAIN",
+        "actual": "ABSTAIN",
+        "passed": true,
+        "suggestion_verified": false,
+        "suggestion_missing_aspects": [
+          "建议值24.80%的表格行与数值单元格未提供，无法验证。"
+        ],
+        "seconds": 9.10582804196747
+      }
+    ]
+  },
+  "storage_round_trips": [
+    "resnext",
+    "layernorm",
+    "senet"
+  ],
+  "combined_usage": {
+    "logical_requests": 39,
+    "network_attempts": 39,
+    "transport_errors": 0,
+    "error_types": {},
+    "reported_total_tokens": 181564
+  },
+  "verification": {
+    "pytest_passed": 341,
+    "holdout_isolation_passed": true
+  },
+  "artifacts": [
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/protocol.json",
+      "sha256": "dbca019d9b240a65d32a1b7f7852a120c3c6fea0194a38eaa9c728e380f1433d"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/summary.json",
+      "sha256": "34fe8f0998d2a4e0dee393066f2a00f378fc9c6dea7dcdc60ea0292631811fd9"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_summary.json",
+      "sha256": "65a9fb0109c1fdf91f06d79f4389660ae80e1f7f001a41257d35d54ab22db2ea"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/runs/layernorm/result.json",
+      "sha256": "176157b73706d93fda2d99a0a3afea3e580693f545bdaa68f3a9935c6a2943be"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/runs/senet/result.json",
+      "sha256": "0e951fd5d2ffa85898e68f6cb4747f5a686e11b0052023afd68a10d6c8a62cd7"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/runs/resnext/result.json",
+      "sha256": "26953bbfb5d0d925c595185442ac7a88757d16ea423d2bc25cf358d2252c2a89"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/runs/layernorm/storage_check.json",
+      "sha256": "6fd015db6864d12dc6f32b19d91f8c73ad5bb9fa4dc78905d7a5074cb68e9679"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/runs/senet/storage_check.json",
+      "sha256": "4a602efdb857f4bfb89e4b0481776a926b78f1a8596327735125a2457fb987e1"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/runs/resnext/storage_check.json",
+      "sha256": "d184e2b75bb190ee1ae772b500127d49aa733112bbe3bfbdf4f597d4d587029b"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_controls/SE04/result.json",
+      "sha256": "709b0603773e8a28fd70eabb6ca0f037e7b9b71ee3ce215a67ddda6a16b0a163"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_controls/SE05/result.json",
+      "sha256": "af06aa9144f9b7192ed2597353ca97825e3aa826f84c77b9a5f78c782ec8234f"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_controls/LN05/result.json",
+      "sha256": "083222aa753c09b13d23d3fd059d266f838d3f30d8fc3a5a291d5cc7f2502216"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_controls/LN04/result.json",
+      "sha256": "6850e18e5b6126064072abe44e8789cfafe841c16f25bb660fa4c62935ba7144"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_controls/RX04/result.json",
+      "sha256": "5197a6b0874c7985d7e1f989b9ad65f9645ae4b2bc1a4cea48b9d10b9ec867ee"
+    },
+    {
+      "path": "tmp/experiments/contradiction-gate-hardening-20260924/gate_controls/RX05/result.json",
+      "sha256": "0c594c9674e4f11bf82acb61a6220c5c5c93a7e7e0a41f18bd867967e9777641"
+    }
+  ]
+}
