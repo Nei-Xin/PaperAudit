@@ -175,9 +175,10 @@ def test_local_quote_repair_is_bounded_and_never_weakens_validation(outcome):
             self.reviews += 1
             return bad
 
-        def repair_citation_coverage(self, claim, pool, rejected):
+        def repair_citation_coverage(self, claim, pool, rejected, judgment):
             self.repairs += 1
             assert rejected == bad
+            assert judgment == original()
             if outcome == 'schema_failure':
                 raise Hy3ResponseError('invalid schema')
             if outcome == 'still_invalid':
@@ -219,7 +220,8 @@ def test_service_persists_both_reviews_when_quote_repair_is_needed():
             self.judgment = judgment
             return valid
 
-        def repair_citation_coverage(self, claim, candidates, rejected):
+        def repair_citation_coverage(self, claim, candidates, rejected, judgment):
+            assert judgment == self.judgment
             return super().review_citation_coverage(claim, candidates, self.judgment)
 
     run = AuditService(Settings(api_base='https://example.invalid', api_key='test', model='fake'), Client()).audit(

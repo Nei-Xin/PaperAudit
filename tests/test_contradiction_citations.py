@@ -94,6 +94,64 @@ def test_contradiction_requires_explicit_suggestion_verification_for_new_reviews
     assert final.label == AutoLabel.ABSTAIN
 
 
+@pytest.mark.parametrize('verified,missing', [
+    (False, []), (None, []), (True, ['对照模型的数值']),
+])
+@pytest.mark.parametrize('invalid_quote', [False, True])
+@pytest.mark.parametrize('label', [AutoLabel.CONTRADICTED, AutoLabel.SUPPORTED])
+def test_suggestion_gap_never_triggers_quote_repair(verified, missing, invalid_quote, label):
+    rejected = review().model_copy(update={
+        'suggestion_verified': verified, 'suggestion_missing_aspects': missing,
+        'reviewed_label': label.value,
+    })
+    if invalid_quote:
+        rejected.aspects[1].citations[0].quote = 'A 12.0'
+
+    class Client:
+        def review_citation_coverage(self, *args):
+            return rejected
+
+        def repair_citation_coverage(self, *args):
+            pytest.fail('Missing suggestion evidence is not a formatting error')
+
+    original = judgment().model_copy(update={'label': label})
+    final, last, before = review_citations(Client(), claim(), pool(), original)
+    # Legacy support reviews with no new field retain their existing behavior,
+    # but a missing verification may never be manufactured by a repair retry.
+    legacy_support = label == AutoLabel.SUPPORTED and verified is None and not invalid_quote
+    assert final.label == (AutoLabel.SUPPORTED if legacy_support else AutoLabel.ABSTAIN)
+    assert final.suggestion == (original.suggestion if legacy_support else None)
+    assert last == rejected and before is None
+
+
+@pytest.mark.parametrize('verified,missing', [
+    (True, []), (True, ['对照值']), (False, ['对照值']), (None, []),
+])
+def test_quote_repair_receives_original_suggestion_and_revalidates_it(monkeypatch, verified, missing):
+    original = judgment().model_copy(update={'suggestion': '改为A错误率12%；对照B错误率8%。'})
+    rejected = review()
+    rejected.aspects[1].citations[0].quote = 'A 12.0'
+    repaired = review().model_copy(update={
+        'suggestion_verified': verified, 'suggestion_missing_aspects': missing,
+    })
+    responses = iter([rejected.model_dump_json(), repaired.model_dump_json()])
+    prompts = []
+    client = Hy3Client(Settings(api_base='https://example.invalid', api_key='test', model='fake'))
+    monkeypatch.setattr(client, '_complete', lambda prompt, *args: (prompts.append(prompt) or next(responses)))
+    try:
+        final, last, before = review_citations(client, claim(), pool(), original)
+    finally:
+        client._client.close()
+    assert len(prompts) == 2
+    payload = json.loads(prompts[1].split('<untrusted_audit_payload>')[1].split('</untrusted_audit_payload>')[0])
+    assert payload['previous_judgment'] == original.model_dump(mode='json')
+    assert payload['rejected_review'] == rejected.model_dump(mode='json')
+    assert before == rejected and last == repaired
+    passed = verified is True and not missing
+    assert final.label == (AutoLabel.CONTRADICTED if passed else AutoLabel.ABSTAIN)
+    assert final.suggestion == (original.suggestion if passed else None)
+
+
 def test_service_does_not_duplicate_candidate_gap_review_for_contradiction():
     class Client:
         def extract_claims(self, *args):
@@ -182,7 +240,7 @@ def test_client_reviews_conflict_without_borrowing_other_claims_or_prior_correct
     monkeypatch.setattr(client, '_complete', lambda prompt, *args: (prompts.append(prompt) or review().model_dump_json()))
     try:
         result = client.review_citation_coverage(claim(), pool(), judgment())
-        client.repair_citation_coverage(claim(), pool(), result)
+        client.repair_citation_coverage(claim(), pool(), result, judgment())
         assert 'SAME subject' in prompts[0]
         assert 'a caption alone never proves a numeric conflict' in prompts[0]
         assert 'other claims from a batch' in prompts[0]
@@ -210,9 +268,10 @@ def test_contradiction_quote_repair_runs_once_and_never_changes_verdict_target(r
             bad = review()
             bad.aspects[1].citations[0].quote = 'A 12.0'
             return bad
-        def repair_citation_coverage(self, c, candidates, previous):
+        def repair_citation_coverage(self, c, candidates, previous, original):
             self.repairs += 1
             assert previous.reviewed_label == 'CONTRADICTED'
+            assert original == judgment()
             fixed = review()
             if repair_outcome == 'invalid':
                 return previous

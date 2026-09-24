@@ -35,7 +35,7 @@ def test_replay_runs_local_validator_and_resume_does_not_repeat_api(tmp_path, mo
                                             'citations': [{'evidence_id': 'C1_e1', 'quote': 'fabricated text'}]}],
                                   missing_aspects=[], explanation='supported')
 
-        def repair_citation_coverage(self, claim, candidates, rejected):
+        def repair_citation_coverage(self, claim, candidates, rejected, judgment):
             return rejected
 
     monkeypatch.setattr(experiment, 'Hy3Client', Client)
