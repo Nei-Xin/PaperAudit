@@ -7,7 +7,6 @@ from difflib import SequenceMatcher
 import re
 from .config import Settings
 from .audit_rules import (
-    apply_citation_review,
     calibrate_judgment,
     choose_majority,
     judgment_signature,
@@ -16,6 +15,7 @@ from .audit_rules import (
     validate_judgment_references,
 )
 from .hy3_client import Hy3Client, Hy3ResponseError
+from .citation_review import review_supported_citations
 from .models import (
     AnswerConclusion,
     AnswerStatus,
@@ -1208,15 +1208,14 @@ class AuditService:
                         severity=Severity.NONE,
                     )
             citation_review = None
+            citation_review_before_repair = None
             before_citation_review = None
             if judgment.label == AutoLabel.SUPPORTED:
                 notify("正在复核支持结论的引用完整性", 0.92)
                 before_citation_review = judgment
-                try:
-                    citation_review = self.client.review_citation_coverage(claim, candidates, judgment)
-                except Hy3ResponseError:
-                    pass
-                judgment = apply_citation_review(judgment, candidates, citation_review)
+                judgment, citation_review, citation_review_before_repair = review_supported_citations(
+                    self.client, claim, candidates, judgment,
+                )
             invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
                                    if not 1 <= page <= paper.page_count)
             if invalid_pages:
@@ -1230,6 +1229,7 @@ class AuditService:
             audits.append(ClaimAudit(
                 claim=claim, candidates=candidates, judgment=judgment,
                 citation_review=citation_review,
+                citation_review_before_repair=citation_review_before_repair,
                 judgment_before_citation_review=before_citation_review,
             ))
 

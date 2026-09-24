@@ -597,6 +597,7 @@ class ClaimAudit(StrictModel):
     candidates: list[EvidenceCandidate]
     judgment: ClaimJudgment
     citation_review: CitationReview | None = None
+    citation_review_before_repair: CitationReview | None = None
     judgment_before_citation_review: ClaimJudgment | None = None
 
 
