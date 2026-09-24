@@ -36,6 +36,7 @@ def judgment():
 def review():
     return CitationReview(claim_id='C1', reviewed_label='CONTRADICTED', complete=True,
         evidence_ids=['C1_e1', 'C1_e2'], missing_aspects=[], explanation='同一配置下12与8冲突。',
+        suggestion_verified=True,
         aspects=[dict(aspect='主体和设置', reasoning='同一数据集的模型A。',
                       citations=[dict(evidence_id='C1_e1', quote=pool()[0].text)]),
                  dict(aspect='冲突指标与数值', reasoning='错误率是12%，而非8%。',
@@ -77,6 +78,55 @@ def test_verified_conflict_keeps_label_and_explicitly_selects_required_row():
     assert final.suggestion == judgment().suggestion
 
 
+def test_contradiction_with_unverified_correction_abstains():
+    unverified = review().model_copy(update={
+        'suggestion_verified': False,
+        'suggestion_missing_aspects': ['对照模型的纠正数值'],
+    })
+    final = apply_citation_review(judgment(), pool(), unverified)
+    assert final.label == AutoLabel.ABSTAIN
+    assert final.suggestion is None
+
+
+def test_contradiction_requires_explicit_suggestion_verification_for_new_reviews():
+    legacy_shape = review().model_copy(update={'suggestion_verified': None})
+    final = apply_citation_review(judgment(), pool(), legacy_shape)
+    assert final.label == AutoLabel.ABSTAIN
+
+
+def test_service_does_not_duplicate_candidate_gap_review_for_contradiction():
+    class Client:
+        def extract_claims(self, *args):
+            return ClaimExtraction(claims=[claim().model_copy(update={'numbers': ['8', '12']})])
+
+        def judge_claims(self, batch, *args):
+            c, candidates = batch[0]
+            return JudgmentBatch(judgments=[judgment().model_copy(update={
+                'claim_id': c.claim_id,
+                'evidence_ids': [candidates[0].evidence_id],
+            })])
+
+        def review_candidate_gap(self, *args):
+            pytest.fail('contradictions should go directly to citation coverage review')
+
+        def review_citation_coverage(self, c, candidates, j):
+            return CitationReview(
+                claim_id=c.claim_id, reviewed_label='CONTRADICTED', complete=True,
+                evidence_ids=[x.evidence_id for x in candidates[:2]],
+                missing_aspects=[], explanation='复核原文。', suggestion_verified=True,
+                aspects=[dict(aspect='冲突', reasoning='同一配置下数值冲突。', citations=[
+                    dict(evidence_id=x.evidence_id, quote=x.text) for x in candidates[:2]
+                ])],
+            )
+
+    paper = ParsedPaper(title='Test', page_count=1,
+                        chunks=[PaperChunk(chunk_id=c.chunk_id, page=c.page, content=c.text)
+                                for c in pool()])
+    run = AuditService(Settings(api_base='https://example.invalid', api_key='test', model='fake'), Client()).audit(
+        paper, claim().text, [claim().category])
+    assert run.audits[0].judgment.label == AutoLabel.CONTRADICTED
+
+
 @pytest.mark.parametrize('mode', ['caption_only', 'valid', 'schema_failure', 'repair_failure'])
 def test_service_routes_conflicts_through_gate_and_persists_provenance(mode):
     class Client:
@@ -101,6 +151,7 @@ def test_service_routes_conflicts_through_gate_and_persists_provenance(mode):
             return CitationReview(claim_id=c.claim_id, reviewed_label='CONTRADICTED',
                 complete=row is not None, evidence_ids=[x.evidence_id for x in refs],
                 missing_aspects=[] if row else ['数值行'], explanation='复核原文。',
+                suggestion_verified=True if row else False,
                 aspects=[dict(aspect='冲突', reasoning='核对同一配置。', citations=[dict(
                     evidence_id=x.evidence_id, quote='invented' if mode == 'repair_failure' else x.text)
                     for x in refs])])

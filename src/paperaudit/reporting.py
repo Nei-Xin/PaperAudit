@@ -213,6 +213,9 @@ def _render_review(audit: ClaimAudit) -> list[str]:
     if review is not None:
         status = "通过" if citation_review_passed(audit) else "未通过，需人工核对"
         lines.extend([f"- 引用完整性复核：{status}", f"- 引用复核说明：{review.explanation}"])
+        if audit.judgment_before_citation_review is not None and audit.judgment_before_citation_review.suggestion:
+            suggestion_status = "已验证" if review.suggestion_verified is True else "未完整验证"
+            lines.append(f"- 纠正建议引文复核：{suggestion_status}")
         for aspect in review.aspects:
             citation_text = "；".join(f"{item.evidence_id}：{item.quote}" for item in aspect.citations)
             lines.append(f"  - {aspect.aspect}：{aspect.reasoning}（引文：{citation_text}）")

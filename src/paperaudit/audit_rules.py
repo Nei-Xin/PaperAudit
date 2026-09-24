@@ -116,6 +116,17 @@ def apply_citation_review(
         and review.aspects and review.evidence_ids
         and set(review.evidence_ids).issubset(passages)
     )
+    if valid and judgment.suggestion:
+        # Historical support reviews predate this field and remain loadable.
+        # New contradiction reviews must opt in explicitly: a correct label is
+        # insufficient when its suggested correction contains extra claims.
+        valid = (
+            review.suggestion_verified is True
+            and not review.suggestion_missing_aspects
+        ) if judgment.label == AutoLabel.CONTRADICTED else (
+            review.suggestion_verified is not False
+            and not review.suggestion_missing_aspects
+        )
     if valid:
         assert review is not None
         quoted_ids = set()
@@ -130,14 +141,17 @@ def apply_citation_review(
                 quoted_ids.add(citation.evidence_id)
         valid = valid and quoted_ids == set(review.evidence_ids)
     if not valid:
+        explanation = (
+            "引用完整性复核未能提供同一主体及条件下的明确冲突依据，暂时无法可靠判断，请结合论文原文复核。"
+            if judgment.label == AutoLabel.CONTRADICTED else
+            "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。"
+        )
+        if review is not None and judgment.suggestion and review.suggestion_verified is not True:
+            explanation = "纠正建议中的具体数值或条件未被完整引文验证，暂时无法可靠判断，请结合论文原文复核。"
         return judgment.model_copy(update={
             "label": AutoLabel.ABSTAIN,
             "evidence_ids": [],
-            "explanation": (
-                "引用完整性复核未能提供同一主体及条件下的明确冲突依据，暂时无法可靠判断，请结合论文原文复核。"
-                if judgment.label == AutoLabel.CONTRADICTED else
-                "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。"
-            ),
+            "explanation": explanation,
             "claim_error_type": None,
             "evidence_error_type": None,
             "severity": Severity.NONE,

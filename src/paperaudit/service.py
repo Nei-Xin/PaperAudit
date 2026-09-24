@@ -1213,7 +1213,11 @@ class AuditService:
             before_citation_review = None
             candidate_gap_review = None
             before_candidate_gap_review = None
-            if judgment.label != AutoLabel.SUPPORTED and candidates:
+            if judgment.label in {
+                AutoLabel.NO_SUPPORT_FOUND,
+                AutoLabel.ABSTAIN,
+                AutoLabel.PARTIALLY_SUPPORTED,
+            } and candidates:
                 before_candidate_gap_review = judgment
                 judgment, candidate_gap_review = recheck_candidate_gap(
                     self.client, claim, candidates, judgment, paper.page_count,

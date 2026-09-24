@@ -591,6 +591,10 @@ class CitationReview(StrictModel):
     aspects: list[CitationAspect]
     missing_aspects: list[str]
     explanation: str
+    # ``None`` keeps old support-review records readable. New contradiction
+    # reviews must explicitly verify every concrete correction in suggestion.
+    suggestion_verified: bool | None = None
+    suggestion_missing_aspects: list[str] = Field(default_factory=list)
 
 
 class CandidateGapReview(StrictModel):
