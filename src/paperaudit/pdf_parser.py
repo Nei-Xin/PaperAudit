@@ -41,6 +41,35 @@ def _looks_truncated_title(title: str) -> bool:
     }
 
 
+_TABLE_MARKER = re.compile(r"^\s*(?:table|tab\.|表)\s*\d+[A-Za-z]?\b", re.IGNORECASE)
+_FORMULA_MARKER = re.compile(
+    r"(?:\s[=≈≤≥∑∏√∫∞±]|\b(?:arg\s*min|arg\s*max|softmax|sigmoid|"
+    r"relu|loss|objective|gradient|derivative|equation)\b)",
+    re.IGNORECASE,
+)
+
+
+def _classify_block(text: str) -> str:
+    """Give retrieval a light-weight structural hint without altering evidence text."""
+
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if not lines:
+        return "text"
+    if any(_TABLE_MARKER.search(line) for line in lines[:2]):
+        return "table"
+    # Captions are often separated from the rows by PDF layout extraction. A
+    # numeric multi-column block is still a useful table candidate.
+    if len(lines) >= 2 and sum(
+        len(re.findall(r"\d+(?:\.\d+)?%?", line)) >= 2 for line in lines
+    ) >= 2:
+        return "table"
+    if _FORMULA_MARKER.search(text) and (
+        "=" in text or any(symbol in text for symbol in "∑∏√∫∞±≤≥")
+    ):
+        return "formula"
+    return "text"
+
+
 def parse_pdf(pdf_bytes: bytes, max_block_chars: int = 3_000) -> ParsedPaper:
     if not pdf_bytes:
         raise PDFParseError("PDF 文件为空。")
@@ -100,6 +129,7 @@ def parse_pdf(pdf_bytes: bytes, max_block_chars: int = 3_000) -> ParsedPaper:
                             chunk_id=f"p{page_number}_b{block_number}{suffix}",
                             page=page_number,
                             content=part,
+                            content_type=_classify_block(text),
                             rects=line_rects,
                         )
                     )
