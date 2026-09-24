@@ -167,3 +167,68 @@ def test_background_learning_preserves_changes_made_during_generation(tmp_path: 
     assert saved.active_conversation_id == second.conversation_id
     assert saved.metadata.title == "Updated title"
     assert saved.report.one_sentence_summary == "New report"
+
+
+def test_shared_runner_persists_executor_submission_failure(tmp_path):
+    import pytest
+    store = ProjectStore(tmp_path / "library")
+    project = store.save_paper_project(b"submission-failure", "paper.pdf",
+        ParsedPaper(title="Paper", page_count=1, chunks=[]))
+    job = store.create_learning_job(project.project_id, runtime=_runtime())
+    manager = LearningJobManager(store, mark_interrupted_on_start=False)
+    manager.shutdown()
+    with pytest.raises(RuntimeError):
+        manager.submit(project.project_id, job.job_id, _settings())
+    failed = store.load_learning_job(project.project_id, job.job_id)
+    assert failed.status == AuditJobStatus.FAILED
+    assert failed.stage == "任务提交失败"
+
+
+def test_shared_runner_handles_initial_status_write_failure(tmp_path, monkeypatch):
+    store = ProjectStore(tmp_path / "library")
+    project = store.save_paper_project(b"status-failure", "paper.pdf",
+        ParsedPaper(title="Paper", page_count=1, chunks=[]))
+    job = store.create_learning_job(project.project_id, runtime=_runtime())
+    original_update = store.update_learning_job
+
+    def update(project_id, value):
+        if value.status == AuditJobStatus.RUNNING:
+            raise OSError("write failed test-secret-key")
+        original_update(project_id, value)
+
+    monkeypatch.setattr(store, "update_learning_job", update)
+    manager = LearningJobManager(store, mark_interrupted_on_start=False)
+    manager.submit(project.project_id, job.job_id, _settings())
+    manager.shutdown()
+    failed = store.load_learning_job(project.project_id, job.job_id)
+    assert failed.status == AuditJobStatus.FAILED
+    assert "test-secret-key" not in failed.error
+
+
+def test_shared_runner_shutdown_marks_queued_work_interrupted(tmp_path):
+    from threading import Event
+    store = ProjectStore(tmp_path / "library")
+    paper = ParsedPaper(title="Paper", page_count=1, chunks=[])
+    first = store.save_paper_project(b"first", "first.pdf", paper)
+    second = store.save_paper_project(b"second", "second.pdf", paper)
+    entered, release = Event(), Event()
+
+    class Runner:
+        def generate_learning_report(self, paper):
+            entered.set()
+            assert release.wait(5)
+            return LearningReport(paper_title="Paper", one_sentence_summary="Done", sections=[])
+
+    manager = LearningJobManager(store, service_factory=lambda _: Runner(), mark_interrupted_on_start=False)
+    a = store.create_learning_job(first.project_id, runtime=_runtime())
+    b = store.create_learning_job(second.project_id, runtime=_runtime())
+    try:
+        manager.submit(first.project_id, a.job_id, _settings())
+        assert entered.wait(5)
+        manager.submit(second.project_id, b.job_id, _settings())
+        manager.shutdown(wait=False)
+        assert store.load_learning_job(second.project_id, b.job_id).status == AuditJobStatus.INTERRUPTED
+    finally:
+        release.set()
+        manager.shutdown()
+    assert store.load_learning_job(first.project_id, a.job_id).status == AuditJobStatus.SUCCEEDED
