@@ -100,17 +100,18 @@ def apply_citation_review(
     candidates: list[EvidenceCandidate],
     review: CitationReview | None,
 ) -> ClaimJudgment:
-    """Accept model-selected support only with locally verifiable quotations.
+    """Accept a definitive judgment only with locally verifiable quotations.
 
     The model assesses semantic coverage; this check proves only that each
     quotation exists in its own selected passage. Never union the candidate pool
     into the citations or infer support from a keyword/number match.
     """
-    if judgment.label != AutoLabel.SUPPORTED:
+    if judgment.label not in {AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED}:
         return judgment
     passages = {c.evidence_id: c.text for c in candidates}
     valid = bool(
         review is not None and review.claim_id == judgment.claim_id
+        and review.reviewed_label == judgment.label.value
         and review.complete and not review.missing_aspects
         and review.aspects and review.evidence_ids
         and set(review.evidence_ids).issubset(passages)
@@ -132,7 +133,11 @@ def apply_citation_review(
         return judgment.model_copy(update={
             "label": AutoLabel.ABSTAIN,
             "evidence_ids": [],
-            "explanation": "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。",
+            "explanation": (
+                "引用完整性复核未能提供同一主体及条件下的明确冲突依据，暂时无法可靠判断，请结合论文原文复核。"
+                if judgment.label == AutoLabel.CONTRADICTED else
+                "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。"
+            ),
             "claim_error_type": None,
             "evidence_error_type": None,
             "severity": Severity.NONE,

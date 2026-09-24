@@ -15,7 +15,7 @@ from .audit_rules import (
     validate_judgment_references,
 )
 from .hy3_client import Hy3Client, Hy3ResponseError
-from .citation_review import review_supported_citations
+from .citation_review import review_citations
 from .evidence_gap import recheck_candidate_gap
 from .models import (
     AnswerConclusion,
@@ -1218,10 +1218,10 @@ class AuditService:
                 judgment, candidate_gap_review = recheck_candidate_gap(
                     self.client, claim, candidates, judgment, paper.page_count,
                 )
-            if judgment.label == AutoLabel.SUPPORTED:
-                notify("正在复核支持结论的引用完整性", 0.92)
+            if judgment.label in {AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED}:
+                notify("正在复核裁决的引用完整性", 0.92)
                 before_citation_review = judgment
-                judgment, citation_review, citation_review_before_repair = review_supported_citations(
+                judgment, citation_review, citation_review_before_repair = review_citations(
                     self.client, claim, candidates, judgment,
                 )
             invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)

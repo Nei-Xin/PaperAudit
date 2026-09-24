@@ -585,6 +585,7 @@ class CitationAspect(StrictModel):
 
 class CitationReview(StrictModel):
     claim_id: str
+    reviewed_label: Literal["SUPPORTED", "CONTRADICTED"] = "SUPPORTED"
     complete: bool
     evidence_ids: list[str]
     aspects: list[CitationAspect]
