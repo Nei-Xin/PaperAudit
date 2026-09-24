@@ -1083,7 +1083,7 @@ class AuditService:
         with EvidenceRetriever(paper.chunks) as retriever:
             for claim in claims:
                 candidates_by_claim[claim.claim_id] = retrieve_claim_evidence(
-                    retriever, claim, paper.chunks, strategy="plain",
+                    retriever, claim, paper.chunks, strategy="cited",
                     seed_limit=self.settings.retrieval_top_k,
                 )
 

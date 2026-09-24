@@ -334,7 +334,7 @@ def retrieve_claim_evidence(
     additional slots for lexical results and two for neighbors. No gold data is
     involved in selection.
     """
-    if strategy not in {"plain", "structural", "hybrid"}:
+    if strategy not in {"plain", "structural", "hybrid", "cited"}:
         raise ValueError(f"Unknown retrieval strategy: {strategy}")
     if seed_limit < 1:
         raise ValueError("seed_limit must be positive")
@@ -342,6 +342,20 @@ def retrieve_claim_evidence(
     seeds = ranked[:seed_limit]
     if strategy == "plain":
         ordered = ranked
+    elif strategy == "cited":
+        # A report citation is a search hint, never proof of support. Keep the
+        # global seed even when the report points at an unrelated/invalid page.
+        pages = report_evidence_pages(claim.provided_evidence)
+        cited_chunks = [chunk for chunk in chunks if chunk.page in pages]
+        additions: list[EvidenceCandidate] = []
+        if cited_chunks:
+            seed_ids = {candidate.chunk_id for candidate in seeds}
+            with EvidenceRetriever(cited_chunks) as cited_retriever:
+                local = cited_retriever.search(
+                    build_claim_query(claim), claim.claim_id, seed_limit + 3
+                )
+            additions = [candidate for candidate in local if candidate.chunk_id not in seed_ids][:3]
+        ordered = seeds + additions + ranked[seed_limit:]
     elif strategy == "structural":
         ordered = expand_claim_evidence(claim, chunks, seeds) + ranked[seed_limit:]
     else:

@@ -66,3 +66,27 @@ def test_incomplete_results_remain_visible_in_summary(tmp_path):
     assert summary['planned_per_arm'] == 1
     assert summary['arms']['plain']['failed'] == 1
     assert summary['arms']['structural']['completed'] == 0
+
+
+def test_summary_uses_frozen_arms_instead_of_default_comparison(tmp_path):
+    case = protocol(tmp_path)
+    experiment.save(tmp_path / 'protocol.json', {'source_sha256': {}, 'arms': ['plain', 'cited'], 'cases': [case]})
+    summary = experiment.summarize(tmp_path)
+    assert set(summary['arms']) == {'plain', 'cited'}
+    assert summary['planned_per_arm'] == 1
+
+
+def test_interrupted_request_is_not_silently_billed_again(tmp_path):
+    protocol(tmp_path)
+    (tmp_path / 'results').mkdir()
+    experiment.save(tmp_path / 'results/paper_C1_plain.requests.json', [{'status': 'ok'}])
+    with pytest.raises(ValueError, match='Interrupted request'):
+        experiment.run(tmp_path, api_base='https://example.invalid', model='fake', api_key='unused', limit=1)
+
+
+def test_saved_result_must_match_the_case_and_runtime_before_resume(tmp_path):
+    protocol(tmp_path)
+    (tmp_path / 'results').mkdir()
+    experiment.save(tmp_path / 'results/paper_C1_plain.json', {'status': 'ok', 'case_sha256': 'stale'})
+    with pytest.raises(ValueError, match='Saved result'):
+        experiment.run(tmp_path, api_base='https://example.invalid', model='fake', api_key='unused', limit=1)
