@@ -572,10 +572,32 @@ class EvidenceReview(StrictModel):
         return self
 
 
+class CitationQuote(StrictModel):
+    evidence_id: str
+    quote: str = Field(min_length=1)
+
+
+class CitationAspect(StrictModel):
+    aspect: str = Field(min_length=1)
+    citations: list[CitationQuote] = Field(min_length=1)
+    reasoning: str = Field(min_length=1)
+
+
+class CitationReview(StrictModel):
+    claim_id: str
+    complete: bool
+    evidence_ids: list[str]
+    aspects: list[CitationAspect]
+    missing_aspects: list[str]
+    explanation: str
+
+
 class ClaimAudit(StrictModel):
     claim: AtomicClaim
     candidates: list[EvidenceCandidate]
     judgment: ClaimJudgment
+    citation_review: CitationReview | None = None
+    judgment_before_citation_review: ClaimJudgment | None = None
 
 
 class DimensionScores(StrictModel):

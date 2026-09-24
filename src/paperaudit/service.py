@@ -7,6 +7,7 @@ from difflib import SequenceMatcher
 import re
 from .config import Settings
 from .audit_rules import (
+    apply_citation_review,
     calibrate_judgment,
     choose_majority,
     judgment_signature,
@@ -1206,6 +1207,16 @@ class AuditService:
                         explanation="已补查引用页及其他候选片段，现有证据仍不足以可靠判断，请结合论文原文人工复核。",
                         severity=Severity.NONE,
                     )
+            citation_review = None
+            before_citation_review = None
+            if judgment.label == AutoLabel.SUPPORTED:
+                notify("正在复核支持结论的引用完整性", 0.92)
+                before_citation_review = judgment
+                try:
+                    citation_review = self.client.review_citation_coverage(claim, candidates, judgment)
+                except Hy3ResponseError:
+                    pass
+                judgment = apply_citation_review(judgment, candidates, citation_review)
             invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
                                    if not 1 <= page <= paper.page_count)
             if invalid_pages:
@@ -1216,7 +1227,11 @@ class AuditService:
                     "severity": Severity.HIGH,
                     "explanation": judgment.explanation + f" 报告引用页码 {invalid_pages} 超出论文的 1–{paper.page_count} 页范围。",
                 })
-            audits.append(ClaimAudit(claim=claim, candidates=candidates, judgment=judgment))
+            audits.append(ClaimAudit(
+                claim=claim, candidates=candidates, judgment=judgment,
+                citation_review=citation_review,
+                judgment_before_citation_review=before_citation_review,
+            ))
 
         notify("正在生成审计摘要", 0.95)
         summary = build_summary(audits, list(scope))

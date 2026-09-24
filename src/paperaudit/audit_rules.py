@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 import re
 
-from .models import AutoLabel, ClaimErrorType, ClaimJudgment, EvidenceCandidate, Severity
+from .models import AutoLabel, CitationReview, ClaimErrorType, ClaimJudgment, EvidenceCandidate, Severity
 
 
 _HIGH_RISK_ERRORS = {
@@ -93,6 +93,56 @@ def validate_judgment_references(
             }
         )
     return judgment
+
+
+def apply_citation_review(
+    judgment: ClaimJudgment,
+    candidates: list[EvidenceCandidate],
+    review: CitationReview | None,
+) -> ClaimJudgment:
+    """Accept model-selected support only with locally verifiable quotations.
+
+    The model assesses semantic coverage; this check proves only that each
+    quotation exists in its own selected passage. Never union the candidate pool
+    into the citations or infer support from a keyword/number match.
+    """
+    if judgment.label != AutoLabel.SUPPORTED:
+        return judgment
+    passages = {c.evidence_id: c.text for c in candidates}
+    valid = bool(
+        review is not None and review.claim_id == judgment.claim_id
+        and review.complete and not review.missing_aspects
+        and review.aspects and review.evidence_ids
+        and set(review.evidence_ids).issubset(passages)
+    )
+    if valid:
+        assert review is not None
+        quoted_ids = set()
+        for aspect in review.aspects:
+            if not aspect.aspect.strip() or not aspect.reasoning.strip():
+                valid = False
+            for citation in aspect.citations:
+                quote = " ".join(citation.quote.split())
+                source = " ".join(passages.get(citation.evidence_id, "").split())
+                if not quote or quote not in source:
+                    valid = False
+                quoted_ids.add(citation.evidence_id)
+        valid = valid and quoted_ids == set(review.evidence_ids)
+    if not valid:
+        return judgment.model_copy(update={
+            "label": AutoLabel.ABSTAIN,
+            "evidence_ids": [],
+            "explanation": "引用完整性复核未能提供覆盖论断全部条件的有效原文依据，暂时无法可靠判断，请结合论文原文复核。",
+            "claim_error_type": None,
+            "evidence_error_type": None,
+            "severity": Severity.NONE,
+            "suggestion": None,
+        })
+    assert review is not None
+    return judgment.model_copy(update={
+        "evidence_ids": list(dict.fromkeys(review.evidence_ids)),
+        "explanation": judgment.explanation + " 引用完整性复核：" + review.explanation,
+    })
 
 
 def needs_second_pass(judgment: ClaimJudgment, claim_text: str = "") -> bool:

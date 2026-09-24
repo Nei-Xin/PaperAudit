@@ -5,7 +5,7 @@ from paperaudit.hy3_client import Hy3ResponseError
 from paperaudit.models import (
     AtomicClaim, AutoLabel, ClaimCategory, ClaimErrorType, ClaimExtraction,
     ClaimJudgment, EvidenceCandidate, EvidenceErrorType, EvidenceReview,
-    JudgmentBatch, PaperChunk, ParsedPaper, Severity,
+    JudgmentBatch, PaperChunk, ParsedPaper, Severity, CitationReview,
 )
 from paperaudit.retrieval import report_evidence_pages, supplement_claim_evidence
 from paperaudit.service import AuditService
@@ -46,6 +46,15 @@ def test_sufficient_review_requires_evidence_id():
 
 
 class MissingClient:
+    def review_citation_coverage(self, claim, candidates, judgment):
+        return CitationReview(
+            claim_id=claim.claim_id, complete=True, evidence_ids=judgment.evidence_ids,
+            aspects=[{"aspect": "单图拟合", "reasoning": "原文明确说明。",
+                      "citations": [{"evidence_id": c.evidence_id, "quote": c.text}
+                                    for c in candidates if c.evidence_id in judgment.evidence_ids]}],
+            missing_aspects=[], explanation="补查后的引用充分。",
+        )
+
     def __init__(self, *, outcome="supported", anchor="（证据：论文第2页）"):
         self.outcome, self.anchor, self.reviews = outcome, anchor, 0
 
