@@ -1,15 +1,54 @@
 from __future__ import annotations
+
 from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
 from .config import Settings
-from .audit_rules import calibrate_judgment, choose_majority, judgment_signature, needs_evidence_retry, needs_second_pass, validate_judgment_references
+from .audit_rules import (
+    calibrate_judgment,
+    choose_majority,
+    judgment_signature,
+    needs_evidence_retry,
+    needs_second_pass,
+    validate_judgment_references,
+)
 from .hy3_client import Hy3Client, Hy3ResponseError
-from .models import AnswerConclusion, AnswerStatus, AuditRun, AutoLabel, ClaimAudit, ClaimCategory, ClaimJudgment, JudgmentBatch, EvidenceAnchor, EvidenceCandidate, EvidenceErrorType, LearningReport, PeerReviewReport, RebuttalItem, ReviewConcern, LearningSectionType, PageRect, PaperAnswer, PaperChunk, ParsedPaper, ReportSection, PeerReviewVenue, RelatedWorkComparison, RelatedWorkReference, Severity
+from .models import (
+    AnswerConclusion,
+    AnswerStatus,
+    AuditRun,
+    AutoLabel,
+    ClaimAudit,
+    ClaimCategory,
+    ClaimJudgment,
+    JudgmentBatch,
+    EvidenceAnchor,
+    EvidenceCandidate,
+    EvidenceErrorType,
+    LearningReport,
+    PeerReviewReport,
+    RebuttalItem,
+    ReviewConcern,
+    LearningSectionType,
+    PageRect,
+    PaperAnswer,
+    PaperChunk,
+    ParsedPaper,
+    ReportSection,
+    PeerReviewVenue,
+    RelatedWorkComparison,
+    RelatedWorkReference,
+    Severity,
+)
 from .pdf_parser import parse_pdf
-from .retrieval import EvidenceRetriever, build_claim_query, report_evidence_pages, supplement_claim_evidence
+from .retrieval import (
+    EvidenceRetriever,
+    build_claim_query,
+    report_evidence_pages,
+    supplement_claim_evidence,
+)
 from .scoring import build_summary
 from .peer_review_service import PeerReviewService
 

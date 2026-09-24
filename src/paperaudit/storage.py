@@ -38,7 +38,7 @@ from paperaudit.models import (
     IssueStatus,
     IssueSupportType,
 )
-from paperaudit.service import recalculate_peer_review
+from paperaudit.peer_review_rules import recalculate_peer_review
 
 
 SETTINGS_SCHEMA_VERSION = 1

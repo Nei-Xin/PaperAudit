@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .project_session import ProjectSession
+
 from collections.abc import Callable
 from datetime import datetime
 from html import escape
@@ -1696,56 +1698,7 @@ def render_learning_workspace(
                     width="stretch",
                 )
                 if st.button("更换论文并返回", type="tertiary", width="stretch"):
-                    for state_key in (
-                    "learning_report",
-                    "learning_pdf_bytes",
-                    "learning_paper",
-                    "result_mode",
-                    "learning_selected_evidence",
-                    "learning_evidence_group",
-                    "learning_evidence_section",
-                    "learning_active_section",
-                    "learning_active_point",
-                    "learning_pdf_page",
-                    "learning_pdf_zoom",
-                    "learning_pdf_anchor_sync",
-                    "learning_focus_evidence",
-                    "qa_selected_evidence",
-                    "qa_evidence_group",
-                    "qa_pdf_page",
-                    "qa_pdf_zoom",
-                    "qa_pdf_anchor_sync",
-                    "qa_focus_evidence",
-                    "paper_qa_history",
-                    "project_conversations",
-                    "active_conversation_id",
-                    "paper_text_selection",
-                    "learning_workspace_mode",
-                    "learning_switch_to_qa",
-                    "learning_pdf_focus",
-                    "learning_explanation_scope",
-                    "parsed_codebase",
-                    "code_parse_warning",
-                    "joint_qa_history",
-                    "joint_qa_pending",
-                    "joint_paper_selection",
-                    "joint_active_paper_citation",
-                    "joint_active_code_citation",
-                    "joint_code_selection",
-                    "joint_code_path",
-                    "joint_code_path_pending",
-                    "joint_code_rendered_path",
-                    "joint_pdf_page",
-                    "joint_layout_mode",
-                    "joint_layout_mode_pending",
-                    "active_project_id",
-                    "project_original_filename",
-                    "project_save_error",
-                    "paper_pdf_upload",
-                    "source_code_upload",
-                    ):
-                        st.session_state.pop(state_key, None)
-                    st.query_params.pop("project", None)
+                    ProjectSession(st.session_state, st.query_params).clear()
                     st.rerun()
     notice = st.session_state.pop("audit_submit_notice", None)
     if notice:

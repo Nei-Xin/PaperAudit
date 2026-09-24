@@ -6,7 +6,7 @@ from difflib import SequenceMatcher
 from typing import Any
 
 from paperaudit.models import ParsedPaper, PeerReviewReport
-from paperaudit.service import build_revision_diff
+from paperaudit.peer_review_rules import build_revision_diff
 
 
 def build_revision_payload(

@@ -16,7 +16,7 @@ from paperaudit.models import (
     Severity,
 )
 from paperaudit.reporting import SKIP_REASON_LABELS, render_markdown
-from paperaudit.service import refresh_evidence_anchors
+from paperaudit.evidence import refresh_evidence_anchors
 from paperaudit.ui.components import (
     audit_evidence_label,
     render_audit_detail,

@@ -15,6 +15,7 @@ Browser_Actual_*.png
 # design notes out of the public release by default.
 docs/*
 !docs/deployment.md
+!docs/architecture.md
 !docs/direction_one_final_report.md
 !docs/evaluation.md
 !docs/final_acceptance_report.md

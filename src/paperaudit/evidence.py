@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from collections.abc import Sequence
 import re
 from .models import EvidenceAnchor, LearningReport, PaperChunk, ParsedPaper, ReportSection
@@ -224,5 +225,3 @@ def _paragraph_number(index: int, chunks: list[PaperChunk]) -> int | None:
         return body_indices.index(index) + 1
     except ValueError:
         return None
-
-
