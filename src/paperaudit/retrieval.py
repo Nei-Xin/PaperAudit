@@ -84,6 +84,14 @@ _CONFIG_TERMS = {
     "config",
 }
 _SPECIFIC_CONFIG_TERMS = {"base", "large", "small", "medium", "xl", "variant"}
+_FORMULA_QUERY_TERMS = {
+    "formula", "equation", "loss", "objective", "gradient", "derivative",
+    "regularization", "constraint", "convergence", "softmax", "sigmoid",
+}
+_TABLE_QUERY_TERMS = {
+    "table", "row", "column", "metric", "accuracy", "precision", "recall",
+    "error", "score", "results", "baseline",
+}
 
 
 def _normalize_for_search(text: str) -> str:
@@ -249,6 +257,8 @@ def supplement_claim_evidence(
 class EvidenceRetriever:
     def __init__(self, chunks: list[PaperChunk]):
         self._chunks = chunks
+        self._positions = {chunk.chunk_id: index for index, chunk in enumerate(chunks)}
+        self._content_types = {chunk.chunk_id: chunk.content_type for chunk in chunks}
         self._abstract_chunk_ids = _abstract_chunk_ids(chunks)
         self._connection = sqlite3.connect(":memory:")
         self._connection.execute(
@@ -282,6 +292,8 @@ class EvidenceRetriever:
         ).fetchall()
 
         query_term_set = set(terms)
+        query_formula = bool(query_term_set & _FORMULA_QUERY_TERMS)
+        query_table = bool(query_term_set & _TABLE_QUERY_TERMS)
         if query_term_set & _ATTRIBUTION_TERMS:
             row_ids = {str(row[0]) for row in rows}
             abstract_seen = False
@@ -293,6 +305,41 @@ class EvidenceRetriever:
                 if not abstract_seen and _looks_like_author_block(chunk.content) and chunk.chunk_id not in row_ids:
                     rows.append((chunk.chunk_id, chunk.page, chunk.content, 0.0))
         row_ids = {str(row[0]) for row in rows}
+        # Recover structural continuations that FTS treats as unrelated blocks:
+        # table headers/rows and displayed equations commonly cross a page break.
+        # The candidate remains the original chunk, while the neighboring block
+        # contributes only to ranking.
+        structural_neighbors: dict[str, set[str]] = {}
+        for chunk in self._chunks:
+            index = self._positions[chunk.chunk_id]
+            for neighbor_index in (index - 1, index + 1):
+                if not 0 <= neighbor_index < len(self._chunks):
+                    continue
+                neighbor = self._chunks[neighbor_index]
+                if neighbor.page == chunk.page and chunk.content_type == neighbor.content_type == "text":
+                    continue
+                structural_neighbors.setdefault(chunk.chunk_id, set()).add(neighbor.chunk_id)
+                structural_neighbors.setdefault(neighbor.chunk_id, set()).add(chunk.chunk_id)
+        for chunk in self._chunks:
+            if chunk.chunk_id in row_ids:
+                continue
+            neighbors = structural_neighbors.get(chunk.chunk_id, set())
+            if not neighbors:
+                continue
+            combined = " ".join(
+                [chunk.content]
+                + [self._chunks[self._positions[item]].content for item in neighbors]
+            )
+            combined_terms = _content_terms(_normalize_for_search(combined))
+            overlap = sum(_term_matches(term, combined_terms) for term in query_term_set)
+            threshold = max(2, min(4, (len(query_term_set) + 2) // 3))
+            if overlap >= threshold or (
+                query_formula and chunk.content_type == "formula"
+            ) or (
+                query_table and chunk.content_type == "table"
+            ):
+                rows.append((chunk.chunk_id, chunk.page, chunk.content, 0.0))
+                row_ids.add(chunk.chunk_id)
         for chunk in self._chunks:
             if chunk.chunk_id in self._abstract_chunk_ids and chunk.chunk_id not in row_ids:
                 rows.append((chunk.chunk_id, chunk.page, chunk.content, 0.0))
@@ -331,6 +378,18 @@ class EvidenceRetriever:
             )
             resource_anchor = 1.0 if _has_resource_anchor(query_term_set, content_terms) else 0.0
             config_resource_pair = 1.0 if _has_config_resource_pair(normalized_content, query_term_set) else 0.0
+            structural_neighbor_terms = set()
+            for neighbor_id in structural_neighbors.get(str(chunk_id), set()):
+                neighbor = self._chunks[self._positions[neighbor_id]]
+                structural_neighbor_terms.update(
+                    _content_terms(_normalize_for_search(neighbor.content))
+                )
+            neighbor_anchor = (
+                sum(_term_matches(term, structural_neighbor_terms) for term in query_term_set)
+                / max(len(query_term_set), 1)
+            )
+            formula_anchor = 1.0 if query_formula and self._content_types.get(str(chunk_id)) == "formula" else 0.0
+            table_anchor = 1.0 if query_table and self._content_types.get(str(chunk_id)) == "table" else 0.0
             front_matter_bonus = 0.0
             if query_term_set & _ATTRIBUTION_TERMS and int(page) == 1 and _looks_like_author_block(content):
                 front_matter_bonus = 0.6
@@ -342,6 +401,9 @@ class EvidenceRetriever:
                 + metric_number_anchor * 0.25
                 + resource_anchor * 0.2
                 + config_resource_pair * 0.3
+                + neighbor_anchor * 0.2
+                + formula_anchor * 0.35
+                + table_anchor * 0.35
                 + bm25_ratio * 0.05
                 + phrase_bonus * 0.05
                 + front_matter_bonus

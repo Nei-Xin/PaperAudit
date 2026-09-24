@@ -60,3 +60,19 @@ def test_truncated_metadata_title_falls_back_to_complete_first_block() -> None:
     paper = parse_pdf(pdf_bytes)
 
     assert paper.title == "MLLM-as-a-Judge for Image Safety without Human Labeling"
+
+
+def test_parse_pdf_marks_formula_and_table_blocks_for_retrieval() -> None:
+    document = fitz.open()
+    page = document.new_page()
+    page.insert_text((72, 72), "Table 1 Results")
+    page.insert_text((72, 92), "Method Accuracy Error")
+    page.insert_text((72, 112), "Ours 91.2 8.8")
+    page.insert_text((72, 150), "The objective loss L = sum_i (y_i - f(x_i))^2.")
+    pdf_bytes = document.tobytes()
+    document.close()
+
+    paper = parse_pdf(pdf_bytes)
+
+    assert any(chunk.content_type == "table" for chunk in paper.chunks)
+    assert any(chunk.content_type == "formula" for chunk in paper.chunks)

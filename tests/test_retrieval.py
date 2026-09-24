@@ -104,3 +104,47 @@ def test_retrieval_matches_configuration_entity_to_nearby_resource() -> None:
     with EvidenceRetriever(chunks) as retriever:
         results = retriever.search("LARGE model training GPU", "C005", limit=1)
     assert results[0].chunk_id == "p4_b1"
+
+
+def test_retrieval_boosts_formula_blocks_for_equation_queries() -> None:
+    chunks = [
+        PaperChunk(
+            chunk_id="p3_formula",
+            page=3,
+            content="The objective loss L = sum_i (y_i - f(x_i))^2.",
+            content_type="formula",
+        ),
+        PaperChunk(
+            chunk_id="p3_text",
+            page=3,
+            content="The objective is optimized during training.",
+        ),
+    ]
+    with EvidenceRetriever(chunks) as retriever:
+        results = retriever.search("equation objective loss", "C006", limit=1)
+    assert results[0].chunk_id == "p3_formula"
+
+
+def test_retrieval_recovers_cross_page_table_continuation() -> None:
+    chunks = [
+        PaperChunk(
+            chunk_id="p4_caption",
+            page=4,
+            content="Table 2 Results",
+            content_type="table",
+        ),
+        PaperChunk(
+            chunk_id="p5_row",
+            page=5,
+            content="Ours 91.2 accuracy on Dataset Z",
+            content_type="table",
+        ),
+        PaperChunk(
+            chunk_id="p6_unrelated",
+            page=6,
+            content="Ablation details are discussed separately.",
+        ),
+    ]
+    with EvidenceRetriever(chunks) as retriever:
+        results = retriever.search("Table 2 Dataset Z accuracy", "C007", limit=2)
+    assert {result.chunk_id for result in results} == {"p4_caption", "p5_row"}
