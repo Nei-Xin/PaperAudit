@@ -1,0 +1,439 @@
+{
+  "production_git_commit": "045b672",
+  "protocol_sha256": "3dd2907833fd034c1515f34e45208b73c5c2d66965f6af7605b8af7b420a7b72",
+  "runtime": {
+    "api_base": "https://sub2api.zzii.de/v1",
+    "model": "gpt-6-luna",
+    "reasoning_effort": "",
+    "temperature": 0.2,
+    "top_p": 1.0,
+    "timeout_seconds": 120,
+    "retrieval_top_k": 5,
+    "max_paper_chars": 120000,
+    "judge_batch_size": 6
+  },
+  "annotation": "Agent-authored controlled reports; references checked against rendered PDF pages before any audit call. Not independent human annotations, not naturally occurring reports.",
+  "isolation": {
+    "historical_manifests": 57,
+    "overlapping_papers": [],
+    "final_holdout_used": false
+  },
+  "per_paper": [
+    {
+      "paper_id": "resnext",
+      "url": "https://arxiv.org/pdf/1611.05431v1",
+      "pdf_sha256": "302c4a16e9483f1a096a12adcc114f58b94402f751d334d757db087e32066074",
+      "source_count": 6,
+      "extracted_claims": 6,
+      "exact_agreement": 5,
+      "seconds": 131.93507424998097,
+      "requests": 12,
+      "tokens": 52929,
+      "storage_round_trip_equal": true,
+      "result_sha256": "4cebbc881316433e116cce5701b4eff8dea49df5e92b04c95cd6de720c2e120e"
+    },
+    {
+      "paper_id": "layernorm",
+      "url": "https://arxiv.org/pdf/1607.06450v1",
+      "pdf_sha256": "c464f839fb8d59f7fde92f9b4caa67c2d1f2f196b88f93fb60502249df0aaef7",
+      "source_count": 6,
+      "extracted_claims": 6,
+      "exact_agreement": 5,
+      "seconds": 130.3854706250131,
+      "requests": 10,
+      "tokens": 46322,
+      "storage_round_trip_equal": true,
+      "result_sha256": "b0cc7a1c9228e3ad871e088ee2f9f761a7688148eee39b906e351b7dd61767f4"
+    },
+    {
+      "paper_id": "senet",
+      "url": "https://arxiv.org/pdf/1709.01507v1",
+      "pdf_sha256": "60e7a8e033ca861eb88d84e71cad1951904bd355e5dec6fa596f6f2ad0087683",
+      "source_count": 6,
+      "extracted_claims": 6,
+      "exact_agreement": 6,
+      "seconds": 355.3890319169732,
+      "requests": 10,
+      "tokens": 48651,
+      "storage_round_trip_equal": true,
+      "result_sha256": "d9897b449c4930f64c1aa021312b6afa999b95be5b85c4e653bed94055ef64b5"
+    }
+  ],
+  "summary": {
+    "planned_reports": 3,
+    "completed_reports": 3,
+    "successful_reports": 3,
+    "planned_sources": 18,
+    "evaluated_sources": 18,
+    "extracted_sources": 18,
+    "extracted_claims": 18,
+    "exact_agreement": 16,
+    "supported_reference_count": 9,
+    "missed_support": 2,
+    "false_support": 0,
+    "unsupported_safely_withheld": 3,
+    "labels": {
+      "SUPPORTED": 7,
+      "ABSTAIN": 2,
+      "CONTRADICTED": 6,
+      "NO_SUPPORT_FOUND": 3
+    },
+    "supported_claims": 7,
+    "supported_locally_valid_citations": 7,
+    "candidate_rechecks": 9,
+    "citation_repairs": 0,
+    "logical_requests": 32,
+    "by_phase": {
+      "extract_claims": {
+        "requests": 3,
+        "seconds": 68.00478424999164,
+        "tokens": 7930
+      },
+      "judge_claims": {
+        "requests": 3,
+        "seconds": 48.384486542025115,
+        "tokens": 42998
+      },
+      "adjudicate_claim": {
+        "requests": 5,
+        "seconds": 25.599637583072763,
+        "tokens": 17369
+      },
+      "review_missing_support": {
+        "requests": 3,
+        "seconds": 18.95212670910405,
+        "tokens": 11906
+      },
+      "review_candidate_gap": {
+        "requests": 9,
+        "seconds": 124.15975887392415,
+        "tokens": 31808
+      },
+      "review_citation_coverage": {
+        "requests": 9,
+        "seconds": 331.5668291260372,
+        "tokens": 35891
+      },
+      "repair_citation_coverage": {
+        "requests": 0,
+        "seconds": 0,
+        "tokens": 0
+      }
+    },
+    "usage_missing_requests": 0,
+    "prompt_tokens": 130263,
+    "completion_tokens": 17639,
+    "total_tokens": 147902,
+    "mean_report_seconds": 205.9031922639891,
+    "p95_report_seconds": 355.3890319169732,
+    "latency_note": "Concurrent reports; nearest-rank P95 on only three reports is descriptive, not an SLA.",
+    "sources": [
+      {
+        "case_id": "LN01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "ABSTAIN"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": false,
+        "missed_support": true,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p8_b51"
+        ]
+      },
+      {
+        "case_id": "LN04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "LN06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "ABSTAIN"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": false,
+        "missed_support": true,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p6_b24"
+        ]
+      },
+      {
+        "case_id": "RX02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p6_b28"
+        ]
+      },
+      {
+        "case_id": "RX03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "RX06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE01",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": true,
+        "missing_reference_chunks": []
+      },
+      {
+        "case_id": "SE02",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p8_b1"
+        ]
+      },
+      {
+        "case_id": "SE03",
+        "reference_label": "SUPPORTED",
+        "labels": [
+          "SUPPORTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p8_b3"
+        ]
+      },
+      {
+        "case_id": "SE04",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p8_b5"
+        ]
+      },
+      {
+        "case_id": "SE05",
+        "reference_label": "CONTRADICTED",
+        "labels": [
+          "CONTRADICTED"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": false,
+        "all_reference_chunks_retrieved": false,
+        "missing_reference_chunks": [
+          "p8_b5"
+        ]
+      },
+      {
+        "case_id": "SE06",
+        "reference_label": "NO_SUPPORT_FOUND",
+        "labels": [
+          "NO_SUPPORT_FOUND"
+        ],
+        "claim_count": 1,
+        "extracted": true,
+        "exact_agreement": true,
+        "missed_support": false,
+        "false_support": false,
+        "safe_withholding": true,
+        "all_reference_chunks_retrieved": null,
+        "missing_reference_chunks": []
+      }
+    ],
+    "network_attempts": 32,
+    "transport_errors": 0
+  },
+  "post_run_evidence_review": {
+    "method": "Post-run agent inspection of final per-claim citations; not independent human grading and not a preregistered primary metric.",
+    "contradictions_with_insufficient_citations": [
+      "SE04",
+      "SE05"
+    ],
+    "contradiction_count": 6,
+    "contradictions_with_sufficient_citations": 4,
+    "supported_citations_semantically_checked": 7,
+    "retrieval_abstentions": [
+      "RX01",
+      "LN03"
+    ],
+    "details": {
+      "RX01": "p6_b24 table header and row missing; top-1 metric cannot be established from final candidates.",
+      "LN03": "p8_b51 header missing; 79.5 cannot be tied to MR from final candidates.",
+      "SE04": "Only p8_b6 caption cited; p8_b5 numerical rows absent from this claim pool. Candidate recheck explicitly notes missing rows but original CONTRADICTED judgment persists.",
+      "SE05": "Only p8_b6 caption cited; neither 23.29 nor 24.80 is in this claim pool. Candidate recheck notes lack of row evidence but retains original CONTRADICTED judgment."
+    }
+  }
+}

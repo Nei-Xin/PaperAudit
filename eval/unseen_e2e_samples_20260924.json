@@ -1,0 +1,329 @@
+{
+  "annotation": "Agent-authored controlled reports; references checked against rendered PDF pages before any audit call. Not independent human annotations, not naturally occurring reports.",
+  "reports": [
+    {
+      "paper_id": "resnext",
+      "arxiv_version": "1611.05431v1",
+      "url": "https://arxiv.org/pdf/1611.05431v1",
+      "pdf_path": "tmp/experiments/unseen-e2e-20260924/inputs/1611.05431v1.pdf",
+      "pdf_sha256": "302c4a16e9483f1a096a12adcc114f58b94402f751d334d757db087e32066074",
+      "report_path": "tmp/experiments/unseen-e2e-20260924/inputs/resnext_report.txt",
+      "facts": [
+        {
+          "case_id": "RX01",
+          "source_id": "S0001",
+          "text": "ResNeXt-50（32×4d）在ImageNet-1K上采用224×224单裁剪评估的top-1错误率为22.2%。（证据：论文第5、6页 Table 3）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "同一配置行和Table 3说明明确给出22.2%及评估设置。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p6_b24",
+              "page": 6,
+              "quote": "setting\ntop-1 error (%)\nResNet-50\n1 × 64d\n23.9\nResNeXt-50\n2 × 40d\n23.0\nResNeXt-50\n4 × 24d\n22.6\nResNeXt-50\n8 × 14d\n22.3\nResNeXt-50\n32 × 4d\n22.2\nResNet-101\n1 × 64d\n22.0\nResNeXt-101\n2 × 40d\n21.7\nResNeXt-101\n4 × 24d\n21.4\nResNeXt-101\n8 × 14d\n21.3\nResNeXt-101\n32 × 4d\n21.2"
+            },
+            {
+              "chunk_id": "p6_b25",
+              "page": 6,
+              "quote": "Table 3. Ablation experiments on ImageNet-1K. (Top): ResNet-\n50 with preserved complexity (∼4.1 billion FLOPs); (Bottom):\nResNet-101 with preserved complexity (∼7.8 billion FLOPs). The\nerror rate is evaluated on the single crop of 224×224 pixels."
+            }
+          ]
+        },
+        {
+          "case_id": "RX02",
+          "source_id": "S0002",
+          "text": "ResNeXt-101（64×4d）在ImageNet-1K上采用224×224单裁剪评估的top-1错误率为20.4%。（证据：论文第6页 Table 4）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "Table 4的64×4d行top-1为20.4%。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p6_b28",
+              "page": 6,
+              "quote": "setting\ntop-1 err (%)\ntop-5 err (%)\n1× complexity references:\nResNet-101\n1 × 64d\n22.0\n6.0\nResNeXt-101\n32 × 4d\n21.2\n5.6\n2× complexity models follow:\nResNet-200 [14]\n1 × 64d\n21.7\n5.8\nResNet-101, wider\n1 × 100d\n21.3\n5.7\nResNeXt-101\n2 × 64d\n20.7\n5.5\nResNeXt-101\n64 × 4d\n20.4\n5.3"
+            },
+            {
+              "chunk_id": "p6_b29",
+              "page": 6,
+              "quote": "Table 4. Comparisons on ImageNet-1K when the number of\nFLOPs is increased to 2× of ResNet-101’s. The error rate is evalu-\nated on the single crop of 224×224 pixels. The highlighted factors\nare the factors that increase complexity."
+            }
+          ]
+        },
+        {
+          "case_id": "RX03",
+          "source_id": "S0003",
+          "text": "论文在ImageNet训练时使用的全局mini-batch大小为256。（证据：论文第5页 Implementation details）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "实现细节明确为256，在8个GPU上每卡32。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p5_b9",
+              "page": 5,
+              "quote": "Our implementation follows [13] and the publicly avail-\nable code of fb.resnet.torch [11]. On the ImageNet\ndataset, the input image is 224×224 randomly cropped\nfrom a resized image using the scale and aspect ratio aug-\nmentation of [37] implemented by [11]. The shortcuts are\nidentity connections except for those increasing dimensions\nwhich are projections (type B in [13]). Downsampling of\nconv3, 4, and 5 is done by stride-2 convolutions in the 3×3\nlayer of the ﬁrst block in each stage, as suggested in [11].\nWe use SGD with a mini-batch size of 256 on 8 GPUs (32\nper GPU). The weight decay is 0.0001 and the momentum\nis 0.9. We start from a learning rate of 0.1, and divide it by\n10 for three times using the schedule in [11]. We adopt the\nweight initialization of [12]. In all ablation comparisons, we\nevaluate the error on the single 224×224 center crop from\nan image whose shorter side is 256."
+            }
+          ]
+        },
+        {
+          "case_id": "RX04",
+          "source_id": "S0004",
+          "text": "ResNeXt-101（32×4d）在ImageNet-1K上采用224×224单裁剪评估的top-5错误率为6.0%。（证据：论文第6页 Table 4）",
+          "reference_label": "CONTRADICTED",
+          "reference_reason": "该配置是5.6%，6.0%属于ResNet-101。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p6_b28",
+              "page": 6,
+              "quote": "setting\ntop-1 err (%)\ntop-5 err (%)\n1× complexity references:\nResNet-101\n1 × 64d\n22.0\n6.0\nResNeXt-101\n32 × 4d\n21.2\n5.6\n2× complexity models follow:\nResNet-200 [14]\n1 × 64d\n21.7\n5.8\nResNet-101, wider\n1 × 100d\n21.3\n5.7\nResNeXt-101\n2 × 64d\n20.7\n5.5\nResNeXt-101\n64 × 4d\n20.4\n5.3"
+            },
+            {
+              "chunk_id": "p6_b29",
+              "page": 6,
+              "quote": "Table 4. Comparisons on ImageNet-1K when the number of\nFLOPs is increased to 2× of ResNet-101’s. The error rate is evalu-\nated on the single crop of 224×224 pixels. The highlighted factors\nare the factors that increase complexity."
+            }
+          ]
+        },
+        {
+          "case_id": "RX05",
+          "source_id": "S0005",
+          "text": "ResNeXt-50的32×4d配置中，cardinality被设为64。（证据：论文第5页 Notations）",
+          "reference_label": "CONTRADICTED",
+          "reference_reason": "32×4d的cardinality为32，不是64。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p5_b16",
+              "page": 5,
+              "quote": "Notations. Because we adopt the two rules in Sec. 3.1, it is\nsufﬁcient for us to refer to an architecture by the template.\nFor example, Table 1 shows a ResNeXt-50 constructed by a\ntemplate with cardinality = 32 and bottleneck width = 4d\n(Fig. 3). This network is denoted as ResNeXt-50 (32×4d)\nfor simplicity. We note that the input/output width of the\ntemplate is ﬁxed as 256-d (Fig. 3), and all widths are dou-\nbled each time when the feature map is subsampled (see\nTable 1)."
+            }
+          ]
+        },
+        {
+          "case_id": "RX06",
+          "source_id": "S0006",
+          "text": "论文报告ResNeXt在临床患者诊断任务上的准确率达到99.1%。",
+          "reference_label": "NO_SUPPORT_FOUND",
+          "reference_reason": "全文与实验任务核对未见临床患者诊断结果；缺少支持不能作为事实矛盾。",
+          "reference_evidence": []
+        }
+      ]
+    },
+    {
+      "paper_id": "layernorm",
+      "arxiv_version": "1607.06450v1",
+      "url": "https://arxiv.org/pdf/1607.06450v1",
+      "pdf_path": "tmp/experiments/unseen-e2e-20260924/inputs/1607.06450v1.pdf",
+      "pdf_sha256": "c464f839fb8d59f7fde92f9b4caa67c2d1f2f196b88f93fb60502249df0aaef7",
+      "report_path": "tmp/experiments/unseen-e2e-20260924/inputs/layernorm_report.txt",
+      "facts": [
+        {
+          "case_id": "LN01",
+          "source_id": "S0001",
+          "text": "Layer Normalization对单个训练样本的一层神经元输入计算归一化的均值和方差。（证据：论文第1页 Abstract）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "摘要说明single training case内一层的全部summed inputs。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p1_b7",
+              "page": 1,
+              "quote": "Training state-of-the-art, deep neural networks is computationally expensive. One\nway to reduce the training time is to normalize the activities of the neurons. A\nrecently introduced technique called batch normalization uses the distribution of\nthe summed input to a neuron over a mini-batch of training cases to compute a\nmean and variance which are then used to normalize the summed input to that\nneuron on each training case. This signiﬁcantly reduces the training time in feed-\nforward neural networks. However, the effect of batch normalization is dependent\non the mini-batch size and it is not obvious how to apply it to recurrent neural net-\nworks. In this paper, we transpose batch normalization into layer normalization by\ncomputing the mean and variance used for normalization from all of the summed\ninputs to the neurons in a layer on a single training case. Like batch normalization,\nwe also give each neuron its own adaptive bias and gain which are applied after\nthe normalization but before the non-linearity. Unlike batch normalization, layer\nnormalization performs exactly the same computation at training and test times.\nIt is also straightforward to apply to recurrent neural networks by computing the\nnormalization statistics separately at each time step. Layer normalization is very\neffective at stabilizing the hidden state dynamics in recurrent networks. Empiri-\ncally, we show that layer normalization can substantially reduce the training time\ncompared with previously published techniques."
+            }
+          ]
+        },
+        {
+          "case_id": "LN02",
+          "source_id": "S0002",
+          "text": "Layer Normalization在训练与测试阶段执行完全相同的归一化计算。（证据：论文第1页 Abstract）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "摘要明确exactly the same computation at training and test times。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p1_b7",
+              "page": 1,
+              "quote": "Training state-of-the-art, deep neural networks is computationally expensive. One\nway to reduce the training time is to normalize the activities of the neurons. A\nrecently introduced technique called batch normalization uses the distribution of\nthe summed input to a neuron over a mini-batch of training cases to compute a\nmean and variance which are then used to normalize the summed input to that\nneuron on each training case. This signiﬁcantly reduces the training time in feed-\nforward neural networks. However, the effect of batch normalization is dependent\non the mini-batch size and it is not obvious how to apply it to recurrent neural net-\nworks. In this paper, we transpose batch normalization into layer normalization by\ncomputing the mean and variance used for normalization from all of the summed\ninputs to the neurons in a layer on a single training case. Like batch normalization,\nwe also give each neuron its own adaptive bias and gain which are applied after\nthe normalization but before the non-linearity. Unlike batch normalization, layer\nnormalization performs exactly the same computation at training and test times.\nIt is also straightforward to apply to recurrent neural networks by computing the\nnormalization statistics separately at each time step. Layer normalization is very\neffective at stabilizing the hidden state dynamics in recurrent networks. Empiri-\ncally, we show that layer normalization can substantially reduce the training time\ncompared with previously published techniques."
+            }
+          ]
+        },
+        {
+          "case_id": "LN03",
+          "source_id": "S0003",
+          "text": "训练100万次迭代的Ours + LN模型在MR任务上的分类准确率为79.5%。（证据：论文第8页 Table 3）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "非dagger行MR为79.5，表注说明训练1M次。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b51",
+              "page": 8,
+              "quote": "Method\nSICK(r)\nSICK(ρ)\nSICK(MSE)\nMR\nCR\nSUBJ\nMPQA"
+            },
+            {
+              "chunk_id": "p8_b53",
+              "page": 8,
+              "quote": "Ours\n0.842\n0.767\n0.298\n77.3\n81.8\n92.6\n87.9\nOurs + LN\n0.854\n0.785\n0.277\n79.5\n82.6\n93.4\n89.0\nOurs + LN †\n0.858\n0.788\n0.270\n79.4\n83.1\n93.7\n89.3"
+            },
+            {
+              "chunk_id": "p8_b54",
+              "page": 8,
+              "quote": "Table 3: Skip-thoughts results. The ﬁrst two evaluation columns indicate Pearson and Spearman cor-\nrelation, the third is mean squared error and the remaining indicate classiﬁcation accuracy. Higher is\nbetter for all evaluations except MSE. Our models were trained for 1M iterations with the exception\nof (†) which was trained for 1 month (approximately 1.7M iterations)"
+            }
+          ]
+        },
+        {
+          "case_id": "LN04",
+          "source_id": "S0004",
+          "text": "训练约170万次迭代的Ours + LN †模型在SICK上的MSE为0.277。（证据：论文第8页 Table 3）",
+          "reference_label": "CONTRADICTED",
+          "reference_reason": "dagger行MSE为0.270；0.277是非dagger的1M版本。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b51",
+              "page": 8,
+              "quote": "Method\nSICK(r)\nSICK(ρ)\nSICK(MSE)\nMR\nCR\nSUBJ\nMPQA"
+            },
+            {
+              "chunk_id": "p8_b53",
+              "page": 8,
+              "quote": "Ours\n0.842\n0.767\n0.298\n77.3\n81.8\n92.6\n87.9\nOurs + LN\n0.854\n0.785\n0.277\n79.5\n82.6\n93.4\n89.0\nOurs + LN †\n0.858\n0.788\n0.270\n79.4\n83.1\n93.7\n89.3"
+            },
+            {
+              "chunk_id": "p8_b54",
+              "page": 8,
+              "quote": "Table 3: Skip-thoughts results. The ﬁrst two evaluation columns indicate Pearson and Spearman cor-\nrelation, the third is mean squared error and the remaining indicate classiﬁcation accuracy. Higher is\nbetter for all evaluations except MSE. Our models were trained for 1M iterations with the exception\nof (†) which was trained for 1 month (approximately 1.7M iterations)"
+            }
+          ]
+        },
+        {
+          "case_id": "LN05",
+          "source_id": "S0005",
+          "text": "Layer Normalization要求mini-batch至少包含32个样本才能使用。（证据：论文第2页 Section 3）",
+          "reference_label": "CONTRADICTED",
+          "reference_reason": "文中明确不限制mini-batch大小，可在batch size 1的在线场景使用。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p2_b59",
+              "page": 2,
+              "quote": "where H denotes the number of hidden units in a layer. The difference between Eq. (2) and Eq. (3)\nis that under layer normalization, all the hidden units in a layer share the same normalization terms\nµ and σ, but different training cases have different normalization terms. Unlike batch normalization,\nlayer normaliztion does not impose any constraint on the size of a mini-batch and it can be used in\nthe pure online regime with batch size 1."
+            }
+          ]
+        },
+        {
+          "case_id": "LN06",
+          "source_id": "S0006",
+          "text": "论文报告Layer Normalization在医学图像分割任务上的Dice达到95.0%。",
+          "reference_label": "NO_SUPPORT_FOUND",
+          "reference_reason": "全文和任务清单未报告医学分割或Dice指标。",
+          "reference_evidence": []
+        }
+      ]
+    },
+    {
+      "paper_id": "senet",
+      "arxiv_version": "1709.01507v1",
+      "url": "https://arxiv.org/pdf/1709.01507v1",
+      "pdf_path": "tmp/experiments/unseen-e2e-20260924/inputs/1709.01507v1.pdf",
+      "pdf_sha256": "60e7a8e033ca861eb88d84e71cad1951904bd355e5dec6fa596f6f2ad0087683",
+      "report_path": "tmp/experiments/unseen-e2e-20260924/inputs/senet_report.txt",
+      "facts": [
+        {
+          "case_id": "SE01",
+          "source_id": "S0001",
+          "text": "Table 5中的SE-ResNet-50在reduction ratio r=16时模型大小为108 MB。（证据：论文第8页 Table 5）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "Table 5的r16行模型大小为108MB。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b5",
+              "page": 8,
+              "quote": "Ratio r\ntop-1 err.\ntop-5 err.\nmodel size (MB)\n4\n23.21\n6.63\n137\n8\n23.19\n6.64\n117\n16\n23.29\n6.62\n108\n32\n23.40\n6.77\n103\noriginal\n24.80\n7.48\n98"
+            },
+            {
+              "chunk_id": "p8_b6",
+              "page": 8,
+              "quote": "Table 5. Single-crop error rates (%) on the ImageNet validation set\nand corresponding model sizes for the SE-ResNet-50 architecture\nat different reduction ratios r. Here original refers to ResNet-50."
+            }
+          ]
+        },
+        {
+          "case_id": "SE02",
+          "source_id": "S0002",
+          "text": "SENet在ImageNet验证集使用224×224单裁剪评估时的top-5错误率为4.47%。（证据：论文第8页 Table 3）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "224×224列下SENet的top-5为4.47%。正文p8_b7也可完整支持。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b1",
+              "page": 8,
+              "quote": "224 × 224\n320 × 320 / 299 × 299\ntop-1 err.\ntop-5 err.\ntop-1 err.\ntop-5 err.\nResNet-152 [9]\n23.0\n6.7\n21.3\n5.5\nResNet-200 [10]\n21.7\n5.8\n20.1\n4.8\nInception-v3 [40]\n-\n-\n21.2\n5.6\nInception-v4 [38]\n-\n-\n20.0\n5.0\nInception-ResNet-v2 [38]\n-\n-\n19.9\n4.9\nResNeXt-101 (64 × 4d) [43]\n20.4\n5.3\n19.1\n4.4\nDenseNet-161 (k = 48) [12]\n22.2\n-\n-\n-\nVery Deep PolyNet [47]\n-\n-\n18.71\n4.25\nDPN-131 [5]\n19.93\n5.12\n18.55\n4.16\nSENet\n18.68\n4.47\n17.28\n3.79"
+            },
+            {
+              "chunk_id": "p8_b2",
+              "page": 8,
+              "quote": "Table 3. Single-crop error rates of state-of-the-art CNNs on ImageNet validation set. The size of test crop is 224 × 224 and 320 × 320 /\n299 × 299 as in [10]. Our proposed model, SENet, shows a signiﬁcant performance improvement on prior work."
+            }
+          ]
+        },
+        {
+          "case_id": "SE03",
+          "source_id": "S0003",
+          "text": "SE-ResNet-152在Places365验证集单裁剪评估中的top-5错误率为11.01%。（证据：论文第8页 Table 4）",
+          "reference_label": "SUPPORTED",
+          "reference_reason": "Table 4的SE-ResNet-152行top-5为11.01%。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b3",
+              "page": 8,
+              "quote": "top-1 err.\ntop-5 err.\nPlaces-365-CNN [33]\n41.07\n11.48\nResNet-152 (ours)\n41.15\n11.61\nSE-ResNet-152\n40.37\n11.01"
+            },
+            {
+              "chunk_id": "p8_b4",
+              "page": 8,
+              "quote": "Table 4. Single-crop error rates (%) on the Places365 validation\nset."
+            }
+          ]
+        },
+        {
+          "case_id": "SE04",
+          "source_id": "S0004",
+          "text": "Table 5中的SE-ResNet-50在r=8时ImageNet单裁剪top-1错误率为23.40%。（证据：论文第8页 Table 5）",
+          "reference_label": "CONTRADICTED",
+          "reference_reason": "r8对应23.19%；23.40%属于r32。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b5",
+              "page": 8,
+              "quote": "Ratio r\ntop-1 err.\ntop-5 err.\nmodel size (MB)\n4\n23.21\n6.63\n137\n8\n23.19\n6.64\n117\n16\n23.29\n6.62\n108\n32\n23.40\n6.77\n103\noriginal\n24.80\n7.48\n98"
+            },
+            {
+              "chunk_id": "p8_b6",
+              "page": 8,
+              "quote": "Table 5. Single-crop error rates (%) on the ImageNet validation set\nand corresponding model sizes for the SE-ResNet-50 architecture\nat different reduction ratios r. Here original refers to ResNet-50."
+            }
+          ]
+        },
+        {
+          "case_id": "SE05",
+          "source_id": "S0005",
+          "text": "Table 5中的原始ResNet-50基线在ImageNet单裁剪评估下的top-1错误率为23.29%。（证据：论文第8页 Table 5）",
+          "reference_label": "CONTRADICTED",
+          "reference_reason": "original基线为24.80%；23.29%属于r16的SE模型。",
+          "reference_evidence": [
+            {
+              "chunk_id": "p8_b5",
+              "page": 8,
+              "quote": "Ratio r\ntop-1 err.\ntop-5 err.\nmodel size (MB)\n4\n23.21\n6.63\n137\n8\n23.19\n6.64\n117\n16\n23.29\n6.62\n108\n32\n23.40\n6.77\n103\noriginal\n24.80\n7.48\n98"
+            },
+            {
+              "chunk_id": "p8_b6",
+              "page": 8,
+              "quote": "Table 5. Single-crop error rates (%) on the ImageNet validation set\nand corresponding model sizes for the SE-ResNet-50 architecture\nat different reduction ratios r. Here original refers to ResNet-50."
+            }
+          ]
+        },
+        {
+          "case_id": "SE06",
+          "source_id": "S0006",
+          "text": "论文报告SENet在机器翻译任务上的BLEU分数达到45.0。",
+          "reference_label": "NO_SUPPORT_FOUND",
+          "reference_reason": "全文与实验清单未报告机器翻译或BLEU。",
+          "reference_evidence": []
+        }
+      ]
+    }
+  ]
+}
