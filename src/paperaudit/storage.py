@@ -24,6 +24,7 @@ from paperaudit.models import (
     JointAnswer,
     LearningJob,
     PeerReviewJob,
+    PeerReviewRevisionJob,
     LearningReport,
     PaperAnswer,
     ParsedCodebase,
@@ -46,6 +47,7 @@ AUDIT_SCHEMA_VERSION = 1
 AUDIT_JOB_SCHEMA_VERSION = 1
 LEARNING_JOB_SCHEMA_VERSION = 1
 PEER_REVIEW_JOB_SCHEMA_VERSION = 2
+PEER_REVIEW_REVISION_JOB_SCHEMA_VERSION = 1
 AUDIT_SOURCE_TYPES = {"generated_learning_report", "uploaded_report"}
 
 
@@ -935,6 +937,8 @@ class ProjectStore:
             raise StorageError("当前论文仍在生成讲解，完成后才能删除。")
         if any(job.status in active_statuses for job in self.list_peer_review_jobs(project_id)):
             raise StorageError("当前论文仍在生成模拟评审，完成后才能删除。")
+        if any(job.status in active_statuses for job in self.list_peer_review_revision_jobs(project_id)):
+            raise StorageError("当前论文仍在生成修改稿复审，完成后才能删除。")
 
         projects_root = self.projects_dir.resolve()
         target = project_dir.resolve()
@@ -1347,4 +1351,99 @@ class ProjectStore:
                 )
                 self.update_learning_job(metadata.project_id, updated)
                 interrupted += 1
+        return interrupted
+
+    def create_peer_review_revision_job(
+        self, project_id: str, *, pdf_bytes: bytes, original_filename: str,
+        runtime: AuditRuntimeSnapshot | dict[str, Any],
+    ) -> PeerReviewRevisionJob:
+        project_dir = self._require_project_dir(project_id)
+        if not pdf_bytes:
+            raise StorageError("修改稿 PDF 不能为空。")
+        previous = self.load_peer_review(project_id)
+        if previous is None:
+            raise StorageError("当前项目没有基准评审记录。")
+        if any(job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
+               for job in self.list_peer_review_revision_jobs(project_id)):
+            raise StorageError("当前论文已有修改稿复审任务正在执行。")
+        job = PeerReviewRevisionJob(
+            job_id=_record_id("revision-job"), project_id=project_id,
+            created_at=_utc_now(), original_filename=original_filename,
+            pdf_hash=sha256(pdf_bytes).hexdigest(),
+            runtime=AuditRuntimeSnapshot.model_validate(runtime),
+            venue=previous.venue, rubric_version=previous.rubric_version,
+            rubric_weights=dict(previous.rubric_weights),
+        )
+        jobs_dir = project_dir / "revision-jobs"
+        # Publish the queued record last: workers must never see partial input.
+        _atomic_write(jobs_dir / f"{job.job_id}.pdf", pdf_bytes)
+        _atomic_write(jobs_dir / f"{job.job_id}.baseline.json", previous.model_dump_json(indent=2).encode("utf-8"))
+        self.update_peer_review_revision_job(project_id, job)
+        return job
+
+    def load_peer_review_revision_job(self, project_id: str, job_id: str) -> PeerReviewRevisionJob:
+        project_dir = self._require_project_dir(project_id)
+        _validate_record_id(job_id, "revision-job", "修改稿复审任务")
+        try:
+            job = PeerReviewRevisionJob.model_validate_json(
+                (project_dir / "revision-jobs" / f"{job_id}.json").read_text(encoding="utf-8")
+            )
+            if (job.schema_version != PEER_REVIEW_REVISION_JOB_SCHEMA_VERSION
+                    or job.project_id != project_id or job.job_id != job_id):
+                raise ValueError("revision job identity mismatch")
+            if job.status == AuditJobStatus.SUCCEEDED and not job.revision_id:
+                raise ValueError("completed revision job has no result")
+            if job.revision_id is not None:
+                _validate_record_id(job.revision_id, "peer-review-revision", "修改稿版本")
+            return job
+        except (OSError, TypeError, ValueError) as exc:
+            raise StorageError("修改稿复审任务不存在、已损坏或版本不受支持。") from exc
+
+    def list_peer_review_revision_jobs(self, project_id: str) -> list[PeerReviewRevisionJob]:
+        project_dir = self._require_project_dir(project_id)
+        jobs = []
+        for path in (project_dir / "revision-jobs").glob("revision-job-*.json"):
+            if path.name.endswith(".baseline.json"):
+                continue
+            try:
+                jobs.append(self.load_peer_review_revision_job(project_id, path.stem))
+            except StorageError:
+                continue
+        return sorted(jobs, key=lambda item: (item.created_at, item.job_id), reverse=True)
+
+    def update_peer_review_revision_job(self, project_id: str, job: PeerReviewRevisionJob) -> None:
+        project_dir = self._require_project_dir(project_id)
+        _validate_record_id(job.job_id, "revision-job", "修改稿复审任务")
+        if job.project_id != project_id:
+            raise StorageError("修改稿复审任务不属于当前项目。")
+        if job.status == AuditJobStatus.SUCCEEDED and not job.revision_id:
+            raise StorageError("已完成的修改稿复审任务缺少结果记录。")
+        if job.revision_id is not None:
+            _validate_record_id(job.revision_id, "peer-review-revision", "修改稿版本")
+        _atomic_write(project_dir / "revision-jobs" / f"{job.job_id}.json", job.model_dump_json(indent=2).encode("utf-8"))
+
+    def load_peer_review_revision_input(self, project_id: str, job_id: str) -> tuple[bytes, PeerReviewReport]:
+        job = self.load_peer_review_revision_job(project_id, job_id)
+        jobs_dir = self._project_dir(project_id) / "revision-jobs"
+        try:
+            pdf_bytes = (jobs_dir / f"{job_id}.pdf").read_bytes()
+            if sha256(pdf_bytes).hexdigest() != job.pdf_hash:
+                raise ValueError("revision PDF hash mismatch")
+            previous = PeerReviewReport.model_validate_json(
+                (jobs_dir / f"{job_id}.baseline.json").read_text(encoding="utf-8")
+            )
+            return pdf_bytes, previous
+        except (OSError, TypeError, ValueError) as exc:
+            raise StorageError("修改稿复审输入不存在或已损坏。") from exc
+
+    def mark_interrupted_peer_review_revision_jobs(self) -> int:
+        interrupted = 0
+        for metadata in self.list_projects():
+            for job in self.list_peer_review_revision_jobs(metadata.project_id):
+                if job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
+                    self.update_peer_review_revision_job(metadata.project_id, job.model_copy(update={
+                        "status": AuditJobStatus.INTERRUPTED, "completed_at": _utc_now(),
+                        "stage": "任务已中断", "error": "应用在修改稿复审完成前退出，请重新提交修改稿。",
+                    }))
+                    interrupted += 1
         return interrupted

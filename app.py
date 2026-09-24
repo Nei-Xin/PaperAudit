@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime
-from difflib import SequenceMatcher
 from hashlib import sha256
 from html import escape
 
@@ -15,7 +14,7 @@ from paperaudit.code_parser import CodeParseError, parse_code_zip
 from paperaudit.code_service import CodeLearningService
 from paperaudit.hy3_client import Hy3ConfigurationError, Hy3ResponseError
 from paperaudit.learning_jobs import LearningJobManager
-from paperaudit.peer_review_jobs import PeerReviewJobManager
+from paperaudit.peer_review_jobs import PeerReviewJobManager, PeerReviewRevisionJobManager
 from paperaudit.models import (
     AuditJob,
     AuditJobStatus,
@@ -31,7 +30,6 @@ from paperaudit.report_input import parse_report_file
 from paperaudit.reporting import render_markdown
 from paperaudit.service import (
     AuditService,
-    build_revision_diff,
     peer_review_rubric_metadata,
     recalculate_peer_review,
     validate_audit_report_text,
@@ -156,6 +154,11 @@ def _get_learning_job_manager(storage_root: str) -> LearningJobManager:
 @st.cache_resource(show_spinner=False)
 def _get_peer_review_job_manager(storage_root: str) -> PeerReviewJobManager:
     return PeerReviewJobManager(ProjectStore(storage_root))
+
+
+@st.cache_resource(show_spinner=False)
+def _get_revision_job_manager(storage_root: str) -> PeerReviewRevisionJobManager:
+    return PeerReviewRevisionJobManager(ProjectStore(storage_root))
 
 
 @st.dialog("PDF 原文预览", width="large")
@@ -488,6 +491,7 @@ try:
     audit_job_manager = _get_audit_job_manager(str(storage_settings.storage_root))
     learning_job_manager = _get_learning_job_manager(str(storage_settings.storage_root))
     peer_review_job_manager = _get_peer_review_job_manager(str(storage_settings.storage_root))
+    revision_job_manager = _get_revision_job_manager(str(storage_settings.storage_root))
 except StorageError as exc:
     _render_storage_setup(str(exc))
     st.stop()
@@ -856,71 +860,21 @@ def _submit_active_project_revision(pdf_bytes: bytes, filename: str):
         raise StorageError("请先打开一个已保存的论文项目。")
     if not active_settings.is_configured:
         raise ValueError("请先配置并连接 Hy3 API。")
-    saved = project_store.load_learning_project(str(project_id))
-    previous = project_store.load_peer_review(str(project_id))
-    if previous is None:
-        raise StorageError("当前项目没有基准评审记录。")
-    revised_paper = parse_pdf(pdf_bytes)
-    diff = build_revision_diff(saved.paper, revised_paper)
-    revised_report = AuditService(active_settings).generate_peer_review(
-        revised_paper,
-        venue=previous.venue,
-        rubric_weights=previous.rubric_weights,
+    job = project_store.create_peer_review_revision_job(
+        str(project_id), pdf_bytes=pdf_bytes, original_filename=filename,
+        runtime=AuditRuntimeSnapshot(
+            model=active_settings.model, reasoning_effort=active_settings.reasoning_effort,
+            retrieval_top_k=active_settings.retrieval_top_k,
+            judge_batch_size=active_settings.judge_batch_size,
+        ),
     )
-    old_items = [*previous.major_concerns, *previous.minor_concerns]
-    new_items = [*revised_report.major_concerns, *revised_report.minor_concerns]
+    revision_job_manager.submit(str(project_id), job.job_id, active_settings)
+    return job
 
-    def match_score(old_item, new_item) -> float:
-        title_score = SequenceMatcher(
-            None, " ".join(old_item.title.casefold().split()), " ".join(new_item.title.casefold().split())
-        ).ratio()
-        old_evidence = {anchor.chunk_id for anchor in old_item.evidence}
-        new_evidence = {anchor.chunk_id for anchor in new_item.evidence}
-        evidence_score = len(old_evidence & new_evidence) / max(len(old_evidence), 1)
-        category_score = 0.15 if old_item.category == new_item.category else 0.0
-        return 0.65 * title_score + 0.2 * evidence_score + category_score
 
-    matched_new: dict[str, object] = {}
-    used_new_ids: set[int] = set()
-    ambiguous_matches: list[str] = []
-    for old_item in old_items:
-        candidates = sorted(
-            ((match_score(old_item, item), index, item)
-             for index, item in enumerate(new_items)
-             if index not in used_new_ids),
-            key=lambda pair: pair[0], reverse=True,
-        )
-        if candidates and candidates[0][0] >= 0.48:
-            _, new_index, new_item = candidates[0]
-            matched_new[old_item.issue_id or old_item.title] = new_item
-            used_new_ids.add(new_index)
-            if len(candidates) > 1 and candidates[1][0] >= 0.48 and candidates[0][0] - candidates[1][0] < 0.08:
-                ambiguous_matches.append(old_item.title)
-    resolved_concerns = sorted(item.title for item in old_items if (item.issue_id or item.title) not in matched_new)
-    remaining_concerns = sorted(item.title for item in old_items if (item.issue_id or item.title) in matched_new)
-    old_by_title = {item.title: item for item in old_items}
-    resolved_issue_ids = sorted(
-        old_by_title[title].issue_id for title in resolved_concerns if old_by_title[title].issue_id
-    )
-    remaining_issue_ids = sorted(
-        old_by_title[title].issue_id for title in remaining_concerns if old_by_title[title].issue_id
-    )
-    matched_new_ids = {id(item) for item in matched_new.values()}
-    new_concerns = sorted(item.title for item in new_items if id(item) not in matched_new_ids)
-    return project_store.save_peer_review_revision(
-        str(project_id),
-        pdf_bytes=pdf_bytes,
-        original_filename=filename,
-        paper=revised_paper,
-        diff=diff,
-        report=revised_report,
-        resolved_concerns=resolved_concerns,
-        remaining_concerns=remaining_concerns,
-        resolved_issue_ids=resolved_issue_ids,
-        remaining_issue_ids=remaining_issue_ids,
-        new_concerns=new_concerns,
-        ambiguous_matches=sorted(set(ambiguous_matches)),
-    )
+def _load_active_revision_jobs():
+    project_id = st.session_state.get("active_project_id")
+    return project_store.list_peer_review_revision_jobs(str(project_id)) if project_id else []
 
 
 def _load_active_project_revisions():
@@ -1296,7 +1250,8 @@ if st.session_state.get("result_mode") == "peer_review":
         render_peer_review(
             peer_review,
             review_pdf_bytes,
-            on_submit_revision=_submit_active_project_revision,
+            on_submit_revision=_submit_active_project_revision if api_ready else None,
+            load_revision_jobs=_load_active_revision_jobs,
             on_update_report=_save_active_peer_review,
             on_compare_related_work=_compare_active_related_work,
             load_revisions=_load_active_project_revisions,

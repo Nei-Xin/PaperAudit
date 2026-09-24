@@ -672,3 +672,25 @@ class PeerReviewJob(StrictModel):
     venue: PeerReviewVenue = PeerReviewVenue.GENERAL
     rubric_version: str = "general_ai_ml@1.0"
     rubric_weights: dict[str, float] = Field(default_factory=dict)
+
+
+class PeerReviewRevisionJob(StrictModel):
+    """Persisted status for reviewing one uploaded paper revision."""
+
+    schema_version: int = 1
+    job_id: str
+    project_id: str
+    created_at: str
+    started_at: str | None = None
+    completed_at: str | None = None
+    original_filename: str
+    pdf_hash: str
+    status: AuditJobStatus = AuditJobStatus.QUEUED
+    progress: float = Field(default=0.0, ge=0.0, le=1.0)
+    stage: str = "等待复审"
+    error: str | None = None
+    runtime: AuditRuntimeSnapshot
+    venue: PeerReviewVenue = PeerReviewVenue.GENERAL
+    rubric_version: str = "general_ai_ml@1.0"
+    rubric_weights: dict[str, float] = Field(default_factory=dict)
+    revision_id: str | None = None

@@ -9,6 +9,8 @@ import re
 import streamlit as st
 
 from paperaudit.models import (
+    AuditJobStatus,
+    PeerReviewRevisionJob,
     EvidenceAnchor,
     PeerReviewReport,
     PeerReviewRevision,
@@ -399,11 +401,40 @@ def _render_action_plan(report: PeerReviewReport) -> None:
             )
 
 
+def _render_revision_jobs(
+    load_jobs: Callable[[], Sequence[PeerReviewRevisionJob]] | None,
+    was_active: bool,
+) -> None:
+    if load_jobs is None:
+        return
+
+    @st.fragment(run_every=2 if was_active else None)
+    def status_panel() -> None:
+        jobs = list(load_jobs())
+        active = next((job for job in jobs if job.status in {
+            AuditJobStatus.QUEUED, AuditJobStatus.RUNNING,
+        }), None)
+        if was_active and active is None:
+            # Refresh saved revisions and unlock the uploader after completion.
+            st.rerun()
+        if active is not None:
+            st.info(f"{active.original_filename} 正在后台复审，可继续阅读或切换项目。")
+            st.progress(active.progress, text=active.stage)
+        failed = next((job for job in jobs if job.status in {
+            AuditJobStatus.FAILED, AuditJobStatus.INTERRUPTED,
+        }), None)
+        if failed is not None and (not jobs or jobs[0] == failed):
+            st.warning(f"{failed.original_filename}：{failed.error or failed.stage} 可重新上传修改稿重试。")
+
+    status_panel()
+
+
 def render_peer_review(
     report: PeerReviewReport,
     pdf_bytes: bytes | None = None,
     *,
     on_submit_revision: Callable[[bytes, str], object] | None = None,
+    load_revision_jobs: Callable[[], Sequence[PeerReviewRevisionJob]] | None = None,
     on_update_report: Callable[[PeerReviewReport], object] | None = None,
     on_compare_related_work: Callable[[list[RelatedWorkReference]], object] | None = None,
     load_revisions: Callable[[], Sequence[PeerReviewRevision]] | None = None,
@@ -755,28 +786,34 @@ def render_peer_review(
             with tab_export:
                 st.markdown("### 修改稿复审")
                 st.caption("上传新版本后保留当前评审，并生成段落级差异与新的五档投稿建议。问题状态仅作轻量匹配，低置信匹配会标记为待确认。")
+                revision_jobs = list(load_revision_jobs() if load_revision_jobs else [])
+                active_revision = next((job for job in revision_jobs if job.status in {
+                    AuditJobStatus.QUEUED, AuditJobStatus.RUNNING,
+                }), None)
+                _render_revision_jobs(load_revision_jobs, active_revision is not None)
                 revision_file = st.file_uploader(
                     "上传修改稿 PDF",
                     type=["pdf"],
                     key="peer_review_revision_upload",
                     label_visibility="collapsed",
-                    disabled=on_submit_revision is None,
+                    disabled=on_submit_revision is None or active_revision is not None,
                 )
                 if st.button(
                     "上传修改稿并复审",
                     type="primary",
                     width="stretch",
                     key="peer-review-submit-revision",
-                    disabled=on_submit_revision is None or revision_file is None,
+                    disabled=on_submit_revision is None or revision_file is None or active_revision is not None,
                 ) and on_submit_revision is not None and revision_file is not None:
                     try:
-                        revision = on_submit_revision(revision_file.getvalue(), revision_file.name)
+                        on_submit_revision(revision_file.getvalue(), revision_file.name)
                     except (OSError, RuntimeError, ValueError) as exc:
                         st.error(f"修改稿复审失败：{exc}")
                     else:
-                        st.session_state["peer_review_revision_result"] = revision
+                        st.toast("修改稿已加入后台复审队列。")
                         st.rerun()
-                revision_result = st.session_state.get("peer_review_revision_result")
+                revisions = list(load_revisions() if load_revisions is not None else [])
+                revision_result = revisions[0] if revisions else None
                 if revision_result is not None:
                     diff = revision_result.diff
                     st.success(f"已保存修改稿版本：{revision_result.original_filename}")
@@ -810,7 +847,6 @@ def render_peer_review(
                     )
                     if diff.changed_samples:
                         st.caption("修改片段示例：" + "；".join(diff.changed_samples[:2]))
-                revisions = list(load_revisions() if load_revisions is not None else [])
                 if revisions:
                     st.markdown("### 历史修改稿")
                     st.caption("每个版本都保留独立 PDF 与复审结果，可重新打开查看。")

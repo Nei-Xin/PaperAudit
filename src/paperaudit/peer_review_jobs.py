@@ -1,139 +1,100 @@
-"""Single-process background execution for simulated peer-review jobs."""
+"""Background workflows for initial reviews and uploaded paper revisions."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from concurrent.futures import Future, ThreadPoolExecutor
-from datetime import datetime, timezone
 from time import perf_counter
-from threading import Lock
 from typing import Protocol
 
 from paperaudit.config import Settings
-from paperaudit.models import AuditJobStatus, PeerReviewJob, PeerReviewReport, PeerReviewVenue
+from paperaudit.job_runner import BackgroundJobManager, JobContext, utc_now
+from paperaudit.models import PeerReviewJob, PeerReviewRevisionJob, PeerReviewReport, PeerReviewVenue
+from paperaudit.pdf_parser import parse_pdf
+from paperaudit.peer_review_revision import build_revision_payload
 from paperaudit.service import AuditService
 from paperaudit.storage import ProjectStore
 
 
 class PeerReviewRunner(Protocol):
-    def generate_peer_review(
-        self,
-        paper: object,
-        *,
-        venue: PeerReviewVenue = PeerReviewVenue.GENERAL,
-        rubric_weights: dict[str, float] | None = None,
-    ) -> PeerReviewReport: ...
+    def generate_peer_review(self, paper: object, *, venue: PeerReviewVenue = PeerReviewVenue.GENERAL,
+                             rubric_weights: dict[str, float] | None = None) -> PeerReviewReport: ...
 
 
-def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+def _runtime_report(review: PeerReviewReport, job_id: str, settings: Settings,
+                    started: float) -> PeerReviewReport:
+    return review.model_copy(update={
+        "run_id": job_id, "generated_at": utc_now(), "model_name": settings.model,
+        "reasoning_effort": settings.reasoning_effort,
+        "elapsed_seconds": round(perf_counter() - started, 3),
+    })
 
 
-class PeerReviewJobManager:
-    def __init__(
-        self,
-        store: ProjectStore,
-        *,
-        service_factory: Callable[[Settings], PeerReviewRunner] = AuditService,
-        mark_interrupted_on_start: bool = True,
-    ) -> None:
+class PeerReviewJobManager(BackgroundJobManager[PeerReviewJob]):
+    start_stage = "正在启动评审任务"
+    success_stage = "模拟评审已完成"
+
+    def __init__(self, store: ProjectStore, *,
+                 service_factory: Callable[[Settings], PeerReviewRunner] = AuditService,
+                 mark_interrupted_on_start: bool = True) -> None:
         self._store = store
-        self._service_factory = service_factory
-        self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="paperaudit-review")
-        self._futures: dict[str, Future[None]] = {}
-        self._lock = Lock()
-        if mark_interrupted_on_start:
-            self._store.mark_interrupted_peer_review_jobs()
+        super().__init__(service_factory=service_factory, thread_name_prefix="paperaudit-review",
+                         recover=store.mark_interrupted_peer_review_jobs if mark_interrupted_on_start else None)
 
-    def submit(self, project_id: str, job_id: str, settings: Settings) -> None:
-        job = self._store.load_peer_review_job(project_id, job_id)
-        if job.status != AuditJobStatus.QUEUED:
-            raise ValueError("只有等待中的评审任务可以提交。")
-        with self._lock:
-            existing = self._futures.get(job_id)
-            if existing is not None and not existing.done():
-                raise ValueError("该评审任务已经提交。")
-            future = self._executor.submit(self._run_job, project_id, job_id, settings)
-            self._futures[job_id] = future
-        future.add_done_callback(lambda _: self._forget(job_id))
+    def _load_job(self, project_id: str, job_id: str) -> PeerReviewJob:
+        return self._store.load_peer_review_job(project_id, job_id)
 
-    def _forget(self, job_id: str) -> None:
-        with self._lock:
-            self._futures.pop(job_id, None)
+    def _update_job(self, project_id: str, job: PeerReviewJob) -> None:
+        self._store.update_peer_review_job(project_id, job)
 
-    def _run_job(self, project_id: str, job_id: str, settings: Settings) -> None:
-        current_stage = "正在启动评审任务"
-        job = self._store.load_peer_review_job(project_id, job_id).model_copy(
-            update={
-                "status": AuditJobStatus.RUNNING,
-                "started_at": _utc_now(),
-                "progress": 0.05,
-                "stage": current_stage,
-                "error": None,
-            }
+    def _execute(self, context: JobContext[PeerReviewJob], settings: Settings) -> dict[str, str]:
+        started = perf_counter()
+        job = context.job
+        context.progress("正在解析论文并准备检索上下文", 0.2)
+        saved = self._store.load_learning_project(job.project_id)
+        context.progress("正在生成结构化评审", 0.4)
+        review = self._service_factory(settings).generate_peer_review(
+            saved.paper, venue=job.venue, rubric_weights=job.rubric_weights,
         )
-        started_clock = perf_counter()
-        try:
-            self._store.update_peer_review_job(project_id, job)
-            current_stage = "正在解析论文并准备检索上下文"
-            job = job.model_copy(update={"progress": 0.2, "stage": current_stage})
-            self._store.update_peer_review_job(project_id, job)
-            saved = self._store.load_learning_project(project_id)
-            current_stage = "正在生成结构化评审"
-            job = job.model_copy(update={"progress": 0.4, "stage": current_stage})
-            self._store.update_peer_review_job(project_id, job)
-            review = self._service_factory(settings).generate_peer_review(
-                saved.paper,
-                venue=job.venue,
-                rubric_weights=job.rubric_weights,
-            )
-            review = review.model_copy(update={
-                "run_id": job.job_id,
-                "generated_at": _utc_now(),
-                "model_name": settings.model,
-                "reasoning_effort": settings.reasoning_effort,
-                "elapsed_seconds": round(perf_counter() - started_clock, 3),
-            })
-            current_stage = "正在校验评审证据"
-            job = job.model_copy(update={"progress": 0.78, "stage": current_stage})
-            self._store.update_peer_review_job(project_id, job)
-            current_stage = "正在保存评审结果"
-            job = job.model_copy(update={"progress": 0.9, "stage": current_stage})
-            self._store.update_peer_review_job(project_id, job)
-            self._store.save_peer_review(project_id, review)
-            self._store.update_peer_review_job(
-                project_id,
-                job.model_copy(
-                    update={
-                        "status": AuditJobStatus.SUCCEEDED,
-                        "completed_at": _utc_now(),
-                        "progress": 1.0,
-                        "stage": "模拟评审已完成",
-                        "error": None,
-                    }
-                ),
-            )
-        except Exception as exc:
-            failed = job.model_copy(
-                update={
-                    "status": AuditJobStatus.FAILED,
-                    "completed_at": _utc_now(),
-                    "stage": f"{current_stage}失败",
-                    "error": self._safe_error(exc, settings),
-                }
-            )
-            try:
-                self._store.update_peer_review_job(project_id, failed)
-            except Exception:
-                pass
+        review = _runtime_report(review, job.job_id, settings, started)
+        context.progress("正在保存评审结果", 0.9)
+        self._store.save_peer_review(job.project_id, review)
+        return {}
 
-    @staticmethod
-    def _safe_error(exc: Exception, settings: Settings) -> str:
-        message = str(exc).strip() or exc.__class__.__name__
-        for secret in (settings.api_key, settings.api_base):
-            if secret:
-                message = message.replace(secret, "[已隐藏]")
-        return message[:500]
 
-    def shutdown(self, *, wait: bool = True) -> None:
-        self._executor.shutdown(wait=wait, cancel_futures=not wait)
+class PeerReviewRevisionJobManager(BackgroundJobManager[PeerReviewRevisionJob]):
+    start_stage = "正在准备修改稿复审"
+    success_stage = "修改稿复审已完成"
+
+    def __init__(self, store: ProjectStore, *,
+                 service_factory: Callable[[Settings], PeerReviewRunner] = AuditService,
+                 mark_interrupted_on_start: bool = True) -> None:
+        self._store = store
+        super().__init__(service_factory=service_factory, thread_name_prefix="paperaudit-revision",
+                         recover=store.mark_interrupted_peer_review_revision_jobs if mark_interrupted_on_start else None)
+
+    def _load_job(self, project_id: str, job_id: str) -> PeerReviewRevisionJob:
+        return self._store.load_peer_review_revision_job(project_id, job_id)
+
+    def _update_job(self, project_id: str, job: PeerReviewRevisionJob) -> None:
+        self._store.update_peer_review_revision_job(project_id, job)
+
+    def _execute(self, context: JobContext[PeerReviewRevisionJob], settings: Settings) -> dict[str, str]:
+        started = perf_counter()
+        job = context.job
+        pdf_bytes, previous = self._store.load_peer_review_revision_input(job.project_id, job.job_id)
+        original = self._store.load_learning_project(job.project_id).paper
+        context.progress("正在解析修改稿", 0.15)
+        paper = parse_pdf(pdf_bytes)
+        context.progress("正在生成修改稿评审", 0.3)
+        review = self._service_factory(settings).generate_peer_review(
+            paper, venue=job.venue, rubric_weights=job.rubric_weights,
+        )
+        review = _runtime_report(review, job.job_id, settings, started)
+        context.progress("正在对比修改稿问题", 0.8)
+        payload = build_revision_payload(original, paper, previous, review)
+        context.progress("正在保存修改稿复审", 0.9)
+        revision = self._store.save_peer_review_revision(
+            job.project_id, pdf_bytes=pdf_bytes, original_filename=job.original_filename,
+            paper=paper, report=review, **payload,
+        )
+        return {"revision_id": revision.revision_id}

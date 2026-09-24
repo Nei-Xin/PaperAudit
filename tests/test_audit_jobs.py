@@ -191,6 +191,6 @@ def test_background_save_failure_is_not_reported_as_success(tmp_path: Path) -> N
         store.save_audit_run = original_save  # type: ignore[method-assign]
 
     assert failed.audit_id is None
-    assert failed.stage == "审计失败"
+    assert failed.stage == "正在保存审计结果失败"
     assert "result storage unavailable" in (failed.error or "")
     assert store.list_audit_runs(project_id) == []
