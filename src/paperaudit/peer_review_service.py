@@ -1,9 +1,36 @@
 from __future__ import annotations
+
 from collections.abc import Sequence
 from .hy3_client import Hy3Client, Hy3ResponseError
-from .models import EvidenceAnchor, PeerReviewReport, RebuttalItem, ReviewConcern, IssueCategory, IssueSeverity, IssueStatus, IssueSupportType, ParsedPaper, PeerReviewVenue, RelatedWorkComparison, RelatedWorkReference, ReviewSeverity
-from .peer_review_rules import peer_review_rubric_metadata, normalize_peer_review_weights, recalculate_peer_review, peer_review_consistency_warnings, _dedupe_review_concerns, _concern_consistency_warnings
-from .evidence import _neighbor_context, _validated_evidence_quote, _quote_rects, _evidence_locator
+from .models import (
+    EvidenceAnchor,
+    PeerReviewReport,
+    RebuttalItem,
+    ReviewConcern,
+    IssueCategory,
+    IssueSeverity,
+    IssueStatus,
+    IssueSupportType,
+    ParsedPaper,
+    PeerReviewVenue,
+    RelatedWorkComparison,
+    RelatedWorkReference,
+    ReviewSeverity,
+)
+from .peer_review_rules import (
+    peer_review_rubric_metadata,
+    normalize_peer_review_weights,
+    recalculate_peer_review,
+    peer_review_consistency_warnings,
+    _dedupe_review_concerns,
+    _concern_consistency_warnings,
+)
+from .evidence import (
+    _neighbor_context,
+    _validated_evidence_quote,
+    _quote_rects,
+    _evidence_locator,
+)
 
 
 class PeerReviewService:
@@ -220,4 +247,3 @@ class PeerReviewService:
             resolution=draft.resolution,
             assessment=draft.assessment,
         )
-

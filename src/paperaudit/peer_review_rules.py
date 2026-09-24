@@ -1,11 +1,22 @@
 from __future__ import annotations
+
 from collections.abc import Sequence
 from difflib import SequenceMatcher
 import hashlib
 import json
 import math
 import re
-from .models import PeerReviewReport, RevisionDiff, ReviewConcern, IssueSeverity, IssueSupportType, HumanReviewDecision, ParsedPaper, ReviewDecision, PeerReviewVenue
+from .models import (
+    PeerReviewReport,
+    RevisionDiff,
+    ReviewConcern,
+    IssueSeverity,
+    IssueSupportType,
+    HumanReviewDecision,
+    ParsedPaper,
+    ReviewDecision,
+    PeerReviewVenue,
+)
 
 
 _PEER_SCORE_BANDS = {
@@ -403,4 +414,3 @@ def build_revision_diff(old: ParsedPaper, new: ParsedPaper) -> RevisionDiff:
         changed_samples=changed_samples[:4],
         summary=summary,
     )
-

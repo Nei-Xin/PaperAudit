@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from paperaudit.models import ClaimCategory, PeerReviewVenue
 
 
@@ -36,5 +37,3 @@ PEER_REVIEW_WEIGHT_LABELS = {
     "clarity": "表达清晰度",
     "reproducibility": "可复现性",
 }
-
-
