@@ -1,0 +1,20 @@
+[
+  {
+    "paper_id": "shufflenet_1707.01083v1",
+    "arxiv_id": "1707.01083",
+    "version": "v1",
+    "title": "ShuffleNet: An Extremely Efficient Convolutional Neural Network for Mobile Devices",
+    "pdf_url": "https://arxiv.org/pdf/1707.01083v1",
+    "local_pdf": "tmp/experiments/evidence-gap-20260924/inputs/1707.01083v1.pdf",
+    "sha256": "3b9b34f8de688b92cfafb5e89081d062f4f71bfa9b45e0bcc355cb036afcbfd7"
+  },
+  {
+    "paper_id": "squeezenet_1602.07360v1",
+    "arxiv_id": "1602.07360",
+    "version": "v1",
+    "title": "SqueezeNet: AlexNet-level accuracy with 50x fewer parameters and <1MB model size",
+    "pdf_url": "https://arxiv.org/pdf/1602.07360v1",
+    "local_pdf": "tmp/experiments/evidence-gap-20260924/inputs/1602.07360v1.pdf",
+    "sha256": "aeddccca5f111d35a4c055388eba278a3178805eafbc4f6063bb214a558b9de0"
+  }
+]

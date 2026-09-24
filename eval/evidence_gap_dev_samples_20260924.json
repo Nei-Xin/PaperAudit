@@ -1,0 +1,846 @@
+[
+  {
+    "case_id": "SF01",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF01",
+      "text": "ShuffleNet 1×（g=3）在ImageNet单裁剪评测中的分类错误率为34.1%，计算量为140 MFLOPs。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 1x g=3 ImageNet single crop classification error 34.1 140 MFLOPs",
+      "entities": [],
+      "numbers": [
+        "1",
+        "3",
+        "34.1",
+        "140"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第5、7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "配置、错误率和计算量来自同一行，单裁剪设置见第5页。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p5_b9",
+        "page": 5,
+        "quote": "We mainly evaluate our models on the ImageNet 2016 classiﬁcation dataset [26, 4]. We use our\nself-developed system for training, and follow most of the training settings and hyper-parameters used\nin [37], with two exceptions: (i) we set the weight decay to 4e-5 instead of 1e-4; (ii) we use slightly\nless aggressive scale augmentation for data preprocessing. Similar modiﬁcations are also referenced\nin [12] because such small networks usually suffer from underﬁtting rather than overﬁtting. To\nbenchmark, we compare single crop top-1 performance on ImageNet validation set, i.e. cropping\n224 × 224 center view from 256× input image and evaluating classiﬁcation accuracy."
+      },
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b9",
+        "page": 7,
+        "quote": "0.5 MobileNet-224\n149\n36.3\n-\nShufﬂeNet 1× (g = 3)\n140\n34.1\n2.2"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF02",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF02",
+      "text": "ShuffleNet 1×（g=3）相较0.5 MobileNet-224的ImageNet分类错误率低2.2个百分点。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 1x g3 versus 0.5 MobileNet-224 error difference 2.2 ImageNet",
+      "entities": [],
+      "numbers": [
+        "1",
+        "3",
+        "0.5",
+        "224",
+        "2.2"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "36.3−34.1=2.2个百分点。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b9",
+        "page": 7,
+        "quote": "0.5 MobileNet-224\n149\n36.3\n-\nShufﬂeNet 1× (g = 3)\n140\n34.1\n2.2"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF03",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF03",
+      "text": "在Table 5的ImageNet评测中，ShuffleNet 0.5×（arch2，g=8）计算量为40 MFLOPs，分类错误率为42.7%。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 0.5x arch2 g8 40 MFLOPs 42.7 classification error ImageNet",
+      "entities": [],
+      "numbers": [
+        "5",
+        "0.5",
+        "2",
+        "8",
+        "40",
+        "42.7"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "Table 5明确区分arch2 g8与shallow g3的结果。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b10",
+        "page": 7,
+        "quote": "0.25 MobileNet-224\n41\n49.4\n-\nShufﬂeNet 0.5× (arch2, g = 8)\n40\n42.7\n6.7\nShufﬂeNet 0.5× (shallow, g = 3)\n40\n45.2\n4.2"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF04",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF04",
+      "text": "对于ShuffleNet 1×（g=3），channel shuffle使ImageNet分类错误率从36.4%降至34.1%，降低2.3个百分点。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 1x g3 channel shuffle no shuffle 36.4 34.1 2.3 ImageNet",
+      "entities": [],
+      "numbers": [
+        "1",
+        "3",
+        "36.4",
+        "34.1",
+        "2.3"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第5、6页 Table 3",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "Table 3有无shuffle列对应36.4与34.1。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p5_b9",
+        "page": 5,
+        "quote": "We mainly evaluate our models on the ImageNet 2016 classiﬁcation dataset [26, 4]. We use our\nself-developed system for training, and follow most of the training settings and hyper-parameters used\nin [37], with two exceptions: (i) we set the weight decay to 4e-5 instead of 1e-4; (ii) we use slightly\nless aggressive scale augmentation for data preprocessing. Similar modiﬁcations are also referenced\nin [12] because such small networks usually suffer from underﬁtting rather than overﬁtting. To\nbenchmark, we compare single crop top-1 performance on ImageNet validation set, i.e. cropping\n224 × 224 center view from 256× input image and evaluating classiﬁcation accuracy."
+      },
+      {
+        "chunk_id": "p6_b4",
+        "page": 6,
+        "quote": "Table 3: ShufﬂeNet with/without channel shufﬂe (smaller number represents better performance)"
+      },
+      {
+        "chunk_id": "p6_b5",
+        "page": 6,
+        "quote": "Model\nCls err. (%, no shufﬂe)\nCls err. (%, shufﬂe)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p6_b6",
+        "page": 6,
+        "quote": "ShufﬂeNet 1x (g = 3)\n36.4\n34.1\n2.3\nShufﬂeNet 0.5x (g = 3)\n46.1\n44.4\n1.7\nShufﬂeNet 0.25x (g = 3)\n56.5\n55.6\n0.9\nShufﬂeNet 0.25x (arch2, g = 3)\n56.6\n55.5\n1.1"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF05",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF05",
+      "text": "ShuffleNet 1×（g=3）在ImageNet上的分类准确率为34.1%。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 1x g3 ImageNet classification accuracy 34.1",
+      "entities": [],
+      "numbers": [
+        "1",
+        "3",
+        "34.1"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "CONTRADICTED",
+    "reference_reason": "34.1为错误率，不是准确率。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b9",
+        "page": 7,
+        "quote": "0.5 MobileNet-224\n149\n36.3\n-\nShufﬂeNet 1× (g = 3)\n140\n34.1\n2.2"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF06",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF06",
+      "text": "ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为42.7%。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 0.5x shallow g3 ImageNet error 42.7",
+      "entities": [],
+      "numbers": [
+        "0.5",
+        "3",
+        "42.7"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "CONTRADICTED",
+    "reference_reason": "shallow g3为45.2，42.7属于arch2 g8。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b10",
+        "page": 7,
+        "quote": "0.25 MobileNet-224\n41\n49.4\n-\nShufﬂeNet 0.5× (arch2, g = 8)\n40\n42.7\n6.7\nShufﬂeNet 0.5× (shallow, g = 3)\n40\n45.2\n4.2"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF07",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF07",
+      "text": "ShuffleNet相对MobileNet在所有可能的计算预算和所有数据集上都更准确。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet better than MobileNet at all possible computational budgets and all datasets",
+      "entities": [],
+      "numbers": [],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "PARTIALLY_SUPPORTED",
+    "reference_reason": "实验只覆盖ImageNet与表中有限复杂度，不能推广到所有数据集和任意预算。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b16",
+        "page": 7,
+        "quote": "Table 5 compares classiﬁcation scores under a variety of complexity levels. It is clear that our\nShufﬂeNet models are superior to MobileNet for all the complexities. Though our ShufﬂeNet network\nis specially designed for small models (< 150 MFLOPs), we ﬁnd it is still slightly better than\nMobileNet for higher computation cost. For smaller networks (~40 MFLOPs) ShufﬂeNet surpasses\nMobileNet by 6.7%. Note that our ShufﬂeNet architecture contains 50 layers (or 44 layers for\narch2) while MobileNet only has 28 layers. For better understanding, we also try ShufﬂeNet on a\n26-layer architecture by removing half of the blocks in Stage 2-4 (see \"ShufﬂeNet 0.5× shallow\n(g = 3)\" in Table 5). Results show that the shallower model is still signiﬁcantly better than the\ncorresponding MobileNet, which implies that the effectiveness of ShufﬂeNet mainly results from its\nefﬁcient structure, not the depth."
+      },
+      {
+        "chunk_id": "p5_b9",
+        "page": 5,
+        "quote": "We mainly evaluate our models on the ImageNet 2016 classiﬁcation dataset [26, 4]. We use our\nself-developed system for training, and follow most of the training settings and hyper-parameters used\nin [37], with two exceptions: (i) we set the weight decay to 4e-5 instead of 1e-4; (ii) we use slightly\nless aggressive scale augmentation for data preprocessing. Similar modiﬁcations are also referenced\nin [12] because such small networks usually suffer from underﬁtting rather than overﬁtting. To\nbenchmark, we compare single crop top-1 performance on ImageNet validation set, i.e. cropping\n224 × 224 center view from 256× input image and evaluating classiﬁcation accuracy."
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SF08",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF08",
+      "text": "在Table 5的ImageNet评测中，ShuffleNet 0.5×（arch2，g=8）计算量为40 MFLOPs，分类错误率为42.7%。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 0.5x arch2 g8 40 MFLOPs 42.7 classification error ImageNet",
+      "entities": [],
+      "numbers": [
+        "5",
+        "0.5",
+        "2",
+        "8",
+        "40",
+        "42.7"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "ABSTAIN",
+    "reference_reason": "主动移除配置与结果行，只保留正文概述及表头；42.7与指定配置无法确认。",
+    "reference_evidence": [],
+    "control_chunks": [
+      "p7_b16",
+      "p7_b5",
+      "p7_b6"
+    ]
+  },
+  {
+    "case_id": "SQ01",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ01",
+      "text": "SqueezeNet使用Deep Compression、6-bit量化和45%稀疏率后，模型为0.52MB，比32-bit AlexNet小约461倍。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet Deep Compression 6-bit 45% sparsity 0.52MB 461x AlexNet",
+      "entities": [],
+      "numbers": [
+        "6",
+        "45",
+        "0.52",
+        "32",
+        "461"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第3、4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "正文同时给出量化位宽、稀疏率、大小和比较对象。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p3_b34",
+        "page": 3,
+        "quote": "It appears that we have surpassed the state-of-the-art re-\nsults from the model compression community: even when\nusing uncompressed 32-bit values to represent the model,\nSqueezeNet has a 1.4x smaller model size than the best ef-\nforts from the model compression community while main-\ntaining or exceeding the baseline accuracy. Until now, an\nopen question has been: are small models amenable to com-\npression, or do small models “need” all of the representa-\ntional power afforded by dense ﬂoating-point values? To\nﬁnd out, we applied Deep Compression [8] to SqueezeNet,\nusing 50% sparsity5 and 8-bit quantization. This yields a\n0.92 MB model (258x smaller than 32-bit AlexNet) with\nequivalent accuracy to AlexNet.\nFurther, applying Deep\nCompression with 6-bit quantization and 45% sparsity on\nSqueezeNet, we produce a 0.52MB model (461x smaller\nthan 32-bit AlexNet) with equivalent accuracy. It appears\nthat our small model is indeed amenable to compression."
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ02",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ02",
+      "text": "SqueezeNet采用Deep Compression、8-bit量化和50%稀疏率后，模型为0.92MB，比32-bit AlexNet小约258倍。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet Deep Compression 8-bit 50% sparsity 0.92 MB 258x AlexNet",
+      "entities": [],
+      "numbers": [
+        "8",
+        "50",
+        "0.92",
+        "32",
+        "258"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第3、4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "8-bit方案与6-bit方案明确区分。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p3_b34",
+        "page": 3,
+        "quote": "It appears that we have surpassed the state-of-the-art re-\nsults from the model compression community: even when\nusing uncompressed 32-bit values to represent the model,\nSqueezeNet has a 1.4x smaller model size than the best ef-\nforts from the model compression community while main-\ntaining or exceeding the baseline accuracy. Until now, an\nopen question has been: are small models amenable to com-\npression, or do small models “need” all of the representa-\ntional power afforded by dense ﬂoating-point values? To\nﬁnd out, we applied Deep Compression [8] to SqueezeNet,\nusing 50% sparsity5 and 8-bit quantization. This yields a\n0.92 MB model (258x smaller than 32-bit AlexNet) with\nequivalent accuracy to AlexNet.\nFurther, applying Deep\nCompression with 6-bit quantization and 45% sparsity on\nSqueezeNet, we produce a 0.52MB model (461x smaller\nthan 32-bit AlexNet) with equivalent accuracy. It appears\nthat our small model is indeed amenable to compression."
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ03",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ03",
+      "text": "未压缩的32-bit SqueezeNet模型大小为4.8MB，比AlexNet小50倍。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet uncompressed 32 bit model size 4.8MB 50x AlexNet",
+      "entities": [],
+      "numbers": [
+        "32",
+        "4.8",
+        "50"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "未压缩行对应4.8MB、50倍。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p4_b1",
+        "page": 4,
+        "quote": "Table 2. Comparing SqueezeNet to model compression approaches. By model size, we mean the number of bytes required to store all of the\nparameters in the trained model."
+      },
+      {
+        "chunk_id": "p4_b17",
+        "page": 4,
+        "quote": "SqueezeNet"
+      },
+      {
+        "chunk_id": "p4_b19",
+        "page": 4,
+        "quote": "None\n32 bit\n4.8MB\n50x\n57.5%\n80.3%"
+      },
+      {
+        "chunk_id": "p4_b8",
+        "page": 4,
+        "quote": "Reduction in Model Size"
+      },
+      {
+        "chunk_id": "p4_b9",
+        "page": 4,
+        "quote": "vs. AlexNet"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ04",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ04",
+      "text": "SqueezeNet在fire9层后使用比例为50%的Dropout。",
+      "category": "method",
+      "key_claim": true,
+      "query_en": "SqueezeNet fire9 dropout ratio 50%",
+      "entities": [],
+      "numbers": [
+        "9",
+        "50"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第3页",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "原文明确写在fire9后使用50% Dropout。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p3_b3",
+        "page": 3,
+        "quote": "• Dropout [20] with a ratio of 50% is applied after the\nﬁre9 layer."
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ05",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ05",
+      "text": "SqueezeNet采用8-bit量化和50%稀疏率的Deep Compression后模型为0.52MB。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet Deep Compression 8-bit 50% sparsity 0.52 MB",
+      "entities": [],
+      "numbers": [
+        "8",
+        "50",
+        "0.52"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第3、4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "CONTRADICTED",
+    "reference_reason": "该配置为0.92MB，0.52MB属于6-bit、45%稀疏率。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p3_b34",
+        "page": 3,
+        "quote": "It appears that we have surpassed the state-of-the-art re-\nsults from the model compression community: even when\nusing uncompressed 32-bit values to represent the model,\nSqueezeNet has a 1.4x smaller model size than the best ef-\nforts from the model compression community while main-\ntaining or exceeding the baseline accuracy. Until now, an\nopen question has been: are small models amenable to com-\npression, or do small models “need” all of the representa-\ntional power afforded by dense ﬂoating-point values? To\nﬁnd out, we applied Deep Compression [8] to SqueezeNet,\nusing 50% sparsity5 and 8-bit quantization. This yields a\n0.92 MB model (258x smaller than 32-bit AlexNet) with\nequivalent accuracy to AlexNet.\nFurther, applying Deep\nCompression with 6-bit quantization and 45% sparsity on\nSqueezeNet, we produce a 0.52MB model (461x smaller\nthan 32-bit AlexNet) with equivalent accuracy. It appears\nthat our small model is indeed amenable to compression."
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ06",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ06",
+      "text": "未压缩的32-bit SqueezeNet模型大小为0.52MB。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet uncompressed 32-bit model size 0.52MB",
+      "entities": [],
+      "numbers": [
+        "32",
+        "0.52"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "CONTRADICTED",
+    "reference_reason": "未压缩32-bit行明确为4.8MB。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p4_b17",
+        "page": 4,
+        "quote": "SqueezeNet"
+      },
+      {
+        "chunk_id": "p4_b19",
+        "page": 4,
+        "quote": "None\n32 bit\n4.8MB\n50x\n57.5%\n80.3%"
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ07",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ07",
+      "text": "SqueezeNet在所有视觉数据集上都能保持AlexNet级别的准确率。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet AlexNet level accuracy on all visual datasets",
+      "entities": [],
+      "numbers": [],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第4页结论",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "PARTIALLY_SUPPORTED",
+    "reference_reason": "论文只验证ImageNet，其他应用是未来潜力，不能泛化为已验证所有数据集。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p4_b29",
+        "page": 4,
+        "quote": "5. Conclusions and Future Work\nWe have presented SqueezeNet, a DNN architecture\nthat has 50x fewer parameters than AlexNet and maintains\nAlexNet-level accuracy on ImageNet. In this paper, we fo-\ncused on ImageNet as a target dataset. However, it has be-\ncome common practice to apply ImageNet-trained DNN rep-\nresentations to a variety of applications such as ﬁne-grained\nobject recognition [21, 5], logo identiﬁcation in images [13],\nand generating sentences about images [6].\nImageNet-\ntrained DNNs have also been applied to a number of appli-\ncations pertaining to autonomous driving, including pedes-\ntrian and vehicle detection in images [12, 7] and videos [2],\nas well as segmenting the shape of the road [1]. We think\nSqueezeNet will be a good candidate DNN architecture for\na variety of applications, especially those in which small\nmodel size is of importance."
+      }
+    ],
+    "control_chunks": null
+  },
+  {
+    "case_id": "SQ08",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ08",
+      "text": "SqueezeNet使用Deep Compression、6-bit量化和45%稀疏率后，模型为0.52MB，比32-bit AlexNet小约461倍。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet Deep Compression 6-bit 45% sparsity 0.52MB 461x AlexNet",
+      "entities": [],
+      "numbers": [
+        "6",
+        "45",
+        "0.52",
+        "32",
+        "461"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第3、4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "ABSTAIN",
+    "reference_reason": "只有摘要与总结，无法确认6-bit和45%稀疏率。",
+    "reference_evidence": [],
+    "control_chunks": [
+      "p1_b7",
+      "p4_b28",
+      "p4_b29"
+    ]
+  },
+  {
+    "case_id": "SF03_complete",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF03_complete",
+      "text": "在Table 5的ImageNet评测中，ShuffleNet 0.5×（arch2，g=8）计算量为40 MFLOPs，分类错误率为42.7%。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 0.5x arch2 g8 40 MFLOPs 42.7 classification error ImageNet",
+      "entities": [],
+      "numbers": [
+        "5",
+        "0.5",
+        "2",
+        "8",
+        "40",
+        "42.7"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "Table 5明确区分arch2 g8与shallow g3的结果。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b10",
+        "page": 7,
+        "quote": "0.25 MobileNet-224\n41\n49.4\n-\nShufﬂeNet 0.5× (arch2, g = 8)\n40\n42.7\n6.7\nShufﬂeNet 0.5× (shallow, g = 3)\n40\n45.2\n4.2"
+      }
+    ],
+    "control_chunks": [
+      "p7_b5",
+      "p7_b6",
+      "p7_b10",
+      "p5_b9"
+    ],
+    "probe_type": "complete_evidence"
+  },
+  {
+    "case_id": "SF06_complete",
+    "paper_id": "shufflenet_1707.01083v1",
+    "claim": {
+      "claim_id": "SF06_complete",
+      "text": "ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为42.7%。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "ShuffleNet 0.5x shallow g3 ImageNet error 42.7",
+      "entities": [],
+      "numbers": [
+        "0.5",
+        "3",
+        "42.7"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第7页 Table 5",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "CONTRADICTED",
+    "reference_reason": "shallow g3为45.2，42.7属于arch2 g8。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p7_b5",
+        "page": 7,
+        "quote": "Table 5: ShufﬂeNet vs. MobileNet [12] on ImageNet Classiﬁcation"
+      },
+      {
+        "chunk_id": "p7_b6",
+        "page": 7,
+        "quote": "Model\nComplexity (MFLOPs)\nCls err. (%)\n∆err. (%)"
+      },
+      {
+        "chunk_id": "p7_b10",
+        "page": 7,
+        "quote": "0.25 MobileNet-224\n41\n49.4\n-\nShufﬂeNet 0.5× (arch2, g = 8)\n40\n42.7\n6.7\nShufﬂeNet 0.5× (shallow, g = 3)\n40\n45.2\n4.2"
+      }
+    ],
+    "control_chunks": [
+      "p7_b5",
+      "p7_b6",
+      "p7_b10",
+      "p5_b9"
+    ],
+    "probe_type": "complete_evidence"
+  },
+  {
+    "case_id": "SQ03_complete",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ03_complete",
+      "text": "未压缩的32-bit SqueezeNet模型大小为4.8MB，比AlexNet小50倍。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet uncompressed 32 bit model size 4.8MB 50x AlexNet",
+      "entities": [],
+      "numbers": [
+        "32",
+        "4.8",
+        "50"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "SUPPORTED",
+    "reference_reason": "未压缩行对应4.8MB、50倍。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p4_b1",
+        "page": 4,
+        "quote": "Table 2. Comparing SqueezeNet to model compression approaches. By model size, we mean the number of bytes required to store all of the\nparameters in the trained model."
+      },
+      {
+        "chunk_id": "p4_b17",
+        "page": 4,
+        "quote": "SqueezeNet"
+      },
+      {
+        "chunk_id": "p4_b19",
+        "page": 4,
+        "quote": "None\n32 bit\n4.8MB\n50x\n57.5%\n80.3%"
+      },
+      {
+        "chunk_id": "p4_b8",
+        "page": 4,
+        "quote": "Reduction in Model Size"
+      },
+      {
+        "chunk_id": "p4_b9",
+        "page": 4,
+        "quote": "vs. AlexNet"
+      }
+    ],
+    "control_chunks": [
+      "p4_b1",
+      "p4_b5",
+      "p4_b6",
+      "p4_b7",
+      "p4_b8",
+      "p4_b9",
+      "p4_b17",
+      "p4_b19",
+      "p4_b13"
+    ],
+    "probe_type": "complete_evidence"
+  },
+  {
+    "case_id": "SQ06_complete",
+    "paper_id": "squeezenet_1602.07360v1",
+    "claim": {
+      "claim_id": "SQ06_complete",
+      "text": "未压缩的32-bit SqueezeNet模型大小为0.52MB。",
+      "category": "results",
+      "key_claim": true,
+      "query_en": "SqueezeNet uncompressed 32-bit model size 0.52MB",
+      "entities": [],
+      "numbers": [
+        "32",
+        "0.52"
+      ],
+      "metric": null,
+      "dataset": null,
+      "provided_evidence": "论文第4页 Table 2",
+      "report_location": null,
+      "source_id": null,
+      "source_quote": null
+    },
+    "reference_label": "CONTRADICTED",
+    "reference_reason": "未压缩32-bit行明确为4.8MB。",
+    "reference_evidence": [
+      {
+        "chunk_id": "p4_b17",
+        "page": 4,
+        "quote": "SqueezeNet"
+      },
+      {
+        "chunk_id": "p4_b19",
+        "page": 4,
+        "quote": "None\n32 bit\n4.8MB\n50x\n57.5%\n80.3%"
+      }
+    ],
+    "control_chunks": [
+      "p4_b1",
+      "p4_b5",
+      "p4_b6",
+      "p4_b7",
+      "p4_b8",
+      "p4_b9",
+      "p4_b17",
+      "p4_b19",
+      "p4_b13"
+    ],
+    "probe_type": "complete_evidence"
+  }
+]

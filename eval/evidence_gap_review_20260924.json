@@ -1,0 +1,952 @@
+{
+  "sample": "new two-paper development set; 14 production retrieval cases + 6 dependent complete/control probes",
+  "baseline": {
+    "stage": "baseline",
+    "planned": 20,
+    "completed": 20,
+    "failures": 0,
+    "natural_cases": 14,
+    "reference_agreement": 7,
+    "supported_reference_count": 8,
+    "missed_support": 6,
+    "false_support": 0,
+    "abstain": 7,
+    "rechecks": 0,
+    "recovered_support": 0,
+    "controls": [
+      {
+        "case_id": "SF08",
+        "label": "ABSTAIN"
+      },
+      {
+        "case_id": "SF03_complete",
+        "label": "SUPPORTED"
+      },
+      {
+        "case_id": "SF06_complete",
+        "label": "CONTRADICTED"
+      },
+      {
+        "case_id": "SQ08",
+        "label": "NO_SUPPORT_FOUND"
+      },
+      {
+        "case_id": "SQ03_complete",
+        "label": "SUPPORTED"
+      },
+      {
+        "case_id": "SQ06_complete",
+        "label": "CONTRADICTED"
+      }
+    ],
+    "api_requests": 29,
+    "total_tokens": 97969,
+    "mean_case_seconds": 36.0563473041082
+  },
+  "candidate_raw": {
+    "stage": "candidate",
+    "planned": 20,
+    "completed": 20,
+    "failures": 0,
+    "natural_cases": 14,
+    "reference_agreement": 11,
+    "supported_reference_count": 8,
+    "missed_support": 2,
+    "false_support": 0,
+    "abstain": 2,
+    "rechecks": 10,
+    "recovered_support": 0,
+    "controls": [
+      {
+        "case_id": "SF08",
+        "label": "ABSTAIN"
+      },
+      {
+        "case_id": "SF03_complete",
+        "label": "SUPPORTED"
+      },
+      {
+        "case_id": "SF06_complete",
+        "label": "CONTRADICTED"
+      },
+      {
+        "case_id": "SQ08",
+        "label": "NO_SUPPORT_FOUND"
+      },
+      {
+        "case_id": "SQ03_complete",
+        "label": "SUPPORTED"
+      },
+      {
+        "case_id": "SQ06_complete",
+        "label": "CONTRADICTED"
+      }
+    ],
+    "api_requests": 10,
+    "total_tokens": 27479,
+    "mean_case_seconds": 9.289082533301553
+  },
+  "candidate_after_policy_fix": {
+    "natural_cases": 14,
+    "reference_agreement": 11,
+    "supported_reference_count": 8,
+    "missed_support": 2,
+    "false_support": 0,
+    "abstain": 3,
+    "rechecks": 6,
+    "raw_candidate_requests": 10,
+    "raw_candidate_tokens": 27479
+  },
+  "limitations": [
+    "Diagnostic development sample, not final holdout and not representative overall accuracy.",
+    "References were manually checked against rendered PDFs; no independent blinded annotator.",
+    "Complete-evidence probes are dependent variants and excluded from natural accuracy.",
+    "Candidate raw run predates the final partial-recheck guard; final metrics above recompute its saved responses under the guard.",
+    "A later rerun stopped after two API connection failures; those incomplete rows are excluded."
+  ],
+  "source_sha256": {
+    "src/paperaudit/evidence_gap.py": "1ba0e7bbc88600aba00d7d2ea6fc1f094989a04dd17ec171a137a67bb00fa851",
+    "src/paperaudit/service.py": "1a9f928029afa14a12c7b8f442a26e08d6921110f574bfb0dfa522302ba2ee70",
+    "src/paperaudit/hy3_client.py": "ed3151e5330d502315dadc6c2d07afed979419ffa8ed12ec7bfdea25ce0b17af",
+    "eval/evidence_gap_experiment.py": "9d7c0a6ebf0d9c91a00a38d05bb9ff2dc0bf6141ff8f915cbf7eb32302a03294",
+    "eval/evidence_gap_dev_samples_20260924.json": "bdebfe8e2a505157b3e6c6397d8d3185d78dffa9976ec3ad2701abb4ea53967f",
+    "eval/evidence_gap_dev_papers_20260924.json": "4ef152ad86c08959461b4fc5622770ad6b645652d085b830061f8d88076e438d"
+  },
+  "cases": [
+    {
+      "case_id": "SF01",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF01",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF01_e4",
+          "SF01_e5",
+          "SF01_e7",
+          "SF01_e9",
+          "SF01_e10"
+        ],
+        "explanation": "候选证据支持评测为ImageNet验证集单裁剪（SF01_e4），并说明相关模型复杂度约为140 MFLOPs（SF01_e5）；但候选片段没有展示ShuffleNet 1×、g=3对应行的具体分类错误率34.1%及精确计算量，也未明确将140 MFLOPs归属于该行。SF01_e7仅说明比较了不同分组数，SF01_e9也未给出该行数值。因此必要的Table 2/5具体表格内容缺失，无法可靠确认或否定这些核心数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": "请提供Table 2或Table 5中ShuffleNet 1×（g=3）对应行的完整内容，以核实34.1%的错误率和140 MFLOPs计算量。"
+      },
+      "candidate_after": {
+        "claim_id": "SF01",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF01_e4",
+          "SF01_e5",
+          "SF01_e7",
+          "SF01_e9",
+          "SF01_e10"
+        ],
+        "explanation": "候选证据支持评测为ImageNet验证集单裁剪（SF01_e4），并说明相关模型复杂度约为140 MFLOPs（SF01_e5）；但候选片段没有展示ShuffleNet 1×、g=3对应行的具体分类错误率34.1%及精确计算量，也未明确将140 MFLOPs归属于该行。SF01_e7仅说明比较了不同分组数，SF01_e9也未给出该行数值。因此必要的Table 2/5具体表格内容缺失，无法可靠确认或否定这些核心数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": "请提供Table 2或Table 5中ShuffleNet 1×（g=3）对应行的完整内容，以核实34.1%的错误率和140 MFLOPs计算量。"
+      },
+      "recheck": {
+        "claim_id": "SF01",
+        "evidence_relevant": false,
+        "judgment": {
+          "claim_id": "SF01",
+          "label": "ABSTAIN",
+          "evidence_ids": [
+            "SF01_e4",
+            "SF01_e5",
+            "SF01_e7",
+            "SF01_e9",
+            "SF01_e10"
+          ],
+          "explanation": "候选片段确认了ImageNet验证集单裁剪评测，并提到约140 MFLOPs的复杂度及ShuffleNet 1×、g=3等配置背景，但未提供ShuffleNet 1×（g=3）对应表格行，也未将34.1%错误率和140 MFLOPs明确归属于该配置。因此无法核实完整数值主张。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": "请提供Table 2或Table 5中ShuffleNet 1×（g=3）对应的完整表格行。"
+        },
+        "explanation": "所有候选文本均已检查；缺少该配置的具体错误率、计算量及其明确对应关系，维持原ABSTAIN判断。"
+      },
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF02",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF02",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SF02_e4",
+          "SF02_e5"
+        ],
+        "explanation": "候选证据 SF02_e4 直接给出相同设置下的数值：0.5 MobileNet-224 的分类错误率为36.3%，ShuffleNet 1×（g=3）为34.1%，差值为2.2个百分点；SF02_e5 说明该数据来自论文第7页的 ImageNet 分类对比表。因此，主体、指标、设置和数值均得到支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SF02",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SF02_e4",
+          "SF02_e5"
+        ],
+        "explanation": "候选证据 SF02_e4 直接给出相同设置下的数值：0.5 MobileNet-224 的分类错误率为36.3%，ShuffleNet 1×（g=3）为34.1%，差值为2.2个百分点；SF02_e5 说明该数据来自论文第7页的 ImageNet 分类对比表。因此，主体、指标、设置和数值均得到支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF03",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF03",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SF03_e7",
+          "SF03_e6"
+        ],
+        "explanation": "候选证据 SF03_e7 直接列出 Table 5 中的“ShuffleNet 0.5× (arch2, g = 8)”：计算量为 40 MFLOPs、分类错误率为 42.7%；SF03_e6确认该表是 ImageNet 分类评测。因此，表格、模型配置及两个数值均得到支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SF03",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SF03_e7",
+          "SF03_e6"
+        ],
+        "explanation": "候选证据 SF03_e7 直接列出 Table 5 中的“ShuffleNet 0.5× (arch2, g = 8)”：计算量为 40 MFLOPs、分类错误率为 42.7%；SF03_e6确认该表是 ImageNet 分类评测。因此，表格、模型配置及两个数值均得到支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF04",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF04",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF04_e7",
+          "SF04_e10"
+        ],
+        "explanation": "候选证据 SF04_e7 仅说明存在 Table 3，SF04_e10 只支持 channel shuffle 在不同设置下带来定性提升；候选中没有给出 ShuffleNet 1×（g=3）的 36.4%、34.1% 或 2.3 个百分点。因此无法核实该数值主张，但由于 Table 3 的具体内容缺失，不能据此判定为外部捏造。",
+        "claim_error_type": null,
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "none",
+        "suggestion": "请提供 Table 3 中 ShuffleNet 1×（g=3）有无 channel shuffle 的具体错误率，以核实 36.4%、34.1% 和 2.3 个百分点的计算。"
+      },
+      "candidate_after": {
+        "claim_id": "SF04",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF04_e7",
+          "SF04_e10"
+        ],
+        "explanation": "候选证据 SF04_e7 仅说明存在 Table 3，SF04_e10 只支持 channel shuffle 在不同设置下带来定性提升；候选中没有给出 ShuffleNet 1×（g=3）的 36.4%、34.1% 或 2.3 个百分点。因此无法核实该数值主张，但由于 Table 3 的具体内容缺失，不能据此判定为外部捏造。",
+        "claim_error_type": null,
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "none",
+        "suggestion": "请提供 Table 3 中 ShuffleNet 1×（g=3）有无 channel shuffle 的具体错误率，以核实 36.4%、34.1% 和 2.3 个百分点的计算。"
+      },
+      "recheck": {
+        "claim_id": "SF04",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SF04",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "SF04_e7",
+            "SF04_e10"
+          ],
+          "explanation": "SF04_e7确认Table 3比较有无channel shuffle，SF04_e10说明该表涵盖g=3并称channel shuffle在不同设置下提升分类表现。但候选文本未提供ShuffleNet 1×（g=3）对应的36.4%和34.1%错误率，也未给出2.3个百分点的具体差值，因此数值主张仅获部分支持。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": "需提供Table 3中ShuffleNet 1×（g=3）有无channel shuffle的具体错误率，以核实36.4%、34.1%及2.3个百分点。"
+        },
+        "explanation": "候选文本支持比较对象、g=3设置及定性提升方向，但缺少该具体配置的数值行，不能完整核实36.4%、34.1%和2.3个百分点。"
+      },
+      "policy_recomputed": true
+    },
+    {
+      "case_id": "SF05",
+      "reference_label": "CONTRADICTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF05",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF05_e5"
+        ],
+        "explanation": "候选证据仅说明第7页有Table 5，未提供“ShuffleNet 1×（g=3）”对应的ImageNet准确率数值，也未出现34.1%这一核心结果。因此无法据候选证据确认或否定该数值；缺少必要表格内容时应暂不判定为外部幻觉。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": "请提供第7页Table 5中ShuffleNet 1×（g=3）对应行及其指标列，以核实34.1%的准确率数值。"
+      },
+      "candidate_after": {
+        "claim_id": "SF05",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF05_e5"
+        ],
+        "explanation": "候选证据仅说明第7页有Table 5，未提供“ShuffleNet 1×（g=3）”对应的ImageNet准确率数值，也未出现34.1%这一核心结果。因此无法据候选证据确认或否定该数值；缺少必要表格内容时应暂不判定为外部幻觉。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": "请提供第7页Table 5中ShuffleNet 1×（g=3）对应行及其指标列，以核实34.1%的准确率数值。"
+      },
+      "recheck": {
+        "claim_id": "SF05",
+        "evidence_relevant": false,
+        "judgment": {
+          "claim_id": "SF05",
+          "label": "ABSTAIN",
+          "evidence_ids": [
+            "SF05_e5"
+          ],
+          "explanation": "候选 passages 中只有第7页 Table 5 的标题及相关描述，没有“ShuffleNet 1×（g=3）”对应的表格行、ImageNet准确率指标或34.1%数值，因此仍无法确认或否定该 claim。",
+          "claim_error_type": null,
+          "evidence_error_type": null,
+          "severity": "none",
+          "suggestion": "请提供第7页 Table 5 中 ShuffleNet 1×（g=3）对应行及准确率数值。"
+        },
+        "explanation": "检查了所有候选文本，包括表格标题和配置描述；未发现支持34.1%这一具体数值的必要表格内容。"
+      },
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF06",
+      "reference_label": "CONTRADICTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF06",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SF06_e4"
+        ],
+        "explanation": "候选证据明确列出“ShuffleNet 0.5×（shallow，g=3）”的ImageNet分类错误率为45.2%，而非42.7%。42.7%对应的是“ShuffleNet 0.5×（arch2，g=8）”，因此核心数值与同一模型设置直接冲突。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "更正为：ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为45.2%；42.7%对应ShuffleNet 0.5×（arch2，g=8）。"
+      },
+      "candidate_after": {
+        "claim_id": "SF06",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SF06_e4"
+        ],
+        "explanation": "候选证据明确列出“ShuffleNet 0.5×（shallow，g=3）”的ImageNet分类错误率为45.2%，而非42.7%。42.7%对应的是“ShuffleNet 0.5×（arch2，g=8）”，因此核心数值与同一模型设置直接冲突。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "更正为：ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为45.2%；42.7%对应ShuffleNet 0.5×（arch2，g=8）。"
+      },
+      "recheck": {
+        "claim_id": "SF06",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SF06",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "SF06_e4"
+          ],
+          "explanation": "表中明确列出“ShuffleNet 0.5×（shallow，g = 3）”的ImageNet分类错误率为45.2%，而42.7%对应“ShuffleNet 0.5×（arch2，g = 8）”，因此该主张的配置与数值不匹配。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "更正为：ShuffleNet 0.5×（shallow，g = 3）的ImageNet分类错误率为45.2%；42.7%对应ShuffleNet 0.5×（arch2，g = 8）。"
+        },
+        "explanation": "候选表格行直接支持对原主张的否定：shallow、g = 3的错误率是45.2%，不是42.7%。"
+      },
+      "policy_recomputed": true
+    },
+    {
+      "case_id": "SF07",
+      "reference_label": "PARTIALLY_SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SF07",
+        "label": "PARTIALLY_SUPPORTED",
+        "evidence_ids": [
+          "SF07_e2",
+          "SF07_e7",
+          "SF07_e10"
+        ],
+        "explanation": "证据SF07_e2和SF07_e7支持ShuffleNet在ImageNet分类的Table 5所覆盖的复杂度范围内优于MobileNet；SF07_e10仅支持其在MS COCO的特定可比复杂度和分辨率设置下表现更好或相当。候选证据不支持“所有可能的计算预算”和“所有数据集”这一无限范围的断言，因此属于范围过度泛化。",
+        "claim_error_type": "overgeneralization",
+        "evidence_error_type": null,
+        "severity": "medium",
+        "suggestion": "改为：在ImageNet分类的Table 5所测试的复杂度范围内，ShuffleNet优于MobileNet；在MS COCO的部分可比复杂度和输入分辨率设置下，ShuffleNet表现更好或相当。"
+      },
+      "candidate_after": {
+        "claim_id": "SF07",
+        "label": "PARTIALLY_SUPPORTED",
+        "evidence_ids": [
+          "SF07_e2",
+          "SF07_e7",
+          "SF07_e10"
+        ],
+        "explanation": "证据SF07_e2和SF07_e7支持ShuffleNet在ImageNet分类的Table 5所覆盖的复杂度范围内优于MobileNet；SF07_e10仅支持其在MS COCO的特定可比复杂度和分辨率设置下表现更好或相当。候选证据不支持“所有可能的计算预算”和“所有数据集”这一无限范围的断言，因此属于范围过度泛化。",
+        "claim_error_type": "overgeneralization",
+        "evidence_error_type": null,
+        "severity": "medium",
+        "suggestion": "改为：在ImageNet分类的Table 5所测试的复杂度范围内，ShuffleNet优于MobileNet；在MS COCO的部分可比复杂度和输入分辨率设置下，ShuffleNet表现更好或相当。"
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF08",
+      "reference_label": "ABSTAIN",
+      "control": true,
+      "baseline_before": {
+        "claim_id": "SF08",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF08_e1",
+          "SF08_e2",
+          "SF08_e3"
+        ],
+        "explanation": "候选证据不完整：SF08_e1仅说明约40 MFLOPs规模及相对MobileNet提升6.7%，SF08_e2仅给出Table 5标题，SF08_e3仅列出表头；均未提供ShuffleNet 0.5×（arch2，g=8）这一具体行，也未明确支持40 MFLOPs和42.7%的分类错误率。因此无法可靠核验这些数值。",
+        "claim_error_type": null,
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "none",
+        "suggestion": "请提供Table 5中对应模型行的完整表格证据，以核对40 MFLOPs和42.7%的数值。"
+      },
+      "candidate_after": {
+        "claim_id": "SF08",
+        "label": "ABSTAIN",
+        "evidence_ids": [
+          "SF08_e1",
+          "SF08_e2",
+          "SF08_e3"
+        ],
+        "explanation": "候选证据不完整：SF08_e1仅说明约40 MFLOPs规模及相对MobileNet提升6.7%，SF08_e2仅给出Table 5标题，SF08_e3仅列出表头；均未提供ShuffleNet 0.5×（arch2，g=8）这一具体行，也未明确支持40 MFLOPs和42.7%的分类错误率。因此无法可靠核验这些数值。",
+        "claim_error_type": null,
+        "evidence_error_type": "evidence_mismatch",
+        "severity": "none",
+        "suggestion": "请提供Table 5中对应模型行的完整表格证据，以核对40 MFLOPs和42.7%的数值。"
+      },
+      "recheck": {
+        "claim_id": "SF08",
+        "evidence_relevant": false,
+        "judgment": {
+          "claim_id": "SF08",
+          "label": "ABSTAIN",
+          "evidence_ids": [
+            "SF08_e1",
+            "SF08_e2",
+            "SF08_e3"
+          ],
+          "explanation": "候选文本包含Table 5标题、表头及约40 MFLOPs规模的概述，但未提供ShuffleNet 0.5×（arch2，g=8）的具体表格行，也未明确给出40 MFLOPs和42.7%分类错误率同时对应该配置。因此无法可靠核验完整 claim。",
+          "claim_error_type": null,
+          "evidence_error_type": "evidence_mismatch",
+          "severity": "none",
+          "suggestion": "请提供Table 5中ShuffleNet 0.5×（arch2，g=8）对应行的完整证据。"
+        },
+        "explanation": "已检查所有候选文本；其中没有包含所需模型配置、对应行及42.7%数值的直接支持，维持ABSTAIN。"
+      },
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF03_complete",
+      "reference_label": "SUPPORTED",
+      "control": true,
+      "baseline_before": {
+        "claim_id": "SF03_complete",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SF03_complete_e1",
+          "SF03_complete_e2",
+          "SF03_complete_e3"
+        ],
+        "explanation": "候选证据 e1 表明 Table 5 是 ImageNet 分类评测，e2 给出计算量和分类错误率列，e3 明确列出 ShuffleNet 0.5×（arch2，g=8）的 40 MFLOPs 和 42.7% 分类错误率，完整支持该 claim 的主体、设置和数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SF03_complete",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SF03_complete_e1",
+          "SF03_complete_e2",
+          "SF03_complete_e3"
+        ],
+        "explanation": "候选证据 e1 表明 Table 5 是 ImageNet 分类评测，e2 给出计算量和分类错误率列，e3 明确列出 ShuffleNet 0.5×（arch2，g=8）的 40 MFLOPs 和 42.7% 分类错误率，完整支持该 claim 的主体、设置和数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SF06_complete",
+      "reference_label": "CONTRADICTED",
+      "control": true,
+      "baseline_before": {
+        "claim_id": "SF06_complete",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SF06_complete_e3"
+        ],
+        "explanation": "候选证据明确显示，ImageNet分类错误率42.7%对应的是ShuffleNet 0.5×（arch2，g=8），而所述的ShuffleNet 0.5×（shallow，g=3）错误率为45.2%。因此，核心数值与同一模型设置不符。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "应改为：ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为45.2%；42.7%对应ShuffleNet 0.5×（arch2，g=8）。"
+      },
+      "candidate_after": {
+        "claim_id": "SF06_complete",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SF06_complete_e3"
+        ],
+        "explanation": "候选证据明确显示，ImageNet分类错误率42.7%对应的是ShuffleNet 0.5×（arch2，g=8），而所述的ShuffleNet 0.5×（shallow，g=3）错误率为45.2%。因此，核心数值与同一模型设置不符。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "应改为：ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为45.2%；42.7%对应ShuffleNet 0.5×（arch2，g=8）。"
+      },
+      "recheck": {
+        "claim_id": "SF06_complete",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SF06_complete",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "SF06_complete_e3"
+          ],
+          "explanation": "Table 5明确显示，ShuffleNet 0.5×（arch2，g=8）的ImageNet分类错误率为42.7%，而ShuffleNet 0.5×（shallow，g=3）的错误率为45.2%。因此，42.7%与所述模型配置不匹配。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "应改为：ShuffleNet 0.5×（shallow，g=3）的ImageNet分类错误率为45.2%；42.7%对应ShuffleNet 0.5×（arch2，g=8）。"
+        },
+        "explanation": "候选表格行直接区分了两种配置及其错误率，支持原先的矛盾判断；不存在将42.7%归于shallow、g=3配置的证据。"
+      },
+      "policy_recomputed": true
+    },
+    {
+      "case_id": "SQ01",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ01",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ01_e2"
+        ],
+        "explanation": "候选证据SQ01_e2明确支持全部核心结果：对SqueezeNet使用Deep Compression、6-bit量化和45%稀疏率，得到0.52MB模型，并且该模型比32-bit AlexNet小461倍。因此数值、方法和比较对象均一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SQ01",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ01_e2"
+        ],
+        "explanation": "候选证据SQ01_e2明确支持全部核心结果：对SqueezeNet使用Deep Compression、6-bit量化和45%稀疏率，得到0.52MB模型，并且该模型比32-bit AlexNet小461倍。因此数值、方法和比较对象均一致。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SQ02",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ02",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ02_e2"
+        ],
+        "explanation": "候选证据 SQ02_e2 明确说明对 SqueezeNet 应用 Deep Compression，采用 50% 稀疏率和 8-bit 量化，得到 0.92MB 模型，且比 32-bit AlexNet 小 258 倍；该证据支持 claim 中的全部数值和结果。未涉及额外的证明、最优性或保证断言。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SQ02",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ02_e2"
+        ],
+        "explanation": "候选证据 SQ02_e2 明确说明对 SqueezeNet 应用 Deep Compression，采用 50% 稀疏率和 8-bit 量化，得到 0.92MB 模型，且比 32-bit AlexNet 小 258 倍；该证据支持 claim 中的全部数值和结果。未涉及额外的证明、最优性或保证断言。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SQ03",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ03",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ03_e5",
+          "SQ03_e9"
+        ],
+        "explanation": "SQ03_e5在表格片段中列出32 bit、4.8MB和50x；SQ03_e9明确说明SqueezeNet相较AlexNet实现了50x的模型大小缩减。因此，32-bit未压缩模型大小为4.8MB且比AlexNet小50倍的核心数值和结论均有候选证据支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SQ03",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ03_e5",
+          "SQ03_e9"
+        ],
+        "explanation": "SQ03_e5在表格片段中列出32 bit、4.8MB和50x；SQ03_e9明确说明SqueezeNet相较AlexNet实现了50x的模型大小缩减。因此，32-bit未压缩模型大小为4.8MB且比AlexNet小50倍的核心数值和结论均有候选证据支持。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SQ04",
+      "reference_label": "SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ04",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ04_e1"
+        ],
+        "explanation": "候选证据 SQ04_e1 明确说明在 fire9 层之后使用比例为 50% 的 Dropout，完整支持该 claim 的层位置和数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SQ04",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ04_e1"
+        ],
+        "explanation": "候选证据 SQ04_e1 明确说明在 fire9 层之后使用比例为 50% 的 Dropout，完整支持该 claim 的层位置和数值。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SQ05",
+      "reference_label": "CONTRADICTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ05",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SQ05_e2",
+          "SQ05_e7",
+          "SQ05_e10"
+        ],
+        "explanation": "候选证据明确区分了两种设置：8-bit量化和50%稀疏率得到0.92MB（SQ05_e2、SQ05_e10）；0.52MB对应的是6-bit量化和45%稀疏率（SQ05_e2、SQ05_e7）。因此，核心数值组合与证据直接冲突。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "应改为：采用8-bit量化和50%稀疏率的Deep Compression后，SqueezeNet模型为0.92MB；采用6-bit量化和45%稀疏率时，模型为0.52MB。"
+      },
+      "candidate_after": {
+        "claim_id": "SQ05",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SQ05_e2",
+          "SQ05_e7",
+          "SQ05_e10"
+        ],
+        "explanation": "候选证据明确区分了两种设置：8-bit量化和50%稀疏率得到0.92MB（SQ05_e2、SQ05_e10）；0.52MB对应的是6-bit量化和45%稀疏率（SQ05_e2、SQ05_e7）。因此，核心数值组合与证据直接冲突。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "应改为：采用8-bit量化和50%稀疏率的Deep Compression后，SqueezeNet模型为0.92MB；采用6-bit量化和45%稀疏率时，模型为0.52MB。"
+      },
+      "recheck": {
+        "claim_id": "SQ05",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SQ05",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "SQ05_e2",
+            "SQ05_e7",
+            "SQ05_e10"
+          ],
+          "explanation": "候选文本明确表明：8-bit量化、50%稀疏率对应0.92MB（SQ05_e2、SQ05_e10）；0.52MB对应6-bit量化、45%稀疏率（SQ05_e2、SQ05_e7）。因此，原声明的配置与模型大小不匹配。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "应改为：采用8-bit量化和50%稀疏率时为0.92MB；采用6-bit量化和45%稀疏率时为0.52MB。"
+        },
+        "explanation": "候选段落及表格行直接支持对原声明的反驳，未发现8-bit、50%稀疏率对应0.52MB的证据。"
+      },
+      "policy_recomputed": true
+    },
+    {
+      "case_id": "SQ06",
+      "reference_label": "CONTRADICTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ06",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SQ06_e1",
+          "SQ06_e6",
+          "SQ06_e8"
+        ],
+        "explanation": "候选证据明确表明，0.52MB对应的是采用6-bit量化、45%稀疏率的SqueezeNet模型（SQ06_e1、SQ06_e8），而不是未压缩的32-bit模型；表中32-bit的SqueezeNet模型大小为4.8MB（SQ06_e6）。因此，主张中的32-bit条件与0.52MB数值不匹配。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "应改为：采用6-bit量化和45%稀疏率的SqueezeNet模型大小为0.52MB；未压缩的32-bit SqueezeNet模型大小为4.8MB。"
+      },
+      "candidate_after": {
+        "claim_id": "SQ06",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SQ06_e1",
+          "SQ06_e6",
+          "SQ06_e8"
+        ],
+        "explanation": "候选证据明确表明，0.52MB对应的是采用6-bit量化、45%稀疏率的SqueezeNet模型（SQ06_e1、SQ06_e8），而不是未压缩的32-bit模型；表中32-bit的SqueezeNet模型大小为4.8MB（SQ06_e6）。因此，主张中的32-bit条件与0.52MB数值不匹配。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "应改为：采用6-bit量化和45%稀疏率的SqueezeNet模型大小为0.52MB；未压缩的32-bit SqueezeNet模型大小为4.8MB。"
+      },
+      "recheck": {
+        "claim_id": "SQ06",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SQ06",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "SQ06_e1",
+            "SQ06_e6",
+            "SQ06_e8"
+          ],
+          "explanation": "候选证据显示，0.52MB对应采用6-bit量化和45%稀疏率的SqueezeNet，而未压缩的32-bit SqueezeNet模型大小为4.8MB。因此，主张中的32-bit条件与0.52MB数值不匹配。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "应改为：采用6-bit量化和45%稀疏率的SqueezeNet模型大小为0.52MB；未压缩的32-bit SqueezeNet模型大小为4.8MB。"
+        },
+        "explanation": "候选段落直接支持原先的矛盾判断：0.52MB属于6-bit量化模型，32-bit模型为4.8MB。"
+      },
+      "policy_recomputed": true
+    },
+    {
+      "case_id": "SQ07",
+      "reference_label": "PARTIALLY_SUPPORTED",
+      "control": false,
+      "baseline_before": {
+        "claim_id": "SQ07",
+        "label": "PARTIALLY_SUPPORTED",
+        "evidence_ids": [
+          "SQ07_e1",
+          "SQ07_e7"
+        ],
+        "explanation": "候选证据支持SqueezeNet在ImageNet上达到AlexNet级别准确率（SQ07_e1、SQ07_e7），但没有证据支持“所有视觉数据集”。因此核心结果在ImageNet范围内成立，范围被过度扩展。",
+        "claim_error_type": "overgeneralization",
+        "evidence_error_type": null,
+        "severity": "medium",
+        "suggestion": "改为：SqueezeNet在ImageNet上保持AlexNet级别的准确率。"
+      },
+      "candidate_after": {
+        "claim_id": "SQ07",
+        "label": "PARTIALLY_SUPPORTED",
+        "evidence_ids": [
+          "SQ07_e1",
+          "SQ07_e7"
+        ],
+        "explanation": "候选证据支持SqueezeNet在ImageNet上达到AlexNet级别准确率（SQ07_e1、SQ07_e7），但没有证据支持“所有视觉数据集”。因此核心结果在ImageNet范围内成立，范围被过度扩展。",
+        "claim_error_type": "overgeneralization",
+        "evidence_error_type": null,
+        "severity": "medium",
+        "suggestion": "改为：SqueezeNet在ImageNet上保持AlexNet级别的准确率。"
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SQ08",
+      "reference_label": "ABSTAIN",
+      "control": true,
+      "baseline_before": {
+        "claim_id": "SQ08",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "SQ08_e1",
+          "SQ08_e2"
+        ],
+        "explanation": "SQ08声称的6-bit量化、45%稀疏率和0.52MB具体数值在候选证据中均未出现；32-bit AlexNet的表述也未被明确支持。候选证据SQ08_e1支持压缩后小于1MB且比AlexNet小461倍，SQ08_e2支持通过Deep Compression实现461倍模型尺寸缩减，但未支持0.52MB、6-bit或45%稀疏率。因此核心压缩效果部分得到支持，具体配置和数值属于候选证据缺失，而非被相反数值明确否定。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "根据候选证据改为：使用Deep Compression后，SqueezeNet模型可压缩到小于1MB，模型尺寸比AlexNet减少461倍；6-bit量化、45%稀疏率和0.52MB数值需补充相应表格或原文证据后再表述。"
+      },
+      "candidate_after": {
+        "claim_id": "SQ08",
+        "label": "NO_SUPPORT_FOUND",
+        "evidence_ids": [
+          "SQ08_e1",
+          "SQ08_e2"
+        ],
+        "explanation": "SQ08声称的6-bit量化、45%稀疏率和0.52MB具体数值在候选证据中均未出现；32-bit AlexNet的表述也未被明确支持。候选证据SQ08_e1支持压缩后小于1MB且比AlexNet小461倍，SQ08_e2支持通过Deep Compression实现461倍模型尺寸缩减，但未支持0.52MB、6-bit或45%稀疏率。因此核心压缩效果部分得到支持，具体配置和数值属于候选证据缺失，而非被相反数值明确否定。",
+        "claim_error_type": "external_hallucination",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "根据候选证据改为：使用Deep Compression后，SqueezeNet模型可压缩到小于1MB，模型尺寸比AlexNet减少461倍；6-bit量化、45%稀疏率和0.52MB数值需补充相应表格或原文证据后再表述。"
+      },
+      "recheck": {
+        "claim_id": "SQ08",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SQ08",
+          "label": "PARTIALLY_SUPPORTED",
+          "evidence_ids": [
+            "SQ08_e1",
+            "SQ08_e2"
+          ],
+          "explanation": "候选证据支持使用模型压缩技术（包括Deep Compression）后，SqueezeNet小于1MB，且模型尺寸比AlexNet减少461倍。SQ08_e2还明确提到Deep Compression，但候选文本未提供6-bit量化、45%稀疏率、0.52MB或32-bit AlexNet这些具体配置和数值，因此只能部分支持。",
+          "claim_error_type": "external_hallucination",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "可改述为：使用Deep Compression后，SqueezeNet模型可压缩到小于1MB，模型尺寸比AlexNet减少461倍；6-bit量化、45%稀疏率和0.52MB需补充证据。"
+        },
+        "explanation": "候选证据仅支持Deep Compression、压缩后小于1MB以及相对AlexNet减少461倍，未支持6-bit、45%稀疏率、0.52MB和32-bit等具体细节，因此为部分支持。"
+      },
+      "policy_recomputed": true
+    },
+    {
+      "case_id": "SQ03_complete",
+      "reference_label": "SUPPORTED",
+      "control": true,
+      "baseline_before": {
+        "claim_id": "SQ03_complete",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ03_complete_e8",
+          "SQ03_complete_e9"
+        ],
+        "explanation": "候选证据 e8 明确给出 SqueezeNet 的数据类型为 32 bit、模型大小为 4.8MB、相对 AlexNet 为 50x；e9 给出 AlexNet 基线模型大小为 240MB（1x），与该比较一致。因此数值、指标和比较对象均得到支持，且未涉及额外的证明或最优性断言。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "candidate_after": {
+        "claim_id": "SQ03_complete",
+        "label": "SUPPORTED",
+        "evidence_ids": [
+          "SQ03_complete_e8",
+          "SQ03_complete_e9"
+        ],
+        "explanation": "候选证据 e8 明确给出 SqueezeNet 的数据类型为 32 bit、模型大小为 4.8MB、相对 AlexNet 为 50x；e9 给出 AlexNet 基线模型大小为 240MB（1x），与该比较一致。因此数值、指标和比较对象均得到支持，且未涉及额外的证明或最优性断言。",
+        "claim_error_type": null,
+        "evidence_error_type": null,
+        "severity": "none",
+        "suggestion": null
+      },
+      "recheck": null,
+      "policy_recomputed": false
+    },
+    {
+      "case_id": "SQ06_complete",
+      "reference_label": "CONTRADICTED",
+      "control": true,
+      "baseline_before": {
+        "claim_id": "SQ06_complete",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SQ06_complete_e8"
+        ],
+        "explanation": "候选证据 SQ06_complete_e8 明确给出 SqueezeNet、None、32 bit 的模型大小为 4.8MB，而非声称的 0.52MB；其中“32-bit”得到支持，但模型大小这一核心数值存在直接冲突。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "更正为：未压缩的 32-bit SqueezeNet 模型大小为 4.8MB。"
+      },
+      "candidate_after": {
+        "claim_id": "SQ06_complete",
+        "label": "CONTRADICTED",
+        "evidence_ids": [
+          "SQ06_complete_e8"
+        ],
+        "explanation": "候选证据 SQ06_complete_e8 明确给出 SqueezeNet、None、32 bit 的模型大小为 4.8MB，而非声称的 0.52MB；其中“32-bit”得到支持，但模型大小这一核心数值存在直接冲突。",
+        "claim_error_type": "numeric_or_metric_mismatch",
+        "evidence_error_type": null,
+        "severity": "high",
+        "suggestion": "更正为：未压缩的 32-bit SqueezeNet 模型大小为 4.8MB。"
+      },
+      "recheck": {
+        "claim_id": "SQ06_complete",
+        "evidence_relevant": true,
+        "judgment": {
+          "claim_id": "SQ06_complete",
+          "label": "CONTRADICTED",
+          "evidence_ids": [
+            "SQ06_complete_e7",
+            "SQ06_complete_e8"
+          ],
+          "explanation": "表2将 SqueezeNet 的“None”压缩配置、32 bit 数据类型与 4.8MB 模型大小对应起来，直接反驳了 0.52MB；候选材料未显示 0.52MB 的对应行或数值。",
+          "claim_error_type": "numeric_or_metric_mismatch",
+          "evidence_error_type": null,
+          "severity": "high",
+          "suggestion": "更正为：未压缩的 32-bit SqueezeNet 模型大小为 4.8MB。"
+        },
+        "explanation": "候选表格标题和行信息明确支持 SqueezeNet、None、32 bit、4.8MB 的组合，因此对该数值主张构成直接矛盾。"
+      },
+      "policy_recomputed": true
+    }
+  ]
+}
