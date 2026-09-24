@@ -7,6 +7,7 @@ from paperaudit.models import (
     ClaimErrorType,
     ClaimExtraction,
     ClaimJudgment,
+    CitationReview,
     EvidenceCandidate,
     JudgmentBatch,
     PaperChunk,
@@ -18,6 +19,15 @@ from eval.run_eval import _validated_judgment
 
 
 class FakeHy3Client:
+    def review_citation_coverage(self, claim, candidates, judgment):
+        return CitationReview(
+            claim_id=claim.claim_id, complete=True, evidence_ids=judgment.evidence_ids,
+            aspects=[{"aspect": "测试论断", "reasoning": "测试客户端返回完整原文。",
+                      "citations": [{"evidence_id": c.evidence_id, "quote": c.text}
+                                    for c in candidates if c.evidence_id in judgment.evidence_ids]}],
+            missing_aspects=[], explanation="测试引用复核。",
+        )
+
     def extract_claims(self, report_text: str, scope: list[str]) -> ClaimExtraction:
         return ClaimExtraction(
             claims=[
