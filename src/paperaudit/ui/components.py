@@ -302,6 +302,9 @@ def build_review_status_html(audit: ClaimAudit) -> str:
             f'<div class="pa-audit-detail-copy"><strong>{escape(status)}</strong> · '
             f'{escape(displayed.explanation)}</div>',
         ]
+        if audit.judgment_before_citation_review is not None and audit.judgment_before_citation_review.suggestion:
+            suggestion_status = "已验证" if displayed.suggestion_verified is True else "未完整验证"
+            details.append(f'<div class="pa-audit-detail-copy">纠正建议引文复核：{escape(suggestion_status)}</div>')
         if displayed.missing_aspects:
             missing = "、".join(displayed.missing_aspects)
             details.append(f'<div class="pa-audit-detail-copy">缺少：{escape(missing)}</div>')
