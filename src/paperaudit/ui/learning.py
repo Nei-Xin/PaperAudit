@@ -634,7 +634,7 @@ def _render_report_tab(
         for anchor_index, anchor in enumerate(valid):
             with columns[anchor_index % len(columns)]:
                 if st.button(
-                    f"📄 {_learning_citation_label(anchor)} ↗",
+                    f"{_learning_citation_label(anchor)} ↗",
                     key=f"{key_prefix}-{anchor_index}-{anchor.chunk_id}",
                     type="tertiary",
                     help=_learning_citation_help(anchor),
@@ -767,7 +767,7 @@ def _render_report_tab(
                         f'<div class="pa-learning-bullet-item{active_class}">'
                         f'<div class="pa-learning-point-marker{active_class}"></div>'
                         f'<div class="pa-learning-bullet-title{active_class}">'
-                        f'<span class="pa-bullet-dot">•</span> {escape(point.title)}</div>'
+                        f'{escape(point.title)}</div>'
                         f'<div class="pa-learning-bullet-text">{escape(point.explanation)}</div></div>',
                         unsafe_allow_html=True,
                     )
@@ -790,7 +790,7 @@ def _render_report_tab(
                             )
                             with columns[anchor_index % len(columns)]:
                                 if st.button(
-                                    f"📄 {label}{count_suffix} ↗",
+                                    f"{label}{count_suffix} ↗",
                                     key=f"learning-evidence-{section_index}-{point_index}-{anchor_index}-{anchor.chunk_id}",
                                     type=(
                                         "primary"

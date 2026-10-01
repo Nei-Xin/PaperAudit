@@ -92,7 +92,7 @@ _PDF_SELECTOR_CSS = """
 }
 .pa-pdf-selection-mark {
   position: absolute;
-  background: rgba(37, 99, 235, .25);
+  background: rgba(30, 74, 122, .22);
   border-radius: 2px;
 }
 .pa-pdf-selection-action {
@@ -103,10 +103,10 @@ _PDF_SELECTOR_CSS = """
   align-items: center;
   width: max-content;
   box-sizing: border-box;
-  border: 1px solid rgba(6, 95, 70, .22);
+  border: 1px solid rgba(19, 48, 79, .22);
   border-radius: 999px;
-  background: #147052;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, .2);
+  background: #1e4a7a;
+  box-shadow: 0 8px 20px rgba(60, 48, 30, .2);
   font: 12px/1.2 var(--st-font);
 }
 .pa-pdf-selection-action.is-visible { display: flex; }
@@ -120,11 +120,11 @@ _PDF_SELECTOR_CSS = """
 }
 .pa-pdf-selection-action.is-above::after {
   top: 100%;
-  border-top-color: #147052;
+  border-top-color: #1e4a7a;
 }
 .pa-pdf-selection-action.is-below::after {
   bottom: 100%;
-  border-bottom-color: #147052;
+  border-bottom-color: #1e4a7a;
 }
 .pa-pdf-selection-button {
   padding: 8px 12px;
@@ -137,11 +137,11 @@ _PDF_SELECTOR_CSS = """
   cursor: pointer;
   user-select: none;
 }
-.pa-pdf-selection-action:hover { background: #0f6047; }
-.pa-pdf-selection-action:hover::after { border-top-color: #0f6047; }
+.pa-pdf-selection-action:hover { background: #163a61; }
+.pa-pdf-selection-action:hover::after { border-top-color: #163a61; }
 .pa-pdf-selection-action.is-below:hover::after {
   border-top-color: transparent;
-  border-bottom-color: #0f6047;
+  border-bottom-color: #163a61;
 }
 """
 

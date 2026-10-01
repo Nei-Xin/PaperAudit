@@ -400,12 +400,12 @@ def render_audit_results(
     with tab_dimensions:
         dim_left, dim_right = st.columns([1.4, 1])
         with dim_left:
-            st.markdown("##### 📈 六维评估体系得分")
+            st.markdown("##### 六维评估体系得分")
             render_dimension_radar_or_bar(
                 run.summary.dimensions.model_dump(), dimension_names
             )
         with dim_right:
-            st.markdown("##### ⚠️ 风险问题统计")
+            st.markdown("##### 风险问题统计")
             r_col1, r_col2, r_col3 = st.columns(3)
             r_col1.metric("严重问题", run.summary.critical_count)
             r_col2.metric("高风险", run.summary.high_count)
@@ -414,7 +414,7 @@ def render_audit_results(
                 st.warning(warning)
 
     with tab_report:
-        st.markdown("##### 📑 导出完整审计报告")
+        st.markdown("##### 导出完整审计报告")
         markdown_report = render_markdown(run)
         d_col1, d_col2 = st.columns(2)
         d_col1.download_button(

@@ -923,9 +923,9 @@ def render_code_workspace(
                 )
             with editor_col:
                 st.markdown(
-                    f'<div class="pa-code-breadcrumb"><span>segment-anything-main / '
+                    f'<div class="pa-code-breadcrumb"><span>{escape(codebase.name)} / '
                     f'<strong>{escape(active_path)}</strong></span>'
-                    f'<span style="color:#64748b;font-size:.7rem;font-weight:600;">📄 CODE</span></div>',
+                    f'<span style="color:#a39a8a;font-size:.7rem;font-weight:600;letter-spacing:.08em;">CODE</span></div>',
                     unsafe_allow_html=True,
                 )
                 previous_path = st.session_state.get("joint_code_rendered_path")

@@ -20,37 +20,37 @@ _CODE_SELECTOR_CSS = """
   max-height: none;
   overflow: auto;
   overscroll-behavior: contain;
-  border: 1px solid #dbe4ee;
+  border: 1px solid #35312b;
   border-radius: 8px;
-  background: #0f172a;
+  background: #24211d;
   scrollbar-gutter: stable;
 }
 .pa-code-select-content {
   min-width: max-content;
   padding: .6rem 0;
-  color: #dbeafe;
+  color: #ece5d6;
   font: 12px/1.62 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 .pa-code-select-line {display:flex;padding:0 .8rem;white-space:pre;}
-.pa-code-select-line:hover {background:#172554;}
-.pa-code-select-line.is-active {background:rgba(250,204,21,.22);box-shadow:inset 3px 0 #facc15;}
+.pa-code-select-line:hover {background:#322e28;}
+.pa-code-select-line.is-active {background:rgba(217,169,58,.20);box-shadow:inset 3px 0 #d9a93a;}
 .pa-code-select-number {
-  width:3.2rem;flex:0 0 3.2rem;padding-right:.9rem;color:#64748b;text-align:right;
+  width:3.2rem;flex:0 0 3.2rem;padding-right:.9rem;color:#7d7466;text-align:right;
   user-select:none;
 }
 .pa-code-select-line code {color:inherit;font:inherit;white-space:pre;}
 .pa-code-selection-toolbar {
   position:absolute;z-index:8;display:none;align-items:center;gap:5px;
-  padding:6px;border:1px solid #334155;border-radius:8px;background:#fff;
-  box-shadow:0 10px 28px rgba(15,23,42,.24);
+  padding:6px;border:1px solid #cbc2b1;border-radius:6px;background:#fffefb;
+  box-shadow:0 10px 28px rgba(60,48,30,.22);
 }
 .pa-code-selection-toolbar.is-visible {display:flex;}
-.pa-code-selection-toolbar span {padding:0 5px;color:#64748b;font:11px/1.2 sans-serif;white-space:nowrap;}
+.pa-code-selection-toolbar span {padding:0 5px;color:#776f64;font:11px/1.2 sans-serif;white-space:nowrap;}
 .pa-code-selection-toolbar button {
-  border:0;border-radius:5px;padding:6px 8px;background:#f1f5f9;color:#334155;
+  border:0;border-radius:4px;padding:6px 8px;background:#f1ede4;color:#36322c;
   font:600 11px/1 sans-serif;cursor:pointer;white-space:nowrap;
 }
-.pa-code-selection-toolbar button:hover {background:#dbeafe;color:#1d4ed8;}
+.pa-code-selection-toolbar button:hover {background:#dfe6ee;color:#1e4a7a;}
 """
 
 _CODE_SELECTOR_JS = r"""
