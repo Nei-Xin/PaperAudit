@@ -41,6 +41,99 @@ def _looks_truncated_title(title: str) -> bool:
     }
 
 
+_PLACEHOLDER_TITLE = re.compile(
+    r"\.(?:eps|dvi|tex|pdf|docx?|ps)\b|^microsoft word\b|^untitled\b|^\s*$", re.IGNORECASE,
+)
+
+
+def _looks_placeholder_title(title: str) -> bool:
+    """Metadata titles copied from source file names are not paper titles."""
+
+    return bool(_PLACEHOLDER_TITLE.search(title))
+
+
+def _largest_font_title(lines: list[tuple[str, float]]) -> str:
+    """Join the first run of first-page lines set in the largest font.
+
+    Licence notes or venue banners often precede the title in reading order, but
+    the title is still the most prominent horizontal text on the first page.
+    """
+
+    if not lines:
+        return ""
+    sizes = sorted(size for _, size in lines)
+    largest = sizes[-1]
+    # Without a clearly larger font there is no typographic title to trust.
+    if largest < sizes[len(sizes) // 2] + 1.0:
+        return ""
+    title_lines: list[str] = []
+    for text, size in lines:
+        if size >= largest - 0.5:
+            title_lines.append(text)
+        elif title_lines:
+            break
+    title = " ".join(title_lines).strip()
+    return title if 4 <= len(title) <= 300 else ""
+
+
+def _is_horizontal(line: dict) -> bool:
+    direction = line.get("dir") or (1.0, 0.0)
+    return abs(direction[0] - 1.0) < 0.01 and abs(direction[1]) < 0.01
+
+
+def _line_font_size(line: dict) -> float:
+    return max((float(span.get("size", 0.0)) for span in line.get("spans", [])), default=0.0)
+
+
+def _choose_title(
+    document: fitz.Document, first_page_lines: list[tuple[str, float]], first_text: str,
+) -> str:
+    metadata_title = _normalize_text(document.metadata.get("title", "") or "")
+    page_title = (
+        _largest_font_title(first_page_lines)[:160].strip()
+        or " ".join(first_text.splitlines())[:160].strip()
+    )
+    return (
+        page_title
+        if not metadata_title
+        or _looks_truncated_title(metadata_title)
+        or _looks_placeholder_title(metadata_title)
+        else " ".join(metadata_title.splitlines())[:160].strip()
+    ) or "未命名论文"
+
+
+def extract_pdf_title(pdf_bytes: bytes) -> str | None:
+    """Re-derive a title from the first page, e.g. to repair saved projects."""
+
+    try:
+        document = fitz.open(stream=pdf_bytes, filetype="pdf")
+    except Exception:
+        return None
+    try:
+        if document.page_count == 0:
+            return None
+        lines: list[tuple[str, float]] = []
+        first_text = ""
+        for block in document[0].get_text("dict", sort=True).get("blocks", []):
+            if block.get("type") != 0:
+                continue
+            block_lines = []
+            for line in block.get("lines", []):
+                text = _normalize_text("".join(str(span.get("text", "")) for span in line.get("spans", [])))
+                if not text:
+                    continue
+                block_lines.append(text)
+                if _is_horizontal(line):
+                    lines.append((text, _line_font_size(line)))
+            block_text = _normalize_text("\n".join(block_lines))
+            if not first_text and len(block_text) >= 2:
+                first_text = block_text
+        title = _choose_title(document, lines, first_text)
+        return None if title == "未命名论文" else title
+    finally:
+        document.close()
+
+
 _TABLE_MARKER = re.compile(r"^\s*(?:table|tab\.|表)\s*\d+[A-Za-z]?\b", re.IGNORECASE)
 _FORMULA_MARKER = re.compile(
     r"(?:\s[=≈≤≥∑∏√∫∞±]|\b(?:arg\s*min|arg\s*max|softmax|sigmoid|"
@@ -86,6 +179,7 @@ def parse_pdf(pdf_bytes: bytes, max_block_chars: int = 3_000) -> ParsedPaper:
         chunks: list[PaperChunk] = []
         warnings: list[str] = []
         first_text = ""
+        first_page_lines: list[tuple[str, float]] = []
 
         for page_index, page in enumerate(document):
             page_number = page_index + 1
@@ -101,6 +195,9 @@ def parse_pdf(pdf_bytes: bytes, max_block_chars: int = 3_000) -> ParsedPaper:
                     )
                     if not line_text:
                         continue
+                    # Rotated margin stamps such as arXiv identifiers are not titles.
+                    if page_index == 0 and _is_horizontal(line):
+                        first_page_lines.append((line_text, _line_font_size(line)))
                     bbox = line.get("bbox")
                     if not bbox or len(bbox) != 4:
                         continue
@@ -140,13 +237,7 @@ def parse_pdf(pdf_bytes: bytes, max_block_chars: int = 3_000) -> ParsedPaper:
         if not chunks:
             raise PDFParseError("PDF 未提取到文本；第一版不支持扫描件。")
 
-        metadata_title = _normalize_text(document.metadata.get("title", ""))
-        first_block_title = " ".join(first_text.splitlines())[:160].strip()
-        title = (
-            first_block_title
-            if not metadata_title or _looks_truncated_title(metadata_title)
-            else " ".join(metadata_title.splitlines())[:160].strip()
-        ) or "未命名论文"
+        title = _choose_title(document, first_page_lines, first_text)
         return ParsedPaper(
             title=title,
             page_count=document.page_count,

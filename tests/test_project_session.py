@@ -145,3 +145,25 @@ def test_learning_initialization_keeps_upload_and_resets_previous_project():
     assert "project_conversations" not in state
     assert "peer_review_revision_pdf" not in state
     assert "active_project_id" not in state and "project" not in query
+
+
+def test_opening_project_repairs_title_from_saved_pdf(tmp_path: Path) -> None:
+    import pymupdf
+
+    document = pymupdf.open()
+    page = document.new_page()
+    page.insert_text((72, 60), "Provided proper attribution is provided, Google grants permission.", fontsize=10)
+    page.insert_text((72, 110), "Attention Is All You Need", fontsize=17)
+    page.insert_text((72, 150), "The dominant sequence transduction models.", fontsize=10)
+    pdf_bytes = document.tobytes()
+    document.close()
+    store = ProjectStore(tmp_path / "library")
+    bad_title = "Provided proper attribution is provided, Google grants permission."
+    saved = store.save_learning_project(pdf_bytes, "Transformer.pdf", _paper(bad_title), _report(bad_title))
+    state: dict = {}
+
+    ProjectSession(state, {}).open(store, saved.project_id)
+
+    assert state["learning_paper"].title == "Attention Is All You Need"
+    assert state["learning_report"].paper_title == "Attention Is All You Need"
+    assert store.list_projects()[0].title == "Attention Is All You Need"
