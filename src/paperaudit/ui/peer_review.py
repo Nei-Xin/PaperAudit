@@ -207,26 +207,26 @@ def _evidence_buttons(
 
 def _render_concern(concern: ReviewConcern, pdf_bytes: bytes | None, key: str) -> None:
     severity = _severity_for(concern)
+    status_label = _ISSUE_STATUS_LABELS.get(concern.status, concern.status.value)
+    # Kicker carries severity, category and status so the title can wrap in full.
     st.markdown(
         f'<div class="pa-peer-concern-head severity-{severity.value.lower()}">'
+        f'<div class="pa-peer-concern-kicker">'
         f'<span class="pa-peer-severity-badge">{escape(severity.value)}</span>'
-        f'<span class="pa-peer-category-inline">{escape(_ISSUE_CATEGORY_LABELS.get(concern.category, "其他"))}</span>'
-        f'<span class="pa-peer-title-separator">·</span>'
-        f'<strong>{escape(concern.title)}</strong>'
-        f'<span class="pa-peer-status-badge">{escape(_ISSUE_STATUS_LABELS.get(concern.status, concern.status.value))}</span>'
+        f'<span>{escape(_ISSUE_CATEGORY_LABELS.get(concern.category, "其他"))}</span>'
+        f'<span class="pa-peer-status-badge">{escape(status_label)}</span></div>'
+        f'<strong class="pa-peer-concern-title">{escape(concern.title)}</strong>'
         f'</div>',
         unsafe_allow_html=True,
     )
-    if concern.evidence:
-        st.caption(f"已绑定 {len(concern.evidence)} 条原文依据，可点击下方按钮定位。")
-    else:
-        st.caption("证据不足 · 当前判断需人工复核")
     st.markdown('<div class="pa-peer-subsection-label">问题说明</div>', unsafe_allow_html=True)
     st.write(concern.description)
+    evidence_note = f"原文依据 {len(concern.evidence)} 条" if concern.evidence else "暂无可定位原文依据"
     st.markdown(
-        f'<div class="pa-peer-metadata">类别：{escape(_ISSUE_CATEGORY_LABELS.get(concern.category, "其他"))}'
-        f'<span>置信度：{concern.confidence} / 5</span><span>判断类型：{escape(concern.support_type.value)}</span>'
-        f'<em>{escape(_ISSUE_STATUS_LABELS.get(concern.status, concern.status.value))}</em></div>',
+        f'<div class="pa-peer-metadata"><span>{evidence_note}</span>'
+        f'<span>置信度 {concern.confidence} / 5</span>'
+        f'<span>判断类型：{escape(_SUPPORT_TYPE_LABELS.get(concern.support_type, concern.support_type.value))}</span>'
+        f'</div>',
         unsafe_allow_html=True,
     )
     ai_level = concern.ai_severity_level or _severity_for(concern)
@@ -242,7 +242,7 @@ def _render_concern(concern: ReviewConcern, pdf_bytes: bytes | None, key: str) -
         unsafe_allow_html=True,
     )
     checklist = _suggestion_checklist(concern.suggestion)
-    checklist_html = "".join(f'<li>□ {escape(item)}</li>' for item in checklist)
+    checklist_html = "".join(f'<li>{escape(item)}</li>' for item in checklist)
     st.markdown(
         f'<div class="pa-peer-action-callout"><strong>修改任务</strong>'
         f'<ul>{checklist_html}</ul></div>',
@@ -718,7 +718,9 @@ def render_peer_review(
                 severity_options = {"全部": None, **{item.value: item for item in IssueSeverity}}
                 category_options = {"全部类别": None, **{label: value for value, label in _ISSUE_CATEGORY_LABELS.items()}}
                 status_options = {"全部状态": None, **{label: value for value, label in _ISSUE_STATUS_LABELS.items()}}
-                filter_col, category_col, status_col, sort_col = st.columns(4)
+                # Two filters per row: four in one row truncated the option labels.
+                filter_col, category_col = st.columns(2)
+                status_col, sort_col = st.columns(2)
                 selected_severity = filter_col.selectbox(
                     "严重度", list(severity_options), key="peer-review-severity-filter"
                 )
@@ -771,7 +773,11 @@ def render_peer_review(
                 visible_minor = [concern for concern in filtered if concern.severity.value != "major"]
                 needs_review_count = sum(item.status is IssueStatus.NEEDS_REVIEW for item in filtered)
                 if needs_review_count:
-                    st.info(f"待人工复核：{needs_review_count} 条。相关卡片已默认展开。")
+                    st.markdown(
+                        f'<div class="pa-peer-note">待人工复核 {needs_review_count} 条，'
+                        '对应问题的复核面板已默认展开。</div>',
+                        unsafe_allow_html=True,
+                    )
                 if visible_major:
                     st.markdown("### 主要问题")
                     for index, concern in enumerate(visible_major):
