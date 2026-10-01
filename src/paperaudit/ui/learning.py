@@ -673,10 +673,14 @@ def _render_report_tab(
             height="stretch",
             border=False,
         ):
+            # A missing section is a status note, not a heading.
+            heading = (
+                f'<h2 class="pa-learning-section-title">{escape(page_context.paper_section)}</h2>'
+                if page_context.paper_section
+                else '<div class="pa-learning-section-missing">本页未识别到章节标题</div>'
+            )
             st.markdown(
-                f'<div class="pa-learning-section-kicker">当前阅读位置 · P{display_page}</div>'
-                f'<h2 class="pa-learning-section-title">'
-                f'{escape(page_context.paper_section or "当前页尚未识别到章节标题")}</h2>',
+                f'<div class="pa-learning-section-kicker">当前阅读位置 · P{display_page}</div>{heading}',
                 unsafe_allow_html=True,
             )
             if page_context.relation:
@@ -926,11 +930,6 @@ def _render_qa_tab(
     focus_pdf: bool = False,
     conversation_only: bool = False,
 ) -> None:
-    st.markdown(
-        '<div class="pa-qa-intro">💬 回答仅使用当前论文检索到的原文证据；'
-        '证据不足时不会用外部知识补全。</div>',
-        unsafe_allow_html=True,
-    )
     history: list[PaperAnswer] = st.session_state.setdefault("paper_qa_history", [])
 
     if paper is None:
@@ -969,16 +968,15 @@ def _render_qa_tab(
             joint_history_key="joint_qa_history",
         )
         history = st.session_state["paper_qa_history"]
-        action_left, action_right = st.columns([4, 1])
-        action_left.caption(f"保留最近 {min(len(history), 10)} 轮对话")
-        if action_right.button(
-            "清空", width="stretch", disabled=not history and not pending
-        ):
-            history.clear()
-            st.session_state.pop("qa_selected_evidence", None)
-            st.session_state.pop("qa_evidence_group", None)
-            st.session_state.pop("paper_qa_pending", None)
-            st.rerun()
+        if history or pending:
+            action_left, action_right = st.columns([4, 1], vertical_alignment="center")
+            action_left.caption(f"保留最近 {min(len(history), 10)} 轮对话")
+            if action_right.button("清空", width="stretch"):
+                history.clear()
+                st.session_state.pop("qa_selected_evidence", None)
+                st.session_state.pop("qa_evidence_group", None)
+                st.session_state.pop("paper_qa_pending", None)
+                st.rerun()
 
         selected_text = st.session_state.get("paper_text_selection")
         if isinstance(selected_text, dict) and selected_text.get("text"):
@@ -997,7 +995,12 @@ def _render_qa_tab(
 
         with st.container(key="qa_history_scroll"):
             if not history and not pending:
-                st.info("还没有追问。可以从论文的方法、实验数字、结果原因或局限性开始。")
+                st.markdown(
+                    '<div class="pa-qa-empty"><strong>从一个具体问题开始</strong>'
+                    '<p>可以问方法细节、实验数字、结果原因或局限性；选中左侧原文后提问会更精确。</p>'
+                    '<small>回答只使用本论文检索到的原文证据；证据不足时不会用外部知识补全。</small></div>',
+                    unsafe_allow_html=True,
+                )
             for answer_index, answer in enumerate(history):
                 with st.container(border=True):
                     st.markdown(
@@ -1535,6 +1538,7 @@ def render_learning_workspace(
             )
         with header_right:
             with st.popover("报告操作", width="stretch"):
+                st.markdown('<div class="pa-popover-section">阅读</div>', unsafe_allow_html=True)
                 if codebase is None or workspace_mode == "lecture":
                     focus_pdf = st.toggle(
                         "专注 PDF",
@@ -1549,6 +1553,7 @@ def render_learning_workspace(
                         + "、".join(map(str, report.suggested_pages))
                         + " 页"
                     )
+                st.markdown('<div class="pa-popover-section">报告审计</div>', unsafe_allow_html=True)
                 if st.button(
                     "审计本讲解",
                     type="primary",
@@ -1581,6 +1586,7 @@ def render_learning_workspace(
                     render_report_audit_dialog(submit_audit_job)
                 if submit_audit_job is None:
                     st.caption("配置并连接 Hy3 API 后可审计当前讲解。")
+                st.markdown('<div class="pa-popover-section">模拟投稿评审</div>', unsafe_allow_html=True)
                 venue_options = {
                     "general_ai_ml": "通用 AI/ML",
                     "ijcai": "IJCAI",
@@ -1638,6 +1644,7 @@ def render_learning_workspace(
                         st.session_state["result_mode"] = "peer_review"
                         st.rerun()
                 st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
+                st.markdown('<div class="pa-popover-section">审计记录</div>', unsafe_allow_html=True)
                 jobs: list[AuditJob] = []
                 records: list[AuditRecordMetadata] = []
                 if load_audit_jobs is not None:
@@ -1676,12 +1683,9 @@ def render_learning_workspace(
                         else:
                             st.caption("当前没有可用的论文项目。")
                 if not jobs and not records:
-                    st.markdown(
-                        '<div class="pa-audit-empty-note"><strong>暂无审计记录</strong></div>',
-                        unsafe_allow_html=True,
-                    )
-                st.divider()
-                st.caption("导出讲解")
+                    st.caption("暂无审计记录。")
+                st.markdown('<div class="pa-popover-section">导出讲解</div>', unsafe_allow_html=True)
+
                 markdown_col, json_col = st.columns(2)
                 markdown_col.download_button(
                     "Markdown",
@@ -1697,7 +1701,8 @@ def render_learning_workspace(
                     mime="application/json",
                     width="stretch",
                 )
-                if st.button("更换论文并返回", type="tertiary", width="stretch"):
+                st.divider()
+                if st.button("更换论文并返回", type="secondary", width="stretch"):
                     ProjectSession(st.session_state, st.query_params).clear()
                     st.rerun()
     notice = st.session_state.pop("audit_submit_notice", None)

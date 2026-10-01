@@ -3036,6 +3036,88 @@ def inject_custom_styles() -> None:
         .st-key-audit_evidence_actions {margin-top:.45rem !important;padding-left:calc(.9rem + 2px);}
         .st-key-audit_evidence_actions [data-testid="stHorizontalBlock"] {justify-content:flex-start !important;}
         .st-key-audit_evidence_actions [data-testid="stColumn"] {flex:0 0 auto !important;width:auto !important;}
+
+        /* ── Peer-review issues (pass 4): list rows, readable sizes ──────── */
+        div[class*="st-key-peer-major-card-"],div[class*="st-key-peer-minor-card-"] {
+            margin:0 !important;padding:1.1rem 0 1rem !important;border:0 !important;border-radius:0 !important;
+            border-bottom:1px solid var(--pa-border-light) !important;background:transparent !important;box-shadow:none !important;
+        }
+        div[class*="st-key-peer-major-card-"] > [data-testid="stVerticalBlock"],
+        div[class*="st-key-peer-minor-card-"] > [data-testid="stVerticalBlock"] {gap:.3rem !important;}
+        .pa-peer-concern-head {display:block !important;margin:0 0 .4rem !important;padding:0 !important;border:0 !important;background:transparent !important;}
+        .pa-peer-concern-kicker {display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.35rem;
+            color:var(--pa-text-muted);font-size:.74rem;}
+        .pa-peer-concern-kicker .pa-peer-severity-badge {padding:.05rem .4rem;border-radius:3px;font-size:.7rem;font-weight:700;}
+        .pa-peer-concern-kicker .pa-peer-status-badge {margin-left:auto;padding:.05rem .45rem;border-radius:3px;
+            background:var(--pa-warning-surface);color:var(--pa-warning-text);font-size:.7rem;font-weight:600;white-space:nowrap;}
+        .pa-peer-concern-head strong.pa-peer-concern-title {
+            display:block;font-family:var(--pa-font-serif);font-size:1rem !important;font-weight:700;line-height:1.5;
+            color:var(--pa-text-heading);white-space:normal;
+        }
+        .pa-peer-subsection-label {margin:.5rem 0 .25rem !important;color:var(--pa-text-muted) !important;
+            font-size:.74rem !important;font-weight:600 !important;letter-spacing:.06em;}
+        div[class*="st-key-peer-major-card-"] [data-testid="stMarkdownContainer"] > p,
+        div[class*="st-key-peer-minor-card-"] [data-testid="stMarkdownContainer"] > p {
+            font-size:.88rem !important;line-height:1.75 !important;color:var(--pa-text-body) !important;text-align:justify;
+        }
+        div[class*="st-key-peer-major-card-"] .pa-peer-metadata,
+        div[class*="st-key-peer-minor-card-"] .pa-peer-metadata {font-size:.72rem !important;margin:.2rem 0 .3rem !important;}
+        div[class*="st-key-peer-major-card-"] .pa-peer-why-text,
+        div[class*="st-key-peer-minor-card-"] .pa-peer-why-text {font-size:.84rem !important;line-height:1.75 !important;color:var(--pa-text-secondary) !important;max-width:none;}
+        .pa-peer-action-callout {margin:.6rem 0 .3rem !important;padding:.75rem .9rem !important;border:0 !important;
+            border-left:2px solid var(--pa-primary) !important;border-radius:0 !important;background:var(--pa-primary-surface) !important;}
+        .pa-peer-action-callout strong {font-size:.76rem !important;margin-bottom:.45rem !important;}
+        .pa-peer-action-callout li {position:relative;padding-left:1.35rem !important;font-size:.84rem !important;line-height:1.65 !important;}
+        .pa-peer-action-callout li::before {content:"";position:absolute;left:0;top:.32em;width:.8em;height:.8em;
+            border:1.5px solid var(--pa-primary-border);border-radius:2px;background:var(--pa-bg);}
+        .pa-peer-note {margin:.4rem 0 .2rem;padding:.55rem .8rem;border-left:2px solid var(--pa-warning);
+            background:var(--pa-warning-surface);color:var(--pa-warning-text);font-size:.8rem;line-height:1.6;}
+        div[class*="st-key-peer-major-card-"] [data-testid="stExpander"] details,
+        div[class*="st-key-peer-minor-card-"] [data-testid="stExpander"] details {border-color:var(--pa-border-light);background:transparent;}
+
+        /* Streamlit's uploader copy is English-only; relabel every dropzone. */
+        [data-testid="stFileUploaderDropzone"] button [data-testid="stMarkdownContainer"] {display:none;}
+        [data-testid="stFileUploaderDropzone"] button::after {content:"选择文件";font-size:.8rem;font-weight:600;}
+        [data-testid="stFileUploaderDropzoneInstructions"] span {font-size:0 !important;}
+        [data-testid="stFileUploaderDropzoneInstructions"] span::after {
+            content:"拖拽文件到此处，或点击选择 · 单个文件最大 200MB";font-size:.74rem;color:var(--pa-text-muted);
+        }
+        [data-testid="stFileUploaderDropzone"] {border:1px dashed var(--pa-border-strong);background:var(--pa-bg);}
+        /* Sidebar settings: the custom field row already shows the value. */
+        section[data-testid="stSidebar"] [data-testid="stSliderThumbValue"] {display:none;}
+        .pa-learning-section-missing {margin:.1rem 0 .6rem;color:var(--pa-text-faint);font-size:.82rem;}
+        div[class*="st-key-learning_page_point_"] [data-testid="stBaseButton-tertiary"] {justify-content:flex-start !important;}
+        div[class*="st-key-learning_page_point_"] [data-testid="stBaseButton-tertiary"] p {text-align:left !important;}
+        .pa-page-point-section {color:var(--pa-text-muted) !important;font-size:.72rem !important;letter-spacing:.04em;}
+        .pa-page-relation {border-left:2px solid var(--pa-primary) !important;border-radius:0 !important;background:transparent !important;padding:.2rem 0 .2rem .85rem !important;}
+        .pa-page-relation strong {font-size:.74rem !important;color:var(--pa-text-muted) !important;font-weight:600 !important;}
+        .pa-page-relation span {font-size:.88rem !important;line-height:1.75 !important;color:var(--pa-text-body) !important;}
+        .pa-qa-empty {margin:1.2rem 0;padding:0 .2rem;}
+        .pa-qa-empty strong {display:block;margin-bottom:.4rem;font-family:var(--pa-font-serif);font-size:1.05rem;color:var(--pa-text-heading);}
+        .pa-qa-empty p {margin:0 0 .7rem;font-size:.88rem;line-height:1.75;color:var(--pa-text-body);}
+        .pa-qa-empty small {display:block;padding-top:.6rem;border-top:1px solid var(--pa-border-light);
+            font-size:.74rem;line-height:1.6;color:var(--pa-text-muted);}
+        .pa-popover-section {margin:.55rem 0 .1rem;padding-top:.55rem;border-top:1px solid var(--pa-border-light);
+            color:var(--pa-text-muted);font-size:.72rem;font-weight:600;letter-spacing:.08em;}
+        [data-testid="stPopoverBody"] [data-testid="stElementContainer"]:first-child .pa-popover-section {border-top:0;padding-top:0;margin-top:0;}
+        [data-testid="stPopoverBody"] hr {margin:.5rem 0 !important;}
+        /* Project menu: discoverable at rest, emphasised on hover. */
+        div[class*="st-key-sidebar_project_"] div[class*="st-key-sidebar-delete-"] [data-testid="stButton"] button {opacity:.6 !important;}
+        div[class*="st-key-sidebar_project_"] div[class*="st-key-sidebar-delete-"] [data-testid="stButton"] button p {font-size:1rem !important;font-weight:700;}
+        /* Tabs share one size across workspaces. */
+        [data-testid="stTabs"] [data-baseweb="tab"] p {font-size:.82rem !important;}
+        [data-testid="stTabs"] [data-baseweb="tab"] {padding:.45rem .1rem !important;}
+        div[class*="st-key-learning_page_point_"] :is([data-testid="stTooltipHoverTarget"],[data-testid="stTooltipIcon"]),
+        div[class*="st-key-learning_point_"] :is([data-testid="stTooltipHoverTarget"],[data-testid="stTooltipIcon"]) {
+            justify-content:flex-start !important;
+        }
+        div[class*="st-key-learning_page_point_"] [data-testid="stBaseButton-tertiary"] {width:auto !important;}
+        /* Issue cards: undo Streamlit's -1rem markdown margin so rows do not overlap. */
+        div[class*="st-key-peer-major-card-"] [data-testid="stMarkdownContainer"],
+        div[class*="st-key-peer-minor-card-"] [data-testid="stMarkdownContainer"] {margin-bottom:0 !important;}
+        div[class*="st-key-peer-major-card-"] [data-testid="stMarkdownContainer"] > p,
+        div[class*="st-key-peer-minor-card-"] [data-testid="stMarkdownContainer"] > p {margin:0 0 .2rem !important;}
+        div[class*="-evidence-actions"] button p {color:var(--pa-primary) !important;font-weight:500 !important;}
         </style>
         """,
         unsafe_allow_html=True,

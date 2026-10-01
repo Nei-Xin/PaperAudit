@@ -126,7 +126,7 @@ def render_sidebar(
         st.divider()
         with st.expander("模型与检索设置", expanded=not env_settings.is_configured):
             api_base = st.text_input(
-                "API Base URL",
+                "API 地址",
                 value=env_settings.api_base,
                 key="custom_api_base",
                 placeholder="https://api.example.com/v1",
@@ -151,7 +151,7 @@ def render_sidebar(
                 else 0
             )
             reasoning_effort = st.selectbox(
-                "推理强度 (Reasoning Effort)", reasoning_options, index=effort_index
+                "推理强度", reasoning_options, index=effort_index
             )
             top_k_display = int(
                 st.session_state.get("retrieval_top_k_control", env_settings.retrieval_top_k)
