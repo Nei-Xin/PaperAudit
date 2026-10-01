@@ -36,6 +36,43 @@ class UploadSubmission:
     progress_bar: object
 
 
+_LAUNCH_STEPS = {
+    "learn": (
+        ("解析原文", "提取正文、页码与章节结构，建立证据索引。"),
+        ("生成讲解", "研究问题、贡献、方法、实验、结果、局限与术语七部分。"),
+        ("对照阅读", "点击引用回到 PDF 原文高亮；可继续关联源码 ZIP。"),
+    ),
+    "audit_existing": (
+        ("上传论文", "论文原文是核验报告的唯一证据来源。"),
+        ("提供报告", "粘贴中文报告，或上传 .txt / .md / .pptx 文件。"),
+        ("逐条核验", "拆分原子论断并检索原文，给出标签、风险与六维评分。"),
+    ),
+    "peer_review": (
+        ("选择标准", "在上方选择评审标准与目标会议类型。"),
+        ("六维评审", "研究价值、创新性、技术可靠性、实验、清晰度与可复现性。"),
+        ("修改建议", "主要问题、修改优先级与五档预审建议，可对比修改稿。"),
+    ),
+}
+_LAUNCH_PRIVACY = {
+    "learn": "生成讲解会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。",
+    "audit_existing": "报告审计会将论文文本和你提供的报告发送至当前配置的 Hy3 模型服务。",
+    "peer_review": "模拟评审会将论文文本发送至当前配置的 Hy3 模型服务；结果是辅助预审意见，不代表真实录用结果。",
+}
+
+
+def render_launch_steps(mode: str) -> None:
+    steps = "".join(
+        f'<li><span class="pa-launch-step-index">{index}</span>'
+        f'<div><strong>{title}</strong><p>{body}</p></div></li>'
+        for index, (title, body) in enumerate(_LAUNCH_STEPS[mode], start=1)
+    )
+    st.markdown(
+        f'<ol class="pa-launch-steps">{steps}</ol>'
+        f'<div class="pa-launch-hint">{_LAUNCH_PRIVACY[mode]}</div>',
+        unsafe_allow_html=True,
+    )
+
+
 def render_upload_page(
     project_store: ProjectStore, api_ready: bool, on_open_audit: Callable[[str], None],
 ) -> UploadSubmission | None:
@@ -111,23 +148,7 @@ def render_upload_page(
                     st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
                     render_peer_review_rubric_controls()
                     st.caption("上传论文后将按所选标准生成五档投稿预审建议。")
-            with st.expander("高级选项", expanded=False):
-                if mode == "learn":
-                    st.markdown(
-                        "标准讲解包含研究问题、核心贡献、方法、实验、结果、局限与关键术语。"
-                    )
-                    st.caption("隐私提示：生成讲解会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
-                    st.caption("上传论文后可继续关联开源代码 ZIP。")
-                elif mode == "audit_existing":
-                    st.markdown(
-                        "上传论文后，可粘贴中文报告或上传 `.txt` / `.md` / `.pptx` 文件。"
-                    )
-                    st.caption("隐私提示：报告审计会将论文文本和你提供的报告发送至当前配置的 Hy3 模型服务。")
-                    st.caption("审计会逐条检索论文原文并给出证据定位。")
-            st.markdown(
-                '<div class="pa-launch-hint">上传 PDF 后进入论文准备页</div>',
-                unsafe_allow_html=True,
-            )
+            render_launch_steps(mode)
         else:
             preview_col, setup_col = st.columns([1.86, 1], gap="large")
             with preview_col:

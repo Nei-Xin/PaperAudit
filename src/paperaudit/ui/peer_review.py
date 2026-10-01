@@ -333,7 +333,7 @@ def _render_submission_risks(report: PeerReviewReport, pdf_bytes: bytes | None) 
     for index, concern in enumerate(concerns[:4]):
         severity = _severity_for(concern)
         risk_class = "pa-peer-risk-high" if severity in {IssueSeverity.FATAL, IssueSeverity.MAJOR} else "pa-peer-risk-medium"
-        confidence = "High" if concern.confidence >= 4 else "Medium" if concern.confidence >= 3 else "Low"
+        confidence = "置信度高" if concern.confidence >= 4 else "置信度中" if concern.confidence >= 3 else "置信度低"
         # Keep the card and its evidence action in one bordered container. This
         # prevents Streamlit's adjacent blocks from pulling the button over the
         # card's lower border on narrower layouts.
@@ -485,7 +485,8 @@ def render_peer_review(
                 )
         meta_html = "".join(f"<span>{escape(item)}</span>" for item in meta_items)
         if run_details:
-            meta_html += f'<small>{escape(" · ".join(run_details))}</small>'
+            # Run provenance is for debugging; keep it one hover away from the reader.
+            meta_html += f'<small title="{escape(" · ".join(run_details))}">运行信息 ⓘ</small>'
         st.markdown(
             f'<div class="pa-peer-meta-line">{meta_html}</div>',
             unsafe_allow_html=True,
@@ -701,7 +702,7 @@ def render_peer_review(
                         + (f" 当前权重：{weights}" if weights else "")
                     )
                 for dimension in report.dimensions:
-                    with st.container(border=True):
+                    with st.container(border=True, key=f"peer_dimension_{dimension.name}"):
                         left, right = st.columns([3, 1])
                         dimension_label = _DIMENSION_LABELS.get(dimension.name, dimension.name)
                         left.markdown(f"**{dimension_label}** · {dimension.score} / 5")

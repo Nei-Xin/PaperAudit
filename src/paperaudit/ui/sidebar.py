@@ -117,14 +117,14 @@ def render_sidebar(
 
                     marker_class = " is-active" if is_active else ""
                     st.markdown(
-                        f'<span class="pa-sidebar-project-marker{marker_class}"></span>'
-                        f'<div class="pa-sidebar-project-meta">{kind_badge}'
+                        f'<div class="pa-sidebar-project-meta">'
+                        f'<span class="pa-sidebar-project-marker{marker_class}"></span>{kind_badge}'
                         f'<span class="pa-sidebar-filename" title="{escape(metadata.original_filename)}">{escape(metadata.original_filename)}</span></div>',
                         unsafe_allow_html=True,
                     )
 
         st.divider()
-        with st.expander("⚙ 模型与检索", expanded=not env_settings.is_configured):
+        with st.expander("模型与检索设置", expanded=not env_settings.is_configured):
             api_base = st.text_input(
                 "API Base URL",
                 value=env_settings.api_base,
@@ -187,41 +187,24 @@ def render_sidebar(
                 label_visibility="collapsed",
                 help="每次送入模型进行事实核验的论断数量",
             )
-
-        if st.button(
-            "清除读取缓存",
-            width="stretch",
-            help="清除 PDF 页面和代码解析的内存缓存，不删除项目文件或后台任务。",
-        ):
-            st.cache_data.clear()
-            st.success("读取缓存已清除。")
+            if st.button(
+                "清除读取缓存",
+                width="stretch",
+                help="清除 PDF 页面和代码解析的内存缓存，不删除项目文件或后台任务。",
+            ):
+                st.cache_data.clear()
+                st.success("读取缓存已清除。")
 
         api_ready = bool(api_base.strip() and api_key.strip() and model.strip())
-        if api_ready:
-            st.markdown(
-                # The UI branding is Hy3 while the configured backend may remain Luna.
-                '<div class="pa-api-status is-ready"><span></span>Hy3</div>',
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown(
-                '<div class="pa-api-status is-warning"><span></span>API 配置不完整</div>',
-                unsafe_allow_html=True,
-            )
+        api_label = "Hy3 已连接" if api_ready else "API 配置不完整"
+        api_class = "is-ready" if api_ready else "is-warning"
         st.markdown(
-            f'<div class="pa-storage-status"><span></span>'
-            f'<div><strong>本地自动保存</strong><small title="'
-            f'{escape(str(storage_settings.storage_root))}">'
-            f'{escape(storage_settings.storage_root.name)}</small></div></div>',
-            unsafe_allow_html=True,
-        )
-        st.divider()
-        st.markdown(
-            """
-            <div class="pa-sidebar-version">
-                <span>◇</span><div>Paper Learning Assistant<small>v1.0.0</small></div>
-            </div>
-            """,
+            # The UI branding is Hy3 while the configured backend may remain Luna.
+            f'<div class="pa-sidebar-status {api_class}"><span></span>{api_label}'
+            f'<em title="{escape(str(storage_settings.storage_root))}">'
+            f'保存于 {escape(storage_settings.storage_root.name)}</em></div>'
+            '<div class="pa-sidebar-version"><span>§</span>'
+            '<div>PaperAudit<small>Hy3 论文学习助手 · v1.0.0</small></div></div>',
             unsafe_allow_html=True,
         )
 

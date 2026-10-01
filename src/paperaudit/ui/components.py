@@ -67,10 +67,10 @@ def render_header_banner() -> None:
         """
         <div class="pa-header">
           <div>
-            <div class="pa-header-title">📄 Hy3 论文学习助手</div>
+            <div class="pa-header-kicker">PaperAudit · 学术实战作品 · 基于 Hy3 大模型</div>
+            <div class="pa-header-title">Hy3 论文学习助手</div>
             <div class="pa-header-subtitle">结构化论文讲解 · 原文证据定位 · 报告审计</div>
           </div>
-          <div class="pa-header-badge">学术实战作品 · 基于 Hy3 大模型</div>
         </div>
         """,
         unsafe_allow_html=True,
