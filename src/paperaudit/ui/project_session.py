@@ -10,6 +10,7 @@ from typing import Any
 
 from paperaudit.display import recover_paper_title
 from paperaudit.models import LearningReport, ParsedCodebase, ParsedPaper
+from paperaudit.pdf_parser import extract_pdf_title
 from paperaudit.storage import ProjectStore
 
 
@@ -74,7 +75,11 @@ class ProjectSession:
 
     def restore(self, store: ProjectStore, project_id: str, *, keep_upload: bool = False) -> None:
         saved = store.load_learning_project(project_id)
-        restored_title = recover_paper_title(saved.paper)
+        # Saved projects keep the original PDF, so titles chosen by an older
+        # parser (licence notes, file-name metadata) are repaired on open.
+        restored_title = (
+            extract_pdf_title(saved.pdf_bytes) if saved.pdf_bytes else None
+        ) or recover_paper_title(saved.paper)
         if restored_title != saved.metadata.title:
             store.update_project_title(saved.metadata.project_id, restored_title)
         paper = saved.paper.model_copy(update={"title": restored_title})

@@ -62,6 +62,44 @@ def test_truncated_metadata_title_falls_back_to_complete_first_block() -> None:
     assert paper.title == "MLLM-as-a-Judge for Image Safety without Human Labeling"
 
 
+def test_title_skips_licence_note_and_rotated_stamp_above_largest_font_title() -> None:
+    document = fitz.open()
+    page = document.new_page()
+    page.insert_text(
+        (20, 700), "arXiv:1706.03762v7 [cs.CL] 2 Aug 2023", fontsize=20, rotate=90,
+    )
+    page.insert_textbox(
+        fitz.Rect(72, 60, 520, 110),
+        "Provided proper attribution is provided, Google hereby grants permission to "
+        "reproduce the tables and figures in this paper.",
+        fontsize=10,
+    )
+    page.insert_text((150, 150), "Attention Is All You Need", fontsize=17)
+    page.insert_text((150, 200), "Ashish Vaswani", fontsize=10)
+    page.insert_text((72, 260), "The dominant sequence transduction models are based on RNNs.", fontsize=10)
+    pdf_bytes = document.tobytes()
+    document.close()
+
+    paper = parse_pdf(pdf_bytes)
+
+    assert paper.title == "Attention Is All You Need"
+
+
+def test_file_name_metadata_title_falls_back_to_page_title() -> None:
+    document = fitz.open()
+    document.set_metadata({"title": "POUR_L_ARTICLE/try1_wobd-rev3.eps"})
+    page = document.new_page()
+    page.insert_text((72, 60), "Published as a conference paper", fontsize=9)
+    page.insert_text((72, 100), "Rotation of a synchronous viscoelastic shell", fontsize=16)
+    page.insert_text((72, 140), "We study the rotation of a shell.", fontsize=10)
+    pdf_bytes = document.tobytes()
+    document.close()
+
+    paper = parse_pdf(pdf_bytes)
+
+    assert paper.title == "Rotation of a synchronous viscoelastic shell"
+
+
 def test_parse_pdf_marks_formula_and_table_blocks_for_retrieval() -> None:
     document = fitz.open()
     page = document.new_page()
