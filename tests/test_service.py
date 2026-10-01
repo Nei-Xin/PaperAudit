@@ -1,3 +1,7 @@
+import time
+
+import pytest
+
 from paperaudit.config import Settings
 from paperaudit.hy3_client import Hy3ResponseError
 from paperaudit.models import (
@@ -317,3 +321,73 @@ def test_first_judgment_receives_cited_page_evidence_as_a_search_hint():
     service = AuditService(Settings(api_base='https://example.invalid', api_key='test', model='fake'), CitedClient())
     run = service.audit(paper, '结果提升3.2。', [ClaimCategory.RESULTS])
     assert run.audits[0].claim.provided_evidence == '第3页'
+
+
+class ManyClaimsClient(FakeHy3Client):
+    """Judges each claim against its own number; slow calls expose ordering bugs."""
+
+    def __init__(self, fail_on: str | None = None) -> None:
+        self.fail_on = fail_on
+
+    def extract_claims(self, report_text: str, scope: list[str]) -> ClaimExtraction:
+        return ClaimExtraction(claims=[
+            AtomicClaim(
+                claim_id="model-id", text=f"该方法在 Dataset A 上将 F1 提升了 {n}.2 个点。",
+                category=ClaimCategory.RESULTS, key_claim=True,
+                query_en=f"Dataset A improves F1 {n}.2 points", entities=["Dataset A"],
+                numbers=[f"{n}.2"], metric="F1", dataset="Dataset A",
+            )
+            for n in range(1, 7)
+        ])
+
+    def judge_claims(self, claims: list[tuple], page_count: int) -> JudgmentBatch:
+        judgments = []
+        for claim, candidates in claims:
+            if claim.claim_id == self.fail_on:
+                raise RuntimeError("network down")
+            time.sleep(0.01 * (7 - int(claim.claim_id[1:])))
+            judgments.append(ClaimJudgment(
+                claim_id=claim.claim_id, label=AutoLabel.SUPPORTED,
+                evidence_ids=[candidates[0].evidence_id],
+                explanation=f"论断 {claim.claim_id} 与原文一致。", severity=Severity.NONE,
+            ))
+        return JudgmentBatch(judgments=judgments)
+
+
+def _many_claims_paper() -> ParsedPaper:
+    return ParsedPaper(title="Test Paper", page_count=1, chunks=[
+        PaperChunk(chunk_id=f"p1_b{n}", page=1,
+                   content=f"On Dataset A, the method improves F1 by {n}.2 points.")
+        for n in range(1, 7)
+    ])
+
+
+def test_concurrent_audit_matches_serial_result_and_order() -> None:
+    settings = Settings(api_base="https://example.invalid/v1", api_key="test", model="hy3",
+                        judge_batch_size=1)
+    stages: list[tuple[str, float]] = []
+
+    def run(concurrency: int):
+        service = AuditService(settings, client=ManyClaimsClient(),  # type: ignore[arg-type]
+                               audit_concurrency=concurrency)
+        return service.audit(_many_claims_paper(), "报告", [ClaimCategory.RESULTS],
+                             progress=lambda stage, value: stages.append((stage, value)))
+
+    serial = run(1)
+    stages.clear()
+    concurrent = run(4)
+
+    assert [a.claim.claim_id for a in concurrent.audits] == [f"C00{n}" for n in range(1, 7)]
+    assert concurrent.model_dump(exclude={"created_at"}) == serial.model_dump(exclude={"created_at"})
+    values = [value for _, value in stages]
+    assert values == sorted(values)
+
+
+def test_concurrent_audit_propagates_unexpected_errors() -> None:
+    settings = Settings(api_base="https://example.invalid/v1", api_key="test", model="hy3",
+                        judge_batch_size=1)
+    service = AuditService(settings, client=ManyClaimsClient(fail_on="C003"),  # type: ignore[arg-type]
+                           audit_concurrency=4)
+
+    with pytest.raises(RuntimeError, match="network down"):
+        service.audit(_many_claims_paper(), "报告", [ClaimCategory.RESULTS])

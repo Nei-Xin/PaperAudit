@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from typing import Protocol
 
@@ -17,12 +18,18 @@ class AuditRunner(Protocol):
               progress: Callable[[str, float], None] | None = None) -> AuditRun: ...
 
 
+def default_audit_service(settings: Settings) -> AuditService:
+    """Interactive audits overlap per-claim model calls; batch scripts stay serial."""
+    concurrency = int(os.getenv("PAPERAUDIT_AUDIT_CONCURRENCY") or 4)
+    return AuditService(settings, audit_concurrency=concurrency)
+
+
 class AuditJobManager(BackgroundJobManager[AuditJob]):
     start_stage = "正在准备论文索引"
     success_stage = "审计完成"
 
     def __init__(self, store: ProjectStore, *,
-                 service_factory: Callable[[Settings], AuditRunner] = AuditService,
+                 service_factory: Callable[[Settings], AuditRunner] = default_audit_service,
                  mark_interrupted_on_start: bool = True) -> None:
         self._store = store
         super().__init__(service_factory=service_factory, thread_name_prefix="paperaudit-audit",

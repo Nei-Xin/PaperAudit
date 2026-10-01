@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from collections import Counter
 from collections.abc import Callable, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 import re
+from typing import TypeVar
 from .config import Settings
 from .audit_rules import (
     calibrate_judgment,
@@ -19,13 +21,13 @@ from .citation_review import review_citations
 from .evidence_gap import recheck_candidate_gap
 from .models import (
     AnswerConclusion,
+    AtomicClaim,
     AnswerStatus,
     AuditRun,
     AutoLabel,
     ClaimAudit,
     ClaimCategory,
     ClaimJudgment,
-    JudgmentBatch,
     EvidenceAnchor,
     EvidenceCandidate,
     EvidenceErrorType,
@@ -96,6 +98,8 @@ from .evidence import (
 
 
 ProgressCallback = Callable[[str, float], None]
+_T = TypeVar("_T")
+_R = TypeVar("_R")
 MAX_AUDIT_REPORT_CHARS = 100_000
 
 _LOCATION_QUESTION_PATTERN = re.compile(
@@ -747,9 +751,13 @@ def _merge_question_candidates(
 
 
 class AuditService:
-    def __init__(self, settings: Settings, client: Hy3Client | None = None):
+    def __init__(
+        self, settings: Settings, client: Hy3Client | None = None, *, audit_concurrency: int = 1,
+    ):
         self.settings = settings
         self.client = client or Hy3Client(settings)
+        # Claims are audited independently; >1 overlaps their model calls.
+        self.audit_concurrency = max(1, audit_concurrency)
 
     def parse(self, pdf_bytes: bytes) -> ParsedPaper:
         return parse_pdf(pdf_bytes)
@@ -1081,7 +1089,7 @@ class AuditService:
             raise ValueError("报告中未提取到可审计的事实论断。")
 
         notify("正在检索候选证据", 0.25)
-        candidates_by_claim: dict[str, list] = {}
+        candidates_by_claim: dict[str, list[EvidenceCandidate]] = {}
         with EvidenceRetriever(paper.chunks) as retriever:
             for claim in claims:
                 candidates_by_claim[claim.claim_id] = retrieve_claim_evidence(
@@ -1089,163 +1097,30 @@ class AuditService:
                     seed_limit=self.settings.retrieval_top_k,
                 )
 
-        judgments: dict[str, ClaimJudgment] = {}
-        judgment_votes: dict[str, list[ClaimJudgment]] = {}
         auditable = [claim for claim in claims if candidates_by_claim[claim.claim_id]]
         batch_size = max(1, self.settings.judge_batch_size)
-        for start in range(0, len(auditable), batch_size):
-            batch = auditable[start : start + batch_size]
-            progress_value = 0.35 + 0.5 * min((start + len(batch)) / max(len(auditable), 1), 1.0)
-            notify("正在判断证据支持关系", progress_value)
-            try:
-                response = self.client.judge_claims(
-                    [(claim, candidates_by_claim[claim.claim_id]) for claim in batch],
-                    paper.page_count,
-                )
-            except Hy3ResponseError:
-                fallback = []
-                for claim in batch:
-                    try:
-                        single = self.client.adjudicate_claim(
-                            claim, candidates_by_claim[claim.claim_id], paper.page_count
-                        )
-                        fallback.extend(single.judgments)
-                    except Hy3ResponseError:
-                        continue
-                response = JudgmentBatch(judgments=fallback)
-            for judgment in response.judgments:
-                judgments[judgment.claim_id] = judgment
-                judgment_votes[judgment.claim_id] = [judgment]
+        batches = [auditable[start : start + batch_size] for start in range(0, len(auditable), batch_size)]
+        initial: dict[str, ClaimJudgment] = {}
 
-        retry_claims = [
-            claim
-            for claim in auditable
-            if claim.claim_id in judgments
-            and needs_second_pass(judgments[claim.claim_id], claim.text + " " + claim.query_en)
-        ]
-        for claim in retry_claims:
-            try:
-                response = self.client.adjudicate_claim(
-                    claim, candidates_by_claim[claim.claim_id], paper.page_count
-                )
-            except Hy3ResponseError:
-                response = None
-            if response and response.judgments:
-                judgment_votes.setdefault(claim.claim_id, []).append(response.judgments[0])
-                judgments[claim.claim_id] = choose_majority(judgment_votes[claim.claim_id])
+        def batch_done(done: int, total: int) -> None:
+            notify("正在判断证据支持关系", 0.35 + 0.25 * done / total)
 
-        stabilize_claims = [
-            claim
-            for claim in retry_claims
-            if len(judgment_votes.get(claim.claim_id, [])) == 2
-            and judgment_signature(judgment_votes[claim.claim_id][0])
-            != judgment_signature(judgment_votes[claim.claim_id][1])
-        ]
-        for claim in stabilize_claims:
-            try:
-                response = self.client.adjudicate_claim(
-                    claim, candidates_by_claim[claim.claim_id], paper.page_count
-                )
-            except Hy3ResponseError:
-                response = None
-            if response and response.judgments:
-                judgment_votes[claim.claim_id].append(response.judgments[0])
-                judgments[claim.claim_id] = choose_majority(judgment_votes[claim.claim_id])
+        for batch_judgments in self._run_concurrently(
+            lambda batch: self._judge_batch(batch, candidates_by_claim, paper.page_count),
+            batches, batch_done,
+        ):
+            for judgment in batch_judgments:
+                initial[judgment.claim_id] = judgment
 
-        evidence_retry_claims = [
-            claim
-            for claim in auditable
-            if needs_evidence_retry(
-                judgments.get(claim.claim_id), candidates_by_claim[claim.claim_id]
-            )
-        ]
-        for claim in evidence_retry_claims:
-            try:
-                response = self.client.adjudicate_claim(
-                    claim, candidates_by_claim[claim.claim_id], paper.page_count
-                )
-            except Hy3ResponseError:
-                response = None
-            if response and response.judgments:
-                judgment_votes.setdefault(claim.claim_id, []).append(response.judgments[0])
-                judgments[claim.claim_id] = response.judgments[0]
+        def claim_done(done: int, total: int) -> None:
+            notify(f"正在复核论断证据（{done}/{total}）", 0.6 + 0.34 * done / total)
 
-        audits: list[ClaimAudit] = []
-        for claim in claims:
-            candidates = candidates_by_claim[claim.claim_id]
-            judgment = judgments.get(claim.claim_id)
-            if not candidates:
-                judgment = ClaimJudgment(
-                    claim_id=claim.claim_id,
-                    label=AutoLabel.ABSTAIN,
-                    explanation="本地检索未返回候选证据，暂时无法可靠判断。",
-                    severity=Severity.NONE,
-                )
-            elif judgment is None:
-                judgment = ClaimJudgment(
-                    claim_id=claim.claim_id,
-                    label=AutoLabel.ABSTAIN,
-                    explanation="Hy3 未返回该论断的结构化判断。",
-                    severity=Severity.NONE,
-                )
-            judgment = calibrate_judgment(judgment)
-            judgment = validate_judgment_references(judgment, candidates)
-            if judgment.label == AutoLabel.NO_SUPPORT_FOUND and judgment.severity == Severity.HIGH:
-                notify("正在补查高风险无支持结论", 0.9)
-                candidates = supplement_claim_evidence(claim, paper.chunks, candidates)
-                review = None
-                try:
-                    review = self.client.review_missing_support(claim, candidates, paper.page_count)
-                except Hy3ResponseError:
-                    pass
-                if (review is not None and review.evidence_sufficient
-                        and review.judgment.claim_id == claim.claim_id
-                        and review.judgment.evidence_ids):
-                    judgment = validate_judgment_references(calibrate_judgment(review.judgment), candidates)
-                else:
-                    judgment = ClaimJudgment(
-                        claim_id=claim.claim_id, label=AutoLabel.ABSTAIN,
-                        explanation="已补查引用页及其他候选片段，现有证据仍不足以可靠判断，请结合论文原文人工复核。",
-                        severity=Severity.NONE,
-                    )
-            citation_review = None
-            citation_review_before_repair = None
-            before_citation_review = None
-            candidate_gap_review = None
-            before_candidate_gap_review = None
-            if judgment.label in {
-                AutoLabel.NO_SUPPORT_FOUND,
-                AutoLabel.ABSTAIN,
-                AutoLabel.PARTIALLY_SUPPORTED,
-            } and candidates:
-                before_candidate_gap_review = judgment
-                judgment, candidate_gap_review = recheck_candidate_gap(
-                    self.client, claim, candidates, judgment, paper.page_count,
-                )
-            if judgment.label in {AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED}:
-                notify("正在复核裁决的引用完整性", 0.92)
-                before_citation_review = judgment
-                judgment, citation_review, citation_review_before_repair = review_citations(
-                    self.client, claim, candidates, judgment,
-                )
-            invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
-                                   if not 1 <= page <= paper.page_count)
-            if invalid_pages:
-                # A locally provable citation error remains visible even if the
-                # claim's support relationship is unresolved or supported.
-                judgment = judgment.model_copy(update={
-                    "evidence_error_type": EvidenceErrorType.FABRICATED_EVIDENCE,
-                    "severity": Severity.HIGH,
-                    "explanation": judgment.explanation + f" 报告引用页码 {invalid_pages} 超出论文的 1–{paper.page_count} 页范围。",
-                })
-            audits.append(ClaimAudit(
-                claim=claim, candidates=candidates, judgment=judgment,
-                citation_review=citation_review,
-                citation_review_before_repair=citation_review_before_repair,
-                judgment_before_citation_review=before_citation_review,
-                candidate_gap_review=candidate_gap_review,
-                judgment_before_candidate_gap_review=before_candidate_gap_review,
-            ))
+        audits = self._run_concurrently(
+            lambda claim: self._audit_claim(
+                claim, candidates_by_claim[claim.claim_id], initial.get(claim.claim_id), paper,
+            ),
+            claims, claim_done,
+        )
 
         notify("正在生成审计摘要", 0.95)
         summary = build_summary(audits, list(scope))
@@ -1261,4 +1136,172 @@ class AuditService:
             parse_warnings=paper.warnings,
             source_count=extraction.source_count,
             skipped_sources=extraction.skipped_sources,
+        )
+
+    def _run_concurrently(
+        self,
+        task: Callable[[_T], _R],
+        items: Sequence[_T],
+        on_done: Callable[[int, int], None],
+    ) -> list[_R]:
+        """Run independent model-bound tasks, returning results in input order.
+
+        Progress is reported from the calling thread only. A failure cancels
+        tasks that have not started and is re-raised unchanged.
+        """
+        if self.audit_concurrency <= 1 or len(items) <= 1:
+            results = []
+            for done, item in enumerate(items, 1):
+                results.append(task(item))
+                on_done(done, len(items))
+            return results
+        executor = ThreadPoolExecutor(
+            max_workers=min(self.audit_concurrency, len(items)), thread_name_prefix="paperaudit-claim",
+        )
+        try:
+            futures = {executor.submit(task, item): index for index, item in enumerate(items)}
+            ordered: list[_R | None] = [None] * len(items)
+            for done, future in enumerate(as_completed(futures), 1):
+                ordered[futures[future]] = future.result()
+                on_done(done, len(items))
+        except BaseException:
+            executor.shutdown(wait=True, cancel_futures=True)
+            raise
+        executor.shutdown(wait=True)
+        return ordered  # type: ignore[return-value]
+
+    def _judge_batch(
+        self,
+        batch: list[AtomicClaim],
+        candidates_by_claim: dict[str, list[EvidenceCandidate]],
+        page_count: int,
+    ) -> list[ClaimJudgment]:
+        try:
+            return self.client.judge_claims(
+                [(claim, candidates_by_claim[claim.claim_id]) for claim in batch], page_count,
+            ).judgments
+        except Hy3ResponseError:
+            fallback: list[ClaimJudgment] = []
+            for claim in batch:
+                try:
+                    single = self.client.adjudicate_claim(
+                        claim, candidates_by_claim[claim.claim_id], page_count
+                    )
+                except Hy3ResponseError:
+                    continue
+                fallback.extend(single.judgments)
+            return fallback
+
+    def _adjudicate(
+        self, claim: AtomicClaim, candidates: list[EvidenceCandidate], page_count: int,
+    ) -> ClaimJudgment | None:
+        try:
+            response = self.client.adjudicate_claim(claim, candidates, page_count)
+        except Hy3ResponseError:
+            return None
+        return response.judgments[0] if response and response.judgments else None
+
+    def _refine_judgment(
+        self,
+        claim: AtomicClaim,
+        candidates: list[EvidenceCandidate],
+        judgment: ClaimJudgment | None,
+        page_count: int,
+    ) -> ClaimJudgment | None:
+        """Second pass, tie-break vote and evidence retry for one claim."""
+        votes = [judgment] if judgment is not None else []
+        if judgment is not None and needs_second_pass(judgment, claim.text + " " + claim.query_en):
+            second = self._adjudicate(claim, candidates, page_count)
+            if second is not None:
+                votes.append(second)
+                judgment = choose_majority(votes)
+                if judgment_signature(votes[0]) != judgment_signature(votes[1]):
+                    third = self._adjudicate(claim, candidates, page_count)
+                    if third is not None:
+                        votes.append(third)
+                        judgment = choose_majority(votes)
+        if needs_evidence_retry(judgment, candidates):
+            retried = self._adjudicate(claim, candidates, page_count)
+            if retried is not None:
+                judgment = retried
+        return judgment
+
+    def _audit_claim(
+        self,
+        claim: AtomicClaim,
+        candidates: list[EvidenceCandidate],
+        judgment: ClaimJudgment | None,
+        paper: ParsedPaper,
+    ) -> ClaimAudit:
+        if not candidates:
+            judgment = ClaimJudgment(
+                claim_id=claim.claim_id,
+                label=AutoLabel.ABSTAIN,
+                explanation="本地检索未返回候选证据，暂时无法可靠判断。",
+                severity=Severity.NONE,
+            )
+        else:
+            judgment = self._refine_judgment(claim, candidates, judgment, paper.page_count)
+            if judgment is None:
+                judgment = ClaimJudgment(
+                    claim_id=claim.claim_id,
+                    label=AutoLabel.ABSTAIN,
+                    explanation="Hy3 未返回该论断的结构化判断。",
+                    severity=Severity.NONE,
+                )
+        judgment = calibrate_judgment(judgment)
+        judgment = validate_judgment_references(judgment, candidates)
+        if judgment.label == AutoLabel.NO_SUPPORT_FOUND and judgment.severity == Severity.HIGH:
+            candidates = supplement_claim_evidence(claim, paper.chunks, candidates)
+            review = None
+            try:
+                review = self.client.review_missing_support(claim, candidates, paper.page_count)
+            except Hy3ResponseError:
+                pass
+            if (review is not None and review.evidence_sufficient
+                    and review.judgment.claim_id == claim.claim_id
+                    and review.judgment.evidence_ids):
+                judgment = validate_judgment_references(calibrate_judgment(review.judgment), candidates)
+            else:
+                judgment = ClaimJudgment(
+                    claim_id=claim.claim_id, label=AutoLabel.ABSTAIN,
+                    explanation="已补查引用页及其他候选片段，现有证据仍不足以可靠判断，请结合论文原文人工复核。",
+                    severity=Severity.NONE,
+                )
+        citation_review = None
+        citation_review_before_repair = None
+        before_citation_review = None
+        candidate_gap_review = None
+        before_candidate_gap_review = None
+        if judgment.label in {
+            AutoLabel.NO_SUPPORT_FOUND,
+            AutoLabel.ABSTAIN,
+            AutoLabel.PARTIALLY_SUPPORTED,
+        } and candidates:
+            before_candidate_gap_review = judgment
+            judgment, candidate_gap_review = recheck_candidate_gap(
+                self.client, claim, candidates, judgment, paper.page_count,
+            )
+        if judgment.label in {AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED}:
+            before_citation_review = judgment
+            judgment, citation_review, citation_review_before_repair = review_citations(
+                self.client, claim, candidates, judgment,
+            )
+        invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
+                               if not 1 <= page <= paper.page_count)
+        if invalid_pages:
+            # A locally provable citation error remains visible even if the
+            # claim's support relationship is unresolved or supported.
+            judgment = judgment.model_copy(update={
+                "evidence_error_type": EvidenceErrorType.FABRICATED_EVIDENCE,
+                "severity": Severity.HIGH,
+                "explanation": judgment.explanation + f" 报告引用页码 {invalid_pages} 超出论文的 1–{paper.page_count} 页范围。",
+            })
+        return ClaimAudit(
+            claim=claim, candidates=candidates, judgment=judgment,
+            citation_review=citation_review,
+            citation_review_before_repair=citation_review_before_repair,
+            judgment_before_citation_review=before_citation_review,
+            candidate_gap_review=candidate_gap_review,
+            judgment_before_candidate_gap_review=before_candidate_gap_review,
         )
