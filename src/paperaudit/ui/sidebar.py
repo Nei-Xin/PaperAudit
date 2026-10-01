@@ -196,11 +196,12 @@ def render_sidebar(
                 st.success("读取缓存已清除。")
 
         api_ready = bool(api_base.strip() and api_key.strip() and model.strip())
-        api_label = "Hy3 已连接" if api_ready else "API 配置不完整"
+        # Show the model the requests actually go to, not the UI brand name. The
+        # settings are only checked for completeness, so do not claim a connection.
+        api_label = f"模型 {escape(model.strip())}" if api_ready else "API 配置不完整"
         api_class = "is-ready" if api_ready else "is-warning"
         st.markdown(
-            # The UI branding is Hy3 while the configured backend may remain Luna.
-            f'<div class="pa-sidebar-status {api_class}"><span></span>{api_label}'
+            f'<div class="pa-sidebar-status {api_class}" title="{escape(api_base.strip())}"><span></span>{api_label}'
             f'<em title="{escape(str(storage_settings.storage_root))}">'
             f'保存于 {escape(storage_settings.storage_root.name)}</em></div>'
             '<div class="pa-sidebar-version"><span>§</span>'
