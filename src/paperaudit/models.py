@@ -5,6 +5,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from .agents.models import InvestigationTrace
+
 
 class StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -613,6 +615,8 @@ class ClaimAudit(StrictModel):
     judgment_before_citation_review: ClaimJudgment | None = None
     candidate_gap_review: CandidateGapReview | None = None
     judgment_before_candidate_gap_review: ClaimJudgment | None = None
+    investigation: InvestigationTrace | None = None
+    judgment_before_investigation: ClaimJudgment | None = None
 
 
 class DimensionScores(StrictModel):
@@ -647,6 +651,7 @@ class AuditRun(StrictModel):
     parse_warnings: list[str] = Field(default_factory=list)
     source_count: int = 0
     skipped_sources: list[SkippedReportSource] = Field(default_factory=list)
+    deep_audit: bool = False
 
 
 class AuditJobStatus(str, Enum):
@@ -664,6 +669,7 @@ class AuditRuntimeSnapshot(StrictModel):
     reasoning_effort: str
     retrieval_top_k: int = Field(ge=1)
     judge_batch_size: int = Field(ge=1)
+    deep_audit: bool = False
 
 
 class AuditJob(StrictModel):

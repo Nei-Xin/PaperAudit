@@ -1113,7 +1113,8 @@ class AuditService:
                 initial[judgment.claim_id] = judgment
 
         def claim_done(done: int, total: int) -> None:
-            notify(f"正在复核论断证据（{done}/{total}）", 0.6 + 0.34 * done / total)
+            stage = "正在深度核验论断" if self.settings.deep_audit else "正在复核论断证据"
+            notify(f"{stage}（{done}/{total}）", 0.6 + 0.34 * done / total)
 
         audits = self._run_concurrently(
             lambda claim: self._audit_claim(
@@ -1136,6 +1137,7 @@ class AuditService:
             parse_warnings=paper.warnings,
             source_count=extraction.source_count,
             skipped_sources=extraction.skipped_sources,
+            deep_audit=self.settings.deep_audit,
         )
 
     def _run_concurrently(
@@ -1233,6 +1235,7 @@ class AuditService:
         judgment: ClaimJudgment | None,
         paper: ParsedPaper,
     ) -> ClaimAudit:
+        investigation_eligible = True
         if not candidates:
             judgment = ClaimJudgment(
                 claim_id=claim.claim_id,
@@ -1243,6 +1246,7 @@ class AuditService:
         else:
             judgment = self._refine_judgment(claim, candidates, judgment, paper.page_count)
             if judgment is None:
+                investigation_eligible = False
                 judgment = ClaimJudgment(
                     claim_id=claim.claim_id,
                     label=AutoLabel.ABSTAIN,
@@ -1250,8 +1254,17 @@ class AuditService:
                     severity=Severity.NONE,
                 )
         judgment = calibrate_judgment(judgment)
+        requires_evidence = judgment.label in {
+            AutoLabel.SUPPORTED, AutoLabel.CONTRADICTED, AutoLabel.PARTIALLY_SUPPORTED,
+        }
+        investigation_eligible = investigation_eligible and (
+            judgment.claim_id == claim.claim_id
+            and set(judgment.evidence_ids) <= {c.evidence_id for c in candidates}
+            and (not requires_evidence or bool(judgment.evidence_ids))
+        )
         judgment = validate_judgment_references(judgment, candidates)
-        if judgment.label == AutoLabel.NO_SUPPORT_FOUND and judgment.severity == Severity.HIGH:
+        if (not self.settings.deep_audit and judgment.label == AutoLabel.NO_SUPPORT_FOUND
+                and judgment.severity == Severity.HIGH):
             candidates = supplement_claim_evidence(claim, paper.chunks, candidates)
             review = None
             try:
@@ -1273,7 +1286,7 @@ class AuditService:
         before_citation_review = None
         candidate_gap_review = None
         before_candidate_gap_review = None
-        if judgment.label in {
+        if not self.settings.deep_audit and judgment.label in {
             AutoLabel.NO_SUPPORT_FOUND,
             AutoLabel.ABSTAIN,
             AutoLabel.PARTIALLY_SUPPORTED,
@@ -1287,6 +1300,34 @@ class AuditService:
             judgment, citation_review, citation_review_before_repair = review_citations(
                 self.client, claim, candidates, judgment,
             )
+            if judgment.label == AutoLabel.ABSTAIN:
+                # A semantic coverage gap can be investigated; malformed output,
+                # bad quotation transcription and ID errors are not search gaps.
+                investigation_eligible = investigation_eligible and bool(
+                    citation_review is not None
+                    and citation_review.claim_id == claim.claim_id
+                    and citation_review.reviewed_label == before_citation_review.label.value
+                    and (not citation_review.complete or citation_review.missing_aspects
+                         or citation_review.suggestion_missing_aspects)
+                )
+        audit = ClaimAudit(
+            claim=claim, candidates=candidates, judgment=judgment,
+            citation_review=citation_review,
+            citation_review_before_repair=citation_review_before_repair,
+            judgment_before_citation_review=before_citation_review,
+            candidate_gap_review=candidate_gap_review,
+            judgment_before_candidate_gap_review=before_candidate_gap_review,
+        )
+        if (self.settings.deep_audit and investigation_eligible
+                and judgment.label in {AutoLabel.ABSTAIN, AutoLabel.NO_SUPPORT_FOUND,
+                                       AutoLabel.PARTIALLY_SUPPORTED}):
+            from .agents.investigator import EvidenceInvestigator
+
+            trigger = "no_candidates" if not candidates else (
+                "citation_gap" if before_citation_review else "unresolved_judgment"
+            )
+            audit = EvidenceInvestigator(self.client, paper, self.settings.model).run(audit, trigger)
+            judgment = audit.judgment
         invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
                                if not 1 <= page <= paper.page_count)
         if invalid_pages:
@@ -1297,11 +1338,4 @@ class AuditService:
                 "severity": Severity.HIGH,
                 "explanation": judgment.explanation + f" 报告引用页码 {invalid_pages} 超出论文的 1–{paper.page_count} 页范围。",
             })
-        return ClaimAudit(
-            claim=claim, candidates=candidates, judgment=judgment,
-            citation_review=citation_review,
-            citation_review_before_repair=citation_review_before_repair,
-            judgment_before_citation_review=before_citation_review,
-            candidate_gap_review=candidate_gap_review,
-            judgment_before_candidate_gap_review=before_candidate_gap_review,
-        )
+        return audit.model_copy(update={"judgment": judgment})

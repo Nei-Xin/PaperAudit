@@ -187,6 +187,18 @@ def render_sidebar(
                 label_visibility="collapsed",
                 help="每次送入模型进行事实核验的论断数量",
             )
+            # A navigation rerun may skip rendering this widget; keep the
+            # preference outside Streamlit's disposable widget state.
+            st.session_state.setdefault(
+                "deep_audit_control", st.session_state.get("deep_audit_preference", env_settings.deep_audit),
+            )
+            deep_audit = st.toggle(
+                "深度核验", key="deep_audit_control",
+                help="审计时自动对证据不足的论断补查，无需逐条启动。",
+            )
+            st.session_state["deep_audit_preference"] = deep_audit
+            if deep_audit:
+                st.caption("疑难论断最多补查两轮，会增加耗时和模型调用费用。")
             if st.button(
                 "清除读取缓存",
                 width="stretch",
@@ -217,6 +229,7 @@ def render_sidebar(
         reasoning_effort=reasoning_effort,
         retrieval_top_k=retrieval_top_k,
         judge_batch_size=judge_batch_size,
+        deep_audit=deep_audit,
     )
 
     return active_settings

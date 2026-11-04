@@ -28,6 +28,7 @@ class Settings:
     retrieval_top_k: int = 5
     max_paper_chars: int = 120_000
     judge_batch_size: int = 6
+    deep_audit: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -43,6 +44,7 @@ class Settings:
             retrieval_top_k=_int_env("PAPERAUDIT_TOP_K", 5),
             max_paper_chars=_int_env("PAPERAUDIT_MAX_PAPER_CHARS", 120_000),
             judge_batch_size=_int_env("PAPERAUDIT_JUDGE_BATCH_SIZE", 6),
+            deep_audit=os.getenv("PAPERAUDIT_DEEP_AUDIT", "").strip().lower() in {"1", "true", "yes"},
         )
 
     @property

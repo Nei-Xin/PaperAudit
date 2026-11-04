@@ -9,6 +9,7 @@ from paperaudit.display import (
     label_counts,
 )
 from paperaudit.models import AuditRun, AutoLabel, ClaimAudit, LearningReport, Severity
+from paperaudit.agents.models import STOP_LABELS, TOOL_LABELS
 from paperaudit.ui.audit_view import citation_review_passed, normalize_evidence_display, selected_evidence
 
 
@@ -37,6 +38,7 @@ def render_markdown(run: AuditRun) -> str:
         "",
         f"- 论文：{run.paper_title}",
         f"- 页数：{run.page_count}",
+        f"- 审计模式：{'深度核验' if run.deep_audit else '标准审计'}",
         f"- 可信等级：{summary.grade.value}",
         f"- 总分：{summary.total_score if summary.total_score is not None else 'N/A'}",
         f"- 已抽取论断的非弃权比例：{summary.audit_coverage}%（不代表报告原文抽取完整率）",
@@ -197,6 +199,19 @@ def _render_issue(audit: ClaimAudit) -> list[str]:
 
 def _render_review(audit: ClaimAudit) -> list[str]:
     lines: list[str] = []
+    trace = audit.investigation
+    if trace:
+        lines.extend([
+            f"- 深度核验：{STOP_LABELS[trace.stop_reason]}",
+            f"- 调查请求：{trace.requests} 次；用时：{trace.elapsed_seconds:.1f} 秒；"
+            f"已报告用量：{trace.tokens} tokens",
+        ])
+        for step in trace.steps:
+            argument = step.action.query or step.action.page or step.action.chunk_id or ""
+            lines.append(f"  - {TOOL_LABELS[step.action.tool]} {argument}：{step.action.reason}"
+                         f" {step.outcome} 新增证据：{', '.join(step.added_evidence_ids) or '无'}")
+        if trace.missing_aspects:
+            lines.append(f"- 调查剩余缺口：{'；'.join(trace.missing_aspects)}")
     gap = audit.candidate_gap_review
     if gap is not None:
         changed = (

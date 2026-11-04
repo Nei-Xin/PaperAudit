@@ -37,6 +37,7 @@ from paperaudit.ui.audit_view import (
     sort_audits,
 )
 from paperaudit.ui.visualizations import render_dimension_radar_or_bar
+from paperaudit.ui.investigation import render_investigation
 
 
 _FILTER_ALL = "all"
@@ -133,6 +134,8 @@ def render_audit_results(
     evidence_anchors = _audit_evidence_anchors(run, paper)
 
     render_audit_summary(run.summary, run.audits)
+    if run.deep_audit:
+        st.caption(f"本次使用深度核验 · {sum(a.investigation is not None for a in run.audits)} 条论断启动调查")
     if run.source_count:
         with st.expander(f"原文抽取核对 · {run.source_count} 句 · {len(run.skipped_sources)} 句未抽取"):
             st.caption("已核对每句均有返回。模型跳过的内容列在下方；句内是否漏掉事实仍需结合原文复核。")
@@ -386,6 +389,7 @@ def render_audit_results(
                         ),
                     )
                 with st.container(border=True, key="audit_selected_detail"):
+                    render_investigation(selected_audit)
                     render_audit_detail(
                         selected_audit,
                         category_labels.get(selected_audit.claim.category, "其他"),

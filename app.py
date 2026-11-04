@@ -173,6 +173,7 @@ def _submit_active_project_audit(
         reasoning_effort=active_settings.reasoning_effort,
         retrieval_top_k=active_settings.retrieval_top_k,
         judge_batch_size=active_settings.judge_batch_size,
+        deep_audit=active_settings.deep_audit,
     )
     job = project_store.create_audit_job(
         str(project_id),

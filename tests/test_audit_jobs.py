@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from dataclasses import replace
 from threading import Event
 import time
 
@@ -154,6 +155,46 @@ def test_background_failure_is_persisted_and_secret_is_hidden(tmp_path: Path) ->
     assert "test-secret-key" not in failed.error
     assert "[已隐藏]" in failed.error
     assert store.list_audit_runs(project_id) == []
+
+
+def test_deep_mode_snapshot_and_trace_survive_background_storage(tmp_path):
+    from paperaudit.agents.models import InvestigationTrace
+    from paperaudit.models import AuditRun
+    from paperaudit.reporting import render_markdown
+
+    store, project_id = _store(tmp_path)
+    job = _create_job(store, project_id, "deep report")
+    job = job.model_copy(update={"runtime": job.runtime.model_copy(update={"deep_audit": True})})
+    store.update_audit_job(project_id, job)
+    seen = []
+
+    class Runner:
+        def audit(self, paper, report_text, scope, *, mode, progress=None):
+            run = get_demo_audit_run().model_copy(update={"deep_audit": True, "report_text": report_text})
+            run.audits[0] = run.audits[0].model_copy(update={"investigation": InvestigationTrace(
+                model="fake-model", paper_hash="a" * 64, trigger="unresolved_judgment",
+                stop_reason="round_limit", missing_aspects=["实验配置"], requests=4,
+            )})
+            return run
+
+    def factory(settings):
+        seen.append(settings.deep_audit)
+        return Runner()
+
+    manager = AuditJobManager(store, service_factory=factory, mark_interrupted_on_start=False)
+    try:
+        manager.submit(project_id, job.job_id, replace(_settings(), deep_audit=False))
+        completed = _wait_for(store, project_id, job.job_id, AuditJobStatus.SUCCEEDED)
+    finally:
+        manager.shutdown()
+    assert seen == [True]
+    _, saved = store.load_audit_run(project_id, completed.audit_id)
+    assert saved.deep_audit
+    assert saved.audits[0].investigation.requests == 4
+    assert "实验配置" in render_markdown(saved)
+    assert AuditRun.model_validate_json(saved.model_dump_json()) == saved
+    assert AuditRuntimeSnapshot(model="old", reasoning_effort="", retrieval_top_k=5,
+                                judge_batch_size=6).deep_audit is False
 
 
 def test_background_save_failure_is_not_reported_as_success(tmp_path: Path) -> None:

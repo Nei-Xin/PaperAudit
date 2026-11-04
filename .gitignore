@@ -16,6 +16,7 @@ Browser_Actual_*.png
 docs/*
 !docs/deployment.md
 !docs/architecture.md
+!docs/langgraph-deep-audit.md
 !docs/direction_one_final_report.md
 !docs/evaluation.md
 !docs/final_acceptance_report.md

@@ -54,15 +54,19 @@ def test_sidebar_and_url_switch_clear_project_state(workspace, monkeypatch):
     app = AppTest.from_file(str(APP)).run()
     app.button(key=f"sidebar-open-{projects[0].project_id}").click().run()
     assert not app.exception
+    app.toggle(key="deep_audit_control").set_value(True).run()
+    assert app.session_state["deep_audit_control"] is True
     app.session_state["peer_review_revision_pdf"] = b"stale-preview"
     app.session_state["peer-major-0-manual-note"] = "stale-note"
     app.query_params["project"] = projects[1].project_id
     app.run()
     assert not app.exception
     assert app.session_state["active_project_id"] == projects[1].project_id
+    assert app.session_state["deep_audit_control"] is True
     assert "peer_review_revision_pdf" not in app.session_state
     assert "peer-major-0-manual-note" not in app.session_state
     app.button(key="sidebar-new-project").click().run()
     assert not app.exception
     assert "active_project_id" not in app.session_state
     assert "project" not in app.query_params
+    assert app.session_state["deep_audit_control"] is True

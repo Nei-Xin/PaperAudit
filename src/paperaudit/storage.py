@@ -1038,6 +1038,7 @@ class ProjectStore:
                 "runtime": {
                     "retrieval_top_k": retrieval_top_k,
                     "judge_batch_size": judge_batch_size,
+                    "deep_audit": run.deep_audit,
                 },
                 "run": run.model_dump(mode="json"),
             },

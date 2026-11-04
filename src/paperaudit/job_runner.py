@@ -95,7 +95,8 @@ class BackgroundJobManager(Generic[JobT]):
         settings = replace(settings, model=job.runtime.model,
                            reasoning_effort=job.runtime.reasoning_effort,
                            retrieval_top_k=job.runtime.retrieval_top_k,
-                           judge_batch_size=job.runtime.judge_batch_size)
+                           judge_batch_size=job.runtime.judge_batch_size,
+                           deep_audit=job.runtime.deep_audit)
         context = JobContext(job.model_copy(update={
             "status": AuditJobStatus.RUNNING, "started_at": utc_now(),
             "progress": 0.01, "stage": self.start_stage, "error": None,
