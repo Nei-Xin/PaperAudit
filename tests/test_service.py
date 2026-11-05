@@ -2,6 +2,7 @@ import time
 
 import pytest
 
+from paperaudit.audit_rules import calibrate_judgment, validate_judgment_references
 from paperaudit.config import Settings
 from paperaudit.hy3_client import Hy3ResponseError
 from paperaudit.models import (
@@ -19,7 +20,6 @@ from paperaudit.models import (
     Severity,
 )
 from paperaudit.service import AuditService, MAX_AUDIT_REPORT_CHARS
-from eval.run_eval import _validated_judgment
 
 
 class FakeHy3Client:
@@ -272,7 +272,7 @@ def test_evaluation_validates_evidence_after_label_calibration() -> None:
         )
     ]
 
-    validated = _validated_judgment(judgment, candidates)
+    validated = validate_judgment_references(calibrate_judgment(judgment), candidates)
 
     assert validated.label == AutoLabel.ABSTAIN
     assert validated.evidence_ids == []
