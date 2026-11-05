@@ -1321,12 +1321,10 @@ class AuditService:
         if (self.settings.deep_audit and investigation_eligible
                 and judgment.label in {AutoLabel.ABSTAIN, AutoLabel.NO_SUPPORT_FOUND,
                                        AutoLabel.PARTIALLY_SUPPORTED}):
-            from .agents.investigator import EvidenceInvestigator
-
             trigger = "no_candidates" if not candidates else (
                 "citation_gap" if before_citation_review else "unresolved_judgment"
             )
-            audit = EvidenceInvestigator(self.client, paper, self.settings.model).run(audit, trigger)
+            audit = self._investigate_claim(audit, paper, trigger)
             judgment = audit.judgment
         invalid_pages = sorted(page for page in report_evidence_pages(claim.provided_evidence)
                                if not 1 <= page <= paper.page_count)
@@ -1339,3 +1337,9 @@ class AuditService:
                 "explanation": judgment.explanation + f" 报告引用页码 {invalid_pages} 超出论文的 1–{paper.page_count} 页范围。",
             })
         return audit.model_copy(update={"judgment": judgment})
+
+    def _investigate_claim(self, audit: ClaimAudit, paper: ParsedPaper, trigger: str) -> ClaimAudit:
+        """Explicit boundary for investigating a fully validated pre-investigation state."""
+        from .agents.investigator import EvidenceInvestigator
+
+        return EvidenceInvestigator(self.client, paper, self.settings.model).run(audit, trigger)
