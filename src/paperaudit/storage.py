@@ -176,12 +176,14 @@ def validate_storage_root(value: str | Path) -> Path:
     except OSError as exc:
         raise StorageError(f"无法创建保存目录：{exc}") from exc
 
-    marker = root / ".paperaudit-write-test"
     try:
-        marker.write_text("ok", encoding="utf-8")
-        marker.unlink()
+        # Multiple sessions may validate the same library concurrently. Each
+        # probe owns its file, so one session cannot remove another's marker.
+        with NamedTemporaryFile(mode="w", encoding="utf-8", dir=root,
+                                prefix=".paperaudit-write-test-") as marker:
+            marker.write("ok")
+            marker.flush()
     except OSError as exc:
-        marker.unlink(missing_ok=True)
         raise StorageError(f"保存目录不可写：{exc}") from exc
     return root
 

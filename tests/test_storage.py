@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
 from hashlib import sha256
 import json
 from pathlib import Path
@@ -33,8 +35,34 @@ from paperaudit.storage import (
     load_storage_settings,
     save_storage_settings,
     make_conversation,
+    validate_storage_root,
 )
 from paperaudit.ui.demo_data import get_demo_audit_run
+
+
+def test_concurrent_storage_validation_does_not_share_write_probe(tmp_path, monkeypatch):
+    # Force the former shared-marker implementation into its deletion race.
+    written = Barrier(2)
+    original = Path.write_text
+
+    def synchronized_write(path, *args, **kwargs):
+        result = original(path, *args, **kwargs)
+        if path.name == ".paperaudit-write-test":
+            written.wait(timeout=5)
+        return result
+
+    monkeypatch.setattr(Path, "write_text", synchronized_write)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(validate_storage_root, [tmp_path, tmp_path]))
+    assert results == [tmp_path, tmp_path]
+    assert not list(tmp_path.glob(".paperaudit-write-test*"))
+
+
+def test_storage_validation_preserves_existing_marker_file(tmp_path):
+    marker = tmp_path / ".paperaudit-write-test"
+    marker.write_text("existing file")
+    validate_storage_root(tmp_path)
+    assert marker.read_text() == "existing file"
 
 
 def _paper() -> ParsedPaper:

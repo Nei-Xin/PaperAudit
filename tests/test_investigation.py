@@ -118,6 +118,58 @@ def test_false_quote_cannot_become_support():
     assert result.investigation.stop_reason != "verified"
 
 
+def test_read_page_reaches_late_table_counterevidence_within_five_new_blocks():
+    claim = CLAIM.model_copy(update={"text": "Model A score is 90.",
+                                    "query_en": "Model A score 90",
+                                    "provided_evidence": "page 2 Table 3"})
+    chunks = [PaperChunk(chunk_id=f"intro{i}", page=2,
+                        content="Unrelated introductory discussion.") for i in range(8)]
+    chunks += [PaperChunk(chunk_id="caption", page=2, content="Table 3. Model scores."),
+               PaperChunk(chunk_id="header", page=2, content="Model\nscore\naccuracy"),
+               PaperChunk(chunk_id="row", page=2, content="Model A\n80\n0.8")]
+    paper = ParsedPaper(title="Late table", page_count=2, chunks=chunks)
+    found = execute_tool(action(page=2), paper, claim, [])
+    selected, added = append_evidence(claim.claim_id, [], found,
+                                     max_candidates=24, max_chars=18_000)
+    assert {"caption", "header", "row"} <= {c.chunk_id for c in selected}
+    assert len(added) == 5
+    originals = {c.chunk_id: c for c in chunks}
+    assert all(c.page == 2 and c.text == originals[c.chunk_id].content for c in selected)
+
+
+def test_read_page_without_lexical_matches_keeps_original_text_fallback():
+    paper = ParsedPaper(title="Symbols", page_count=1, chunks=[
+        PaperChunk(chunk_id="symbols", page=1, content="α β γ"),
+    ])
+    found = execute_tool(action(page=1), paper, CLAIM, [])
+    selected, _ = append_evidence(CLAIM.claim_id, [], found,
+                                  max_candidates=24, max_chars=18_000)
+    assert [c.text for c in selected] == ["α β γ"]
+
+
+def test_read_page_recovers_split_row_label_but_not_neighbor_row_or_page():
+    def block(cid, text, page, x0, x1, y0, y1):
+        return PaperChunk(chunk_id=cid, content=text, page=page,
+                          rects=[dict(x0=x0, x1=x1, y0=y0, y1=y1)])
+
+    row = block("values", "32 bit\n4.8MB\n50x", 2, 130, 500, 170, 178)
+    label = block("label", "Model A", 2, 65, 105, 170, 178)
+    paper = ParsedPaper(title="Split row", page_count=3, chunks=[
+        *[PaperChunk(chunk_id=f"noise{i}", page=2, content="model size discussion") for i in range(8)],
+        row, label,
+        block("other-row", "Model B", 2, 65, 105, 190, 198),
+        block("other-page", "Model C", 3, 65, 105, 170, 178),
+    ])
+    claim = CLAIM.model_copy(update={"query_en": "32 bit model size 0.52MB"})
+    seed = EvidenceCandidate(evidence_id="seed", chunk_id="values", page=2, text=row.content, score=1)
+    found = execute_tool(action(page=2), paper, claim, [seed])
+    selected, _ = append_evidence(claim.claim_id, [seed], found,
+                                  max_candidates=24, max_chars=18_000)
+    assert selected[1].chunk_id == "label"
+    assert selected[1].text == label.content
+    assert not {"other-row", "other-page"} & {c.chunk_id for c in selected}
+
+
 @pytest.mark.parametrize(("actions", "reason"), [
     ([action(page=2), action(page=3)], "round_limit"),
     ([action(page=2), action(page=2)], "repeated_action"),
@@ -329,7 +381,13 @@ def test_investigation_panel_renders_evidence_and_outcome():
     ("overgeneralization", "missing_condition", AutoLabel.ABSTAIN),
     (None, "overgeneralization", AutoLabel.ABSTAIN),
 ])
-def test_reaffirmed_partial_scope_is_preserved_without_promoting_full_support(initial_error, latest_error, expected):
+@pytest.mark.parametrize("ending, stop", [
+    (action(page=3), "round_limit"),
+    (action("finish"), "model_finished"),
+    (action(page=2), "repeated_action"),
+    (action(page=1), "no_new_evidence"),
+])
+def test_reaffirmed_partial_scope_is_preserved_without_promoting_full_support(initial_error, latest_error, expected, ending, stop):
     class PartialClient(Client):
         def adjudicate_claim(self, claim, candidates, page_count):
             self.count()
@@ -345,9 +403,9 @@ def test_reaffirmed_partial_scope_is_preserved_without_promoting_full_support(in
         claim_error_type=initial_error, evidence_ids=[SEED.evidence_id] if initial_error else [],
         explanation="Limited scope.",
     )})
-    result = run(PartialClient([action(page=2), action(page=3)]), audit=audit)
+    result = run(PartialClient([action(page=2), ending]), audit=audit)
     assert result.judgment.label == expected
     assert result.investigation.retained_partial == (expected == AutoLabel.PARTIALLY_SUPPORTED)
-    assert result.investigation.stop_reason == "round_limit"
+    assert result.investigation.stop_reason == stop
     assert result.judgment_before_investigation_finish.label == AutoLabel.PARTIALLY_SUPPORTED
     assert result.citation_review is None  # Never present this as verified full support.

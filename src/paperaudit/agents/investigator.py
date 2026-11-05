@@ -186,6 +186,8 @@ class EvidenceInvestigator:
         if state["stop_reason"] == "verified":
             return {}
         latest, initial = state["audit"].judgment, state["initial_judgment"]
+        last_assessed = next((step for step in reversed(state["steps"])
+                              if step.judgment_label is not None), None)
         # Do not erase a valid scope/condition limitation just because searching
         # ended. Retain it only when new evidence was assessed and the same
         # partial classification was reaffirmed; errors/conflicts still abstain.
@@ -193,8 +195,8 @@ class EvidenceInvestigator:
             initial.label == latest.label == AutoLabel.PARTIALLY_SUPPORTED
             and initial.claim_error_type == latest.claim_error_type
             and latest.claim_error_type in {ClaimErrorType.OVERGENERALIZATION, ClaimErrorType.MISSING_CONDITION}
-            and bool(state["steps"])
-            and state["steps"][-1].judgment_label == AutoLabel.PARTIALLY_SUPPORTED.value
+            and last_assessed is not None
+            and last_assessed.judgment_label == AutoLabel.PARTIALLY_SUPPORTED.value
             and bool(latest.evidence_ids)
             and set(latest.evidence_ids) <= {c.evidence_id for c in state["audit"].candidates}
             and state["stop_reason"] in {"round_limit", "model_finished", "evidence_budget",

@@ -48,7 +48,7 @@ StopReason = Literal[
 class InvestigationTrace(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    strategy_version: str = "langgraph-evidence-v2"
+    strategy_version: str = "langgraph-evidence-v4"
     model: str
     paper_hash: str
     trigger: str
