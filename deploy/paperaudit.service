@@ -1,0 +1,33 @@
+[Unit]
+Description=PaperAudit single-process application
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=debian
+Group=debian
+WorkingDirectory=/srv/paperaudit/current
+EnvironmentFile=/srv/paperaudit/shared/app.env
+Environment=PAPERAUDIT_SETTINGS_DIR=/srv/paperaudit/shared/settings
+Environment=PAPERAUDIT_DEEP_AUDIT=false
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/srv/paperaudit/current/.venv/bin/python -m streamlit run app.py --server.address=127.0.0.1 --server.port=18501 --server.headless=true --server.fileWatcherType=none --browser.gatherUsageStats=false
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+KillSignal=SIGTERM
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=paperaudit
+
+[Install]
+WantedBy=multi-user.target
