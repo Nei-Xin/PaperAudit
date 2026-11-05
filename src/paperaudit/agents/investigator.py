@@ -11,7 +11,7 @@ from openai import APIError
 from paperaudit.audit_rules import calibrate_judgment, validate_judgment_references
 from paperaudit.citation_review import review_citations
 from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
-from paperaudit.models import AutoLabel, ClaimAudit, ClaimJudgment, ParsedPaper, Severity
+from paperaudit.models import AutoLabel, ClaimAudit, ClaimErrorType, ClaimJudgment, ParsedPaper, Severity
 from paperaudit.request_budget import BudgetExceeded, RequestBudget, use_request_budget
 
 from .models import InvestigationAction, InvestigationStep, InvestigationTrace, STOP_LABELS
@@ -20,6 +20,7 @@ from .tools import append_evidence, execute_tool
 
 class InvestigationState(TypedDict):
     audit: ClaimAudit
+    initial_judgment: ClaimJudgment
     steps: list[InvestigationStep]
     action: InvestigationAction | None
     missing_aspects: list[str]
@@ -52,7 +53,7 @@ class EvidenceInvestigator:
         missing = audit.citation_review.missing_aspects if audit.citation_review else []
         with use_request_budget(self.budget):
             state = self.graph.invoke({
-                "audit": audit, "steps": [], "action": None,
+                "audit": audit, "initial_judgment": initial, "steps": [], "action": None,
                 "missing_aspects": missing, "stop_reason": "",
             }, config={"recursion_limit": 12})
         fingerprint = json.dumps([
@@ -65,6 +66,7 @@ class EvidenceInvestigator:
             max_chars=self.MAX_CHARS, steps=state["steps"], stop_reason=state["stop_reason"],
             missing_aspects=state["missing_aspects"], requests=self.budget.requests,
             tokens=self.budget.tokens, elapsed_seconds=round(monotonic() - self.budget.started, 3),
+            retained_partial=state["audit"].judgment.label == AutoLabel.PARTIALLY_SUPPORTED,
         )
         return state["audit"].model_copy(update={
             "investigation": trace, "judgment_before_investigation": initial,
@@ -183,6 +185,28 @@ class EvidenceInvestigator:
     def _finish(self, state: InvestigationState):
         if state["stop_reason"] == "verified":
             return {}
+        latest, initial = state["audit"].judgment, state["initial_judgment"]
+        # Do not erase a valid scope/condition limitation just because searching
+        # ended. Retain it only when new evidence was assessed and the same
+        # partial classification was reaffirmed; errors/conflicts still abstain.
+        reaffirmed = (
+            initial.label == latest.label == AutoLabel.PARTIALLY_SUPPORTED
+            and initial.claim_error_type == latest.claim_error_type
+            and latest.claim_error_type in {ClaimErrorType.OVERGENERALIZATION, ClaimErrorType.MISSING_CONDITION}
+            and bool(state["steps"])
+            and state["steps"][-1].judgment_label == AutoLabel.PARTIALLY_SUPPORTED.value
+            and bool(latest.evidence_ids)
+            and set(latest.evidence_ids) <= {c.evidence_id for c in state["audit"].candidates}
+            and state["stop_reason"] in {"round_limit", "model_finished", "evidence_budget",
+                                         "no_new_evidence", "repeated_action"}
+        )
+        if reaffirmed:
+            judgment = latest.model_copy(update={"explanation": latest.explanation
+                + f" 深度补查再次确认该范围或条件限制，保留部分支持判断；{STOP_LABELS[state['stop_reason']]}。"
+                  "这不表示整条论断获得完整支持。"})
+            return {"audit": state["audit"].model_copy(update={
+                "judgment": judgment, "judgment_before_investigation_finish": latest,
+            })}
         # An exhausted investigation never establishes absence in the full paper.
         missing = state["missing_aspects"] or ["尚未找到能够完整核验该论断的原文依据"]
         judgment = ClaimJudgment(
@@ -191,5 +215,7 @@ class EvidenceInvestigator:
             explanation=f"深度核验结束：{STOP_LABELS[state['stop_reason']]}。"
                         f"待核对：{'；'.join(missing)}。请结合论文原文人工复核。",
         )
-        return {"audit": state["audit"].model_copy(update={"judgment": judgment}),
+        return {"audit": state["audit"].model_copy(update={
+                    "judgment": judgment, "judgment_before_investigation_finish": latest,
+                }),
                 "missing_aspects": missing}

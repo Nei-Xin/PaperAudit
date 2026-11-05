@@ -321,3 +321,33 @@ def test_investigation_panel_renders_evidence_and_outcome():
     assert not app.exception
     assert any("Dataset A score is 90." in item.value for item in app.text)
     assert any("新判断已通过引用校验" in item.value for item in app.markdown)
+
+
+@pytest.mark.parametrize("initial_error, latest_error, expected", [
+    ("overgeneralization", "overgeneralization", AutoLabel.PARTIALLY_SUPPORTED),
+    ("missing_condition", "missing_condition", AutoLabel.PARTIALLY_SUPPORTED),
+    ("overgeneralization", "missing_condition", AutoLabel.ABSTAIN),
+    (None, "overgeneralization", AutoLabel.ABSTAIN),
+])
+def test_reaffirmed_partial_scope_is_preserved_without_promoting_full_support(initial_error, latest_error, expected):
+    class PartialClient(Client):
+        def adjudicate_claim(self, claim, candidates, page_count):
+            self.count()
+            return JudgmentBatch(judgments=[ClaimJudgment(
+                claim_id=claim.claim_id, label=AutoLabel.PARTIALLY_SUPPORTED,
+                claim_error_type=latest_error, evidence_ids=[candidates[-1].evidence_id],
+                explanation="The paper only evaluates one dataset.",
+            )])
+
+    audit = initial().model_copy(update={"judgment": ClaimJudgment(
+        claim_id=CLAIM.claim_id,
+        label=AutoLabel.PARTIALLY_SUPPORTED if initial_error else AutoLabel.ABSTAIN,
+        claim_error_type=initial_error, evidence_ids=[SEED.evidence_id] if initial_error else [],
+        explanation="Limited scope.",
+    )})
+    result = run(PartialClient([action(page=2), action(page=3)]), audit=audit)
+    assert result.judgment.label == expected
+    assert result.investigation.retained_partial == (expected == AutoLabel.PARTIALLY_SUPPORTED)
+    assert result.investigation.stop_reason == "round_limit"
+    assert result.judgment_before_investigation_finish.label == AutoLabel.PARTIALLY_SUPPORTED
+    assert result.citation_review is None  # Never present this as verified full support.

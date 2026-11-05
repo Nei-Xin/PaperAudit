@@ -1,6 +1,7 @@
 """Counterfactual arms must consume exactly the same pre-investigation state."""
 
 import pytest
+import json
 
 from eval.deep_audit_matched import FreezeService, digest, replay, summarize, verify_sources
 from eval.deep_audit_pilot import save
@@ -76,3 +77,30 @@ def test_summary_separates_controls_and_does_not_count_errors_as_matches(tmp_pat
     assert result["groups"]["natural"]["arms"]["agent"]["reference_matches"] == 1
     assert result["groups"]["removal_control"]["arms"]["agent"]["reference_matches"] == 0
     assert result["groups"]["removal_control"]["arms"]["agent"]["failures"] == 1
+
+
+def test_changed_code_replay_copies_snapshot_bytes_and_rejects_tampering(tmp_path):
+    from eval.deep_audit_replay import copy_frozen
+
+    source = tmp_path / "source"
+    (source / "frozen").mkdir(parents=True)
+    data = {"paper": PAPER.model_dump(mode="json"), "claim": CLAIM.model_dump(mode="json"),
+            "candidates": [SEED.model_dump(mode="json")]}
+    case = {"case_id": "C001", "group": "natural", "reference_label": "SUPPORTED",
+            "input": data, "input_hash": digest(data)}
+    protocol = {"cases": [case], "repeats": 3, "input_sha256": {},
+                **{k: getattr(SETTINGS, k) for k in ("model", "reasoning_effort", "temperature", "top_p")}}
+    save(source / "protocol.json", protocol)
+    snapshot = {"audit": initial().model_dump(mode="json"), "trigger": "citation_gap"}
+    frozen_path = source / "frozen/C001.json"
+    save(frozen_path, {"status": "ok", "snapshot": snapshot,
+                       "snapshot_hash": digest(snapshot), "input_hash": digest(data)})
+    output = tmp_path / "replay"
+    result = copy_frozen(source, output, ["C001"], SETTINGS)
+    assert (output / "frozen/C001.json").read_bytes() == frozen_path.read_bytes()
+    assert result["freeze_reused"]
+    damaged = json.loads(frozen_path.read_text())
+    damaged["snapshot"]["trigger"] = "tampered"
+    save(frozen_path, damaged)
+    with pytest.raises(ValueError, match="Invalid original snapshot"):
+        copy_frozen(source, tmp_path / "bad-replay", ["C001"], SETTINGS)

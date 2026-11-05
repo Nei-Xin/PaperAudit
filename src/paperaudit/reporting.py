@@ -201,6 +201,8 @@ def _render_review(audit: ClaimAudit) -> list[str]:
     lines: list[str] = []
     trace = audit.investigation
     if trace:
+        if trace.retained_partial:
+            lines.append("- 补查再次确认了范围或条件限制，保留部分支持；整条论断仍未获得完整支持。")
         lines.extend([
             f"- 深度核验：{STOP_LABELS[trace.stop_reason]}",
             f"- 调查请求：{trace.requests} 次；用时：{trace.elapsed_seconds:.1f} 秒；"

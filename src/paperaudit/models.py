@@ -617,6 +617,7 @@ class ClaimAudit(StrictModel):
     judgment_before_candidate_gap_review: ClaimJudgment | None = None
     investigation: InvestigationTrace | None = None
     judgment_before_investigation: ClaimJudgment | None = None
+    judgment_before_investigation_finish: ClaimJudgment | None = None
 
 
 class DimensionScores(StrictModel):

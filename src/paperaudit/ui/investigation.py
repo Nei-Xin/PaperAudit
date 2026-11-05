@@ -13,6 +13,8 @@ def render_investigation(audit: ClaimAudit) -> None:
         return
     with st.expander("深度核验 · 调查记录"):
         st.write(STOP_LABELS[trace.stop_reason])
+        if trace.retained_partial:
+            st.info("补查再次确认了原有的范围或条件限制，保留部分支持；整条论断仍未获得完整支持。")
         if audit.judgment_before_investigation:
             st.caption(f"调查前：{LABEL_NAMES[audit.judgment_before_investigation.label]} → "
                        f"最终：{LABEL_NAMES[audit.judgment.label]}")
