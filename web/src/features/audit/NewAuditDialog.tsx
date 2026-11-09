@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { READ_ONLY, READING_ONLY, send } from "@/api/client";
+import { READ_ONLY, send } from "@/api/client";
 import { keys } from "@/api/queries";
+import type { components } from "@/api/schema";
 import type { ClaimCategory, Job } from "@/api/types";
 import { Modal } from "@/components/Modal";
 import { ErrorState, MockNote } from "@/components/States";
@@ -14,35 +15,47 @@ const SCOPE: ClaimCategory[] = ["research_question", "contribution", "method", "
 export function NewAuditDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { projectId = "" } = useParams();
   const client = useQueryClient();
+  const navigate = useNavigate();
+  const [privacyAck, setPrivacyAck] = useState(false);
+  const [lectureSource, setLectureSource] = useState(false);
   const [source, setSource] = useState<"paste" | "file">("paste");
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const preview = useMutation({ mutationFn: (file: File) => {
+    const form = new FormData(); form.set("report_file", file);
+    return send<components["schemas"]["ReportPreview"]>("POST", "/api/report-files/parse", form);
+  }});
   const [scope, setScope] = useState<ClaimCategory[]>(SCOPE);
 
   const submit = useMutation({
     mutationFn: () => {
       const form = new FormData();
-      if (source === "paste") form.set("report_text", text);
+      form.set("privacy_ack", String(privacyAck));
+      if (lectureSource) form.set("source", "lecture");
+      else if (source === "paste") form.set("report_text", text);
       else if (file) form.set("report_file", file);
       scope.forEach((item) => form.append("scope", item));
       form.set("audit_mode", "audit_existing");
       return send<Job>("POST", `/api/projects/${projectId}/audit-jobs`, form);
     },
-    onSuccess: () => {
+    onSuccess: (job) => {
       client.invalidateQueries({ queryKey: keys.jobs(projectId) });
+      navigate(`/p/${projectId}/audit?job=${job.job_id}`);
       onClose();
     },
   });
 
-  const ready = scope.length > 0 && (source === "paste" ? text.trim().length > 0 : file !== null);
+  const ready = privacyAck && scope.length > 0 && (lectureSource || (source === "paste" ? text.trim().length > 0 && text.length <= 100000 : file !== null && preview.isSuccess && !preview.isPending));
   return (
     <Modal open={open} onClose={onClose} title="审计一份报告" footer={
       <div className="flex justify-end gap-2">
         <button type="button" className="btn-secondary" onClick={onClose}>取消</button>
-        <button type="button" className="btn-primary" disabled={READ_ONLY || READING_ONLY || !ready || submit.isPending} onClick={() => submit.mutate()}>开始审计</button>
+        <button type="button" className="btn-primary" disabled={READ_ONLY || !ready || submit.isPending} onClick={() => submit.mutate()}>{submit.isPending ? "正在提交…" : "开始审计"}</button>
       </div>
     }>
       <div className="flex flex-col gap-4">
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={lectureSource} onChange={e => { setLectureSource(e.target.checked); submit.reset(); }} />审计当前讲解</label>
+        {!lectureSource && <>
         <div role="radiogroup" aria-label="报告来源" className="inline-flex gap-0.5 self-start rounded-[10px] bg-active p-[3px]">
           {([["paste", "粘贴文本"], ["file", "上传文件"]] as const).map(([value, label]) => (
             <button
@@ -64,6 +77,7 @@ export function NewAuditDialog({ open, onClose }: { open: boolean; onClose: () =
               value={text}
               onChange={(event) => setText(event.target.value)}
               rows={8}
+              maxLength={100000}
               placeholder="粘贴针对该论文的中文总结、解读或阅读笔记…"
               className="resize-y rounded-lg bg-page p-3 leading-6 outline-none focus:ring-2 focus:ring-accent/30"
             />
@@ -71,9 +85,15 @@ export function NewAuditDialog({ open, onClose }: { open: boolean; onClose: () =
         ) : (
           <label className="flex flex-col gap-1.5 text-sm">
             <span className="label">报告文件（.txt / .md / .pptx）</span>
-            <input type="file" accept=".txt,.md,.pptx" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+            <input type="file" accept=".txt,.md,.pptx" onChange={(event) => { const next = event.target.files?.[0] ?? null; setFile(next); preview.reset(); if (next && !READ_ONLY) preview.mutate(next); }} />
           </label>
         )}
+        {source === "file" && preview.isPending && <p role="status" className="text-xs">正在解析报告文件…</p>}
+        {source === "file" && preview.error && <ErrorState error={preview.error} />}
+        {source === "file" && preview.data && <div className="text-xs text-ink-3">可审计文本 {preview.data.character_count} 字符{preview.data.page_count ? ` · ${preview.data.page_count} 页幻灯片` : ""}
+          {preview.data.warnings.map(w => <p key={w}>{w}</p>)}
+        </div>}
+        </>}
         <fieldset className="flex flex-col gap-2">
           <legend className="label mb-1">审计范围</legend>
           <div className="flex flex-wrap gap-2">
@@ -93,7 +113,7 @@ export function NewAuditDialog({ open, onClose }: { open: boolean; onClose: () =
             })}
           </div>
         </fieldset>
-        <p className="text-xs text-ink-4">报告审计会把论文文本和你提供的报告发送到你配置的模型服务。</p>
+        <label className="flex items-start gap-2 text-xs text-ink-3"><input type="checkbox" checked={privacyAck} onChange={e => setPrivacyAck(e.target.checked)} />我同意将论文文本和报告发送到已配置的模型服务进行审计。</label>
         {submit.error && <ErrorState error={submit.error} />}
         <MockNote />
 

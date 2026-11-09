@@ -4,6 +4,57 @@
  */
 
 export interface paths {
+    "/api/report-files/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview */
+        post: operations["preview_api_report_files_parse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/audit-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Audit */
+        post: operations["create_audit_api_projects__pid__audit_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/audit-jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Audit */
+        post: operations["retry_audit_api_projects__pid__audit_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -516,6 +567,37 @@ export interface components {
          * @enum {string}
          */
         AutoLabel: "SUPPORTED" | "PARTIALLY_SUPPORTED" | "CONTRADICTED" | "NO_SUPPORT_FOUND" | "ABSTAIN";
+        /** Body_create_audit_api_projects__pid__audit_jobs_post */
+        Body_create_audit_api_projects__pid__audit_jobs_post: {
+            /**
+             * Source
+             * @default report
+             * @enum {string}
+             */
+            source: "report" | "lecture";
+            /** Report Text */
+            report_text?: string | null;
+            /** Report File */
+            report_file?: string | null;
+            /** Scope */
+            scope?: components["schemas"]["ClaimCategory"][] | null;
+            /**
+             * Audit Mode
+             * @default audit_existing
+             * @enum {string}
+             */
+            audit_mode: "audit_existing" | "audit_generated";
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
+        };
+        /** Body_preview_api_report_files_parse_post */
+        Body_preview_api_report_files_parse_post: {
+            /** Report File */
+            report_file: string;
+        };
         /** Body_upload_api_projects_post */
         Body_upload_api_projects_post: {
             /** Pdf */
@@ -532,6 +614,10 @@ export interface components {
             privacy_ack: boolean;
             /** Code Zip */
             code_zip?: string | null;
+            /** Report Text */
+            report_text?: string | null;
+            /** Report File */
+            report_file?: string | null;
         };
         /** CandidateGapReview */
         CandidateGapReview: {
@@ -1245,7 +1331,8 @@ export interface components {
         /** ProjectCreated */
         ProjectCreated: {
             project: components["schemas"]["ProjectSummary"];
-            job: components["schemas"]["LearningJob"] | null;
+            /** Job */
+            job: components["schemas"]["LearningJob"] | components["schemas"]["AuditJob"] | null;
         };
         /** ProjectDetail */
         ProjectDetail: {
@@ -1392,6 +1479,17 @@ export interface components {
              * @default
              */
             distinction: string;
+        };
+        /** ReportPreview */
+        ReportPreview: {
+            /** Character Count */
+            character_count: number;
+            /** Page Count */
+            page_count: number | null;
+            /** Kind */
+            kind: string;
+            /** Warnings */
+            warnings: string[];
         };
         /** ReportSection */
         ReportSection: {
@@ -1616,6 +1714,106 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    preview_api_report_files_parse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_preview_api_report_files_parse_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_audit_api_projects__pid__audit_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_create_audit_api_projects__pid__audit_jobs_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_audit_api_projects__pid__audit_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_settings_api_settings_get: {
         parameters: {
             query?: never;

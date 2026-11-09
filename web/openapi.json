@@ -2,9 +2,143 @@
   "openapi": "3.1.0",
   "info": {
     "title": "PaperAudit API",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "paths": {
+    "/api/report-files/parse": {
+      "post": {
+        "summary": "Preview",
+        "operationId": "preview_api_report_files_parse_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_preview_api_report_files_parse_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{pid}/audit-jobs": {
+      "post": {
+        "summary": "Create Audit",
+        "operationId": "create_audit_api_projects__pid__audit_jobs_post",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_audit_api_projects__pid__audit_jobs_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{pid}/audit-jobs/{job_id}/retry": {
+      "post": {
+        "summary": "Retry Audit",
+        "operationId": "retry_audit_api_projects__pid__audit_jobs__job_id__retry_post",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settings": {
       "get": {
         "summary": "Get Settings",
@@ -1372,6 +1506,86 @@
         ],
         "title": "AutoLabel"
       },
+      "Body_create_audit_api_projects__pid__audit_jobs_post": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "report",
+              "lecture"
+            ],
+            "title": "Source",
+            "default": "report"
+          },
+          "report_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Text"
+          },
+          "report_file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report File"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ClaimCategory"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          },
+          "audit_mode": {
+            "type": "string",
+            "enum": [
+              "audit_existing",
+              "audit_generated"
+            ],
+            "title": "Audit Mode",
+            "default": "audit_existing"
+          },
+          "privacy_ack": {
+            "type": "boolean",
+            "title": "Privacy Ack",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "Body_create_audit_api_projects__pid__audit_jobs_post"
+      },
+      "Body_preview_api_report_files_parse_post": {
+        "properties": {
+          "report_file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Report File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report_file"
+        ],
+        "title": "Body_preview_api_report_files_parse_post"
+      },
       "Body_upload_api_projects_post": {
         "properties": {
           "pdf": {
@@ -1400,6 +1614,29 @@
               }
             ],
             "title": "Code Zip"
+          },
+          "report_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Text"
+          },
+          "report_file": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report File"
           }
         },
         "type": "object",
@@ -3449,9 +3686,13 @@
                 "$ref": "#/components/schemas/LearningJob"
               },
               {
+                "$ref": "#/components/schemas/AuditJob"
+              },
+              {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Job"
           }
         },
         "type": "object",
@@ -3820,6 +4061,44 @@
         ],
         "title": "RelatedWorkReference",
         "description": "A user-supplied related-work record; URLs are metadata, not fetched instructions."
+      },
+      "ReportPreview": {
+        "properties": {
+          "character_count": {
+            "type": "integer",
+            "title": "Character Count"
+          },
+          "page_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Count"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "character_count",
+          "page_count",
+          "kind",
+          "warnings"
+        ],
+        "title": "ReportPreview"
       },
       "ReportSection": {
         "properties": {

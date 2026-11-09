@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
   outputDir: "./test-results/reading",
-  testDir: "./tests", testMatch: "reading.spec.ts", workers: 1,
+  testDir: "./tests", testMatch: ["reading.spec.ts", "audit.spec.ts"], workers: 1,
   timeout: 45_000,
   use: {
     baseURL: "http://127.0.0.1:5181", headless: true,

@@ -20,6 +20,17 @@ class BrowserService(FakeService):
             raise RuntimeError("测试任务失败，请手动重试。")
         return super().generate_learning_report(paper)
 
+    def audit(self, paper, text, scope, *, mode, progress=None):
+        from paperaudit.ui.demo_data import get_demo_audit_run
+        time.sleep(.7)
+        count = self.attempts.get(text, 0) + 1
+        self.attempts[text] = count
+        if "FAIL_ONCE" in text and count == 1:
+            raise RuntimeError("测试审计失败")
+        if progress:
+            progress("核对完成", .9)
+        return get_demo_audit_run().model_copy(update={"paper_title":paper.title,"report_text":text,"scope":scope,"mode":mode})
+
     def answer_question(self, paper, question, history, **kwargs):
         time.sleep(0.25)
         if question == "触发失败":

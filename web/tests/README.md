@@ -36,3 +36,5 @@ PLAYWRIGHT_EXECUTABLE_PATH='/Applications/Google Chrome.app/Contents/MacOS/Googl
 不会读写正式项目或调用真实模型。布局测试和流程测试使用独立输出子目录。
 
 后端接口变更后执行 `npm run gen:api`。该命令只导出 schema，不启动服务或访问项目库。
+
+审计集成测试也包含在 `npm run test:reading` 中（`audit.spec.ts`）。使用相同临时服务，覆盖粘贴报告、文件预解析、当前讲解、首页模式、失败重试、自动跳转与导出。

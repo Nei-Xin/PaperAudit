@@ -56,10 +56,11 @@ def upload(client, pdf=None):
                        data={"mode": "learn", "privacy_ack": "true"})
 
 
-def wait_job(client, pid, status="SUCCEEDED"):
+def wait_job(client, pid, status="SUCCEEDED", job_id=None):
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline:
-        job = client.get(f"/api/projects/{pid}/jobs").json()["learning"][0]
+        jobs = client.get(f"/api/projects/{pid}/jobs").json()["learning"]
+        job = next((j for j in jobs if j["job_id"] == job_id), jobs[0])
         if job["status"] == status:
             return job
         time.sleep(0.02)
@@ -106,8 +107,9 @@ def test_failed_job_retry_is_explicit_and_secret_free(setup):
         assert "private-test-key" not in failed["error"]
         assert client.get(f"/api/projects/{pid}/lecture").json() is None
         runner.generate_learning_report = original
-        assert client.post(f"/api/projects/{pid}/lecture/jobs").status_code == 202
-        wait_job(client, pid)
+        retry = client.post(f"/api/projects/{pid}/lecture/jobs")
+        assert retry.status_code == 202
+        wait_job(client, pid, job_id=retry.json()["job_id"])
 
 
 def test_model_settings_never_return_key_and_persist_with_private_mode(setup):

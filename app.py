@@ -8,7 +8,7 @@ from paperaudit.display import LABEL_NAMES, SEVERITY_NAMES, recover_paper_title
 from paperaudit.config import Settings
 from paperaudit.code_service import CodeLearningService
 from paperaudit.learning_jobs import LearningJobManager
-from paperaudit.workflows import submit_learning
+from paperaudit.workflows import submit_learning, submit_audit
 from paperaudit.hy3_client import Hy3ConfigurationError
 from paperaudit.peer_review_jobs import PeerReviewJobManager, PeerReviewRevisionJobManager
 from paperaudit.models import (
@@ -180,26 +180,8 @@ def _submit_active_project_audit(
         raise StorageError("请先打开一个已保存的论文项目。")
     if not active_settings.is_configured:
         raise ValueError("请先配置并连接 Hy3 API。")
-    validate_audit_report_text(report_text)
-    runtime = AuditRuntimeSnapshot(
-        model=active_settings.model,
-        reasoning_effort=active_settings.reasoning_effort,
-        retrieval_top_k=active_settings.retrieval_top_k,
-        judge_batch_size=active_settings.judge_batch_size,
-        deep_audit=active_settings.deep_audit,
-    )
-    job = project_store.create_audit_job(
-        str(project_id),
-        report_text=report_text,
-        source_type=source_type,
-        source_label=source_label,
-        source_filename=source_filename,
-        scope=scope,
-        audit_mode=audit_mode,
-        runtime=runtime,
-    )
-    audit_job_manager.submit(str(project_id), job.job_id, active_settings)
-    return job
+    return submit_audit(project_store, audit_job_manager, active_settings, str(project_id),
+                        report_text, source_type, source_label, source_filename, scope, audit_mode)
 
 
 def _submit_active_project_learning() -> None:

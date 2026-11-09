@@ -41,6 +41,10 @@ class ValidationService(AuditService):
         with meter("lecture"):
             return super().generate_learning_report(paper)
 
+    def audit(self, paper, report_text, scope, **kwargs):
+        with meter("audit"):
+            return super().audit(paper, report_text, scope, **kwargs)
+
     def answer_question(self, paper, question, history=(), **kwargs):
         with meter("qa"):
             return super().answer_question(paper, question, history, **kwargs)

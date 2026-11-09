@@ -70,14 +70,14 @@ export function HomePage() {
       if (mode === "peer_review") form.set("venue", venue);
       if (mode === "learn" && code) form.set("code_zip", code);
       form.set("privacy_ack", String(privacyAck));
-      return send<{ project: ProjectSummary }>("POST", "/api/projects", form);
+      return send<{ project: ProjectSummary; job?: { job_id: string } | null }>("POST", "/api/projects", form);
     },
     onSuccess: (result) => {
       client.invalidateQueries({ queryKey: keys.projects });
-      navigate(`/p/${result.project.project_id}`);
+      navigate(mode === "audit_existing" ? `/p/${result.project.project_id}/audit?job=${result.job?.job_id ?? ""}` : `/p/${result.project.project_id}/read`);
     },
   });
-  const ready = pdf !== null && privacyAck && (!READING_ONLY || mode === "learn") && (mode !== "audit_existing" || report.trim().length > 0);
+  const ready = pdf !== null && privacyAck && (!READING_ONLY || mode !== "peer_review") && (mode !== "audit_existing" || report.trim().length > 0);
 
   return (
     <div className="card flex h-full items-start justify-center overflow-auto px-4 sm:px-6">
@@ -111,8 +111,8 @@ export function HomePage() {
                     type="button"
                     role="radio"
                     aria-checked={mode === item.value}
-                    disabled={READING_ONLY && !READ_ONLY && item.value !== "learn"}
-                    title={READING_ONLY && item.value !== "learn" ? "此模式正在接入，暂请使用旧版" : undefined}
+                    disabled={READING_ONLY && !READ_ONLY && item.value === "peer_review"}
+                    title={READING_ONLY && item.value === "peer_review" ? "此模式正在接入，暂请使用旧版" : undefined}
                     onClick={() => setMode(item.value)}
                     className={clsx("pill", mode === item.value ? "bg-ink text-white shadow-none" : "bg-card text-ink-2 hover:bg-hover")}
                   >
@@ -149,7 +149,7 @@ export function HomePage() {
 
         {!READ_ONLY && <label className="flex items-start gap-2 text-sm text-ink-3">
           <input type="checkbox" checked={privacyAck} onChange={e => setPrivacyAck(e.target.checked)} className="mt-1" />
-          我同意将论文文本发送到已配置的模型服务以生成讲解和回答追问。
+          我同意将论文文本发送到已配置的模型服务以完成所选操作。
         </label>}
         {fileError && <ErrorState error={new Error(fileError)} />}
         {create.error && <ErrorState error={create.error} />}

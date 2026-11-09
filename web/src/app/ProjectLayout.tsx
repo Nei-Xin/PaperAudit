@@ -51,7 +51,7 @@ function ActiveJobs() {
   const { projectId = "" } = useParams();
   const jobs = useJobs(projectId);
   if (!hasActiveJob(jobs.data)) return null;
-  const all = jobs.data ? [...jobs.data.learning, ...jobs.data.audit, ...jobs.data.review, ...jobs.data.revision] : [];
+  const all = jobs.data ? [...jobs.data.learning, ...jobs.data.review, ...jobs.data.revision] : [];
   const active = all.filter((job) => job.status === "QUEUED" || job.status === "RUNNING");
   return (
     <div className="card mb-2 flex max-h-32 shrink-0 flex-col gap-2 overflow-auto px-4 py-3">

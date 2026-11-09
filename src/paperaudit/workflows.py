@@ -65,3 +65,24 @@ def answer_paper_question(store: ProjectStore, service, project_id: str, questio
     store.save_conversations(project_id, [updated if c.conversation_id == active.conversation_id else c
                                          for c in records], updated.conversation_id)
     return answer
+
+
+def submit_audit(store, manager, settings, project_id, report_text, source_type,
+                 source_label, source_filename, scope, audit_mode, *, runtime=None):
+    """Validate before persisting; a retry can retain its original runtime snapshot."""
+    from paperaudit.service import validate_audit_report_text
+    require_model(settings)
+    validate_audit_report_text(report_text)
+    if audit_mode not in {"audit_existing", "audit_generated"}:
+        raise ValueError("审计模式无效。")
+    job = store.create_audit_job(
+        project_id, report_text=report_text, source_type=source_type,
+        source_label=source_label, source_filename=source_filename, scope=scope,
+        audit_mode=audit_mode, runtime=runtime or AuditRuntimeSnapshot(
+            model=settings.model, reasoning_effort=settings.reasoning_effort,
+            retrieval_top_k=settings.retrieval_top_k, judge_batch_size=settings.judge_batch_size,
+            deep_audit=settings.deep_audit,
+        ),
+    )
+    manager.submit(project_id, job.job_id, settings)
+    return job

@@ -1,3 +1,4 @@
+import { AuditTasks } from "./AuditTasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowDown, ArrowUp, Maximize2, List, Plus, Search, SlidersHorizontal } from "lucide-react";
@@ -248,7 +249,7 @@ export function AuditPage() {
   });
 
   if (records.isLoading) return <Loading />;
-  if (!auditId && records.data?.length) {
+  if (!auditId && !params.get("job") && records.data?.length) {
     return <Navigate to={`/p/${projectId}/audit/${records.data[0].audit_id}`} replace />;
   }
 
@@ -285,7 +286,8 @@ export function AuditPage() {
   return (
     <div ref={containerRef} className="flex h-full min-h-0 min-w-0 flex-col">
       <TopBar actions={actions} />
-      {!records.data?.length ? (
+      <AuditTasks projectId={projectId} />
+      {records.error ? <ErrorState error={records.error} /> : !records.data?.length ? (
         <section className="card max-w-xl">
           <EmptyState title="还没有审计记录" action={<button type="button" className="btn-primary self-start" onClick={() => setNewOpen(true)}>审计一份报告</button>}>
             上传一份解读报告，系统会把它拆成论断，逐条对照原文核验事实、数字与结论。

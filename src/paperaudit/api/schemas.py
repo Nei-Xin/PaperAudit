@@ -58,7 +58,7 @@ class ProjectDetail(ProjectSummary):
 
 class ProjectCreated(BaseModel):
     project: ProjectSummary
-    job: LearningJob | None
+    job: LearningJob | AuditJob | None
 
 
 class Conversation(BaseModel):
