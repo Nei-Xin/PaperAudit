@@ -140,7 +140,7 @@ def test_upload_validation_has_no_project_side_effects(setup, case, monkeypatch)
     if case == "oversize":
         monkeypatch.setattr("paperaudit.api.main.MAX_PDF_BYTES", 10)
     with TestClient(create_app(**options)) as client:
-        data = {"privacy_ack": "false" if case == "no_consent" else "true", "mode": "peer_review" if case == "wrong_mode" else "learn"}
+        data = {"privacy_ack": "false" if case == "no_consent" else "true", "mode": "unknown_mode" if case == "wrong_mode" else "learn"}
         files = {"pdf": ("paper.pdf", b"invalid" if case == "bad_pdf" else test_pdf(), "application/pdf")}
         if case == "code_zip":
             files["code_zip"] = ("code.zip", b"invalid", "application/zip")

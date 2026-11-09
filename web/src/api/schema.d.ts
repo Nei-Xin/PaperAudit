@@ -55,6 +55,284 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{pid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Project */
+        get: operations["project_api_projects__pid__get"];
+        put?: never;
+        post?: never;
+        /** Delete Project */
+        delete: operations["delete_project_api_projects__pid__delete"];
+        options?: never;
+        head?: never;
+        /** Rename Project */
+        patch: operations["rename_project_api_projects__pid__patch"];
+        trace?: never;
+    };
+    "/api/projects/{pid}/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Conversations */
+        get: operations["conversations_api_projects__pid__conversations_get"];
+        put?: never;
+        /** Create Conversation */
+        post: operations["create_conversation_api_projects__pid__conversations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/conversations/{cid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Conversation */
+        delete: operations["delete_conversation_api_projects__pid__conversations__cid__delete"];
+        options?: never;
+        head?: never;
+        /** Update Conversation */
+        patch: operations["update_conversation_api_projects__pid__conversations__cid__patch"];
+        trace?: never;
+    };
+    "/api/projects/{pid}/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload Code */
+        post: operations["upload_code_api_projects__pid__code_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/code/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Code Files */
+        get: operations["code_files_api_projects__pid__code_files_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/code/files/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Code File */
+        get: operations["code_file_api_projects__pid__code_files__path__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/code/qa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Code Question */
+        post: operations["code_question_api_projects__pid__code_qa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/review-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Review */
+        post: operations["generate_review_api_projects__pid__review_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/review-jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Review */
+        post: operations["retry_review_api_projects__pid__review_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/review/concerns/{concern_index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit Concern */
+        patch: operations["edit_concern_api_projects__pid__review_concerns__concern_index__patch"];
+        trace?: never;
+    };
+    "/api/projects/{pid}/review/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save Progress */
+        put: operations["save_progress_api_projects__pid__review_progress_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/review/related-work": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Related Work */
+        post: operations["related_work_api_projects__pid__review_related_work_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Revisions */
+        get: operations["revisions_api_projects__pid__revisions_get"];
+        put?: never;
+        /** Upload Revision */
+        post: operations["upload_revision_api_projects__pid__revisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/revisions/{rid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Revision */
+        get: operations["revision_api_projects__pid__revisions__rid__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Edit Revision */
+        patch: operations["edit_revision_api_projects__pid__revisions__rid__patch"];
+        trace?: never;
+    };
+    "/api/projects/{pid}/revisions/{rid}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Revision Pdf */
+        get: operations["revision_pdf_api_projects__pid__revisions__rid__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/revision-jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Revision */
+        post: operations["retry_revision_api_projects__pid__revision_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/settings": {
         parameters: {
             query?: never;
@@ -108,23 +386,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/projects/{pid}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Project */
-        get: operations["project_api_projects__pid__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/projects/{pid}/pdf": {
         parameters: {
             query?: never;
@@ -170,23 +431,6 @@ export interface paths {
         put?: never;
         /** Generate */
         post: operations["generate_api_projects__pid__lecture_jobs_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/projects/{pid}/conversations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Conversations */
-        get: operations["conversations_api_projects__pid__conversations_get"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -618,6 +862,30 @@ export interface components {
             report_text?: string | null;
             /** Report File */
             report_file?: string | null;
+            /** Scope */
+            scope?: components["schemas"]["ClaimCategory"][] | null;
+            /** @default general_ai_ml */
+            venue: components["schemas"]["PeerReviewVenue"];
+            /**
+             * Rubric Weights
+             * @default {}
+             */
+            rubric_weights: string;
+        };
+        /** Body_upload_code_api_projects__pid__code_post */
+        Body_upload_code_api_projects__pid__code_post: {
+            /** Code Zip */
+            code_zip: string;
+        };
+        /** Body_upload_revision_api_projects__pid__revisions_post */
+        Body_upload_revision_api_projects__pid__revisions_post: {
+            /** Pdf */
+            pdf: string;
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
         };
         /** CandidateGapReview */
         CandidateGapReview: {
@@ -726,6 +994,33 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** CodeFile */
+        CodeFile: {
+            /** Path */
+            path: string;
+            /** Language */
+            language: string;
+            /** Content */
+            content: string;
+            /** Line Count */
+            line_count: number;
+        };
+        /** CodeQuestion */
+        CodeQuestion: {
+            /** Question */
+            question: string;
+            /** Conversation Id */
+            conversation_id?: string | null;
+            /**
+             * New Conversation
+             * @default false
+             */
+            new_conversation: boolean;
+            /** @default auto */
+            scope: components["schemas"]["AnswerScope"];
+            selection?: components["schemas"]["PaperSelection"] | null;
+            selected_code?: components["schemas"]["CodeSelection"] | null;
+        };
         /** CodeSelection */
         CodeSelection: {
             /** Path */
@@ -738,6 +1033,20 @@ export interface components {
             text: string;
             /** Context Text */
             context_text: string;
+        };
+        /** ConcernUpdate */
+        ConcernUpdate: {
+            /** Expected Run Id */
+            expected_run_id: string;
+            status?: components["schemas"]["IssueStatus"] | null;
+            support_type?: components["schemas"]["IssueSupportType"] | null;
+            /** Human Reviewed */
+            human_reviewed?: boolean | null;
+            human_decision?: components["schemas"]["HumanReviewDecision"] | null;
+            /** Human Note */
+            human_note?: string | null;
+            severity_level?: components["schemas"]["IssueSeverity"] | null;
+            category?: components["schemas"]["IssueCategory"] | null;
         };
         /** Conversation */
         Conversation: {
@@ -753,6 +1062,24 @@ export interface components {
             paper_history: components["schemas"]["PaperAnswer"][];
             /** Joint History */
             joint_history: components["schemas"]["JointAnswer"][];
+        };
+        /** ConversationCreate */
+        ConversationCreate: {
+            /**
+             * Title
+             * @default 新对话
+             */
+            title: string;
+        };
+        /** ConversationUpdate */
+        ConversationUpdate: {
+            /** Title */
+            title?: string | null;
+            /**
+             * Activate
+             * @default false
+             */
+            activate: boolean;
         };
         /** Conversations */
         Conversations: {
@@ -1059,6 +1386,15 @@ export interface components {
          * @enum {string}
          */
         PaperCodeRelation: "IMPLEMENTS" | "CONFIGURES" | "EVALUATES" | "LOADS_DATA" | "DOCUMENTS" | "PARTIAL_MATCH" | "NOT_LOCATED";
+        /** PaperSelection */
+        PaperSelection: {
+            /** Text */
+            text: string;
+            /** Page */
+            page: number;
+            /** Chunk Ids */
+            chunk_ids?: string[];
+        };
         /**
          * PeerReviewJob
          * @description Persisted status for generating a simulated peer review.
@@ -1328,11 +1664,26 @@ export interface components {
             /** Updated At */
             updated_at?: string | null;
         };
+        /** ProgressUpdate */
+        ProgressUpdate: {
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /** Review Generated At */
+            review_generated_at: string;
+            /** Review Run Id */
+            review_run_id: string;
+            /** Items */
+            items: components["schemas"]["ProgressItem"][];
+        };
         /** ProjectCreated */
         ProjectCreated: {
             project: components["schemas"]["ProjectSummary"];
             /** Job */
-            job: components["schemas"]["LearningJob"] | components["schemas"]["AuditJob"] | null;
+            job: components["schemas"]["LearningJob"] | components["schemas"]["AuditJob"] | components["schemas"]["PeerReviewJob"] | null;
         };
         /** ProjectDetail */
         ProjectDetail: {
@@ -1404,6 +1755,9 @@ export interface components {
              * @default false
              */
             new_conversation: boolean;
+            selection?: components["schemas"]["PaperSelection"] | null;
+            /** Page Scope */
+            page_scope?: number | null;
             /** Selected Text */
             selected_text?: string | null;
             /** Selected Chunk Ids */
@@ -1439,7 +1793,7 @@ export interface components {
         /** RelatedWorkComparison */
         RelatedWorkComparison: {
             /** References */
-            references: components["schemas"]["RelatedWorkReference"][];
+            references: components["schemas"]["RelatedWorkReference-Output"][];
             /**
              * Assessment
              * @default
@@ -1464,7 +1818,27 @@ export interface components {
          * RelatedWorkReference
          * @description A user-supplied related-work record; URLs are metadata, not fetched instructions.
          */
-        RelatedWorkReference: {
+        "RelatedWorkReference-Input": {
+            /** Citation */
+            citation: string;
+            /** Year */
+            year?: number | null;
+            /**
+             * Url
+             * @default
+             */
+            url: string;
+            /**
+             * Distinction
+             * @default
+             */
+            distinction: string;
+        };
+        /**
+         * RelatedWorkReference
+         * @description A user-supplied related-work record; URLs are metadata, not fetched instructions.
+         */
+        "RelatedWorkReference-Output": {
             /** Citation */
             citation: string;
             /** Year */
@@ -1479,6 +1853,18 @@ export interface components {
              * @default
              */
             distinction: string;
+        };
+        /** RelatedWorkRequest */
+        RelatedWorkRequest: {
+            /** References */
+            references: components["schemas"]["RelatedWorkReference-Input"][];
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
+            /** Expected Run Id */
+            expected_run_id: string;
         };
         /** ReportPreview */
         ReportPreview: {
@@ -1584,8 +1970,27 @@ export interface components {
             schema_version: number;
             /** Review Generated At */
             review_generated_at?: string | null;
+            /**
+             * Review Run Id
+             * @default
+             */
+            review_run_id: string;
             /** Items */
             items?: components["schemas"]["ProgressItem"][];
+        };
+        /** ReviewRequest */
+        ReviewRequest: {
+            /** @default general_ai_ml */
+            venue: components["schemas"]["PeerReviewVenue"];
+            /** Rubric Weights */
+            rubric_weights?: {
+                [key: string]: number;
+            };
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
         };
         /**
          * ReviewSeverity
@@ -1621,6 +2026,15 @@ export interface components {
              */
             summary: string;
         };
+        /** RevisionUpdate */
+        RevisionUpdate: {
+            /** Match Confirmed */
+            match_confirmed?: boolean | null;
+            /** Resolved Issue Ids */
+            resolved_issue_ids?: string[] | null;
+            /** Remaining Issue Ids */
+            remaining_issue_ids?: string[] | null;
+        };
         /** SettingsUpdate */
         SettingsUpdate: {
             /** Api Base */
@@ -1634,7 +2048,7 @@ export interface components {
              * @default no_think
              * @enum {string}
              */
-            reasoning_effort: "no_think" | "low" | "medium" | "high";
+            reasoning_effort: "" | "no_think" | "low" | "medium" | "high";
             /**
              * Retrieval Top K
              * @default 5
@@ -1686,6 +2100,11 @@ export interface components {
              * @enum {string}
              */
             reason: "heading" | "opinion" | "out_of_scope" | "non_claim";
+        };
+        /** TitleUpdate */
+        TitleUpdate: {
+            /** Title */
+            title: string;
         };
         /**
          * TrustGrade
@@ -1801,6 +2220,739 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    project_api_projects__pid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_project_api_projects__pid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rename_project_api_projects__pid__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TitleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    conversations_api_projects__pid__conversations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversations"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_conversation_api_projects__pid__conversations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversations"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_conversation_api_projects__pid__conversations__cid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                cid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversations"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_conversation_api_projects__pid__conversations__cid__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                cid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Conversations"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_code_api_projects__pid__code_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_code_api_projects__pid__code_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeFile"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    code_files_api_projects__pid__code_files_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeFile"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    code_file_api_projects__pid__code_files__path__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodeFile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    code_question_api_projects__pid__code_qa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeQuestion"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JointAnswer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_review_api_projects__pid__review_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_review_api_projects__pid__review_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_concern_api_projects__pid__review_concerns__concern_index__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                concern_index: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConcernUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewPayload"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    save_progress_api_projects__pid__review_progress_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProgressUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewProgress"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    related_work_api_projects__pid__review_related_work_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RelatedWorkRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RelatedWorkComparison"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revisions_api_projects__pid__revisions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewRevision"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_revision_api_projects__pid__revisions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_upload_revision_api_projects__pid__revisions_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewRevisionJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revision_api_projects__pid__revisions__rid__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                rid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewRevision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_revision_api_projects__pid__revisions__rid__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                rid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevisionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewRevision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revision_pdf_api_projects__pid__revisions__rid__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                rid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_revision_api_projects__pid__revision_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PeerReviewRevisionJob"];
                 };
             };
             /** @description Validation Error */
@@ -1951,37 +3103,6 @@ export interface operations {
             };
         };
     };
-    project_api_projects__pid__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                pid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProjectDetail"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     pdf_api_projects__pid__pdf_get: {
         parameters: {
             query?: never;
@@ -2062,37 +3183,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LearningJob"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    conversations_api_projects__pid__conversations_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                pid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Conversations"];
                 };
             };
             /** @description Validation Error */

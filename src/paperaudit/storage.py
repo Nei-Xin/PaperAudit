@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from functools import wraps
+from threading import RLock
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
@@ -444,8 +446,17 @@ def _validate_record_id(value: str, prefix: str, label: str) -> str:
     return value
 
 
+def _serialized_write(method):
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        with self._write_lock:
+            return method(self, *args, **kwargs)
+    return wrapped
+
+
 class ProjectStore:
     def __init__(self, storage_root: str | Path):
+        self._write_lock = RLock()
         self.storage_root = validate_storage_root(storage_root)
         self.projects_dir = self.storage_root / "projects"
 
@@ -460,6 +471,7 @@ class ProjectStore:
 
         return sha256(pdf_bytes).hexdigest()[:16]
 
+    @_serialized_write
     def save_learning_project(
         self,
         pdf_bytes: bytes,
@@ -481,6 +493,7 @@ class ProjectStore:
             _atomic_write(project_dir / "codebase.json", codebase.model_dump_json(indent=2).encode("utf-8"))
         return self.save_learning_report(project_id, report)
 
+    @_serialized_write
     def save_learning_report(self, project_id: str, report: LearningReport) -> ProjectMetadata:
         """Save a generated report without writing a stale project snapshot."""
         project_dir = self._require_project_dir(project_id)
@@ -499,6 +512,7 @@ class ProjectStore:
         _atomic_write_json(metadata_path, metadata.__dict__)
         return metadata
 
+    @_serialized_write
     def save_paper_project(
         self,
         pdf_bytes: bytes,
@@ -546,6 +560,7 @@ class ProjectStore:
         _atomic_write_json(metadata_path, metadata.__dict__)
         return metadata
 
+    @_serialized_write
     def save_histories(
         self,
         project_id: str,
@@ -575,17 +590,19 @@ class ProjectStore:
             except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
                 raise StorageError("项目元数据已损坏，无法更新保存时间。") from exc
 
+    @_serialized_write
     def save_conversations(
         self,
         project_id: str,
         conversations: Sequence[ConversationRecord],
         active_conversation_id: str | None = None,
+        *, keep_empty: bool = False,
     ) -> None:
         """Persist the conversation list while keeping legacy history keys."""
         project_dir = self._project_dir(project_id)
         if not project_dir.exists():
             raise StorageError("需要保存的项目不存在。")
-        records = [item for item in conversations if _conversation_has_content(item)]
+        records = [item for item in conversations if keep_empty or _conversation_has_content(item)]
         active_source = next(
             (item for item in conversations if item.conversation_id == active_conversation_id),
             None,
@@ -636,6 +653,7 @@ class ProjectStore:
             },
         )
 
+    @_serialized_write
     def load_learning_project(self, project_id: str) -> SavedLearningProject:
         project_dir = self._project_dir(project_id)
         try:
@@ -688,6 +706,12 @@ class ProjectStore:
             conversations = _load_conversations(session, paper_history, joint_history)
             if not conversations:
                 conversations = [make_conversation("新对话")]
+            if not session.get("conversations"):
+                # Legacy/empty sessions must expose the same ID across HTTP reads,
+                # without mutating their JSON just to display a conversation.
+                conversations = [replace(conversations[0],
+                    conversation_id=f"conversation-{project_id}-default",
+                    created_at=metadata.created_at, updated_at=metadata.updated_at)]
             active_id = str(session.get("active_conversation_id", ""))
             active_conversation = next(
                 (item for item in conversations if item.conversation_id == active_id),
@@ -709,6 +733,7 @@ class ProjectStore:
             active_conversation_id=active_conversation.conversation_id,
         )
 
+    @_serialized_write
     def save_peer_review(self, project_id: str, review: PeerReviewReport) -> None:
         project_dir = self._require_project_dir(project_id)
         review = _sanitize_peer_review_evidence(review)
@@ -769,6 +794,7 @@ class ProjectStore:
         except (OSError, TypeError, ValueError):
             raise StorageError("模拟评审记录不存在、已损坏或版本不受支持。")
 
+    @_serialized_write
     def save_peer_review_revision(
         self,
         project_id: str,
@@ -832,6 +858,7 @@ class ProjectStore:
         except OSError as exc:
             raise StorageError("修改稿文件不存在或无法读取。") from exc
 
+    @_serialized_write
     def update_peer_review_revision(self, project_id: str, revision: PeerReviewRevision) -> None:
         self._require_project_dir(project_id)
         _validate_record_id(revision.revision_id, "peer-review-revision", "修改稿版本")
@@ -840,6 +867,7 @@ class ProjectStore:
             revision.model_dump_json(indent=2).encode("utf-8"),
         )
 
+    @_serialized_write
     def create_peer_review_job(
         self,
         project_id: str,
@@ -928,6 +956,7 @@ class ProjectStore:
                 continue
         return sorted(projects, key=lambda item: item.updated_at, reverse=True)
 
+    @_serialized_write
     def delete_project(self, project_id: str) -> None:
         """Permanently remove one persisted project and all of its records."""
 
@@ -951,6 +980,7 @@ class ProjectStore:
         except OSError as exc:
             raise StorageError(f"无法删除论文项目：{exc}") from exc
 
+    @_serialized_write
     def update_project_title(self, project_id: str, title: str) -> ProjectMetadata:
         """Persist a repaired display title without changing project contents."""
 
@@ -995,6 +1025,7 @@ class ProjectStore:
         except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
             raise StorageError("项目元数据已损坏，无法更新保存时间。") from exc
 
+    @_serialized_write
     def save_audit_run(
         self,
         project_id: str,
@@ -1142,6 +1173,7 @@ class ProjectStore:
             raise StorageError("审计记录不存在、已损坏或版本不受支持。") from exc
         return metadata, run
 
+    @_serialized_write
     def create_audit_job(
         self,
         project_id: str,
@@ -1271,6 +1303,7 @@ class ProjectStore:
                 interrupted += 1
         return interrupted
 
+    @_serialized_write
     def create_learning_job(
         self,
         project_id: str,
@@ -1364,14 +1397,16 @@ class ProjectStore:
                 interrupted += 1
         return interrupted
 
+    @_serialized_write
     def create_peer_review_revision_job(
         self, project_id: str, *, pdf_bytes: bytes, original_filename: str,
         runtime: AuditRuntimeSnapshot | dict[str, Any],
+        baseline: PeerReviewReport | None = None,
     ) -> PeerReviewRevisionJob:
         project_dir = self._require_project_dir(project_id)
         if not pdf_bytes:
             raise StorageError("修改稿 PDF 不能为空。")
-        previous = self.load_peer_review(project_id)
+        previous = baseline or self.load_peer_review(project_id)
         if previous is None:
             raise StorageError("当前项目没有基准评审记录。")
         if any(job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
@@ -1458,3 +1493,51 @@ class ProjectStore:
                     }))
                     interrupted += 1
         return interrupted
+
+
+    @_serialized_write
+    def save_codebase(self, project_id: str, codebase: ParsedCodebase) -> None:
+        directory = self._require_project_dir(project_id)
+        _atomic_write(directory / "codebase.json", codebase.model_dump_json(indent=2).encode())
+        metadata = _metadata_from_dict(json.loads((directory / "metadata.json").read_text()))
+        _atomic_write_json(directory / "metadata.json", replace(metadata, has_code=True, updated_at=_utc_now()).__dict__)
+
+    def load_review_progress(self, project_id: str) -> dict:
+        from paperaudit.review_progress import empty_progress, action_key, plan_actions
+        report = self.load_peer_review(project_id)
+        if report is None:
+            raise StorageError("当前项目没有评审。")
+        empty = empty_progress(report)
+        path = self._require_project_dir(project_id) / "review-progress.json"
+        if not path.exists():
+            return empty
+        try:
+            value = json.loads(path.read_text())
+            if (value.get("review_generated_at") != report.generated_at
+                    or value.get("review_run_id", "") != report.run_id):
+                return empty
+            allowed = {action_key(text) for text in plan_actions(report)}
+            items = [{"key": item["key"], "done": item["done"], "updated_at": item.get("updated_at")}
+                     for item in value["items"] if item["key"] in allowed and isinstance(item["done"], bool)]
+            return {**empty, "items": items}
+        except (ValueError, KeyError, TypeError, OSError) as exc:
+            raise StorageError("修改计划进度文件损坏。") from exc
+
+    @_serialized_write
+    def save_review_progress(self, project_id: str, progress: dict) -> dict:
+        from paperaudit.review_progress import empty_progress, action_key, plan_actions
+        report = self.load_peer_review(project_id)
+        if report is None:
+            raise StorageError("当前项目没有评审。")
+        if (progress.get("review_generated_at") != report.generated_at
+                or progress.get("review_run_id") != report.run_id):
+            raise StorageError("评审已更新，请刷新修改计划后再保存。")
+        allowed = {action_key(text) for text in plan_actions(report)}
+        items = progress.get("items", [])
+        if (len({item["key"] for item in items}) != len(items)
+                or any(item["key"] not in allowed or not isinstance(item["done"], bool) for item in items)):
+            raise StorageError("修改计划条目无效。")
+        value = {**empty_progress(report), "items": [
+            {"key": item["key"], "done": item["done"], "updated_at": _utc_now()} for item in items]}
+        _atomic_write_json(self._require_project_dir(project_id) / "review-progress.json", value)
+        return value

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import replace
+import json
 from pathlib import Path
 from threading import Lock
 from typing import Annotated, Literal
@@ -17,7 +18,12 @@ from paperaudit.hy3_client import Hy3ConfigurationError, Hy3ResponseError
 from paperaudit.learning_jobs import LearningJobManager
 from paperaudit.audit_jobs import AuditJobManager, default_audit_service
 from .audit_routes import router as audit_router, report_input, DEFAULT_SCOPE
-from paperaudit.models import LearningReport, LearningJob, PaperAnswer
+from paperaudit.models import LearningReport, LearningJob, PaperAnswer, PeerReviewVenue, ClaimCategory
+from paperaudit.code_service import CodeLearningService
+from paperaudit.peer_review_jobs import PeerReviewJobManager, PeerReviewRevisionJobManager
+from paperaudit.peer_review_rules import normalize_peer_review_weights
+from .project_routes import router as project_router, read_code_upload, selected_paper
+from .review_routes import router as review_router
 from paperaudit.service import AuditService
 from paperaudit.storage import AuditRecordMetadata, StorageError, load_storage_settings, default_settings_dir, _atomic_write_json
 from paperaudit.workflows import require_model, submit_learning, create_project_from_upload, answer_paper_question
@@ -60,7 +66,7 @@ class ProjectLocks:
 
 def create_app(*, storage_root: Path | None = None, settings: Settings | None = None,
                settings_dir: Path | None = None, service_factory=AuditService,
-               dist: Path | None = None, audit_service_factory=None) -> FastAPI:
+               dist: Path | None = None, audit_service_factory=None, code_service_factory=CodeLearningService) -> FastAPI:
     """Startup (not import) loads data. Tests inject an isolated store and fake model."""
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -77,13 +83,13 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
             update = SettingsUpdate.model_validate_json(model_file.read_text()).model_dump(exclude_none=True)
             active_settings = replace(active_settings, **update)
         api = ReadOnlyApi(root, active_settings)
-        # This process owns its data directory; never point it at an active old service.
-        for recover in (api.store.mark_interrupted_peer_review_jobs,
-                        api.store.mark_interrupted_peer_review_revision_jobs):
-            recover()
         manager = LearningJobManager(api.store, service_factory=service_factory)
         app.state.api, app.state.manager = api, manager
         app.state.audit_manager = AuditJobManager(api.store, service_factory=audit_service_factory or (default_audit_service if service_factory is AuditService else service_factory))
+        app.state.review_manager = PeerReviewJobManager(api.store, service_factory=service_factory)
+        app.state.revision_manager = PeerReviewRevisionJobManager(api.store, service_factory=service_factory)
+        app.state.service_factory = service_factory
+        app.state.code_service_factory = code_service_factory
         app.state.model_file = model_file
         app.state.locks = ProjectLocks()
         app.state.settings_lock = Lock()
@@ -92,9 +98,13 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
         finally:
             manager.shutdown(wait=True)
             app.state.audit_manager.shutdown(wait=True)
+            app.state.review_manager.shutdown(wait=True)
+            app.state.revision_manager.shutdown(wait=True)
 
-    app = FastAPI(title="PaperAudit API", version="0.3.0", lifespan=lifespan)
+    app = FastAPI(title="PaperAudit API", version="0.4.0", lifespan=lifespan)
     app.include_router(audit_router)
+    app.include_router(project_router)
+    app.include_router(review_router)
 
     @app.middleware("http")
     async def same_origin(request: Request, call_next):
@@ -105,7 +115,11 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
                 origin and urlsplit(origin).netloc != request.headers.get("host")
             ):
                 return error(403, "origin_rejected", "不允许跨站提交请求。")
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            # Do not let model/client exceptions expose credentials in HTTP bodies or ASGI tracebacks.
+            return error(500, "server_error", "请求处理失败，请稍后重试。")
         response.headers["X-Content-Type-Options"] = "nosniff"
         if request.url.path.startswith("/api/"):
             response.headers["Cache-Control"] = "no-store"
@@ -189,12 +203,27 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
                privacy_ack: Annotated[bool, Form()] = False,
                code_zip: Annotated[UploadFile | None, File()] = None,
                report_text: Annotated[str | None, Form()] = None,
-               report_file: Annotated[UploadFile | None, File()] = None):
-        if mode not in {"learn", "audit_existing"} or code_zip is not None:
-            raise ApiProblem(409, "not_available", "本阶段支持讲解和报告审计；评审与代码上传仍在接入中。")
+               report_file: Annotated[UploadFile | None, File()] = None,
+               scope: Annotated[list[ClaimCategory] | None, Form()] = None,
+               venue: Annotated[PeerReviewVenue, Form()] = PeerReviewVenue.GENERAL,
+               rubric_weights: Annotated[str, Form()] = "{}"):
+        if mode not in {"learn", "audit_existing", "peer_review"}:
+            raise ApiProblem(409, "not_available", "不支持的项目创建模式。")
         if not privacy_ack:
             raise ApiProblem(422, "privacy_required", "请确认允许将论文文本发送到配置的模型服务。")
         require_model(api().settings)
+        if code_zip is not None and mode != "learn":
+            raise ApiProblem(422, "invalid_code_mode", "代码 ZIP 仅支持讲解模式。")
+        if mode != "audit_existing" and (report_text is not None or report_file is not None):
+            raise ApiProblem(422, "invalid_report_mode", "报告输入仅支持报告审计模式。")
+        try:
+            raw_weights = json.loads(rubric_weights)
+            if not isinstance(raw_weights, dict):
+                raise ValueError("Invalid weights")
+            normalize_peer_review_weights(raw_weights)  # Validate before creating the project.
+        except (ValueError, TypeError):
+            raise ApiProblem(422, "invalid_weights", "评审权重格式无效。")
+        codebase = read_code_upload(code_zip) if code_zip is not None else None
         prepared = report_input(report_text, report_file) if mode == "audit_existing" else None
         data = pdf.file.read(MAX_PDF_BYTES + 1)
         if len(data) > MAX_PDF_BYTES:
@@ -204,7 +233,14 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
         filename = (pdf.filename or "paper.pdf").replace("\\", "/").split("/")[-1]
         pid = api().store.project_id(data)
         with app.state.locks.hold(pid):
-            if prepared is None:
+            if mode == "peer_review":
+                from paperaudit.pdf_parser import parse_pdf
+                from paperaudit.workflows import submit_peer_review
+                if not any(p.project_id == pid for p in api().store.list_projects()):
+                    api().store.save_paper_project(data, filename, parse_pdf(data))
+                job = submit_peer_review(api().store, app.state.review_manager, api().settings, pid, venue, raw_weights)
+                metadata = api().store.load_learning_project(pid).metadata
+            elif prepared is None:
                 metadata, job = create_project_from_upload(api().store, app.state.manager, api().settings, data, filename)
             else:
                 from paperaudit.pdf_parser import parse_pdf
@@ -214,8 +250,10 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
                 text, report_filename, _ = prepared
                 job = submit_audit(api().store, app.state.audit_manager, api().settings, pid,
                                    text, "uploaded_report", report_filename or "粘贴报告",
-                                   report_filename, DEFAULT_SCOPE, "audit_existing")
+                                   report_filename, DEFAULT_SCOPE if scope is None else scope, "audit_existing")
                 metadata = api().store.load_learning_project(pid).metadata
+            if codebase is not None:
+                api().store.save_codebase(pid, codebase)
         return {"project": api()._summary(metadata.project_id), "job": job}
 
     @app.get("/api/projects/{pid}", response_model=ProjectDetail)
@@ -249,7 +287,12 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
         require_project(pid)
         require_model(api().settings)
         with app.state.locks.hold(pid):
-            return answer_paper_question(api().store, service_factory(api().settings), pid, **body.model_dump())
+            saved = api().store.load_learning_project(pid)
+            ids, text = selected_paper(saved, body.selection, body.page_scope,
+                                       body.selected_chunk_ids, body.selected_text)
+            return answer_paper_question(api().store, service_factory(api().settings), pid,
+                body.question, body.conversation_id, new_conversation=body.new_conversation,
+                selected_text=text, selected_chunk_ids=ids)
 
     @app.get("/api/projects/{pid}/jobs", response_model=ProjectJobs)
     def jobs(pid: str):

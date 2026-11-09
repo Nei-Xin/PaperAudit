@@ -1,4 +1,4 @@
-"""UI-independent reading workflows shared by Streamlit and the HTTP API."""
+"""UI-independent business workflows shared by Streamlit and the HTTP API."""
 from __future__ import annotations
 
 from dataclasses import replace
@@ -63,7 +63,7 @@ def answer_paper_question(store: ProjectStore, service, project_id: str, questio
                       title=question[:36] if not active.paper_history and not active.joint_history else active.title,
                       updated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     store.save_conversations(project_id, [updated if c.conversation_id == active.conversation_id else c
-                                         for c in records], updated.conversation_id)
+                                         for c in records], updated.conversation_id, keep_empty=True)
     return answer
 
 
@@ -86,3 +86,47 @@ def submit_audit(store, manager, settings, project_id, report_text, source_type,
     )
     manager.submit(project_id, job.job_id, settings)
     return job
+
+
+
+def runtime_snapshot(settings):
+    return AuditRuntimeSnapshot(model=settings.model, reasoning_effort=settings.reasoning_effort,
+                                retrieval_top_k=settings.retrieval_top_k,
+                                judge_batch_size=settings.judge_batch_size, deep_audit=settings.deep_audit)
+
+
+def submit_peer_review(store, manager, settings, project_id, venue, rubric_weights=None, *, runtime=None):
+    from paperaudit.peer_review_rules import peer_review_rubric_metadata, normalize_peer_review_weights
+    require_model(settings)
+    weights = normalize_peer_review_weights(rubric_weights)
+    version, _, _ = peer_review_rubric_metadata(venue, weights)
+    job = store.create_peer_review_job(project_id, runtime=runtime or runtime_snapshot(settings),
+                                      venue=venue, rubric_version=version, rubric_weights=weights)
+    manager.submit(project_id, job.job_id, settings)
+    return job
+
+
+def submit_revision(store, manager, settings, project_id, pdf_bytes, filename):
+    require_model(settings)
+    parse_pdf(pdf_bytes)  # Reject malformed/scanned files before persisting a queued task.
+    job = store.create_peer_review_revision_job(project_id, pdf_bytes=pdf_bytes,
+        original_filename=filename, runtime=runtime_snapshot(settings))
+    manager.submit(project_id, job.job_id, settings)
+    return job
+
+
+def save_peer_review_edit(store, project_id, report):
+    from paperaudit.peer_review_rules import recalculate_peer_review
+    updated = recalculate_peer_review(report)
+    store.save_peer_review(project_id, updated)
+    return updated
+
+
+def compare_related_work(store, service, project_id, references, *, report=None):
+    report = report or store.load_peer_review(project_id)
+    if report is None:
+        raise StorageError("当前项目没有基准评审记录。")
+    paper = store.load_learning_project(project_id).paper
+    comparison = service.compare_related_work(paper, references)
+    save_peer_review_edit(store, project_id, report.model_copy(update={"related_work_comparison": comparison}))
+    return comparison

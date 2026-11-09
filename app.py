@@ -8,7 +8,8 @@ from paperaudit.display import LABEL_NAMES, SEVERITY_NAMES, recover_paper_title
 from paperaudit.config import Settings
 from paperaudit.code_service import CodeLearningService
 from paperaudit.learning_jobs import LearningJobManager
-from paperaudit.workflows import submit_learning, submit_audit
+from paperaudit.workflows import (submit_learning, submit_audit, submit_peer_review,
+    submit_revision, save_peer_review_edit, compare_related_work)
 from paperaudit.hy3_client import Hy3ConfigurationError
 from paperaudit.peer_review_jobs import PeerReviewJobManager, PeerReviewRevisionJobManager
 from paperaudit.models import (
@@ -23,8 +24,6 @@ from paperaudit.models import (
 from paperaudit.reporting import render_markdown
 from paperaudit.service import (
     AuditService,
-    peer_review_rubric_metadata,
-    recalculate_peer_review,
     validate_audit_report_text,
 )
 from paperaudit.storage import ProjectStore, StorageError, load_storage_settings
@@ -198,24 +197,14 @@ def _submit_active_project_peer_review() -> PeerReviewJob:
         raise StorageError("请先打开一个已保存的论文项目。")
     if not active_settings.is_configured:
         raise ValueError("请先配置并连接 Hy3 API。")
-    runtime = AuditRuntimeSnapshot(
-        model=active_settings.model,
-        reasoning_effort=active_settings.reasoning_effort,
-        retrieval_top_k=active_settings.retrieval_top_k,
-        judge_batch_size=active_settings.judge_batch_size,
-    )
     venue_value = st.session_state.get("peer_review_venue", PeerReviewVenue.GENERAL.value)
     try:
         venue = PeerReviewVenue(str(venue_value))
     except ValueError:
         venue = PeerReviewVenue.GENERAL
     rubric_weights = st.session_state.get("peer_review_rubric_weights", {})
-    rubric_version, _, _ = peer_review_rubric_metadata(venue, rubric_weights)
-    job = project_store.create_peer_review_job(
-        str(project_id), runtime=runtime, venue=venue,
-        rubric_version=rubric_version, rubric_weights=rubric_weights
-    )
-    peer_review_job_manager.submit(str(project_id), job.job_id, active_settings)
+    job = submit_peer_review(project_store, peer_review_job_manager, active_settings,
+                             str(project_id), venue, rubric_weights)
     st.session_state["peer_review_job_id"] = job.job_id
     return job
 
@@ -226,16 +215,8 @@ def _submit_active_project_revision(pdf_bytes: bytes, filename: str):
         raise StorageError("请先打开一个已保存的论文项目。")
     if not active_settings.is_configured:
         raise ValueError("请先配置并连接 Hy3 API。")
-    job = project_store.create_peer_review_revision_job(
-        str(project_id), pdf_bytes=pdf_bytes, original_filename=filename,
-        runtime=AuditRuntimeSnapshot(
-            model=active_settings.model, reasoning_effort=active_settings.reasoning_effort,
-            retrieval_top_k=active_settings.retrieval_top_k,
-            judge_batch_size=active_settings.judge_batch_size,
-        ),
-    )
-    revision_job_manager.submit(str(project_id), job.job_id, active_settings)
-    return job
+    return submit_revision(project_store, revision_job_manager, active_settings,
+                           str(project_id), pdf_bytes, filename)
 
 
 def _load_active_revision_jobs():
@@ -253,8 +234,7 @@ def _save_active_peer_review(report):
     if not project_id:
         raise StorageError("请先打开一个已保存的论文项目。")
     # Human concern edits must update the system-computed score and decision.
-    report = recalculate_peer_review(report)
-    project_store.save_peer_review(str(project_id), report)
+    report = save_peer_review_edit(project_store, str(project_id), report)
     st.session_state["peer_review"] = report
 
 
@@ -264,12 +244,9 @@ def _compare_active_related_work(references: list[RelatedWorkReference]):
         raise StorageError("当前没有已加载的论文。")
     if not active_settings.is_configured:
         raise ValueError("请先配置并连接 Hy3 API。")
-    comparison = AuditService(active_settings).compare_related_work(paper, references)
-    report = project_store.load_peer_review(str(st.session_state.get("active_project_id")))
-    if report is None:
-        raise StorageError("当前项目没有基准评审记录。")
-    updated = report.model_copy(update={"related_work_comparison": comparison})
-    _save_active_peer_review(updated)
+    project_id = str(st.session_state.get("active_project_id"))
+    comparison = compare_related_work(project_store, AuditService(active_settings), project_id, references)
+    st.session_state["peer_review"] = project_store.load_peer_review(project_id)
     return comparison
 
 
@@ -542,6 +519,8 @@ def _render_review_page() -> None:
             load_revisions=_load_active_project_revisions,
             load_revision_pdf=_load_active_project_revision_pdf,
             on_update_revision=_save_active_project_revision,
+            load_progress=lambda: project_store.load_review_progress(str(st.session_state["active_project_id"])),
+            on_save_progress=lambda value: project_store.save_review_progress(str(st.session_state["active_project_id"]), value),
         )
         return
     if job_active:

@@ -302,6 +302,8 @@ export function ReviewPage() {
     setLocalProgress(next);
     const payload: ReviewProgress = {
       schema_version: 1,
+      review_run_id: review.data?.report.run_id ?? "",
+      review_generated_at: review.data?.report.generated_at ?? "",
       items: Object.entries(next).map(([k, d]) => ({ key: k, done: d, updated_at: new Date().toISOString() })),
     };
     save.mutate(payload);

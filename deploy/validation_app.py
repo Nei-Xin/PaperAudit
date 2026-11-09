@@ -10,6 +10,7 @@ from time import monotonic
 from paperaudit.api.main import create_app
 from paperaudit.request_budget import RequestBudget, use_request_budget
 from paperaudit.service import AuditService
+from paperaudit.code_service import CodeLearningService
 
 _usage_lock = Lock()
 
@@ -49,5 +50,19 @@ class ValidationService(AuditService):
         with meter("qa"):
             return super().answer_question(paper, question, history, **kwargs)
 
+    def generate_peer_review(self, paper, **kwargs):
+        with meter("review"):
+            return super().generate_peer_review(paper, **kwargs)
 
-app = create_app(service_factory=ValidationService)
+    def compare_related_work(self, paper, references):
+        with meter("related_work"):
+            return super().compare_related_work(paper, references)
+
+
+class ValidationCodeService(CodeLearningService):
+    def answer(self, paper, codebase, question, **kwargs):
+        with meter("code_qa"):
+            return super().answer(paper, codebase, question, **kwargs)
+
+
+app = create_app(service_factory=ValidationService, code_service_factory=ValidationCodeService)

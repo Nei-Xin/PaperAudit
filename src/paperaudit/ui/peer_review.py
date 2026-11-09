@@ -374,29 +374,34 @@ def _render_submission_risks(report: PeerReviewReport, pdf_bytes: bytes | None) 
                 st.caption("需人工复核 · 当前判断没有可定位原文证据")
 
 
-def _plan_actions(report: PeerReviewReport) -> list[str]:
-    actions = list(report.top_priorities or report.required_changes)
-    if not actions:
-        actions = [
-            concern.suggestion
-            for concern in [*report.major_concerns, *report.minor_concerns]
-            if concern.suggestion.strip()
-        ][:3]
-    return actions
+from paperaudit.review_progress import plan_actions as _plan_actions, action_key, empty_progress
+from paperaudit.storage import StorageError
+from paperaudit.review_reporting import render_peer_review_markdown
 
 
-def _render_action_plan(report: PeerReviewReport) -> None:
+def _render_action_plan(report: PeerReviewReport, on_save_progress=None) -> None:
     actions = _plan_actions(report)
     if not actions:
         return
     done_count = sum(
-        bool(st.session_state.get(f"peer-review-action-done-{report.paper_title}-{index}"))
+        bool(st.session_state.get(f"peer-review-action-done-{report.run_id}-{report.generated_at}-{action_key(actions[index])}"))
         for index in range(min(len(actions), 5))
     )
     st.markdown(
         f'### 投稿前修改计划 <span class="pa-peer-plan-progress">{done_count}/{min(len(actions), 5)} 已完成</span>',
         unsafe_allow_html=True,
     )
+    def save_changed():
+        if on_save_progress is not None:
+            value = {**empty_progress(report), "items": [
+                {"key": action_key(action), "done": bool(st.session_state.get(
+                    f"peer-review-action-done-{report.run_id}-{report.generated_at}-{action_key(action)}"))}
+                for action in actions]}
+            try:
+                on_save_progress(value)
+            except StorageError as exc:
+                st.error(str(exc))
+
     for index, action in enumerate(actions[:5]):
         priority = "P0" if index < 2 else "P1"
         with st.container(key=f"peer-action-item-{index}"):
@@ -419,8 +424,9 @@ def _render_action_plan(report: PeerReviewReport) -> None:
                 action_col.caption("关联问题：" + "、".join(dict.fromkeys(related)))
             check_col.checkbox(
                 "完成",
-                key=f"peer-review-action-done-{report.paper_title}-{index}",
+                key=f"peer-review-action-done-{report.run_id}-{report.generated_at}-{action_key(actions[index])}",
                 help="仅记录作者的内部修改进度，不表示 AI 已确认问题解决。",
+                on_change=save_changed,
             )
 
 
@@ -463,6 +469,8 @@ def render_peer_review(
     load_revisions: Callable[[], Sequence[PeerReviewRevision]] | None = None,
     load_revision_pdf: Callable[[str], bytes] | None = None,
     on_update_revision: Callable[[PeerReviewRevision], object] | None = None,
+    load_progress: Callable[[], dict] | None = None,
+    on_save_progress: Callable[[dict], object] | None = None,
 ) -> None:
     label, zh_label, decision_class = DECISION_LABELS[report.decision]
     run_details = [
@@ -484,9 +492,18 @@ def render_peer_review(
         f'<span title="{escape(" · ".join(run_details))}">运行信息 ⓘ</span>' if run_details else ""
     )
     actions = _plan_actions(report)
+    if load_progress is not None:
+        try:
+            stored_progress = load_progress()
+            saved_keys = {item["key"]: item["done"] for item in stored_progress["items"]}
+            for action in actions:
+                key = f"peer-review-action-done-{report.run_id}-{report.generated_at}-{action_key(action)}"
+                st.session_state[key] = saved_keys.get(action_key(action), False)
+        except StorageError as exc:
+            st.error(str(exc))
     action_total = min(len(actions), 5)
     done_count = sum(
-        bool(st.session_state.get(f"peer-review-action-done-{report.paper_title}-{index}"))
+        bool(st.session_state.get(f"peer-review-action-done-{report.run_id}-{report.generated_at}-{action_key(actions[index])}"))
         for index in range(action_total)
     )
     revision_count = len(list(load_revisions() if load_revisions is not None else []))
@@ -528,7 +545,7 @@ def render_peer_review(
             )
             with tab_overview:
                 _render_submission_risks(report, pdf_bytes)
-                _render_action_plan(report)
+                _render_action_plan(report, on_save_progress)
                 with st.expander("展开完整 AI 评审总结"):
                     st.write(report.summary)
                     if report.why_not_adjacent:
@@ -860,103 +877,3 @@ def render_peer_review(
                     mime="text/markdown",
                     width="stretch",
                 )
-
-
-def render_peer_review_markdown(report: PeerReviewReport) -> str:
-    lines = [
-        "# PaperAudit · 模拟投稿评审",
-        "",
-        f"- 论文：{report.paper_title}",
-        f"- 评审标准：{_VENUE_LABELS.get(report.venue, report.venue.value)}",
-        *( [f"- Rubric 版本：{report.rubric_version}"] if report.rubric_version else [] ),
-        *( [f"- Rubric 更新时间：{report.rubric_updated_at}"] if report.rubric_updated_at else [] ),
-        *( [f"- Rubric 说明：{report.rubric_change_note}"] if report.rubric_change_note else [] ),
-        f"- 投稿建议：{report.decision.value}",
-        f"- 综合评分：{report.overall_score:.1f} / 10",
-        f"- 评审置信度：{report.confidence} / 5",
-        "",
-        "> 本报告为基于当前论文原文的 AI 辅助预审，不代表真实会议录用决定。",
-        *( [f"- 模型原始评分（仅供审计）：{report.model_raw_score:.1f} / 10"]
-           if report.model_raw_score is not None else [] ),
-        *( [f"- 系统评分算法：{report.score_calculation_version}（六维加权后映射）"]
-           if report.score_breakdown else [] ),
-        *( ["- 当前权重：" + "、".join(f"{_DIMENSION_LABELS.get(name, name)} {value:.1%}" for name, value in report.rubric_weights.items())]
-           if report.rubric_weights else [] ),
-        "",
-        report.summary,
-        "",
-        "## 核心贡献",
-        "",
-        *[f"- {item}" for item in report.core_contributions],
-        "",
-        "## 主要优点",
-        "",
-        *[f"- {item}" for item in report.strengths],
-        "",
-        "## 决策理由",
-        "",
-        report.decision_rationale,
-        "",
-        "## 为什么不是相邻档位",
-        "",
-        report.why_not_adjacent,
-        "",
-        "## 接收阻碍",
-        "",
-        *[f"- {item}" for item in report.acceptance_blockers],
-        "",
-        "## 致命问题",
-        "",
-        *[f"- {item}" for item in report.fatal_flaws],
-        "",
-        "## 置信度说明",
-        "",
-        report.confidence_rationale,
-        "",
-        "## 评审边界",
-        "",
-        *[f"- {item}" for item in (report.review_limitations or [
-            "本评审仅基于上传论文文本；代码、完整附录、数据泄漏和未报告实验无法独立验证。"
-        ])],
-        "",
-        "## 必须修改",
-        "",
-        *[f"- {item}" for item in report.required_changes],
-        "",
-        "## 建议修改",
-        "",
-        *[f"- {item}" for item in report.suggested_changes],
-        "",
-        "## 维度评分",
-        "",
-        *[f"- {_DIMENSION_LABELS.get(item.name, item.name)}：{item.score} / 5（置信度 {item.confidence} / 5）— {item.rationale}" for item in report.dimensions],
-        "",
-    ]
-    if report.related_work_comparison is not None:
-        comparison = report.related_work_comparison
-        lines.extend(["## 相关工作对比", "", comparison.assessment, ""])
-        if comparison.distinctions:
-            lines.extend(["可支持的差异：", *[f"- {item}" for item in comparison.distinctions], ""])
-        if comparison.gaps:
-            lines.extend(["仍需补充：", *[f"- {item}" for item in comparison.gaps], ""])
-        lines.extend([f"对比置信度：{comparison.confidence}/5", ""])
-    for heading, concerns in (("主要问题", report.major_concerns), ("次要问题", report.minor_concerns)):
-        lines.extend([f"## {heading}", ""])
-        for item in concerns:
-            lines.extend([
-                f"### {item.title}", "",
-                f"{item.description}", "",
-                f"为什么重要：{item.why_it_matters}", "",
-                f"建议：{item.suggestion}", "",
-                f"AI 原始判断：严重度 {(item.ai_severity_level or _severity_for(item)).value} · 类别 {_ISSUE_CATEGORY_LABELS.get(item.ai_category or item.category, (item.ai_category or item.category).value)} · "
-                f"当前采用：严重度 {(_severity_for(item)).value} · 类别 {_ISSUE_CATEGORY_LABELS.get(item.category, item.category.value)} · "
-                f"证据判断 {item.support_type.value} · 置信度 {item.confidence}/5", "",
-                f"人工结论：{_HUMAN_DECISION_LABELS.get(item.human_decision, item.human_decision.value)} · "
-                f"人工已确认：{'是' if item.human_reviewed else '否'}",
-                f"人工备注：{item.human_note}" if item.human_note else "",
-                "",
-                *[f"- 第 {anchor.page} 页：{anchor.quote or anchor.text[:240]}" for anchor in item.evidence],
-                "",
-            ])
-    lines.extend(["## 最优先修改的事项", "", *[f"1. {item}" for item in report.top_priorities], ""])
-    return "\n".join(lines).strip() + "\n"

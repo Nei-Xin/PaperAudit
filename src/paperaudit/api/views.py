@@ -132,12 +132,7 @@ class ReadOnlyApi:
         report = self.store.load_peer_review(project_id)
         if report is None:
             return None
-        progress_path = self.store.projects_dir / project_id / "review-progress.json"
-        progress = (
-            json.loads(progress_path.read_text(encoding="utf-8"))
-            if progress_path.exists()
-            else {"schema_version": 1, "items": []}
-        )
+        progress = self.store.load_review_progress(project_id)
         return {
             "report": _model(report),
             "progress": progress,
@@ -201,7 +196,7 @@ class ReadOnlyApi:
                 report = self.store.load_peer_review(pid)
                 if report is None:
                     raise NotFound(path)
-                from paperaudit.ui.peer_review import render_peer_review_markdown
+                from paperaudit.review_reporting import render_peer_review_markdown
                 return 200, MARKDOWN, render_peer_review_markdown(report).encode("utf-8")
             if rest == "jobs":
                 return _json(self.jobs(pid))
