@@ -10,11 +10,12 @@ Group=debian
 WorkingDirectory=/srv/paperaudit/react-validation/current
 EnvironmentFile=/srv/paperaudit/react-validation/app.env
 Environment=PAPERAUDIT_SETTINGS_DIR=/srv/paperaudit/react-validation/settings
+Environment=PAPERAUDIT_VALIDATION_USAGE_FILE=/srv/paperaudit/react-validation/usage.jsonl
 Environment=PYTHONUNBUFFERED=1
 Environment=PYTHONDONTWRITEBYTECODE=1
 # Validation uses a separate settings/storage copy; do not share live project writes.
 # No login: loopback only, one worker for the in-process job manager.
-ExecStart=/srv/paperaudit/react-validation/current/.venv/bin/python -m uvicorn paperaudit.api.main:app --host 127.0.0.1 --port 18503 --workers 1
+ExecStart=/srv/paperaudit/react-validation/current/.venv/bin/python -m uvicorn validation_app:app --app-dir /srv/paperaudit/react-validation/current/deploy --host 127.0.0.1 --port 18503 --workers 1
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=180
