@@ -9,6 +9,7 @@ import streamlit as st
 
 from paperaudit.code_service import CodeLearningService
 from paperaudit.hy3_client import Hy3ResponseError
+from paperaudit.ui.project_nav import render_assistant_switch
 from paperaudit.models import (
     AnswerScope,
     AnswerStatus,
@@ -978,6 +979,7 @@ def render_code_workspace(
 
     def render_conversation_panel(*, show_code_context: bool = True) -> None:
         with st.container(key="joint_conversation_panel"):
+            render_assistant_switch()
             _render_conversation(
                 paper,
                 codebase,

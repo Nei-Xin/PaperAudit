@@ -38,13 +38,19 @@ def render_sidebar(
     all_projects = project_store.list_projects()
     with st.sidebar:
         st.markdown(
-            '<div class="pa-sidebar-library-title">论文项目</div>',
+            '<div class="pa-sidebar-brand">'
+            '<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">'
+            '<rect width="28" height="28" rx="6" fill="#1E4A7A"></rect>'
+            '<path d="M9 7h7l4 4v10H9z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"></path>'
+            '<path d="m12 16 2 2 3-4" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>'
+            '</svg><div><strong>PaperAudit</strong><span>论文学习与证据审计</span></div></div>',
             unsafe_allow_html=True,
         )
         if st.button(
-            "＋ 新建论文",
+            "新建论文",
             key="sidebar-new-project",
-            type="primary",
+            type="secondary",
+            icon=":material/add:",
             width="stretch",
         ):
             current_project_id = st.session_state.get("active_project_id")
@@ -59,7 +65,7 @@ def render_sidebar(
 
         project_search = st.text_input(
             "搜索论文项目",
-            placeholder="搜索论文标题…",
+            placeholder="搜索论文",
             key="sidebar_project_search",
             label_visibility="collapsed",
         )
@@ -85,14 +91,33 @@ def render_sidebar(
                 )
             for metadata in visible_projects:
                 is_active = metadata.project_id == st.session_state.get("active_project_id")
+                # One quiet label per saved artifact (lecture / audit / review / code).
+                parts = [
+                    label
+                    for label, present in (
+                        ("讲解", metadata.has_learning_report),
+                        ("审计", project_store.has_audit_runs(metadata.project_id)),
+                        ("评审", metadata.has_peer_review),
+                        ("代码", metadata.has_code),
+                    )
+                    if present
+                ] or ["仅原文"]
+                marker_class = " is-active" if is_active else ""
                 with st.container(key=f"sidebar_project_{metadata.project_id}"):
-                    title_col, menu_col = st.columns([6, 1], gap="small", vertical_alignment="top")
-                    if title_col.button(
+                    # Whole row is one HTML block; the open button is stretched
+                    # over it and the delete button sits on top (see CSS).
+                    st.markdown(
+                        f'<div class="pa-row-body">'
+                        f'<span class="pa-sidebar-project-marker{marker_class}"></span>'
+                        f'<div class="pa-row-title">{escape(metadata.title)}</div>'
+                        f'<div class="pa-project-chips">{" · ".join(parts)}</div></div>',
+                        unsafe_allow_html=True,
+                    )
+                    if st.button(
                         metadata.title,
                         key=f"sidebar-open-{metadata.project_id}",
-                        type="primary" if is_active else "secondary",
+                        type="tertiary",
                         width="stretch",
-                        help=metadata.original_filename,
                     ):
                         try:
                             project_session.open(project_store, metadata.project_id)
@@ -100,36 +125,13 @@ def render_sidebar(
                             st.error(f"打开项目失败：{exc}")
                         else:
                             st.rerun()
-                    if menu_col.button(
+                    if st.button(
                         ":material/delete_outline:",
                         key=f"sidebar-delete-{metadata.project_id}",
                         type="tertiary",
-                        width="stretch",
                         help="删除论文项目",
                     ):
                         _confirm_project_deletion(project_store, project_session, metadata.project_id, metadata.title)
-                    # One chip per saved artifact, so a project with both a
-                    # lecture and a review shows both instead of one winner.
-                    chips = [
-                        ("chip-paper", "讲解", metadata.has_learning_report),
-                        ("chip-audit", "审计", project_store.has_audit_runs(metadata.project_id)),
-                        ("chip-review", "评审", metadata.has_peer_review),
-                        ("chip-code", "代码", metadata.has_code),
-                    ]
-                    kind_badge = "".join(
-                        f'<span class="pa-project-chip {css}">{label}</span>'
-                        for css, label, present in chips
-                        if present
-                    ) or '<span class="pa-project-chip chip-empty">仅原文</span>'
-
-                    marker_class = " is-active" if is_active else ""
-                    st.markdown(
-                        f'<div class="pa-sidebar-project-meta">'
-                        f'<span class="pa-sidebar-project-marker{marker_class}"></span>'
-                        f'<span class="pa-project-chips">{kind_badge}</span>'
-                        f'<span class="pa-sidebar-filename" title="{escape(metadata.original_filename)}">{escape(metadata.original_filename)}</span></div>',
-                        unsafe_allow_html=True,
-                    )
 
         st.divider()
         with st.expander("模型与检索设置", expanded=not env_settings.is_configured):
@@ -218,14 +220,12 @@ def render_sidebar(
         api_ready = bool(api_base.strip() and api_key.strip() and model.strip())
         # Show the model the requests actually go to, not the UI brand name. The
         # settings are only checked for completeness, so do not claim a connection.
-        api_label = f"模型 {escape(model.strip())}" if api_ready else "API 配置不完整"
+        api_label = f"已配置 · {escape(model.strip())}" if api_ready else "API 配置不完整"
         api_class = "is-ready" if api_ready else "is-warning"
         st.markdown(
             f'<div class="pa-sidebar-status {api_class}" title="{escape(api_base.strip())}"><span></span>{api_label}'
             f'<em title="{escape(str(storage_settings.storage_root))}">'
-            f'保存于 {escape(storage_settings.storage_root.name)}</em></div>'
-            '<div class="pa-sidebar-version"><span>§</span>'
-            '<div>PaperAudit<small>Hy3 论文学习助手 · v1.0.0</small></div></div>',
+            f'保存于 {escape(storage_settings.storage_root.name)} · v1.0.0</em></div>',
             unsafe_allow_html=True,
         )
 

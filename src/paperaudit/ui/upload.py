@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from html import escape
 
 import streamlit as st
 
@@ -9,7 +10,6 @@ from paperaudit.code_parser import CodeParseError, parse_code_zip
 from paperaudit.models import AuditJobStatus, ClaimCategory, ParsedCodebase
 from paperaudit.report_input import parse_report_file
 from paperaudit.storage import ProjectStore, StorageError
-from paperaudit.ui.components import render_header_banner
 from .constants import CATEGORY_LABELS, FULL_SCOPE
 from .rubric_controls import render_peer_review_rubric_controls
 from .upload_preview import render_uploaded_pdf_preview
@@ -36,39 +36,52 @@ class UploadSubmission:
     progress_bar: object
 
 
-_LAUNCH_STEPS = {
-    "learn": (
-        ("解析原文", "提取正文、页码与章节结构，建立证据索引。"),
-        ("生成讲解", "研究问题、贡献、方法、实验、结果、局限与术语七部分。"),
-        ("对照阅读", "点击引用回到 PDF 原文高亮；可继续关联源码 ZIP。"),
-    ),
-    "audit_existing": (
-        ("上传论文", "论文原文是核验报告的唯一证据来源。"),
-        ("提供报告", "粘贴中文报告，或上传 .txt / .md / .pptx 文件。"),
-        ("逐条核验", "拆分原子论断并检索原文，给出标签、风险与六维评分。"),
-    ),
-    "peer_review": (
-        ("选择标准", "在上方选择评审标准与目标会议类型。"),
-        ("六维评审", "研究价值、创新性、技术可靠性、实验、清晰度与可复现性。"),
-        ("修改建议", "主要问题、修改优先级与五档预审建议，可对比修改稿。"),
-    ),
-}
 _LAUNCH_PRIVACY = {
-    "learn": "生成讲解会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。",
-    "audit_existing": "报告审计会将论文文本和你提供的报告发送至当前配置的 Hy3 模型服务。",
-    "peer_review": "模拟评审会将论文文本发送至当前配置的 Hy3 模型服务；结果是辅助预审意见，不代表真实录用结果。",
+    "learn": "生成讲解会把论文文本发送到你在设置里配置的模型服务。",
+    "audit_existing": "报告审计会把论文文本和你提供的报告发送到你配置的模型服务。",
+    "peer_review": "模拟评审会把论文文本发送到你配置的模型服务；结果是辅助预审意见，不代表真实录用结果。",
 }
 
+# (label, mode, icon path, description, requirements)
+_LAUNCH_MODES = (
+    (
+        "生成论文讲解", "learn",
+        "M4 5a1 1 0 0 1 1-1h5a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H5a1 1 0 0 1-1-1zM20 5a1 1 0 0 0-1-1h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h5a1 1 0 0 0 1-1z",
+        "研究问题、贡献、方法、实验、结果、局限与术语，每条都能跳回原文。",
+        "需要：论文 PDF · 可选源码 ZIP",
+    ),
+    (
+        "审计已有报告", "audit_existing",
+        "M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6zM9 12l2 2 4-4",
+        "把一份中文解读拆成论断，逐条对照原文核验数字、条件和结论。",
+        "需要：论文 PDF + 报告文本或文件",
+    ),
+    (
+        "模拟投稿评审", "peer_review",
+        "M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM13.5 6.5l4 4",
+        "按会议标准给出六维评分、主要问题和修改优先级。",
+        "需要：论文 PDF + 评审标准",
+    ),
+)
+_LAUNCH_LABELS = tuple(item[0] for item in _LAUNCH_MODES)
+_LOCK_ICON = (
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    '<rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>'
+)
 
-def render_launch_steps(mode: str) -> None:
-    steps = "".join(
-        f'<li><span class="pa-launch-step-index">{index}</span>'
-        f'<div><strong>{title}</strong><p>{body}</p></div></li>'
-        for index, (title, body) in enumerate(_LAUNCH_STEPS[mode], start=1)
-    )
+
+def _sync_pill_launch_mode() -> None:
+    st.session_state["launch_mode"] = st.session_state["launch_mode_pills"]
+
+
+def _sync_compact_launch_mode() -> None:
+    st.session_state["launch_mode"] = st.session_state["launch_mode_compact"]
+
+
+def render_privacy_hint(mode: str) -> None:
     st.markdown(
-        f'<ol class="pa-launch-steps">{steps}</ol>'
-        f'<div class="pa-launch-hint">{_LAUNCH_PRIVACY[mode]}</div>',
+        f'<div class="pa-launch-hint">{_LOCK_ICON}{_LAUNCH_PRIVACY[mode]}</div>',
         unsafe_allow_html=True,
     )
 
@@ -89,49 +102,79 @@ def render_upload_page(
     upload_has_value = st.session_state.get("paper_pdf_upload") is not None
     launch_shell_key = "launch_shell_ready" if upload_has_value else "launch_shell_empty"
     with st.container(key=launch_shell_key):
-        if st.session_state.get("launch_mode") not in ("生成论文讲解", "审计已有报告", "模拟投稿评审"):
-            st.session_state["launch_mode"] = "生成论文讲解"
-        launch_title_col, launch_mode_col = st.columns([1.55, 1], vertical_alignment="center")
-        with launch_title_col:
-            render_header_banner()
-        with launch_mode_col:
-            mode_label = st.segmented_control(
-                "选择工作模式",
-                ["生成论文讲解", "审计已有报告", "模拟投稿评审"],
-                key="launch_mode",
-                required=True,
-                label_visibility="collapsed",
-                width="stretch",
-            )
-        mode = (
-            "learn" if mode_label == "生成论文讲解"
-            else "peer_review" if mode_label == "模拟投稿评审"
-            else "audit_existing"
-        )
+        if st.session_state.get("launch_mode") not in _LAUNCH_LABELS:
+            st.session_state["launch_mode"] = _LAUNCH_LABELS[0]
+        mode_label = st.session_state["launch_mode"]
+        mode = next(item[1] for item in _LAUNCH_MODES if item[0] == mode_label)
 
         if not upload_has_value:
-            with st.container(key="launch_pdf_upload_empty"):
-                st.markdown(
-                    '<div class="pa-upload-title">拖拽论文 PDF 到这里</div>'
-                    '<div class="pa-upload-subtitle">或点击下方选择文件 · PDF · 最大 200MB</div>',
-                    unsafe_allow_html=True,
-                )
-                pdf_file = st.file_uploader(
-                    "上传英文论文 PDF",
-                    type=["pdf"],
-                    accept_multiple_files=False,
-                    help="支持带文本层的公开英文论文 PDF",
-                    key="paper_pdf_upload",
-                    label_visibility="collapsed",
-                )
+            st.markdown(
+                '<div class="pa-launch-head"><div class="pa-launch-title">今天读哪篇论文？</div></div>',
+                unsafe_allow_html=True,
+            )
+            st.session_state["launch_mode_pills"] = mode_label
+            with st.container(key="launch_upload_card"):
+                with st.container(key="launch_pdf_upload_empty"):
+                    st.markdown(
+                        '<div class="pa-upload-title">拖入论文 PDF</div>'
+                        '<div class="pa-upload-subtitle">带文字层的英文论文 · 最大 200MB</div>',
+                        unsafe_allow_html=True,
+                    )
+                    pdf_file = st.file_uploader(
+                        "上传英文论文 PDF",
+                        type=["pdf"],
+                        accept_multiple_files=False,
+                        help="支持带文本层的公开英文论文 PDF",
+                        key="paper_pdf_upload",
+                        label_visibility="collapsed",
+                    )
+                with st.container(key="launch_mode_row"):
+                    st.segmented_control(
+                        "要做什么",
+                        list(_LAUNCH_LABELS),
+                        format_func=lambda label: {
+                            "生成论文讲解": "生成讲解",
+                            "审计已有报告": "审计一份报告",
+                            "模拟投稿评审": "模拟投稿评审",
+                        }[label],
+                        key="launch_mode_pills",
+                        on_change=_sync_pill_launch_mode,
+                        required=True,
+                        label_visibility="collapsed",
+                    )
+                    if mode == "peer_review":
+                        render_peer_review_rubric_controls()
+            description = next(item[3] for item in _LAUNCH_MODES if item[0] == mode_label)
+            st.markdown(
+                f'<div class="pa-launch-desc">{escape(description)}</div>',
+                unsafe_allow_html=True,
+            )
+            render_privacy_hint(mode)
         else:
             current_pdf = st.session_state.get("paper_pdf_upload")
-            file_bar, replace_bar = st.columns([7, 1], vertical_alignment="center")
+            st.session_state["launch_mode_compact"] = mode_label
+            file_bar, mode_bar, replace_bar = st.columns(
+                [5, 3.2, 1], vertical_alignment="center"
+            )
             with file_bar:
                 st.markdown(
-                    f'<div class="pa-ready-toolbar"><span>📄</span><strong>{current_pdf.name}</strong>'
+                    '<div class="pa-ready-toolbar"><svg width="18" height="18" viewBox="0 0 24 24" '
+                    'fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" '
+                    'stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"></path>'
+                    '<path d="M14 3v5h5"></path></svg>'
+                    f'<strong>{escape(current_pdf.name)}</strong>'
                     f'<small>{len(current_pdf.getvalue()) / 1024 / 1024:.1f} MB</small></div>',
                     unsafe_allow_html=True,
+                )
+            with mode_bar:
+                st.segmented_control(
+                    "选择工作模式",
+                    list(_LAUNCH_LABELS),
+                    key="launch_mode_compact",
+                    on_change=_sync_compact_launch_mode,
+                    required=True,
+                    label_visibility="collapsed",
+                    width="stretch",
                 )
             with replace_bar.popover("更换文件", width="stretch"):
                 pdf_file = st.file_uploader(
@@ -142,14 +185,7 @@ def render_upload_page(
                     key="paper_pdf_upload",
                 )
 
-        if pdf_file is None:
-            if mode == "peer_review":
-                with st.container(border=True, key="peer_review_rubric_empty"):
-                    st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
-                    render_peer_review_rubric_controls()
-                    st.caption("上传论文后将按所选标准生成五档投稿预审建议。")
-            render_launch_steps(mode)
-        else:
+        if pdf_file is not None:
             preview_col, setup_col = st.columns([1.86, 1], gap="large")
             with preview_col:
                 try:
@@ -161,7 +197,7 @@ def render_upload_page(
                 with st.container(border=True, key="launch_setup_panel"):
                     st.markdown('<div class="pa-setup-heading">生成设置</div>', unsafe_allow_html=True)
                     st.markdown(
-                        f'<div class="pa-ready-file"><span>✓ PDF 已就绪</span>'
+                        f'<div class="pa-ready-file"><span>PDF 已就绪</span>'
                         f'<strong>{pdf_file.name}</strong>'
                         f'<small>{len(pdf_file.getvalue()) / 1024 / 1024:.1f} MB</small></div>',
                         unsafe_allow_html=True,
@@ -246,9 +282,9 @@ def render_upload_page(
                         st.markdown('<div class="pa-setup-title">评审标准</div>', unsafe_allow_html=True)
                         render_peer_review_rubric_controls()
                         st.caption("结果为 Strong Accept / Weak Accept / Borderline / Weak Reject / Strong Reject 的预审建议，不代表真实录用决定。")
-                        st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
+                        st.caption("评审会把论文文本发送到你配置的模型服务，请确认符合你的数据授权要求。")
                         privacy_ack = st.checkbox(
-                            "我确认可以将该论文发送至当前 Hy3 服务",
+                            "我确认可以将该论文发送到当前模型服务",
                             key="peer-review-privacy-ack",
                         )
                     else:

@@ -53,18 +53,19 @@ def render_uploaded_pdf_preview(pdf_bytes: bytes, filename: str) -> None:
 
     with st.container(key="upload_pdf_preview"):
         title_col, previous_col, page_col, next_col, zoom_out_col, zoom_col, zoom_in_col, fit_col, fullscreen_col = st.columns(
-            [4, 0.55, 0.9, 0.55, 0.55, 0.8, 0.55, 1.2, 0.55],
+            [4, 0.5, 0.9, 0.5, 0.5, 0.8, 0.5, 0.5, 0.5],
             vertical_alignment="center",
             gap="small",
         )
         title_col.markdown(
-            f'<div class="pa-pdf-panel-title">PDF 原文预览 '
-            f'<span>{st.session_state[page_key]} / {page_count}</span></div>',
+            '<div class="pa-pdf-panel-title">论文原文</div>',
             unsafe_allow_html=True,
         )
         previous_col.button(
-            "‹",
+            ":material/chevron_left:",
             key="upload-preview-previous",
+            type="tertiary",
+            help="上一页",
             disabled=st.session_state[page_key] <= 1,
             width="stretch",
             on_click=change_preview_page,
@@ -80,16 +81,20 @@ def render_uploaded_pdf_preview(pdf_bytes: bytes, filename: str) -> None:
                 label_visibility="collapsed",
             )
         next_col.button(
-            "›",
+            ":material/chevron_right:",
             key="upload-preview-next",
+            type="tertiary",
+            help="下一页",
             disabled=st.session_state[page_key] >= page_count,
             width="stretch",
             on_click=change_preview_page,
             args=(1,),
         )
         zoom_out_col.button(
-            "−",
+            ":material/remove:",
             key="upload-preview-zoom-out",
+            type="tertiary",
+            help="缩小",
             disabled=st.session_state[zoom_key] <= 100,
             width="stretch",
             on_click=change_preview_zoom,
@@ -100,20 +105,27 @@ def render_uploaded_pdf_preview(pdf_bytes: bytes, filename: str) -> None:
             unsafe_allow_html=True,
         )
         zoom_in_col.button(
-            "+",
+            ":material/add:",
             key="upload-preview-zoom-in",
+            type="tertiary",
+            help="放大",
             disabled=st.session_state[zoom_key] >= 180,
             width="stretch",
             on_click=change_preview_zoom,
             args=(10,),
         )
         fit_col.button(
-            "适应宽度",
+            ":material/fit_width:",
             key="upload-preview-fit-width",
+            type="tertiary",
+            help="适应宽度",
             width="stretch",
             on_click=fit_preview_width,
         )
-        if fullscreen_col.button("⛶", key="upload-preview-fullscreen", width="stretch"):
+        if fullscreen_col.button(
+            ":material/open_in_full:", key="upload-preview-fullscreen", type="tertiary",
+            help="放大查看", width="stretch",
+        ):
             _show_uploaded_pdf_dialog(
                 pdf_bytes,
                 int(st.session_state[page_key]),

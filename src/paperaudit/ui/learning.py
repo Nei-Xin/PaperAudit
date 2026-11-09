@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from .project_session import ProjectSession
 
 from collections.abc import Callable
 from datetime import datetime
@@ -38,6 +37,7 @@ from paperaudit.service import (
     refresh_learning_report_evidence,
 )
 from paperaudit.ui.pdf_selector import get_pdf_page_count, render_selectable_pdf_page
+from paperaudit.ui.project_nav import render_assistant_switch
 from paperaudit.ui.code_workspace import render_code_workspace
 from paperaudit.storage import AuditRecordMetadata
 from paperaudit.ui.conversation_controls import (
@@ -336,8 +336,10 @@ def _render_source_panel(
                 unsafe_allow_html=True,
             )
             previous_col.button(
-                "‹",
+                ":material/chevron_left:",
                 key=f"{key_prefix}-pdf-previous",
+                help="上一页",
+                type="tertiary",
                 disabled=st.session_state[page_state_key] <= 1,
                 width="stretch",
                 on_click=change_pdf_page,
@@ -360,16 +362,20 @@ def _render_source_panel(
                     unsafe_allow_html=True,
                 )
             next_col.button(
-                "›",
+                ":material/chevron_right:",
                 key=f"{key_prefix}-pdf-next",
+                help="下一页",
+                type="tertiary",
                 disabled=st.session_state[page_state_key] >= page_count,
                 width="stretch",
                 on_click=change_pdf_page,
                 args=(1,),
             )
             zoom_out_col.button(
-                "−",
+                ":material/remove:",
                 key=f"{key_prefix}-pdf-zoom-out",
+                help="缩小",
+                type="tertiary",
                 disabled=st.session_state[zoom_state_key] <= 100,
                 width="stretch",
                 on_click=change_pdf_zoom,
@@ -380,37 +386,33 @@ def _render_source_panel(
                 unsafe_allow_html=True,
             )
             zoom_in_col.button(
-                "+",
+                ":material/add:",
                 key=f"{key_prefix}-pdf-zoom-in",
+                help="放大",
+                type="tertiary",
                 disabled=st.session_state[zoom_state_key] >= 180,
                 width="stretch",
                 on_click=change_pdf_zoom,
                 args=(10,),
             )
-            if key_prefix == "learning":
-                fit_action, focus_action = fit_col.columns(
-                    [2.6, 1], vertical_alignment="center", gap="small"
-                )
-                fit_action.button(
+            with fit_col.popover(":material/more_horiz:", help="更多视图选项"):
+                st.button(
                     "适应宽度",
                     key=f"{key_prefix}-pdf-fit-width",
+                    icon=":material/fit_width:",
                     width="stretch",
                     on_click=fit_pdf_width,
                 )
-                focus_action.button(
-                    "⛶",
-                    key=f"{key_prefix}-pdf-focus-toggle",
-                    width="stretch",
-                    on_click=toggle_pdf_focus,
-                    help="进入或退出 PDF 专注阅读",
-                )
-            else:
-                fit_col.button(
-                    "适应宽度",
-                    key=f"{key_prefix}-pdf-fit-width",
-                    width="stretch",
-                    on_click=fit_pdf_width,
-                )
+                if key_prefix == "learning":
+                    focused = bool(st.session_state.get("learning_pdf_focus", False))
+                    st.button(
+                        "退出专注阅读" if focused else "专注阅读 PDF",
+                        key=f"{key_prefix}-pdf-focus-toggle",
+                        icon=":material/fullscreen_exit:" if focused else ":material/fullscreen:",
+                        width="stretch",
+                        on_click=toggle_pdf_focus,
+                        help="临时隐藏讲解侧栏，让 PDF 占满工作区。",
+                    )
         if group_ids:
             group_columns = st.columns(min(len(group_ids), 3))
             for group_index, chunk_id in enumerate(group_ids):
@@ -520,17 +522,41 @@ def _render_report_tab(
         st.session_state["learning_active_section"] = section_values[0]
 
     def render_section_bar() -> str:
-        """Render the chapter tabs in the reader column and return the selection."""
+        """Chapter stepper: ‹ [section · n / N ▾] ›, replacing a row of pills."""
+
+        def step(delta: int) -> None:
+            current = st.session_state.get("learning_active_section", section_values[0])
+            index = section_values.index(current) if current in section_values else 0
+            st.session_state["learning_active_section"] = section_values[
+                min(max(index + delta, 0), len(section_values) - 1)
+            ]
+
+        current_value = st.session_state.get("learning_active_section", section_values[0])
+        current_index = section_values.index(current_value) if current_value in section_values else 0
         with st.container(key="learning_section_bar"):
-            return st.segmented_control(
+            prev_col, select_col, next_col = st.columns(
+                [0.14, 1, 0.14], vertical_alignment="center", gap="small"
+            )
+            prev_col.button(
+                ":material/chevron_left:", key="learning-section-prev", type="tertiary",
+                help="上一节", disabled=current_index == 0, on_click=step, args=(-1,),
+            )
+            selected = select_col.selectbox(
                 "阅读章节",
                 section_values,
-                format_func=section_labels.get,
+                format_func=lambda value: (
+                    f"{section_labels.get(value, value)}  ·  "
+                    f"{section_values.index(value) + 1} / {len(section_values)}"
+                ),
                 key="learning_active_section",
-                required=True,
                 label_visibility="collapsed",
-                width="stretch",
             )
+            next_col.button(
+                ":material/chevron_right:", key="learning-section-next", type="tertiary",
+                help="下一节", disabled=current_index >= len(section_values) - 1,
+                on_click=step, args=(1,),
+            )
+        return selected
 
     if focus_pdf:
         active_section_value = st.session_state.get(
@@ -538,8 +564,10 @@ def _render_report_tab(
         )
         source_col = report_col = None
     else:
-        source_col, report_col = st.columns([1.38, 1], gap="small")
-        with report_col:
+        source_col, report_col = st.columns([1.5, 1], gap="small")
+        assistant_card = report_col.container(key="learning_assistant_card")
+        with assistant_card:
+            render_assistant_switch()
             active_section_value = render_section_bar()
 
     active_section = next(
@@ -882,7 +910,7 @@ def _render_report_tab(
 
     with source_col:
         _render_source_panel(anchors, selected_id, pdf_bytes, paper, "learning")
-    with report_col:
+    with assistant_card:
         render_report_content()
 
 
@@ -1178,12 +1206,14 @@ def _render_qa_tab(
         render_source()
         return
 
-    source_col, conversation_col = st.columns([1.65, 1], gap="large")
+    source_col, conversation_col = st.columns([1.5, 1], gap="small")
     with source_col:
         render_source()
     with conversation_col:
-        with st.container(key="qa_conversation_panel"):
-            render_conversation()
+        with st.container(key="qa_assistant_card"):
+            render_assistant_switch()
+            with st.container(key="qa_conversation_panel"):
+                render_conversation()
 
 
 def _local_time(value: str) -> str:
@@ -1351,7 +1381,7 @@ def _render_task_item(
 
 
 @st.fragment(run_every=2)
-def _render_audit_activity(
+def render_audit_activity(
     load_jobs: Callable[[], list[AuditJob]],
     on_open_audit: Callable[[str], None],
     *,
@@ -1419,7 +1449,7 @@ def _render_audit_activity(
                     st.rerun()
 
 
-def _render_audit_task_list(
+def render_audit_task_list(
     jobs: list[AuditJob],
     on_open_audit: Callable[[str], None],
     on_submit: AuditSubmitCallback | None,
@@ -1444,7 +1474,7 @@ def _render_audit_task_list(
         )
 
 
-def _render_audit_history(
+def render_audit_history(
     records: list[AuditRecordMetadata],
     on_open_audit: Callable[[str], None],
 ) -> None:
@@ -1476,6 +1506,37 @@ def _render_audit_history(
                 st.rerun()
 
 
+def submit_lecture_audit(report: LearningReport, submit_audit_job: AuditSubmitCallback) -> AuditJob:
+    """Queue an audit of the generated lecture itself against the paper."""
+
+    return submit_audit_job(
+        render_learning_markdown(report),
+        "generated_learning_report",
+        "当前论文讲解",
+        None,
+        list(_LEARNING_AUDIT_SCOPE),
+        "audit_generated",
+    )
+
+
+def render_lecture_export(report: LearningReport) -> None:
+    with st.popover("导出讲解", icon=":material/download:", width="content"):
+        st.download_button(
+            "Markdown",
+            render_learning_markdown(report),
+            file_name="paper-learning-report.md",
+            mime="text/markdown",
+            width="stretch",
+        )
+        st.download_button(
+            "JSON",
+            report.model_dump_json(indent=2),
+            file_name="paper-learning-report.json",
+            mime="application/json",
+            width="stretch",
+        )
+
+
 def render_learning_workspace(
     report: LearningReport,
     pdf_bytes: bytes,
@@ -1483,238 +1544,22 @@ def render_learning_workspace(
     qa_service: AuditService | None = None,
     codebase: ParsedCodebase | None = None,
     code_service: CodeLearningService | None = None,
-    submit_audit_job: AuditSubmitCallback | None = None,
-    load_audit_jobs: Callable[[], list[AuditJob]] | None = None,
-    load_audit_records: Callable[[], list[AuditRecordMetadata]] | None = None,
-    on_open_audit: Callable[[str], None] | None = None,
-    submit_peer_review: Callable[[], object] | None = None,
-    on_open_peer_review: Callable[[], None] | None = None,
 ) -> None:
+    """Lecture / Q&A body. The project header and tab bar are rendered by the caller."""
+
     if paper is not None:
         report = refresh_learning_report_evidence(report, paper)
     if st.session_state.pop("learning_switch_to_qa", False):
         st.session_state["learning_workspace_mode"] = "code" if codebase is not None else "qa"
     workspace_options = ["lecture", "code"] if codebase is not None else ["lecture", "qa"]
-    workspace_labels = (
-        {
-            "lecture": "论文讲解",
-            "code": "论文与代码",
-            "qa": "内容追问",
-        }
-        if codebase is not None
-        else {"lecture": "论文讲解", "qa": "论文追问"}
-    )
     if codebase is not None and st.session_state.get("learning_workspace_mode") == "qa":
         st.session_state["learning_workspace_mode"] = "code"
     if st.session_state.get("learning_workspace_mode") not in workspace_options:
         st.session_state["learning_workspace_mode"] = "lecture"
-    with st.container(key="learning_primary_nav"):
-        header_left, header_mode, header_right = st.columns(
-            [4.5, 2.8, 1], vertical_alignment="center"
-        )
-        with header_left:
-            title_col, activity_col = st.columns([3, 2], gap="small", vertical_alignment="center")
-            with title_col:
-                st.markdown(
-                    f'<div class="pa-workspace-header">'
-                    f'<div class="pa-workspace-brand-icon" aria-hidden="true">▤</div>'
-                    f'<div class="pa-workspace-copy"><div class="pa-workspace-title-row">'
-                    f'<div class="pa-workspace-title">{escape(report.paper_title)}</div>'
-                    f'<div class="pa-workspace-summary" title="{escape(report.one_sentence_summary)}">'
-                    f'{escape(report.one_sentence_summary)}</div></div></div></div>',
-                    unsafe_allow_html=True,
-                )
-            with activity_col:
-                if load_audit_jobs is not None and on_open_audit is not None:
-                    _render_audit_activity(load_audit_jobs, on_open_audit, compact=True)
-        with header_mode:
-            workspace_mode = st.segmented_control(
-                "学习工作区",
-                workspace_options,
-                format_func=workspace_labels.get,
-                key="learning_workspace_mode",
-                required=True,
-                label_visibility="collapsed",
-                width="stretch",
-            )
-        with header_right:
-            with st.popover("报告操作", width="stretch"):
-                st.markdown('<div class="pa-popover-section">阅读</div>', unsafe_allow_html=True)
-                if codebase is None or workspace_mode == "lecture":
-                    focus_pdf = st.toggle(
-                        "专注 PDF",
-                        key="learning_pdf_focus",
-                        help="临时隐藏讲解或对话侧栏，让 PDF 占满工作区。",
-                    )
-                else:
-                    focus_pdf = False
-                if report.suggested_pages:
-                    st.caption(
-                        "建议重点阅读：第 "
-                        + "、".join(map(str, report.suggested_pages))
-                        + " 页"
-                    )
-                st.markdown('<div class="pa-popover-section">报告审计</div>', unsafe_allow_html=True)
-                if st.button(
-                    "审计本讲解",
-                    type="primary",
-                    width="stretch",
-                    disabled=submit_audit_job is None or paper is None,
-                    help="使用当前论文原文检查这份讲解中的事实论断。",
-                ) and submit_audit_job is not None:
-                    try:
-                        job = submit_audit_job(
-                            render_learning_markdown(report),
-                            "generated_learning_report",
-                            "当前论文讲解",
-                            None,
-                            list(_LEARNING_AUDIT_SCOPE),
-                            "audit_generated",
-                        )
-                    except (ValueError, RuntimeError) as exc:
-                        st.error(f"任务提交失败：{exc}")
-                    else:
-                        st.session_state["audit_submit_notice"] = (
-                            f"“{job.source_label}”已提交后台审计，可继续阅读论文。"
-                        )
-                        st.rerun()
-                if st.button(
-                    "审计其他报告…",
-                    width="stretch",
-                    disabled=submit_audit_job is None or paper is None,
-                    help="上传 .txt / .md / .pptx 或粘贴另一份报告，使用当前论文原文审计。",
-                ) and submit_audit_job is not None:
-                    render_report_audit_dialog(submit_audit_job)
-                if submit_audit_job is None:
-                    st.caption("配置并连接 Hy3 API 后可审计当前讲解。")
-                st.markdown('<div class="pa-popover-section">模拟投稿评审</div>', unsafe_allow_html=True)
-                if on_open_peer_review is not None and st.button(
-                    "查看评审结果",
-                    type="primary",
-                    width="stretch",
-                    key="learning_open_peer_review",
-                    help="打开该论文已保存的模拟评审，不会重新调用模型。",
-                ):
-                    on_open_peer_review()
-                    st.rerun()
-                venue_options = {
-                    "general_ai_ml": "通用 AI/ML",
-                    "ijcai": "IJCAI",
-                    "neurips": "NeurIPS",
-                    "iclr": "ICLR",
-                    "aaai": "AAAI",
-                    "custom": "自定义标准",
-                }
-                st.selectbox(
-                    "评审标准",
-                    list(venue_options),
-                    format_func=venue_options.get,
-                    key="peer_review_venue",
-                    help="选择会议标准；自定义标准可调整六个评审维度的权重。",
-                )
-                if st.session_state.get("peer_review_venue") == "custom":
-                    custom_weights: dict[str, float] = {}
-                    weight_labels = {
-                        "significance": "研究价值",
-                        "novelty": "创新性",
-                        "soundness": "技术可靠性",
-                        "experimental_rigor": "实验充分性",
-                        "clarity": "表达清晰度",
-                        "reproducibility": "可复现性",
-                    }
-                    with st.expander("自定义维度权重", expanded=True):
-                        for weight_name, weight_label in weight_labels.items():
-                            custom_weights[weight_name] = st.slider(
-                                weight_label,
-                                min_value=0.0,
-                                max_value=2.0,
-                                value=1.0,
-                                step=0.1,
-                                key=f"peer-review-weight-{weight_name}",
-                            )
-                    total_weight = sum(custom_weights.values())
-                    st.session_state["peer_review_rubric_weights"] = (
-                        {name: value / total_weight for name, value in custom_weights.items()}
-                        if total_weight > 0 else {}
-                    )
-                else:
-                    st.session_state["peer_review_rubric_weights"] = {}
-                if st.button(
-                    "按所选标准重新评审" if on_open_peer_review is not None else "进行模拟投稿评审",
-                    width="stretch",
-                    disabled=submit_peer_review is None or paper is None,
-                    help="按选定会议标准在后台生成五档投稿预审建议，并保存到左侧项目。",
-                ) and submit_peer_review is not None:
-                    try:
-                        submit_peer_review()
-                    except (ValueError, RuntimeError) as exc:
-                        st.error(f"任务提交失败：{exc}")
-                    else:
-                        st.session_state["peer_review"] = None
-                        st.session_state["result_mode"] = "peer_review"
-                        st.rerun()
-                st.caption("隐私提示：评审会将论文文本发送至当前配置的 Hy3 模型服务；请确认该服务符合你的数据授权要求。")
-                st.markdown('<div class="pa-popover-section">审计记录</div>', unsafe_allow_html=True)
-                jobs: list[AuditJob] = []
-                records: list[AuditRecordMetadata] = []
-                if load_audit_jobs is not None:
-                    try:
-                        jobs = load_audit_jobs()
-                    except RuntimeError as exc:
-                        st.warning(f"审计任务无法读取：{exc}")
-                if load_audit_records is not None:
-                    try:
-                        records = load_audit_records()
-                    except RuntimeError as exc:
-                        st.warning(f"审计记录无法读取：{exc}")
-                active_job_count = sum(
-                    job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
-                    for job in jobs
-                )
-                if jobs:
-                    task_label = (
-                        f"进行中的审计（{active_job_count}）"
-                        if active_job_count
-                        else "审计任务"
-                    )
-                    with st.expander(task_label, expanded=bool(active_job_count)):
-                        if on_open_audit is not None:
-                            _render_audit_task_list(
-                                jobs,
-                                on_open_audit,
-                                submit_audit_job,
-                            )
-                        else:
-                            st.caption("当前没有可用的论文项目。")
-                if records:
-                    with st.expander(f"审计记录（{len(records)}）", expanded=False):
-                        if on_open_audit is not None:
-                            _render_audit_history(records, on_open_audit)
-                        else:
-                            st.caption("当前没有可用的论文项目。")
-                if not jobs and not records:
-                    st.caption("暂无审计记录。")
-                st.markdown('<div class="pa-popover-section">导出讲解</div>', unsafe_allow_html=True)
-
-                markdown_col, json_col = st.columns(2)
-                markdown_col.download_button(
-                    "Markdown",
-                    render_learning_markdown(report),
-                    file_name="paper-learning-report.md",
-                    mime="text/markdown",
-                    width="stretch",
-                )
-                json_col.download_button(
-                    "JSON",
-                    report.model_dump_json(indent=2),
-                    file_name="paper-learning-report.json",
-                    mime="application/json",
-                    width="stretch",
-                )
-                st.divider()
-                if st.button("更换论文并返回", type="secondary", width="stretch"):
-                    ProjectSession(st.session_state, st.query_params).clear()
-                    st.rerun()
+    workspace_mode = st.session_state["learning_workspace_mode"]
+    focus_pdf = (codebase is None or workspace_mode == "lecture") and bool(
+        st.session_state.get("learning_pdf_focus", False)
+    )
     notice = st.session_state.pop("audit_submit_notice", None)
     if notice:
         st.success(str(notice))

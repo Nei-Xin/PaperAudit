@@ -36,7 +36,7 @@ _DIMENSION_LABELS = {
     "reproducibility": "可复现性",
 }
 
-_DECISION_LABELS = {
+DECISION_LABELS = {
     ReviewDecision.STRONG_ACCEPT: ("Strong Accept", "强接收", "strong-accept"),
     ReviewDecision.WEAK_ACCEPT: ("Weak Accept", "弱接收", "weak-accept"),
     ReviewDecision.BORDERLINE: ("Borderline", "边缘", "borderline"),
@@ -172,6 +172,21 @@ def _show_evidence(pdf_bytes: bytes, anchor: EvidenceAnchor) -> None:
     )
 
 
+@st.dialog("原文证据", width="large")
+def _show_peer_evidence(pdf_bytes: bytes, page: int, rects: list, issue_title: str) -> None:
+    st.caption(f"{issue_title} · 第 {page} 页" if issue_title else f"第 {page} 页")
+    render_selectable_pdf_page(
+        pdf_bytes,
+        page,
+        rects,
+        key=f"peer-evidence-{page}",
+        selection_enabled=False,
+        zoom_percent=110,
+        focus_highlight=bool(rects),
+        fit_scale=1.0,
+    )
+
+
 def _evidence_buttons(
     anchors: Sequence[EvidenceAnchor],
     pdf_bytes: bytes | None,
@@ -193,14 +208,8 @@ def _evidence_buttons(
         button_cols = st.columns(min(len(unique[:2]), 2), gap="small")
         for index, anchor in enumerate(unique[:2]):
             label = f"定位原文 · 第 {anchor.page} 页" if anchor.page else "查看依据"
-            if pdf_bytes and button_cols[index].button(label, key=f"{key}-{index}", type="secondary"):
-                st.session_state["peer_review_pdf_focus"] = {
-                    "page": anchor.page,
-                    "rects": anchor.rects,
-                    "issue_title": issue_title,
-                    "locator": anchor.locator or anchor.chunk_id,
-                }
-                st.rerun()
+            if pdf_bytes and anchor.page and button_cols[index].button(label, key=f"{key}-{index}", type="secondary"):
+                _show_peer_evidence(pdf_bytes, anchor.page, list(anchor.rects), issue_title)
             if anchor.quote and index == 0:
                 st.caption(f"“{anchor.quote}”")
 
@@ -212,7 +221,7 @@ def _render_concern(concern: ReviewConcern, pdf_bytes: bytes | None, key: str) -
     st.markdown(
         f'<div class="pa-peer-concern-head severity-{severity.value.lower()}">'
         f'<div class="pa-peer-concern-kicker">'
-        f'<span class="pa-peer-severity-badge">{escape(severity.value)}</span>'
+        f'<span class="pa-peer-severity-badge">{_SEVERITY_NAMES[severity]}</span>'
         f'<span>{escape(_ISSUE_CATEGORY_LABELS.get(concern.category, "其他"))}</span>'
         f'<span class="pa-peer-status-badge">{escape(status_label)}</span></div>'
         f'<strong class="pa-peer-concern-title">{escape(concern.title)}</strong>'
@@ -323,6 +332,14 @@ def _manual_review_controls(
                     st.success("人工修订已保存，AI 原始判断仍保留在记录中。")
 
 
+_SEVERITY_NAMES = {
+    IssueSeverity.FATAL: "致命问题",
+    IssueSeverity.MAJOR: "主要问题",
+    IssueSeverity.MINOR: "次要问题",
+    IssueSeverity.EDITORIAL: "文字问题",
+}
+
+
 def _render_submission_risks(report: PeerReviewReport, pdf_bytes: bytes | None) -> None:
     concerns = [*report.major_concerns, *report.minor_concerns]
     concerns.sort(key=lambda item: (list(IssueSeverity).index(_severity_for(item)), -item.confidence))
@@ -340,7 +357,7 @@ def _render_submission_risks(report: PeerReviewReport, pdf_bytes: bytes | None) 
         with st.container(border=True, key=f"peer-risk-card-{index}"):
             st.markdown(
                 f'<div class="pa-peer-risk-card {risk_class}">'
-                f'<div><strong>{escape(severity.value)} · {escape(concern.title)}</strong>'
+                f'<div><strong><span class="pa-peer-sev">{_SEVERITY_NAMES[severity]}</span>{escape(concern.title)}</strong>'
                 f'<span>{escape(confidence)}</span></div>'
                 f'<p>{escape(concern.description)}</p>'
                 f'<small>{len(concern.evidence)} 处证据 · {_ISSUE_STATUS_LABELS.get(concern.status, concern.status.value)}</small>'
@@ -357,7 +374,7 @@ def _render_submission_risks(report: PeerReviewReport, pdf_bytes: bytes | None) 
                 st.caption("需人工复核 · 当前判断没有可定位原文证据")
 
 
-def _render_action_plan(report: PeerReviewReport) -> None:
+def _plan_actions(report: PeerReviewReport) -> list[str]:
     actions = list(report.top_priorities or report.required_changes)
     if not actions:
         actions = [
@@ -365,6 +382,11 @@ def _render_action_plan(report: PeerReviewReport) -> None:
             for concern in [*report.major_concerns, *report.minor_concerns]
             if concern.suggestion.strip()
         ][:3]
+    return actions
+
+
+def _render_action_plan(report: PeerReviewReport) -> None:
+    actions = _plan_actions(report)
     if not actions:
         return
     done_count = sum(
@@ -372,7 +394,7 @@ def _render_action_plan(report: PeerReviewReport) -> None:
         for index in range(min(len(actions), 5))
     )
     st.markdown(
-        f'### 投稿前 Action Plan <span class="pa-peer-plan-progress">{done_count}/{min(len(actions), 5)} 已完成</span>',
+        f'### 投稿前修改计划 <span class="pa-peer-plan-progress">{done_count}/{min(len(actions), 5)} 已完成</span>',
         unsafe_allow_html=True,
     )
     for index, action in enumerate(actions[:5]):
@@ -381,8 +403,9 @@ def _render_action_plan(report: PeerReviewReport) -> None:
             action_col, check_col = st.columns([5.8, 1], vertical_alignment="center", gap="small")
             action_col.markdown(
                 f'<div class="pa-peer-action-card"><div class="pa-peer-action-title">'
-                f'<span class="pa-peer-action-priority priority-{priority.lower()}">{priority}</span>'
-                f'<strong>修改任务 {index + 1}</strong></div>'
+                # Order, not a severity: issue severities (P0–P3) live on the risks above.
+                f'<span class="pa-peer-action-priority priority-{priority.lower()}">第 {index + 1} 步</span>'
+                f'</div>'
                 f'<p>{escape(action)}</p></div>',
                 unsafe_allow_html=True,
             )
@@ -441,170 +464,76 @@ def render_peer_review(
     load_revision_pdf: Callable[[str], bytes] | None = None,
     on_update_revision: Callable[[PeerReviewRevision], object] | None = None,
 ) -> None:
-    label, _, decision_class = _DECISION_LABELS[report.decision]
-    rubric_meta = f"标准 {report.rubric_version}"
-    if report.rubric_updated_at:
-        rubric_meta += f"（更新于 {report.rubric_updated_at}）"
-    meta_items = [
-        f"基于当前论文原文的 AI 辅助预审 · {rubric_meta} · 不代表真实会议录用决定。"
+    label, zh_label, decision_class = DECISION_LABELS[report.decision]
+    run_details = [
+        item for item in (
+            f"评审标准 {report.rubric_version}" if report.rubric_version else "",
+            f"标准更新于 {report.rubric_updated_at}" if report.rubric_updated_at else "",
+            f"运行 {report.run_id}" if report.run_id else "",
+            f"模型 {report.model_name}" if report.model_name else "",
+            f"推理 {report.reasoning_effort}" if report.reasoning_effort else "",
+            f"Prompt {report.prompt_version}" if report.prompt_version else "",
+            f"耗时 {report.elapsed_seconds:.1f}s" if report.elapsed_seconds is not None else "",
+        ) if item
     ]
+    note = "基于论文原文的 AI 辅助预审，不代表真实会议录用决定。"
     if report.rubric_change_note:
-        meta_items.append(f"标准说明：{report.rubric_change_note}")
-    run_details: list[str] = []
-    if report.run_id or report.generated_at:
-        run_details = [
-            item for item in (
-                f"运行 {report.run_id}" if report.run_id else "",
-                f"模型 {report.model_name}" if report.model_name else "",
-                f"推理 {report.reasoning_effort}" if report.reasoning_effort else "",
-                f"Prompt {report.prompt_version}" if report.prompt_version else "",
-                f"耗时 {report.elapsed_seconds:.1f}s" if report.elapsed_seconds is not None else "",
-            ) if item
+        note += f" {report.rubric_change_note}"
+    # Internal ids (rubric version, run id) stay one hover away from the reader.
+    run_info = (
+        f'<span title="{escape(" · ".join(run_details))}">运行信息 ⓘ</span>' if run_details else ""
+    )
+    actions = _plan_actions(report)
+    action_total = min(len(actions), 5)
+    done_count = sum(
+        bool(st.session_state.get(f"peer-review-action-done-{report.paper_title}-{index}"))
+        for index in range(action_total)
+    )
+    revision_count = len(list(load_revisions() if load_revisions is not None else []))
+    main_col, props_col = st.columns([1, 0.28], gap="small")
+    with props_col, st.container(key="review_props_card"):
+        props = [
+            ("结论", f'<b class="pa-peer-decision-text pa-peer-decision-{decision_class}">{escape(zh_label)}</b>'),
+            ("总分", f"{report.overall_score:.1f} / 10"),
+            ("置信度", f"{report.confidence} / 5"),
+            ("评审标准", escape(_VENUE_LABELS.get(report.venue, "通用 AI/ML"))),
+            ("修改稿复审", f"{revision_count} 版" if revision_count else "暂无"),
         ]
-    with st.container(key="peer_review_overview"):
-        with st.container(key="peer_review_header"):
-            title_col, result_col = st.columns(
-                [3.5, 2.5], vertical_alignment="center"
-            )
-            with title_col:
-                st.markdown(
-                    f'<div class="pa-workspace-header">'
-                    f'<div class="pa-workspace-brand-icon" aria-hidden="true">✎</div>'
-                    f'<div class="pa-workspace-copy"><div class="pa-workspace-title-row">'
-                    f'<div class="pa-workspace-title">{escape(report.paper_title)}</div>'
-                    f'<div class="pa-workspace-summary">模拟投稿评审 · {_VENUE_LABELS.get(report.venue, "通用 AI/ML")}</div>'
-                    f'</div></div></div>',
-                    unsafe_allow_html=True,
-                )
-            with result_col:
-                st.markdown(
-                    f'<div class="pa-peer-readonly-result pa-peer-decision-{decision_class}">'
-                    f'<span>模拟评审结果</span><strong>{escape(label)}</strong>'
-                    f'<b>{report.overall_score:.1f} / 10</b><small>置信度 {report.confidence} / 5</small></div>',
-                    unsafe_allow_html=True,
-                )
-        meta_html = "".join(f"<span>{escape(item)}</span>" for item in meta_items)
-        if run_details:
-            # Run provenance is for debugging; keep it one hover away from the reader.
-            meta_html += f'<small title="{escape(" · ".join(run_details))}">运行信息 ⓘ</small>'
+        progress = (done_count / action_total * 100) if action_total else 0
         st.markdown(
-            f'<div class="pa-peer-meta-line">{meta_html}</div>',
+            '<div class="pa-review-props">'
+            + "".join(f"<div><span>{key}</span><strong>{value}</strong></div>" for key, value in props)
+            + '<hr><div class="pa-review-progress"><span>修改进度</span>'
+            f'<i><b style="width:{progress:.0f}%"></b></i>'
+            f'<small>{done_count} / {action_total} 已处理</small></div><hr>'
+            f'<p>{escape(note)} {run_info}</p></div>',
             unsafe_allow_html=True,
         )
-        if pdf_bytes:
-            st.markdown(
-                f'<div class="pa-peer-summary-strip"><strong>当前主要拒稿风险</strong>'
-                f'<span>{escape(_main_rejection_risk(report))}</span></div>',
-                unsafe_allow_html=True,
-            )
-    if pdf_bytes:
-        with st.container(key="peer_review_workspace"):
-            paper_col, review_col = st.columns([1.6, 1], gap="medium")
-            with paper_col:
-                page_count = get_pdf_page_count(pdf_bytes)
-                page_key = f"peer_review_page_{report.paper_title}"
-                zoom_key = f"peer_review_zoom_{report.paper_title}"
-                focus = st.session_state.get("peer_review_pdf_focus") or {}
-                if focus.get("page"):
-                    st.session_state[page_key] = int(focus["page"])
-                st.session_state[page_key] = min(max(int(st.session_state.get(page_key, 1)), 1), page_count)
-                st.session_state[zoom_key] = min(max(int(st.session_state.get(zoom_key, 100)), 80), 160)
-                with st.container(key="peer_review_source_panel"):
-                    with st.container(key="peer_review_pdf_toolbar"):
-                        title_col, prev_col, page_col, next_col, zoom_out_col, zoom_col, zoom_in_col, fit_col = st.columns(
-                            [2.7, .55, 1.25, .55, .55, .8, .55, 1.45],
-                            vertical_alignment="center",
-                            gap="small",
-                        )
-                        title_col.markdown('<div class="pa-pdf-panel-title">论文原文</div>', unsafe_allow_html=True)
-                        if prev_col.button("‹", key=f"{page_key}-prev", disabled=st.session_state[page_key] <= 1, width="stretch"):
-                            st.session_state[page_key] -= 1
-                            st.rerun()
-                        page_col.markdown(
-                            f'<div class="pa-peer-page-label">{st.session_state[page_key]} <span>/ {page_count}</span></div>',
-                            unsafe_allow_html=True,
-                        )
-                        if next_col.button("›", key=f"{page_key}-next", disabled=st.session_state[page_key] >= page_count, width="stretch"):
-                            st.session_state[page_key] += 1
-                            st.rerun()
-                        if zoom_out_col.button("−", key=f"{zoom_key}-out", disabled=st.session_state[zoom_key] <= 80, width="stretch"):
-                            st.session_state[zoom_key] -= 10
-                            st.rerun()
-                        zoom_col.markdown(f'<div class="pa-pdf-zoom">{st.session_state[zoom_key]}%</div>', unsafe_allow_html=True)
-                        if zoom_in_col.button("+", key=f"{zoom_key}-in", disabled=st.session_state[zoom_key] >= 160, width="stretch"):
-                            st.session_state[zoom_key] += 10
-                            st.rerun()
-                        fit_col.button("适应宽度", key=f"{zoom_key}-fit", width="stretch", on_click=lambda: st.session_state.__setitem__(zoom_key, 100))
-                    if focus.get("issue_title"):
-                        st.markdown(
-                            f'<div class="pa-peer-pdf-focus">当前问题 · {escape(str(focus["issue_title"]))}'
-                            f'<span>证据来自第 {st.session_state[page_key]} 页</span></div>',
-                            unsafe_allow_html=True,
-                        )
-                    with st.container(border=True, key="peer_review_pdf_panel"):
-                        render_selectable_pdf_page(
-                            pdf_bytes,
-                            st.session_state[page_key],
-                            focus.get("rects", []) if focus.get("page") == st.session_state[page_key] else [],
-                            key=f"peer-review-page-{report.paper_title}-{st.session_state[page_key]}",
-                            selection_enabled=False,
-                            zoom_percent=st.session_state[zoom_key],
-                            fit_scale=1.0,
-                        )
-            content_col = review_col
-    else:
-        content_col = st.container()
+    main_card = main_col.container(key="review_main_card")
+    with main_card:
+        st.markdown(
+            f'<section class="pa-review-head" aria-label="评审结论">'
+            f'<span>模拟投稿评审 · {escape(_VENUE_LABELS.get(report.venue, "通用 AI/ML"))}</span>'
+            f'<div><strong class="pa-peer-decision-text pa-peer-decision-{decision_class}">{escape(zh_label)}</strong>'
+            f'<em>{escape(label)} · {report.overall_score:.1f} / 10</em></div>'
+            f'<p>{escape(report.decision_rationale)}</p></section>',
+            unsafe_allow_html=True,
+        )
+    content_col = main_card
 
     with content_col:
         with st.container(key="peer_review_side_panel"):
-            if not pdf_bytes:
-                st.markdown(
-                    f'<div class="pa-peer-section-card pa-peer-summary-card">'
-                    f'<strong>当前主要拒稿风险</strong><div>{escape(_main_rejection_risk(report))}</div></div>',
-                    unsafe_allow_html=True,
-                )
             tab_overview, tab_dimensions, tab_concerns, tab_export = st.tabs(
-                ["评审意见", "维度评分", "问题", "导出"]
+                ["评审意见", "维度评分", "问题", "修改稿与导出"]
             )
             with tab_overview:
                 _render_submission_risks(report, pdf_bytes)
                 _render_action_plan(report)
-                st.markdown("### 综合结论")
-                st.markdown(
-                    f'<div class="pa-peer-conclusion"><div><strong>总体判断</strong>'
-                    f'<span class="pa-peer-decision-{decision_class}">{escape(label)}</span></div>'
-                    f'<p>{escape(report.decision_rationale)}</p></div>',
-                    unsafe_allow_html=True,
-                )
                 with st.expander("展开完整 AI 评审总结"):
                     st.write(report.summary)
                     if report.why_not_adjacent:
                         st.markdown("**为什么不是相邻档位**")
                         st.write(report.why_not_adjacent)
-                if report.core_contributions:
-                    st.markdown("### 核心贡献")
-                    for index, item in enumerate(report.core_contributions, start=1):
-                        st.markdown(
-                            f'<div class="pa-peer-point-card pa-peer-contribution-card">'
-                            f'<strong>贡献 {index}</strong>{escape(item)}</div>',
-                            unsafe_allow_html=True,
-                        )
-                if report.strengths:
-                    with st.expander(f"论文已有优势（{len(report.strengths)} 项）"):
-                        for index, item in enumerate(report.strengths, start=1):
-                            st.markdown(
-                                f'<div class="pa-peer-strength-row"><strong>{escape(_strength_title(item, index))}</strong>'
-                                f'<p>{escape(item)}</p></div>',
-                                unsafe_allow_html=True,
-                            )
-                if report.acceptance_blockers:
-                    st.markdown("### 接收阻碍")
-                    for index, item in enumerate(report.acceptance_blockers, start=1):
-                        st.markdown(
-                            f'<div class="pa-peer-point-card pa-peer-blocker-card">'
-                            f'<strong>阻碍 {index}</strong>{escape(item)}</div>',
-                            unsafe_allow_html=True,
-                        )
                 if report.fatal_flaws:
                     st.markdown("### 致命问题")
                     for index, item in enumerate(report.fatal_flaws, start=1):
@@ -613,30 +542,45 @@ def render_peer_review(
                             f'<strong>致命问题 {index}</strong>{escape(item)}</div>',
                             unsafe_allow_html=True,
                         )
-                if report.required_changes:
-                    st.markdown("### 必须修改")
-                    for index, item in enumerate(report.required_changes, start=1):
-                        st.markdown(
-                            f'<div class="pa-peer-point-card pa-peer-required-card">'
-                            f'<strong>必须修改 {index}</strong>{escape(item)}</div>',
-                            unsafe_allow_html=True,
-                        )
-                if report.suggested_changes:
-                    st.markdown("### 建议修改")
-                    for index, item in enumerate(report.suggested_changes, start=1):
-                        st.markdown(
-                            f'<div class="pa-peer-point-card pa-peer-suggested-card">'
-                            f'<strong>建议修改 {index}</strong>{escape(item)}</div>',
-                            unsafe_allow_html=True,
-                        )
-                if report.confidence_rationale:
-                    st.markdown("### 置信度说明")
-                    st.caption(report.confidence_rationale)
+                # Blockers / required / suggested changes restate the risks and
+                # action plan above; keep them available but folded together.
+                change_groups = [
+                    ("接收阻碍", report.acceptance_blockers),
+                    ("必须修改", report.required_changes),
+                    ("建议修改", report.suggested_changes),
+                ]
+                change_total = sum(len(items) for _, items in change_groups)
+                if change_total:
+                    with st.expander(f"完整修改清单（{change_total} 项）"):
+                        for group_label, items in change_groups:
+                            if not items:
+                                continue
+                            st.markdown(f"**{group_label}**")
+                            for item in items:
+                                st.markdown(f"- {escape(item)}")
+                if report.core_contributions or report.strengths:
+                    count = len(report.core_contributions) + len(report.strengths)
+                    with st.expander(f"贡献与优势（{count} 项）"):
+                        if report.core_contributions:
+                            st.markdown("**核心贡献**")
+                            for item in report.core_contributions:
+                                st.markdown(f"- {escape(item)}")
+                        if report.strengths:
+                            st.markdown("**论文已有优势**")
+                            for index, item in enumerate(report.strengths, start=1):
+                                st.markdown(
+                                    f'<div class="pa-peer-strength-row"><strong>{escape(_strength_title(item, index))}</strong>'
+                                    f'<p>{escape(item)}</p></div>',
+                                    unsafe_allow_html=True,
+                                )
                 review_limitations = report.review_limitations or [
                     "本评审仅基于上传论文文本；代码、完整附录、数据泄漏和未报告实验无法独立验证。"
                 ]
-                if review_limitations:
-                    st.markdown("### 评审边界")
+                with st.expander("评审边界与置信度"):
+                    if report.confidence_rationale:
+                        st.markdown("**置信度说明**")
+                        st.caption(report.confidence_rationale)
+                    st.markdown("**评审边界**")
                     st.caption("以下项目无法仅凭上传论文正文独立确认，不应视为已证实的缺陷。")
                     for item in review_limitations:
                         st.markdown(f"- {escape(item)}")
@@ -715,7 +659,7 @@ def render_peer_review(
                         _evidence_buttons(dimension.evidence, pdf_bytes, f"peer-dimension-{dimension.name}")
             with tab_concerns:
                 all_concerns = [*report.major_concerns, *report.minor_concerns]
-                severity_options = {"全部": None, **{item.value: item for item in IssueSeverity}}
+                severity_options = {"全部": None, **{_SEVERITY_NAMES[item]: item for item in IssueSeverity}}
                 category_options = {"全部类别": None, **{label: value for value, label in _ISSUE_CATEGORY_LABELS.items()}}
                 status_options = {"全部状态": None, **{label: value for value, label in _ISSUE_STATUS_LABELS.items()}}
                 # Two filters per row: four in one row truncated the option labels.
@@ -744,7 +688,7 @@ def render_peer_review(
                 p3_items = [item for item in all_concerns if _severity_for(item) is IssueSeverity.EDITORIAL and item.status is not IssueStatus.IGNORED]
                 if p3_items and on_update_report is not None:
                     if st.button(
-                        f"将 {len(p3_items)} 条 P3 标记为已忽略",
+                        f"将 {len(p3_items)} 条文字问题标记为已忽略",
                         key="peer-review-ignore-p3",
                         type="secondary",
                         help="仅改变当前处理状态，不修改 AI 原始严重度、类别或证据。",
@@ -825,8 +769,8 @@ def render_peer_review(
                     diff = revision_result.diff
                     st.success(f"已保存修改稿版本：{revision_result.original_filename}")
                     st.info(diff.summary)
-                    old_label = _DECISION_LABELS[report.decision][0]
-                    new_label = _DECISION_LABELS[revision_result.report.decision][0]
+                    old_label = DECISION_LABELS[report.decision][0]
+                    new_label = DECISION_LABELS[revision_result.report.decision][0]
                     st.markdown(
                         f"**评审变化**：{old_label} · {report.overall_score:.1f} / 10 → "
                         f"{new_label} · {revision_result.report.overall_score:.1f} / 10"
@@ -858,8 +802,8 @@ def render_peer_review(
                     st.markdown("### 历史修改稿")
                     st.caption("每个版本都保留独立 PDF 与复审结果，可重新打开查看。")
                     for revision in revisions:
-                        old_label = _DECISION_LABELS[report.decision][0]
-                        new_label = _DECISION_LABELS[revision.report.decision][0]
+                        old_label = DECISION_LABELS[report.decision][0]
+                        new_label = DECISION_LABELS[revision.report.decision][0]
                         with st.container(border=True):
                             left, right = st.columns([3, 1])
                             left.markdown(

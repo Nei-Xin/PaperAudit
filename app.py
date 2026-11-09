@@ -27,7 +27,18 @@ from paperaudit.service import (
 )
 from paperaudit.storage import ProjectStore, StorageError, load_storage_settings
 from paperaudit.ui.audit_results import render_audit_results
-from paperaudit.ui.learning import render_learning_workspace, render_report_audit_dialog
+from paperaudit.ui.learning import (
+    render_audit_activity,
+    render_audit_history,
+    render_audit_task_list,
+    render_lecture_export,
+    render_learning_workspace,
+    render_report_audit_dialog,
+    submit_lecture_audit,
+)
+from paperaudit.ui.peer_review import DECISION_LABELS
+from paperaudit.ui.project_nav import PROJECT_MODES, current_tab, render_project_nav, route_to_tab
+from paperaudit.ui.rubric_controls import render_peer_review_rubric_controls
 from paperaudit.ui.peer_review import render_peer_review
 from paperaudit.ui.styles import inject_custom_styles
 from paperaudit.ui.constants import CATEGORY_LABELS, DIMENSION_NAMES
@@ -37,13 +48,13 @@ from paperaudit.ui.upload_preview import (
 from paperaudit.ui.storage_setup import render_storage_setup as _render_storage_setup
 from paperaudit.ui.project_session import ProjectSession
 from paperaudit.ui.sidebar import render_sidebar
-from paperaudit.ui.upload import render_upload_page
+from paperaudit.ui.upload import render_privacy_hint, render_upload_page
 from paperaudit.ui.upload_actions import process_upload
 
 
 st.set_page_config(
-    page_title="Hy3 论文学习助手",
-    page_icon="📄",
+    page_title="PaperAudit",
+    page_icon=":material/fact_check:",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -301,24 +312,8 @@ def _save_active_project_revision(revision):
     project_store.update_peer_review_revision(str(project_id), revision)
 
 
-def _open_active_peer_review() -> None:
-    st.session_state["result_mode"] = "peer_review"
-
-
-def _peer_review_opener():
-    # Only offer "view" when a finished review is loaded for this project;
-    # otherwise the only path is submitting a new (billed) review job.
-    if st.session_state.get("peer_review") is not None:
-        return _open_active_peer_review
-    return None
-
-
-def _render_return_to_learning(key: str) -> None:
-    if st.session_state.get("learning_report") is None:
-        return
-    if st.button("← 返回论文讲解", key=key, type="tertiary"):
-        st.session_state["result_mode"] = "learning"
-        st.rerun()
+_ACTIVE_STATUSES = {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
+_FAILED_STATUSES = {AuditJobStatus.FAILED, AuditJobStatus.INTERRUPTED}
 
 
 def _load_active_audit_jobs() -> list[AuditJob]:
@@ -342,18 +337,95 @@ def _open_active_audit(audit_id: str) -> None:
     st.session_state["audit_run"] = run
     st.session_state["active_audit_id"] = audit_id
     st.session_state["audit_record_metadata"] = metadata
-    if st.session_state.get("learning_report") is None:
-        st.session_state.pop("audit_origin", None)
-        st.session_state["result_mode"] = "audit_project"
-    else:
-        st.session_state["audit_origin"] = "history"
-        st.session_state["result_mode"] = "audit"
+    st.session_state.pop("audit_origin", None)
+    # Audits live under the project's 审计 tab whether or not a lecture exists.
+    st.session_state["result_mode"] = "audit_project"
 
 
-if st.session_state.get("result_mode") == "audit_project":
+def _current_learning_job():
     project_id = st.session_state.get("active_project_id")
-    project_title = getattr(st.session_state.get("learning_paper"), "title", "论文审计项目")
-    jobs = _load_active_audit_jobs() if project_id else []
+    if not project_id:
+        return None
+    learning_jobs = project_store.list_learning_jobs(str(project_id))
+    learning_job_id = st.session_state.get("learning_job_id")
+    job = next((item for item in learning_jobs if item.job_id == learning_job_id), None)
+    if job is None and learning_jobs:
+        job = next(
+            (item for item in learning_jobs if item.status in _ACTIVE_STATUSES),
+            learning_jobs[0],
+        )
+        st.session_state["learning_job_id"] = job.job_id
+    return job
+
+
+def _current_peer_review_job():
+    project_id = st.session_state.get("active_project_id")
+    if not project_id:
+        return None
+    peer_jobs = project_store.list_peer_review_jobs(str(project_id))
+    peer_job_id = st.session_state.get("peer_review_job_id")
+    job = next((item for item in peer_jobs if item.job_id == peer_job_id), None)
+    if job is None and peer_jobs:
+        job = peer_jobs[0]
+        st.session_state["peer_review_job_id"] = job.job_id
+    return job
+
+
+def _job_status_box(title: str, job, key: str, note: str) -> None:
+    with st.container(border=True, key=f"{key}_box"):
+        status_col, refresh_col = st.columns([5, 1], vertical_alignment="center")
+        with status_col:
+            st.markdown(f"**{escape(title)}**")
+            st.progress(job.progress, text=job.stage)
+            st.caption(note)
+        if refresh_col.button("刷新状态", width="stretch", key=key):
+            st.rerun()
+
+
+def _render_lecture_empty() -> None:
+    learning_job = _current_learning_job()
+    if learning_job is not None and learning_job.status == AuditJobStatus.SUCCEEDED:
+        # The background job saved a lecture this session has not loaded yet.
+        target_view = st.session_state.get("lecture_empty_tab", "lecture")
+        project_session.restore(project_store, str(st.session_state["active_project_id"]))
+        route_to_tab(st.session_state, "read", assistant=target_view)
+        st.rerun()
+    pdf_bytes = st.session_state.get("learning_pdf_bytes")
+    preview_col, panel_col = st.columns([1.65, 1], gap="large")
+    with preview_col:
+        if pdf_bytes:
+            _render_uploaded_pdf_preview(
+                pdf_bytes, st.session_state.get("project_original_filename") or "paper.pdf"
+            )
+    with panel_col, st.container(key="lecture_empty_panel"):
+        if learning_job is not None and learning_job.status in _ACTIVE_STATUSES:
+            _job_status_box(
+                "论文讲解正在后台生成", learning_job, "lecture_empty_refresh",
+                "可以切换到其他标签或项目，生成不会被取消。",
+            )
+            return
+        st.markdown(
+            '<div class="pa-empty-title">这篇论文还没有讲解</div>'
+            '<p class="pa-empty-copy">生成后可以按章节阅读中文讲解、点击引用跳回原文高亮，并围绕论文继续追问。</p>',
+            unsafe_allow_html=True,
+        )
+        if learning_job is not None and learning_job.status in _FAILED_STATUSES:
+            st.error(learning_job.error or "上次讲解任务未能完成，可以重新生成。")
+        if st.button(
+            "生成讲解", type="primary", width="stretch", key="lecture_empty_generate",
+            disabled=not api_ready,
+        ):
+            try:
+                _submit_active_project_learning()
+            except (StorageError, ValueError) as exc:
+                st.error(str(exc))
+            else:
+                st.rerun()
+        render_privacy_hint("learn")
+
+
+def _render_audit_page() -> None:
+    jobs = _load_active_audit_jobs()
     launch_job_id = st.session_state.get("launch_audit_job_id")
     launch_job = next((job for job in jobs if job.job_id == launch_job_id), None)
     if (
@@ -364,157 +436,19 @@ if st.session_state.get("result_mode") == "audit_project":
     ):
         _open_active_audit(launch_job.audit_id)
         st.session_state.pop("launch_audit_job_id", None)
-    elif launch_job is not None and launch_job.status in {
-        AuditJobStatus.FAILED,
-        AuditJobStatus.INTERRUPTED,
-    }:
+    elif launch_job is not None and launch_job.status in _FAILED_STATUSES:
         st.session_state.pop("launch_audit_job_id", None)
-    learning_jobs = project_store.list_learning_jobs(str(project_id)) if project_id else []
-    learning_job_id = st.session_state.get("learning_job_id")
-    learning_job = next(
-        (job for job in learning_jobs if job.job_id == learning_job_id),
-        None,
-    )
-    if learning_job is None and learning_jobs:
-        learning_job = next(
-            (
-                job
-                for job in learning_jobs
-                if job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
-            ),
-            learning_jobs[0],
-        )
-        st.session_state["learning_job_id"] = learning_job.job_id
-    audit_header = st.container(key="audit_project_header")
-    title_col, learning_col, action_col, history_col, export_col = audit_header.columns(
-        [3.3, 1.15, 1.15, 1.05, 1.05], vertical_alignment="center"
-    )
-    with title_col:
-        project_kind = (
-            "论文项目"
-            if learning_job is not None
-            and learning_job.status == AuditJobStatus.SUCCEEDED
-            else "仅审计项目"
-        )
-        project_filename = st.session_state.get(
-            "project_original_filename", "paper.pdf"
-        )
-        st.markdown(
-            f'<div class="pa-audit-project-heading" title="{escape(str(project_title))}">'
-            f'<strong>{escape(str(project_title))}</strong>'
-            f'<span>{project_kind} · {escape(str(project_filename))}</span></div>',
-            unsafe_allow_html=True,
-        )
-    learning_active = bool(
-        learning_job
-        and learning_job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
-    )
-    learning_succeeded = bool(
-        learning_job and learning_job.status == AuditJobStatus.SUCCEEDED
-    )
-    if learning_succeeded:
-        if learning_col.button(
-            "查看讲解",
-            type="secondary",
-            width="stretch",
-        ):
-            project_session.restore(project_store, str(project_id))
-            st.rerun()
-    elif learning_active:
-        learning_col.button("讲解生成中", disabled=True, width="stretch")
-    elif learning_col.button(
-        "生成讲解",
-        type="secondary",
-        width="stretch",
-        disabled=not api_ready or not project_id,
-    ):
-        try:
-            _submit_active_project_learning()
-        except (StorageError, ValueError) as exc:
-            st.error(str(exc))
-        else:
-            st.rerun()
-    if action_col.button(
-        "审计报告",
-        type="primary",
-        width="stretch",
-        disabled=not api_ready or not project_id,
-    ):
-        render_report_audit_dialog(_submit_active_project_audit)
-    with history_col.popover("记录", width="stretch"):
-        records = _load_active_audit_records() if project_id else []
-        active_jobs = [
-            job
-            for job in jobs
-            if job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
-        ]
-        if active_jobs:
-            st.caption(f"进行中 · {len(active_jobs)}")
-            for job in active_jobs:
-                st.progress(job.progress, text=f"{job.source_label} · {job.stage}")
-        if st.button("刷新状态", width="stretch", key="audit_project_refresh"):
-            st.rerun()
-        st.divider()
-        st.caption(f"历史记录 · {len(records)}")
-        if not records:
-            st.caption("还没有已完成的审计记录。")
-        for record in records:
-            created_label = datetime.fromisoformat(record.created_at).astimezone().strftime(
-                "%m-%d %H:%M"
-            )
-            active_marker = " · 当前" if record.audit_id == st.session_state.get("active_audit_id") else ""
-            if st.button(
-                f"{record.source_label} · {created_label}{active_marker}",
-                width="stretch",
-                key=f"open-audit-only-{record.audit_id}",
-            ):
-                _open_active_audit(record.audit_id)
-                st.rerun()
-    current_export_run = st.session_state.get("audit_run")
-    export_col.download_button(
-        "导出",
-        render_markdown(current_export_run) if current_export_run is not None else "",
-        file_name="paperaudit-report.md",
-        mime="text/markdown",
-        disabled=current_export_run is None,
-        width="stretch",
-    )
+    active_jobs = [job for job in jobs if job.status in _ACTIVE_STATUSES]
 
-    active_jobs = [
-        job
-        for job in jobs
-        if job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
-    ]
-    if learning_active and learning_job is not None:
-        with st.container(border=True):
-            status_col, refresh_col = st.columns([5, 1], vertical_alignment="center")
-            with status_col:
-                st.markdown("**论文讲解正在后台生成**")
-                st.progress(learning_job.progress, text=learning_job.stage)
-                st.caption("可以继续查看当前审计结果，页面切换不会取消生成任务。")
-            if refresh_col.button(
-                "刷新状态", width="stretch", key="learning_job_inline_refresh"
-            ):
-                st.rerun()
-    elif learning_job is not None and learning_job.status in {
-        AuditJobStatus.FAILED,
-        AuditJobStatus.INTERRUPTED,
-    }:
-        st.error(learning_job.error or "论文讲解任务未能完成，可以重新生成。")
+    if notice := st.session_state.pop("audit_submit_notice", None):
+        st.success(str(notice))
     if active_jobs:
         current_job = active_jobs[0]
-        with st.container(border=True):
-            status_col, refresh_col = st.columns([5, 1], vertical_alignment="center")
-            with status_col:
-                st.markdown(f"**{escape(current_job.source_label)} 正在后台审计**")
-                st.progress(current_job.progress, text=current_job.stage)
-                st.caption("可以继续浏览、切换页面或稍后返回，任务不会被取消。")
-            if refresh_col.button("刷新状态", width="stretch", key="audit_job_inline_refresh"):
-                st.rerun()
-    elif launch_job is not None and launch_job.status in {
-        AuditJobStatus.FAILED,
-        AuditJobStatus.INTERRUPTED,
-    }:
+        _job_status_box(
+            f"{current_job.source_label} 正在后台审计", current_job, "audit_job_inline_refresh",
+            "可以继续浏览、切换页面或稍后返回，任务不会被取消。",
+        )
+    elif launch_job is not None and launch_job.status in _FAILED_STATUSES:
         st.error(launch_job.error or "审计任务未能完成。")
 
     audit_record_metadata = st.session_state.get("audit_record_metadata")
@@ -522,137 +456,110 @@ if st.session_state.get("result_mode") == "audit_project":
         created_label = datetime.fromisoformat(
             audit_record_metadata.created_at
         ).astimezone().strftime("%Y-%m-%d %H:%M")
-        st.caption(
-            f"当前审计 · {audit_record_metadata.source_label} · {created_label}"
-        )
+        st.caption(f"当前审计 · {audit_record_metadata.source_label} · {created_label}")
     audit_run = st.session_state.get("audit_run")
     if audit_run is None:
-        if not active_jobs:
-            empty_pdf = st.session_state.get("learning_pdf_bytes")
-            empty_paper = st.session_state.get("learning_paper")
-            if empty_pdf and empty_paper:
-                preview_col, empty_col = st.columns([1.65, 1], gap="large")
-                with preview_col:
-                    st.markdown("### 论文原文")
-                    _render_uploaded_pdf_preview(empty_pdf, st.session_state.get("project_original_filename") or "paper.pdf")
-                with empty_col:
-                    st.markdown("### 开始论文检查")
-                    st.info("该论文还没有审计记录。上传一份解读报告后，系统会逐条核验其中的事实、数字与结论。")
-                    if st.button("上传第一份报告", type="primary", width="stretch", key="empty_start_audit"):
-                        render_report_audit_dialog(_submit_active_project_audit)
-            else:
-                st.info("该论文尚无已完成的审计记录，可以上传第一份报告开始审计。")
-    else:
-        render_audit_results(
-            audit_run,
-            CATEGORY_LABELS,
-            LABEL_NAMES,
-            SEVERITY_NAMES,
-            DIMENSION_NAMES,
-            paper=st.session_state.get("learning_paper"),
-            pdf_bytes=st.session_state.get("learning_pdf_bytes"),
-        )
-    st.stop()
-
-if (
-    st.session_state.get("result_mode") == "audit"
-    and st.session_state.get("audit_run") is not None
-):
-    audit_record_metadata = st.session_state.get("audit_record_metadata")
-    if audit_record_metadata is not None:
-        try:
-            created_label = datetime.fromisoformat(
-                audit_record_metadata.created_at
-            ).astimezone().strftime("%Y-%m-%d %H:%M")
-            source_label = audit_record_metadata.source_label
-        except AttributeError:
-            created_label = ""
-            source_label = "历史审计"
-        st.caption(f"历史审计 · {source_label} · {created_label}")
-    return_to_learning = render_audit_results(
-        st.session_state["audit_run"],
+        if active_jobs:
+            return
+        empty_pdf = st.session_state.get("learning_pdf_bytes")
+        preview_col, empty_col = st.columns([1.65, 1], gap="large")
+        with preview_col:
+            if empty_pdf:
+                _render_uploaded_pdf_preview(
+                    empty_pdf, st.session_state.get("project_original_filename") or "paper.pdf"
+                )
+        with empty_col, st.container(key="audit_empty_panel"):
+            st.markdown(
+                '<div class="pa-empty-title">还没有审计记录</div>'
+                '<p class="pa-empty-copy">上传一份解读报告，系统会把它拆成论断，逐条对照原文核验事实、数字与结论。</p>',
+                unsafe_allow_html=True,
+            )
+        return
+    render_audit_results(
+        audit_run,
         CATEGORY_LABELS,
         LABEL_NAMES,
         SEVERITY_NAMES,
         DIMENSION_NAMES,
-        show_return_to_learning=(
-            st.session_state.get("audit_origin") in {"learning", "history"}
-        ),
         paper=st.session_state.get("learning_paper"),
         pdf_bytes=st.session_state.get("learning_pdf_bytes"),
     )
-    if return_to_learning:
-        st.session_state["result_mode"] = "learning"
-        st.session_state.pop("audit_origin", None)
-        st.session_state.pop("audit_record_metadata", None)
-        st.session_state.pop("active_audit_id", None)
-        st.rerun()
-    st.stop()
 
-if st.session_state.get("result_mode") == "learning":
-    learning_report = st.session_state.get("learning_report")
-    learning_pdf_bytes = st.session_state.get("learning_pdf_bytes")
-    learning_paper = st.session_state.get("learning_paper")
-    parsed_codebase = st.session_state.get("parsed_codebase")
-    if learning_report is not None and learning_pdf_bytes:
-        if st.session_state.get("project_save_error"):
-            st.warning(f"自动保存失败：{st.session_state['project_save_error']}")
-        qa_service = AuditService(active_settings) if api_ready else None
-        code_service = CodeLearningService(active_settings) if api_ready else None
-        if st.session_state.get("code_parse_warning"):
-            st.warning(st.session_state["code_parse_warning"])
-        render_learning_workspace(
-            learning_report,
-            learning_pdf_bytes,
-            paper=learning_paper,
-            qa_service=qa_service,
-            codebase=parsed_codebase,
-            code_service=code_service,
-            submit_audit_job=(
-                _submit_active_project_audit
-                if api_ready and active_project_id
-                else None
-            ),
-            load_audit_jobs=(
-                _load_active_audit_jobs if active_project_id else None
-            ),
-            load_audit_records=(
-                _load_active_audit_records if active_project_id else None
-            ),
-            on_open_audit=(
-                _open_active_audit if active_project_id else None
-            ),
-            submit_peer_review=(
-                _submit_active_project_peer_review
-                if api_ready and active_project_id
-                else None
-            ),
-            on_open_peer_review=_peer_review_opener() if active_project_id else None,
+
+def _render_audit_actions() -> None:
+    """Top-bar actions for the audit view: history, audit-the-lecture, new audit."""
+
+    project_id = st.session_state.get("active_project_id")
+    jobs = _load_active_audit_jobs()
+    records = _load_active_audit_records()
+    run = st.session_state.get("audit_run")
+    with st.popover(f"记录 · {len(records)}", width="content"):
+        if jobs:
+            render_audit_task_list(jobs, _open_active_audit, _submit_active_project_audit)
+            st.divider()
+        if records:
+            render_audit_history(records, _open_active_audit)
+        else:
+            st.caption("还没有已完成的审计记录。")
+        st.download_button(
+            "导出当前审计（Markdown）",
+            render_markdown(run) if run is not None else "",
+            file_name="paperaudit-report.md",
+            mime="text/markdown",
+            disabled=run is None,
+            icon=":material/download:",
+            width="stretch",
         )
-        st.stop()
+    learning_report = st.session_state.get("learning_report")
+    if learning_report is not None and st.button(
+        "审计本讲解", key="audit_page_lecture", width="content",
+        disabled=not api_ready or not project_id,
+        help="用论文原文检查当前讲解中的事实论断。",
+    ):
+        try:
+            job = submit_lecture_audit(learning_report, _submit_active_project_audit)
+        except (StorageError, ValueError, RuntimeError) as exc:
+            st.error(f"任务提交失败：{exc}")
+        else:
+            st.session_state["audit_submit_notice"] = f"“{job.source_label}”已提交后台审计。"
+            st.rerun()
+    if st.button(
+        "审计报告", type="primary", key="audit_page_new", icon=":material/add:",
+        width="content", disabled=not api_ready or not project_id,
+    ):
+        render_report_audit_dialog(_submit_active_project_audit)
 
-if st.session_state.get("result_mode") == "peer_review":
+
+def _render_review_launcher(*, rerun_label: str, key: str) -> None:
+    render_peer_review_rubric_controls()
+    if st.button(rerun_label, type="primary", width="stretch", key=key, disabled=not api_ready):
+        try:
+            _submit_active_project_peer_review()
+        except (StorageError, ValueError) as exc:
+            st.error(str(exc))
+        else:
+            st.session_state["peer_review"] = None
+            st.rerun()
+    render_privacy_hint("peer_review")
+
+
+def _render_review_page() -> None:
     project_id = st.session_state.get("active_project_id")
     peer_review = st.session_state.get("peer_review")
-    review_pdf_bytes = st.session_state.get("learning_pdf_bytes")
-    peer_job = None
-    if project_id:
-        peer_jobs = project_store.list_peer_review_jobs(str(project_id))
-        peer_job_id = st.session_state.get("peer_review_job_id")
-        peer_job = next((job for job in peer_jobs if job.job_id == peer_job_id), None)
-        if peer_job is None and peer_jobs:
-            peer_job = peer_jobs[0]
-            st.session_state["peer_review_job_id"] = peer_job.job_id
-        if peer_review is None:
-            peer_review = project_store.load_peer_review(str(project_id))
-            st.session_state["peer_review"] = peer_review
-    _render_return_to_learning("peer_review_return_learning")
+    peer_job = _current_peer_review_job()
+    if peer_review is None and project_id:
+        peer_review = project_store.load_peer_review(str(project_id))
+        st.session_state["peer_review"] = peer_review
+    job_active = peer_job is not None and peer_job.status in _ACTIVE_STATUSES
+    if job_active:
+        _job_status_box(
+            "模拟评审正在后台进行", peer_job, "peer_review_refresh",
+            "完成后会自动保存到这个项目。",
+        )
     if peer_review is not None:
-        if st.session_state.get("learning_report") is None:
-            st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
         render_peer_review(
             peer_review,
-            review_pdf_bytes,
+            st.session_state.get("learning_pdf_bytes"),
             on_submit_revision=_submit_active_project_revision if api_ready else None,
             load_revision_jobs=_load_active_revision_jobs,
             on_update_report=_save_active_peer_review,
@@ -661,19 +568,15 @@ if st.session_state.get("result_mode") == "peer_review":
             load_revision_pdf=_load_active_project_revision_pdf,
             on_update_revision=_save_active_project_revision,
         )
-    elif peer_job is not None and peer_job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
-        st.markdown("## 模拟投稿评审")
-        st.info("评审正在后台进行，完成后会自动保存到左侧论文项目。")
-        st.progress(peer_job.progress, text=peer_job.stage)
-        if st.button("刷新评审状态", type="primary", key="peer_review_refresh"):
-            st.rerun()
-    elif peer_job is not None and peer_job.status in {AuditJobStatus.FAILED, AuditJobStatus.INTERRUPTED}:
+        return
+    if job_active:
+        return
+    if peer_job is not None and peer_job.status in _FAILED_STATUSES:
         st.error(peer_job.error or "模拟评审任务未能完成。")
-        if st.button("重新开始评审", type="primary", key="peer_review_retry"):
+        if st.button("按原标准重试", type="primary", key="peer_review_retry"):
             try:
                 # Retry with the exact rubric snapshot used by the failed job;
-                # changing the sidebar controls must not silently change the
-                # meaning of a retry.
+                # changing the controls must not silently change a retry.
                 st.session_state["peer_review_venue"] = peer_job.venue.value
                 st.session_state["peer_review_rubric_weights"] = dict(peer_job.rubric_weights)
                 _submit_active_project_peer_review()
@@ -681,8 +584,148 @@ if st.session_state.get("result_mode") == "peer_review":
                 st.error(str(exc))
             else:
                 st.rerun()
-    else:
-        st.info("当前项目还没有模拟评审记录。")
+        return
+    pdf_bytes = st.session_state.get("learning_pdf_bytes")
+    preview_col, panel_col = st.columns([1.65, 1], gap="large")
+    with preview_col:
+        if pdf_bytes:
+            _render_uploaded_pdf_preview(
+                pdf_bytes, st.session_state.get("project_original_filename") or "paper.pdf"
+            )
+    with panel_col, st.container(key="review_empty_panel"):
+        st.markdown(
+            '<div class="pa-empty-title">还没有模拟评审</div>'
+            '<p class="pa-empty-copy">按会议标准给出六维评分、主要问题和修改优先级；结果是辅助预审意见。</p>',
+            unsafe_allow_html=True,
+        )
+        _render_review_launcher(rerun_label="开始模拟评审", key="review_empty_start")
+
+
+def _project_nav_labels(peer_job, learning_job, audit_count: int) -> dict[str, str]:
+    read = "阅读"
+    if (
+        st.session_state.get("learning_report") is None
+        and learning_job is not None
+        and learning_job.status in _ACTIVE_STATUSES
+    ):
+        read = "阅读 · 生成中"
+    review = "评审"
+    peer_review = st.session_state.get("peer_review")
+    if peer_job is not None and peer_job.status in _ACTIVE_STATUSES:
+        review = "评审 · 进行中"
+    elif peer_review is not None:
+        review = f"评审 · {DECISION_LABELS[peer_review.decision][1]}"
+    return {
+        "read": read,
+        "audit": f"审计 · {audit_count}" if audit_count else "审计",
+        "review": review,
+    }
+
+
+def _render_nav_actions(tab: str) -> None:
+    learning_report = st.session_state.get("learning_report")
+    with st.container(
+        key="project_nav_actions", horizontal=True,
+        horizontal_alignment="right", vertical_alignment="center",
+    ):
+        if tab == "read" and learning_report is not None:
+            render_audit_activity(_load_active_audit_jobs, _open_active_audit, compact=True)
+            render_lecture_export(learning_report)
+        elif tab == "audit":
+            _render_audit_actions()
+        elif tab == "review" and st.session_state.get("peer_review") is not None:
+            with st.popover("重新评审", icon=":material/refresh:", width="content"):
+                _render_review_launcher(rerun_label="按所选标准重新评审", key="review_rerun")
+
+
+def _render_project() -> None:
+    mode = st.session_state.get("result_mode")
+    if mode == "audit":
+        st.session_state["result_mode"] = "audit_project"
+        mode = "audit_project"
+    if mode == "audit_project" and st.session_state.get("audit_run") is None:
+        # Land on the latest finished audit rather than an empty state.
+        records = _load_active_audit_records()
+        if records:
+            _open_active_audit(records[0].audit_id)
+    elif mode == "learning" and (
+        st.session_state.get("learning_report") is None
+        or not st.session_state.get("learning_pdf_bytes")
+    ):
+        st.session_state["result_mode"] = "lecture_empty"
+    learning_report = st.session_state.get("learning_report")
+    paper = st.session_state.get("learning_paper")
+    title = (
+        learning_report.paper_title if learning_report is not None
+        else getattr(paper, "title", None) or "论文项目"
+    )
+    meta_parts = [str(st.session_state.get("project_original_filename") or "paper.pdf")]
+    if paper is not None and getattr(paper, "page_count", None):
+        meta_parts.append(f"{paper.page_count} 页")
+    if learning_report is not None and learning_report.suggested_pages:
+        meta_parts.append(
+            "建议重点读第 " + "、".join(map(str, learning_report.suggested_pages)) + " 页"
+        )
+    learning_job = _current_learning_job() if learning_report is None else None
+    peer_job = _current_peer_review_job()
+    if st.session_state.get("peer_review") is None:
+        st.session_state["peer_review"] = project_store.load_peer_review(
+            str(st.session_state["active_project_id"])
+        )
+    render_project_nav(
+        title=str(title),
+        meta=" · ".join(meta_parts),
+        tab_labels=_project_nav_labels(
+            peer_job, learning_job, len(_load_active_audit_records())
+        ),
+        right=lambda: _render_nav_actions(current_tab(st.session_state)),
+        full_height=st.session_state.get("result_mode") == "learning",
+    )
+    if st.session_state.get("project_save_error"):
+        st.warning(f"自动保存失败：{st.session_state['project_save_error']}")
+    mode = st.session_state.get("result_mode")
+    if mode == "learning":
+        if st.session_state.get("code_parse_warning"):
+            st.warning(st.session_state["code_parse_warning"])
+        if notice := st.session_state.pop("audit_submit_notice", None):
+            st.success(str(notice))
+        render_learning_workspace(
+            learning_report,
+            st.session_state["learning_pdf_bytes"],
+            paper=paper,
+            qa_service=AuditService(active_settings) if api_ready else None,
+            codebase=st.session_state.get("parsed_codebase"),
+            code_service=CodeLearningService(active_settings) if api_ready else None,
+        )
+    elif mode == "lecture_empty":
+        _render_lecture_empty()
+    elif mode == "audit_project":
+        _render_audit_page()
+    elif mode == "peer_review":
+        _render_review_page()
+
+
+if (
+    st.session_state.get("active_project_id")
+    and st.session_state.get("result_mode") in PROJECT_MODES
+):
+    _render_project()
+    st.stop()
+
+if (
+    st.session_state.get("result_mode") == "audit"
+    and st.session_state.get("audit_run") is not None
+):
+    # Unsaved (no project) audit: keep the legacy standalone view.
+    render_audit_results(
+        st.session_state["audit_run"],
+        CATEGORY_LABELS,
+        LABEL_NAMES,
+        SEVERITY_NAMES,
+        DIMENSION_NAMES,
+        paper=st.session_state.get("learning_paper"),
+        pdf_bytes=st.session_state.get("learning_pdf_bytes"),
+    )
     st.stop()
 
 submission = render_upload_page(project_store, api_ready, _open_active_audit)
@@ -711,11 +754,6 @@ if result_mode == "learning":
             qa_service=qa_service,
             codebase=parsed_codebase,
             code_service=code_service,
-            submit_peer_review=(
-                _submit_active_project_peer_review
-                if api_ready and active_project_id
-                else None
-            ),
         )
 
 if result_mode == "audit":

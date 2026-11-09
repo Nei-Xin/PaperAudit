@@ -1,19 +1,19 @@
 [theme]
 base = "light"
 primaryColor = "#1E4A7A"
-backgroundColor = "#FAF8F3"
-secondaryBackgroundColor = "#F1EDE4"
-textColor = "#1C1A17"
-borderColor = "#E4DED2"
+backgroundColor = "#F4F4F2"
+secondaryBackgroundColor = "#F0EFEC"
+textColor = "#1A1A19"
+borderColor = "#E7E5E1"
 linkColor = "#1E4A7A"
-baseRadius = "small"
+baseRadius = "8px"
 font = "sans serif"
-headingFont = "serif"
+headingFont = "sans serif"
 codeFont = "monospace"
 
 [theme.sidebar]
-backgroundColor = "#F3EFE6"
-secondaryBackgroundColor = "#EAE5DA"
+backgroundColor = "#F4F4F2"
+secondaryBackgroundColor = "#E9E8E5"
 
 [client]
 toolbarMode = "minimal"

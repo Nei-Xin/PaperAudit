@@ -62,21 +62,6 @@ def highlight_keywords(text: str, keywords: list[str]) -> str:
     return pattern.sub(lambda match: f'<mark class="pa-mark">{match.group(0)}</mark>', escaped_text)
 
 
-def render_header_banner() -> None:
-    st.markdown(
-        """
-        <div class="pa-header">
-          <div>
-            <div class="pa-header-kicker">PaperAudit · 学术实战作品 · 基于 Hy3 大模型</div>
-            <div class="pa-header-title">Hy3 论文学习助手</div>
-            <div class="pa-header-subtitle">结构化论文讲解 · 原文证据定位 · 报告审计</div>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
 def render_grade_hero(grade: TrustGrade, score: float | None) -> None:
     grade_class = {
         TrustGrade.TRUSTED: "trusted",
@@ -157,12 +142,19 @@ def build_audit_summary_html(
     )
 
 
-def render_audit_summary(summary: AuditSummary, audits: list[ClaimAudit]) -> None:
-    counts = label_counts(audits)
+def render_audit_summary(
+    summary: AuditSummary, audits: list[ClaimAudit], *, show_details: bool = True
+) -> None:
     st.markdown(
         build_audit_summary_html(summary, audits),
         unsafe_allow_html=True,
     )
+    if show_details:
+        render_audit_summary_details(summary, audits)
+
+
+def render_audit_summary_details(summary: AuditSummary, audits: list[ClaimAudit]) -> None:
+    counts = label_counts(audits)
     summary_details = (
         f"自动拆分并审计 {len(audits)} 条论断 · "
         f"支持 {counts[AutoLabel.SUPPORTED]} · "
@@ -390,7 +382,8 @@ def render_audit_detail(
     visible_evidence = selected[:2]
     if on_open_evidence is not None and visible_evidence:
         with st.container(key="audit_evidence_actions"):
-            action_columns = st.columns(len(visible_evidence))
+            buttons: list[tuple[int, object, EvidenceAnchor]] = []
+            seen_labels: set[str] = set()
             for index, item in enumerate(visible_evidence):
                 anchor = (
                     evidence_anchors.get(item.chunk_id)
@@ -401,7 +394,15 @@ def render_audit_detail(
                     page=item.page,
                     text=item.text,
                 )
-                if action_columns[index].button(
+                # Two chunks of the same table/page produce identical links; show one.
+                label = audit_evidence_button_label(anchor)
+                if label in seen_labels:
+                    continue
+                seen_labels.add(label)
+                buttons.append((index, item, anchor))
+            action_columns = st.columns(len(buttons))
+            for column, (index, item, anchor) in zip(action_columns, buttons):
+                if column.button(
                     audit_evidence_button_label(anchor),
                     key=f"audit-evidence-{audit.claim.claim_id}-{index}-{item.chunk_id}",
                     type="tertiary",
