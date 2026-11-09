@@ -1,0 +1,32 @@
+[Unit]
+Description=PaperAudit React frontend (read-only preview)
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=debian
+Group=debian
+WorkingDirectory=/srv/paperaudit/current
+EnvironmentFile=/srv/paperaudit/shared/app.env
+Environment=PAPERAUDIT_SETTINGS_DIR=/srv/paperaudit/shared/settings
+Environment=PYTHONPATH=/srv/paperaudit/current/src
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+# No login: must stay on the loopback address; reach it via SSH tunnel.
+ExecStart=/srv/paperaudit/current/.venv/bin/python /srv/paperaudit/current/web/scripts/preview_server.py --dist /srv/paperaudit/current/web/dist --host 127.0.0.1 --port 18502
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=paperaudit-web
+
+[Install]
+WantedBy=multi-user.target

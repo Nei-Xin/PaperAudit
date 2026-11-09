@@ -1,0 +1,6 @@
+node_modules/
+dist/
+# Exported from local project data by scripts/export_mock_api.py; contains paper text.
+public/mock-api/
+/test-results/
+/playwright-report/

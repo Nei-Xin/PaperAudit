@@ -1,0 +1,536 @@
+{
+  "projects": [
+    {
+      "project_id": "paper",
+      "title": "Layout Test Paper",
+      "original_filename": "paper.pdf",
+      "created_at": "2026-11-09",
+      "updated_at": "2026-11-09",
+      "has_code": false,
+      "has_learning_report": true,
+      "has_peer_review": true,
+      "has_audit": true
+    },
+    {
+      "project_id": "empty",
+      "title": "Empty Test Paper",
+      "original_filename": "empty.pdf",
+      "created_at": "2026-11-09",
+      "updated_at": "2026-11-09",
+      "has_code": false,
+      "has_learning_report": false,
+      "has_peer_review": false,
+      "has_audit": true
+    }
+  ],
+  "record": {
+    "audit_id": "audit-1",
+    "project_id": "paper",
+    "created_at": "2026-11-09T08:00:00Z",
+    "source_type": "text",
+    "source_label": "一份很长的审计记录名称用于检查导航遮挡",
+    "grade": "需复核",
+    "total_score": 58
+  },
+  "audit": {
+    "record": {
+      "audit_id": "audit-1",
+      "project_id": "paper",
+      "created_at": "2026-11-09T08:00:00Z",
+      "source_type": "text",
+      "source_label": "一份很长的审计记录名称用于检查导航遮挡",
+      "grade": "需复核",
+      "total_score": 58
+    },
+    "run": {
+      "paper_title": "Layout Test Paper",
+      "page_count": 6,
+      "mode": "audit_existing",
+      "scope": [
+        "contribution"
+      ],
+      "report_text": "示例报告。",
+      "audits": [
+        {
+          "claim": {
+            "claim_id": "C001",
+            "text": "示例论断 1",
+            "category": "contribution",
+            "key_claim": true,
+            "query_en": "demo claim 1",
+            "entities": [],
+            "numbers": [],
+            "metric": null,
+            "dataset": null,
+            "provided_evidence": null,
+            "report_location": null,
+            "source_id": null,
+            "source_quote": null
+          },
+          "candidates": [
+            {
+              "evidence_id": "C001-E1",
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Demo source evidence for claim 1.",
+              "score": 1.0
+            }
+          ],
+          "judgment": {
+            "claim_id": "C001",
+            "label": "SUPPORTED",
+            "evidence_ids": [
+              "C001-E1"
+            ],
+            "explanation": "示例判断说明。",
+            "claim_error_type": null,
+            "evidence_error_type": null,
+            "severity": "none",
+            "suggestion": null
+          },
+          "citation_review": null,
+          "citation_review_before_repair": null,
+          "judgment_before_citation_review": null,
+          "candidate_gap_review": null,
+          "judgment_before_candidate_gap_review": null,
+          "investigation": null,
+          "judgment_before_investigation": null,
+          "judgment_before_investigation_finish": null
+        },
+        {
+          "claim": {
+            "claim_id": "C002",
+            "text": "示例论断 2",
+            "category": "contribution",
+            "key_claim": true,
+            "query_en": "demo claim 2",
+            "entities": [],
+            "numbers": [],
+            "metric": null,
+            "dataset": null,
+            "provided_evidence": null,
+            "report_location": null,
+            "source_id": null,
+            "source_quote": null
+          },
+          "candidates": [
+            {
+              "evidence_id": "C002-E1",
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Demo source evidence for claim 2.",
+              "score": 1.0
+            }
+          ],
+          "judgment": {
+            "claim_id": "C002",
+            "label": "PARTIALLY_SUPPORTED",
+            "evidence_ids": [
+              "C002-E1"
+            ],
+            "explanation": "示例判断说明。",
+            "claim_error_type": null,
+            "evidence_error_type": null,
+            "severity": "medium",
+            "suggestion": null
+          },
+          "citation_review": null,
+          "citation_review_before_repair": null,
+          "judgment_before_citation_review": null,
+          "candidate_gap_review": null,
+          "judgment_before_candidate_gap_review": null,
+          "investigation": null,
+          "judgment_before_investigation": null,
+          "judgment_before_investigation_finish": null
+        },
+        {
+          "claim": {
+            "claim_id": "C003",
+            "text": "示例论断 3",
+            "category": "contribution",
+            "key_claim": true,
+            "query_en": "demo claim 3",
+            "entities": [],
+            "numbers": [],
+            "metric": null,
+            "dataset": null,
+            "provided_evidence": null,
+            "report_location": null,
+            "source_id": null,
+            "source_quote": null
+          },
+          "candidates": [
+            {
+              "evidence_id": "C003-E1",
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Demo source evidence for claim 3.",
+              "score": 1.0
+            }
+          ],
+          "judgment": {
+            "claim_id": "C003",
+            "label": "CONTRADICTED",
+            "evidence_ids": [
+              "C003-E1"
+            ],
+            "explanation": "示例判断说明。",
+            "claim_error_type": null,
+            "evidence_error_type": null,
+            "severity": "critical",
+            "suggestion": null
+          },
+          "citation_review": null,
+          "citation_review_before_repair": null,
+          "judgment_before_citation_review": null,
+          "candidate_gap_review": null,
+          "judgment_before_candidate_gap_review": null,
+          "investigation": null,
+          "judgment_before_investigation": null,
+          "judgment_before_investigation_finish": null
+        },
+        {
+          "claim": {
+            "claim_id": "C004",
+            "text": "示例论断 4",
+            "category": "contribution",
+            "key_claim": false,
+            "query_en": "demo claim 4",
+            "entities": [],
+            "numbers": [],
+            "metric": null,
+            "dataset": null,
+            "provided_evidence": null,
+            "report_location": null,
+            "source_id": null,
+            "source_quote": null
+          },
+          "candidates": [
+            {
+              "evidence_id": "C004-E1",
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Demo source evidence for claim 4.",
+              "score": 1.0
+            }
+          ],
+          "judgment": {
+            "claim_id": "C004",
+            "label": "NO_SUPPORT_FOUND",
+            "evidence_ids": [],
+            "explanation": "示例判断说明。",
+            "claim_error_type": null,
+            "evidence_error_type": null,
+            "severity": "high",
+            "suggestion": null
+          },
+          "citation_review": null,
+          "citation_review_before_repair": null,
+          "judgment_before_citation_review": null,
+          "candidate_gap_review": null,
+          "judgment_before_candidate_gap_review": null,
+          "investigation": null,
+          "judgment_before_investigation": null,
+          "judgment_before_investigation_finish": null
+        },
+        {
+          "claim": {
+            "claim_id": "C005",
+            "text": "示例论断 5",
+            "category": "contribution",
+            "key_claim": false,
+            "query_en": "demo claim 5",
+            "entities": [],
+            "numbers": [],
+            "metric": null,
+            "dataset": null,
+            "provided_evidence": null,
+            "report_location": null,
+            "source_id": null,
+            "source_quote": null
+          },
+          "candidates": [
+            {
+              "evidence_id": "C005-E1",
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Demo source evidence for claim 5.",
+              "score": 1.0
+            }
+          ],
+          "judgment": {
+            "claim_id": "C005",
+            "label": "ABSTAIN",
+            "evidence_ids": [],
+            "explanation": "示例判断说明。",
+            "claim_error_type": null,
+            "evidence_error_type": null,
+            "severity": "none",
+            "suggestion": null
+          },
+          "citation_review": null,
+          "citation_review_before_repair": null,
+          "judgment_before_citation_review": null,
+          "candidate_gap_review": null,
+          "judgment_before_candidate_gap_review": null,
+          "investigation": null,
+          "judgment_before_investigation": null,
+          "judgment_before_investigation_finish": null
+        },
+        {
+          "claim": {
+            "claim_id": "C006",
+            "text": "示例论断 6",
+            "category": "contribution",
+            "key_claim": false,
+            "query_en": "demo claim 6",
+            "entities": [],
+            "numbers": [],
+            "metric": null,
+            "dataset": null,
+            "provided_evidence": null,
+            "report_location": null,
+            "source_id": null,
+            "source_quote": null
+          },
+          "candidates": [
+            {
+              "evidence_id": "C006-E1",
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Demo source evidence for claim 6.",
+              "score": 1.0
+            }
+          ],
+          "judgment": {
+            "claim_id": "C006",
+            "label": "SUPPORTED",
+            "evidence_ids": [
+              "C006-E1"
+            ],
+            "explanation": "示例判断说明。",
+            "claim_error_type": null,
+            "evidence_error_type": null,
+            "severity": "low",
+            "suggestion": null
+          },
+          "citation_review": null,
+          "citation_review_before_repair": null,
+          "judgment_before_citation_review": null,
+          "candidate_gap_review": null,
+          "judgment_before_candidate_gap_review": null,
+          "investigation": null,
+          "judgment_before_investigation": null,
+          "judgment_before_investigation_finish": null
+        }
+      ],
+      "summary": {
+        "grade": "不可信",
+        "total_score": 58.0,
+        "audit_coverage": 83.3,
+        "evidence_discovery_rate": 66.7,
+        "dimensions": {
+          "factual_support": 58.0,
+          "evidence_correctness": 60.0,
+          "evidence_completeness": 70.0,
+          "numeric_consistency": 55.0,
+          "content_coverage": 80.0,
+          "conclusion_boundary": 62.0
+        },
+        "critical_count": 1,
+        "high_count": 1,
+        "medium_count": 1,
+        "review_count": 2
+      },
+      "parse_warnings": [],
+      "source_count": 0,
+      "skipped_sources": [],
+      "deep_audit": false
+    },
+    "anchors": {
+      "p1_b1": {
+        "chunk_id": "p1_b1",
+        "page": 1,
+        "text": "Layout test evidence",
+        "quote": "Layout test evidence",
+        "locator": "Introduction",
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 72,
+            "y0": 80,
+            "x1": 260,
+            "y1": 100
+          }
+        ]
+      }
+    }
+  },
+  "review": {
+    "report": {
+      "paper_title": "Layout Test Paper",
+      "venue": "general_ai_ml",
+      "rubric_version": "v1",
+      "rubric_change_note": "",
+      "decision": "WEAK_ACCEPT",
+      "overall_score": 7,
+      "confidence": 4,
+      "summary": "评审总结。",
+      "decision_rationale": "这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。这段总体评审用于检查多种视口下的正文排版。",
+      "why_not_adjacent": "",
+      "core_contributions": [
+        "贡献一"
+      ],
+      "strengths": [
+        "优势一"
+      ],
+      "major_concerns": [
+        {
+          "issue_id": "r1",
+          "category": "evidence",
+          "severity_level": "P1",
+          "status": "open",
+          "confidence": 4,
+          "title": "这是一个很长的问题标题，用于验证置信度不再挤占标题宽度",
+          "description": "需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。需要验证原文证据。",
+          "why_it_matters": "影响结论",
+          "suggestion": "补充实验",
+          "evidence": [
+            {
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Layout test evidence",
+              "quote": "Layout test evidence",
+              "locator": "Introduction",
+              "context_text": null,
+              "rects": [
+                {
+                  "x0": 72,
+                  "y0": 80,
+                  "x1": 260,
+                  "y1": 100
+                }
+              ]
+            }
+          ],
+          "human_reviewed": false
+        }
+      ],
+      "minor_concerns": [],
+      "dimensions": [
+        {
+          "name": "novelty",
+          "score": 3,
+          "rationale": "评分理由",
+          "confidence": 4,
+          "evidence": [
+            {
+              "chunk_id": "p1_b1",
+              "page": 1,
+              "text": "Layout test evidence",
+              "quote": "Layout test evidence",
+              "locator": "Introduction",
+              "context_text": null,
+              "rects": [
+                {
+                  "x0": 72,
+                  "y0": 80,
+                  "x1": 260,
+                  "y1": 100
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "acceptance_blockers": [],
+      "fatal_flaws": [],
+      "confidence_rationale": "",
+      "review_limitations": [],
+      "required_changes": [
+        "修改一"
+      ],
+      "suggested_changes": [],
+      "top_priorities": [
+        "验证实验数字",
+        "补充讨论"
+      ],
+      "model_name": "test",
+      "run_id": "test"
+    },
+    "progress": {
+      "schema_version": 1,
+      "items": []
+    },
+    "revisions": []
+  },
+  "lecture": {
+    "paper_title": "Layout Test Paper",
+    "one_sentence_summary": "测试讲解",
+    "suggested_pages": [
+      1
+    ],
+    "sections": [
+      {
+        "section_type": "research_problem",
+        "title": "研究问题",
+        "overview": "长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。长篇讲解。",
+        "points": [
+          {
+            "title": "研究问题",
+            "explanation": "讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。讲解内容。",
+            "key_point": true,
+            "evidence": [
+              {
+                "chunk_id": "p1_b1",
+                "page": 1,
+                "text": "Layout test evidence",
+                "quote": "Layout test evidence",
+                "locator": "Introduction",
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 72,
+                    "y0": 80,
+                    "x1": 260,
+                    "y1": 100
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "section_type": "method",
+        "title": "方法",
+        "overview": "方法说明",
+        "points": [
+          {
+            "title": "方法",
+            "explanation": "方法细节",
+            "key_point": true,
+            "evidence": [
+              {
+                "chunk_id": "p1_b1",
+                "page": 1,
+                "text": "Layout test evidence",
+                "quote": "Layout test evidence",
+                "locator": "Introduction",
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 72,
+                    "y0": 80,
+                    "x1": 260,
+                    "y1": 100
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
