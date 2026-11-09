@@ -4,7 +4,7 @@ import type { ClaimAudit, EvidenceAnchor } from "@/api/types";
 import {
   CATEGORY_LABELS, CLAIM_ERROR_NAMES, EVIDENCE_ERROR_NAMES, LABEL_NAMES, LABEL_TONE, SEVERITY_NAMES, anchorLabel,
 } from "@/lib/labels";
-import { detailEvidence, normalizeEvidence, splitNumbers } from "./auditView";
+import { detailEvidence, normalizeEvidence, splitClaimNumbers } from "./auditView";
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -42,7 +42,7 @@ export function ClaimDetail({
       </header>
 
       <h2 className="text-[19px] font-semibold leading-[1.55]">
-        {splitNumbers(claim.text).map((part, i) =>
+        {splitClaimNumbers(claim.text, claim.numbers).map((part, i) =>
           part.number ? <mark key={i} className="rounded-sm bg-yellow-200/60 px-0.5 text-inherit">{part.text}</mark> : <span key={i}>{part.text}</span>,
         )}
       </h2>

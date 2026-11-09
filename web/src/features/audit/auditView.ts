@@ -60,16 +60,43 @@ export function labelCounts(audits: ClaimAudit[]): Record<AutoLabel, number> {
   return counts;
 }
 
-/** Split text so numbers (0.277, 170万, 79.5%) can be highlighted. */
-export function splitNumbers(text: string): { text: string; number: boolean }[] {
+/**
+ * Split claim text so the numbers the extractor recorded (claim.numbers, e.g.
+ * "约170万", "0.277") are highlighted, and nothing else ("Table 5",
+ * "ResNet-50" stay plain). A recorded value that is not found verbatim is
+ * retried without its leading qualifier ("约", "~", "≈").
+ */
+export function splitClaimNumbers(text: string, numbers: readonly string[] | undefined): { text: string; number: boolean }[] {
+  const ranges: [number, number][] = [];
+  const isNumeric = (char: string | undefined) => char !== undefined && /[\d.]/.test(char);
+  const overlaps = (start: number, end: number) => ranges.some(([a, b]) => start < b && end > a);
+  for (const raw of numbers ?? []) {
+    const value = raw.trim();
+    if (!value) continue;
+    const candidates = [value, value.replace(/^[^\d.+-]+/, "")].filter((v, i, all) => v && all.indexOf(v) === i);
+    found: for (const candidate of candidates) {
+      let from = 0;
+      for (;;) {
+        const start = text.indexOf(candidate, from);
+        if (start < 0) break;
+        const end = start + candidate.length;
+        // Do not mark "32" inside "320" or "0.32".
+        const clean = !(isNumeric(text[start - 1]) && /^[\d.]/.test(candidate)) && !(isNumeric(text[end]) && /[\d.]$/.test(candidate));
+        if (clean && !overlaps(start, end)) {
+          ranges.push([start, end]);
+          break found;
+        }
+        from = start + 1;
+      }
+    }
+  }
+  ranges.sort((a, b) => a[0] - b[0]);
   const parts: { text: string; number: boolean }[] = [];
-  const pattern = /\d+(?:[.,]\d+)*(?:%|万|亿)?/g;
   let last = 0;
-  for (const match of text.matchAll(pattern)) {
-    const start = match.index ?? 0;
+  for (const [start, end] of ranges) {
     if (start > last) parts.push({ text: text.slice(last, start), number: false });
-    parts.push({ text: match[0], number: true });
-    last = start + match[0].length;
+    parts.push({ text: text.slice(start, end), number: true });
+    last = end;
   }
   if (last < text.length) parts.push({ text: text.slice(last), number: false });
   return parts;

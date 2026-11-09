@@ -31,6 +31,30 @@ class BrowserService(FakeService):
             progress("核对完成", .9)
         return get_demo_audit_run().model_copy(update={"paper_title":paper.title,"report_text":text,"scope":scope,"mode":mode})
 
+    def generate_peer_review(self, paper, *, venue, rubric_weights):
+        from test_backend_complete import report
+        time.sleep(.6)
+        key = "review:" + paper.title
+        count = self.attempts.get(key, 0) + 1
+        self.attempts[key] = count
+        if "Retry" in paper.title and count == 1:
+            raise RuntimeError("测试评审失败，请重试。")
+        return report().model_copy(update={"paper_title":paper.title,"venue":venue,"rubric_weights":rubric_weights})
+
+    def compare_related_work(self, paper, references):
+        from paperaudit.models import RelatedWorkComparison
+        time.sleep(.2)
+        return RelatedWorkComparison(references=references, assessment="已比较用户提供的相关工作", distinctions=["实验设置不同"], confidence=3)
+
+    def answer(self, paper, codebase, question, **kwargs):
+        from paperaudit.models import JointAnswer, CodeCitation
+        time.sleep(.2)
+        selected=kwargs.get("selected_code")
+        file=codebase.files[0]
+        return JointAnswer(question=question, answer="已结合论文和代码回答", scope="joint", status="ANSWERED", selected_code=selected,
+            code_citations=[CodeCitation(chunk_id="test-code",path=file.path,start_line=1,end_line=2,text=file.content)],
+            paper_citations=super().answer_question(paper,question,[]).citations)
+
     def answer_question(self, paper, question, history, **kwargs):
         time.sleep(0.25)
         if question == "触发失败":
@@ -44,5 +68,5 @@ if __name__ == "__main__":
         runner = BrowserService()
         app = create_app(storage_root=root / "library", settings_dir=root / "settings",
                          settings=Settings(api_base="https://example.invalid/v1", api_key="fake-only", model="fake"),
-                         service_factory=lambda _: runner)
+                         service_factory=lambda _: runner, code_service_factory=lambda _: runner)
         uvicorn.run(app, host="127.0.0.1", port=8001, log_level="warning")

@@ -7,9 +7,6 @@
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "1";
 export const READ_ONLY = USE_MOCK || import.meta.env.VITE_READ_ONLY === "1";
 
-// Audit/review mutations are enabled in a later migration stage.
-export const READING_ONLY = true;
-
 export class ApiError extends Error {
   constructor(message: string, readonly status: number) {
     super(message);
@@ -33,7 +30,7 @@ export async function getJson<T>(path: string): Promise<T> {
 
 export async function send<T>(method: "POST" | "PUT" | "PATCH" | "DELETE", path: string, body?: unknown): Promise<T> {
   if (READ_ONLY) {
-    throw new ApiError("当前为只读预览：写入接口尚未接入，修改不会保存。", 503);
+    throw new ApiError("当前为只读预览，修改不会保存。", 503);
   }
   const isForm = body instanceof FormData;
   const response = await fetch(path, {

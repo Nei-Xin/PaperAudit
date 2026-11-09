@@ -34,7 +34,7 @@ export function EmptyState({ title, children, action }: { title: string; childre
 /** Shown next to write actions while the app runs on exported demo data. */
 export function MockNote() {
   if (!READ_ONLY) return null;
-  return <p className="text-xs text-ink-4">只读预览：写入接口尚未接入，此操作暂不可用。</p>;
+  return <p className="text-xs text-ink-4">只读预览：此环境不保存修改。</p>;
 }
 
 export function Progress({ value, label }: { value: number; label?: string }) {

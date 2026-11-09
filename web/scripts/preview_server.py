@@ -56,7 +56,9 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as exc:  # surface as JSON, keep serving
                 status, content_type = 500, "application/json; charset=utf-8"
                 body = json.dumps({"error": {"code": "server_error", "message": str(exc)}}, ensure_ascii=False).encode()
-            self._send(status, content_type, body)
+            # The project id is a hash of the PDF bytes, so a project's PDF never changes.
+            immutable = status == 200 and self.path.split("?", 1)[0].endswith("/pdf")
+            self._send(status, content_type, body, "private, max-age=31536000, immutable" if immutable else "no-store")
             return
         self._serve_static()
 

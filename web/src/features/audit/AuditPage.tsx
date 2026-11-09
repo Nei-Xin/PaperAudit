@@ -11,6 +11,7 @@ import { useContainerWidth } from "@/components/useContainerWidth";
 import { PdfPage, PdfPanel } from "@/components/PdfPanel";
 import { EmptyState, ErrorState, Loading } from "@/components/States";
 import { Modal } from "@/components/Modal";
+import { Popover } from "@/components/Popover";
 import {
   AUDIT_DIMENSION_NAMES, CATEGORY_LABELS, LABEL_NAMES, LABEL_TONE, SEVERITY_NAMES, anchorLabel,
 } from "@/lib/labels";
@@ -25,6 +26,30 @@ type Tab = "claims" | "stats" | "export";
 
 function useParam<T extends string>(params: URLSearchParams, key: string, fallback: T): T {
   return (params.get(key) as T | null) ?? fallback;
+}
+
+/** Placeholder with the final layout while a (possibly large) audit loads. */
+function AuditSkeleton() {
+  const bar = "animate-pulse rounded bg-line-soft";
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-2" role="status" aria-label="正在载入审计结果">
+      <div className="card flex h-[74px] items-center gap-6 px-4">
+        {[40, 24, 24, 24, 24].map((w, i) => <div key={i} className={bar} style={{ width: `${w * 3}px`, height: i ? 28 : 36 }} />)}
+      </div>
+      <div className="audit-columns min-h-0 flex-1">
+        <div className="audit-list card flex-col gap-3 p-3">
+          {Array.from({ length: 7 }, (_, i) => <div key={i} className={clsx(bar, "h-12")} />)}
+        </div>
+        <div className="card flex flex-col gap-4 p-6">
+          <div className={clsx(bar, "h-6 w-3/4")} />
+          <div className={clsx(bar, "h-4 w-full")} />
+          <div className={clsx(bar, "h-4 w-5/6")} />
+          <div className={clsx(bar, "h-24 w-full")} />
+        </div>
+      </div>
+      <span className="sr-only">正在载入审计结果…</span>
+    </div>
+  );
 }
 
 function SummaryStrip({ detail }: { detail: AuditDetail }) {
@@ -218,6 +243,7 @@ export function AuditPage() {
   const category = useParam<ClaimCategory | "">(params, "cat", "");
   const severity = useParam<Severity | "">(params, "sev", "");
   const query = params.get("q") ?? "";
+  const extraFilters = [category, severity, sort !== "risk" && sort].filter(Boolean).length;
   const update = (patch: Record<string, string>) =>
     setParams((current) => {
       const next = new URLSearchParams(current);
@@ -238,7 +264,7 @@ export function AuditPage() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
-      if (document.querySelector("dialog[open]") || tab !== "claims" || target.closest("input, textarea, select, [contenteditable]")) return;
+      if (document.querySelector("dialog[open]") || tab !== "claims" || (target instanceof Element && target.closest("input, textarea, select, [contenteditable]"))) return;
       const delta = event.key === "ArrowDown" || event.key === "j" ? 1 : event.key === "ArrowUp" || event.key === "k" ? -1 : 0;
       if (!delta || index < 0) return;
       const next = visible[index + delta];
@@ -293,7 +319,7 @@ export function AuditPage() {
             上传一份解读报告，系统会把它拆成论断，逐条对照原文核验事实、数字与结论。
           </EmptyState>
         </section>
-      ) : detail.isLoading ? <Loading /> : detail.error ? <ErrorState error={detail.error} /> : detail.data && (
+      ) : detail.isLoading ? <AuditSkeleton /> : detail.error ? <ErrorState error={detail.error} /> : detail.data && (
         <div className="flex min-h-0 flex-1 flex-col gap-2">
           <details className="audit-summary-wrap" open={containerWidth >= 560}>
             <summary className="audit-summary-toggle card cursor-pointer px-3 py-2 text-sm">
@@ -330,9 +356,10 @@ export function AuditPage() {
                     {Object.entries(LABEL_NAMES).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
                 </label>
-                <details className="relative">
-                  <summary className="btn-secondary cursor-pointer list-none"><SlidersHorizontal className="h-4 w-4" aria-hidden /> 更多筛选</summary>
-                  <div className="absolute right-0 z-20 mt-1 flex w-56 flex-col gap-3 rounded-xl bg-card p-3 shadow-pop">
+                <Popover
+                  className="flex w-56 flex-col gap-3"
+                  summary={<><SlidersHorizontal className="h-4 w-4" aria-hidden /> 更多筛选{extraFilters ? ` · ${extraFilters}` : ""}</>}
+                >
                     <label className="flex flex-col gap-1 text-xs text-ink-4">分类
                       <select value={category} onChange={(e) => update({ cat: e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
                         <option value="">全部分类</option>
@@ -351,8 +378,7 @@ export function AuditPage() {
                         <option value="report">报告顺序</option>
                       </select>
                     </label>
-                  </div>
-                </details>
+                </Popover>
               </div>
             )}
           </div>

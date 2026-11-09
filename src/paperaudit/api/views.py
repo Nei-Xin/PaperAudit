@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections import OrderedDict
 from dataclasses import asdict
+from threading import Lock
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
@@ -47,11 +49,55 @@ def _page_sizes(pdf_bytes: bytes) -> list[dict[str, float]]:
         document.close()
 
 
+def _stamp(*paths: Path) -> tuple:
+    """Change marker for cached payloads: (mtime, size) of each input file."""
+    marks = []
+    for path in paths:
+        try:
+            stat = path.stat()
+        except FileNotFoundError:
+            marks.append(None)
+        else:
+            marks.append((stat.st_mtime_ns, stat.st_size))
+    return tuple(marks)
+
+
+class _Memo:
+    """Small LRU of derived payloads, valid while the input files are unchanged.
+
+    Opening an audit re-parses the paper index and re-anchors evidence, which
+    takes seconds on large papers; repeated reads should not pay that again.
+    """
+
+    def __init__(self, size: int = 48) -> None:
+        self.size = size
+        self.items: OrderedDict[tuple, tuple[tuple, object]] = OrderedDict()
+        self.lock = Lock()
+
+    def get(self, key: tuple, stamp: tuple, compute):
+        with self.lock:
+            hit = self.items.get(key)
+            if hit and hit[0] == stamp:
+                self.items.move_to_end(key)
+                return hit[1]
+        value = compute()
+        with self.lock:
+            self.items[key] = (stamp, value)
+            self.items.move_to_end(key)
+            while len(self.items) > self.size:
+                self.items.popitem(last=False)
+        return value
+
+
 class ReadOnlyApi:
     def __init__(self, storage_root: Path, settings: Settings | None = None) -> None:
         self.storage_root = storage_root
         self.store = ProjectStore(storage_root)
         self.settings = settings or Settings.from_env()
+        self._memo = _Memo()
+
+    def _dir(self, project_id: str) -> Path:
+        return self.store._project_dir(project_id)
 
     # ── payloads ─────────────────────────────────────────────
     def settings_payload(self) -> dict:
@@ -79,22 +125,34 @@ class ReadOnlyApi:
         raise NotFound(project_id)
 
     def project(self, project_id: str) -> dict:
-        saved = self.store.load_learning_project(project_id)
-        report = saved.report
-        return self._summary(project_id) | {
-            "page_count": saved.paper.page_count,
-            "pages": _page_sizes(saved.pdf_bytes),
-            "suggested_pages": report.suggested_pages if report else [],
-        }
+        directory = self._dir(project_id)
+
+        def compute() -> dict:
+            saved = self.store.load_learning_project(project_id)
+            report = saved.report
+            return {
+                "page_count": saved.paper.page_count,
+                "pages": _page_sizes(saved.pdf_bytes),
+                "suggested_pages": report.suggested_pages if report else [],
+            }
+
+        stamp = _stamp(directory / "paper.pdf", directory / "paper-index.json", directory / "learning-report.json")
+        return self._summary(project_id) | self._memo.get(("project", project_id), stamp, compute)
 
     def pdf(self, project_id: str) -> bytes:
-        return self.store.load_learning_project(project_id).pdf_bytes
+        return (self._dir(project_id) / "paper.pdf").read_bytes()
 
     def lecture(self, project_id: str):
-        saved = self.store.load_learning_project(project_id)
-        if saved.report is None:
-            return None
-        return refresh_learning_report_evidence(saved.report, saved.paper)
+        directory = self._dir(project_id)
+
+        def compute():
+            saved = self.store.load_learning_project(project_id)
+            if saved.report is None:
+                return None
+            return refresh_learning_report_evidence(saved.report, saved.paper)
+
+        stamp = _stamp(directory / "learning-report.json", directory / "paper-index.json")
+        return self._memo.get(("lecture", project_id), stamp, compute)
 
     def conversations(self, project_id: str) -> dict:
         saved = self.store.load_learning_project(project_id)
@@ -117,6 +175,11 @@ class ReadOnlyApi:
         return [asdict(r) for r in self.store.list_audit_runs(project_id)]
 
     def audit(self, project_id: str, audit_id: str) -> dict:
+        directory = self._dir(project_id)
+        stamp = _stamp(directory / "audits" / f"{audit_id}.json", directory / "paper-index.json")
+        return self._memo.get(("audit", project_id, audit_id), stamp, lambda: self._audit(project_id, audit_id))
+
+    def _audit(self, project_id: str, audit_id: str) -> dict:
         record, run = self.store.load_audit_run(project_id, audit_id)
         paper = self.store.load_learning_project(project_id).paper
         anchors: dict[str, EvidenceAnchor] = {}

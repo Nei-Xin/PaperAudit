@@ -122,7 +122,9 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
             return error(500, "server_error", "请求处理失败，请稍后重试。")
         response.headers["X-Content-Type-Options"] = "nosniff"
         if request.url.path.startswith("/api/"):
-            response.headers["Cache-Control"] = "no-store"
+            # The project id is a hash of the PDF bytes, so a project's PDF never changes.
+            immutable = request.url.path.endswith("/pdf") and response.status_code == 200
+            response.headers["Cache-Control"] = "private, max-age=31536000, immutable" if immutable else "no-store"
         return response
 
     @app.exception_handler(ApiProblem)
