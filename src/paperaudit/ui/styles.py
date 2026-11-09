@@ -2882,7 +2882,18 @@ def inject_custom_styles() -> None:
         div[class*="st-key-sidebar_project_"] button p {font-size:.8rem !important;}
         .pa-sidebar-project-meta {margin-top:.3rem;}
         .pa-project-chip {border:0 !important;background:transparent !important;padding:0 !important;font-size:.68rem !important;}
-        .pa-project-chip::before {content:"";display:inline-block;width:6px;height:6px;margin-right:5px;border-radius:50%;background:currentColor;}
+        .pa-project-chip::before {content:"";display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:currentColor;}
+        .pa-project-chips {display:inline-flex;align-items:center;gap:.5rem;flex-shrink:0;}
+        .chip-review {color:#6d4c7d;}
+        .chip-empty {color:var(--pa-text-faint);}
+        /* Destructive confirm: never reuse the brand-blue primary style. */
+        .st-key-confirm_project_delete button {
+            background:var(--pa-danger) !important;border-color:var(--pa-danger) !important;color:#fff !important;
+        }
+        .st-key-confirm_project_delete button:hover {
+            background:var(--pa-danger-dark) !important;border-color:var(--pa-danger-dark) !important;
+        }
+        .st-key-confirm_project_delete button p {color:#fff !important;}
         .pa-sidebar-filename {font-size:.66rem;color:var(--pa-text-faint);}
         section[data-testid="stSidebar"] [data-testid="stExpander"] details {border-color:var(--pa-border);background:transparent;}
         section[data-testid="stSidebar"] [data-testid="stExpander"] summary p {font-size:.8rem;color:var(--pa-text-secondary);}

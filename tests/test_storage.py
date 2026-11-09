@@ -242,6 +242,7 @@ def test_audit_only_project_supports_multiple_audit_records(tmp_path: Path) -> N
 
     assert restored.report is None
     assert metadata.has_learning_report is False
+    assert store.has_audit_runs(metadata.project_id) is False
     first_run = get_demo_audit_run().model_copy(update={"report_text": "报告一"})
     second_run = get_demo_audit_run().model_copy(update={"report_text": "报告二"})
     first = store.save_audit_run(
@@ -270,6 +271,8 @@ def test_audit_only_project_supports_multiple_audit_records(tmp_path: Path) -> N
     assert len(records) == 2
     assert {record.audit_id for record in records} == {first.audit_id, second.audit_id}
     assert store.list_projects()[0].has_learning_report is False
+    assert store.has_audit_runs(metadata.project_id) is True
+    assert store.has_audit_runs("not-a-valid-id") is False
 
 
 def test_adding_learning_report_upgrades_audit_only_project(tmp_path: Path) -> None:

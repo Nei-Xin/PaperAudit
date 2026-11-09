@@ -301,6 +301,26 @@ def _save_active_project_revision(revision):
     project_store.update_peer_review_revision(str(project_id), revision)
 
 
+def _open_active_peer_review() -> None:
+    st.session_state["result_mode"] = "peer_review"
+
+
+def _peer_review_opener():
+    # Only offer "view" when a finished review is loaded for this project;
+    # otherwise the only path is submitting a new (billed) review job.
+    if st.session_state.get("peer_review") is not None:
+        return _open_active_peer_review
+    return None
+
+
+def _render_return_to_learning(key: str) -> None:
+    if st.session_state.get("learning_report") is None:
+        return
+    if st.button("← 返回论文讲解", key=key, type="tertiary"):
+        st.session_state["result_mode"] = "learning"
+        st.rerun()
+
+
 def _load_active_audit_jobs() -> list[AuditJob]:
     project_id = st.session_state.get("active_project_id")
     return project_store.list_audit_jobs(str(project_id)) if project_id else []
@@ -607,6 +627,7 @@ if st.session_state.get("result_mode") == "learning":
                 if api_ready and active_project_id
                 else None
             ),
+            on_open_peer_review=_peer_review_opener() if active_project_id else None,
         )
         st.stop()
 
@@ -625,8 +646,10 @@ if st.session_state.get("result_mode") == "peer_review":
         if peer_review is None:
             peer_review = project_store.load_peer_review(str(project_id))
             st.session_state["peer_review"] = peer_review
+    _render_return_to_learning("peer_review_return_learning")
     if peer_review is not None:
-        st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
+        if st.session_state.get("learning_report") is None:
+            st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
         render_peer_review(
             peer_review,
             review_pdf_bytes,

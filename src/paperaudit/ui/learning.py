@@ -1488,6 +1488,7 @@ def render_learning_workspace(
     load_audit_records: Callable[[], list[AuditRecordMetadata]] | None = None,
     on_open_audit: Callable[[str], None] | None = None,
     submit_peer_review: Callable[[], object] | None = None,
+    on_open_peer_review: Callable[[], None] | None = None,
 ) -> None:
     if paper is not None:
         report = refresh_learning_report_evidence(report, paper)
@@ -1587,6 +1588,15 @@ def render_learning_workspace(
                 if submit_audit_job is None:
                     st.caption("配置并连接 Hy3 API 后可审计当前讲解。")
                 st.markdown('<div class="pa-popover-section">模拟投稿评审</div>', unsafe_allow_html=True)
+                if on_open_peer_review is not None and st.button(
+                    "查看评审结果",
+                    type="primary",
+                    width="stretch",
+                    key="learning_open_peer_review",
+                    help="打开该论文已保存的模拟评审，不会重新调用模型。",
+                ):
+                    on_open_peer_review()
+                    st.rerun()
                 venue_options = {
                     "general_ai_ml": "通用 AI/ML",
                     "ijcai": "IJCAI",
@@ -1630,7 +1640,7 @@ def render_learning_workspace(
                 else:
                     st.session_state["peer_review_rubric_weights"] = {}
                 if st.button(
-                    "进行模拟投稿评审",
+                    "按所选标准重新评审" if on_open_peer_review is not None else "进行模拟投稿评审",
                     width="stretch",
                     disabled=submit_peer_review is None or paper is None,
                     help="按选定会议标准在后台生成五档投稿预审建议，并保存到左侧项目。",

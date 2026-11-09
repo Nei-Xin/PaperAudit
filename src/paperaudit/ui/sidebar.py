@@ -11,11 +11,13 @@ from .project_session import ProjectSession
 @st.dialog("删除论文项目")
 def _confirm_project_deletion(project_store: ProjectStore, project_session: ProjectSession, project_id: str, project_title: str) -> None:
     st.write(project_title)
-    st.warning("论文 PDF、讲解、追问和审计记录将被永久删除，无法恢复。")
+    st.warning("论文 PDF、讲解、追问、审计与评审记录将被永久删除，无法恢复。")
     cancel_col, delete_col = st.columns(2)
     if cancel_col.button("取消", width="stretch"):
         st.rerun()
-    if delete_col.button("确认删除", type="primary", width="stretch"):
+    if delete_col.button(
+        "永久删除", type="primary", width="stretch", key="confirm_project_delete"
+    ):
         try:
             project_store.delete_project(project_id)
         except StorageError as exc:
@@ -99,26 +101,32 @@ def render_sidebar(
                         else:
                             st.rerun()
                     if menu_col.button(
-                        "⋮",
+                        ":material/delete_outline:",
                         key=f"sidebar-delete-{metadata.project_id}",
                         type="tertiary",
                         width="stretch",
                         help="删除论文项目",
                     ):
                         _confirm_project_deletion(project_store, project_session, metadata.project_id, metadata.title)
-                    if metadata.has_code:
-                        kind_badge = '<span class="pa-project-chip chip-code">论文与代码</span>'
-                    elif metadata.has_peer_review:
-                        kind_badge = '<span class="pa-project-chip chip-audit">投稿评审</span>'
-                    elif metadata.has_learning_report:
-                        kind_badge = '<span class="pa-project-chip chip-paper">论文精读</span>'
-                    else:
-                        kind_badge = '<span class="pa-project-chip chip-audit">论文检查</span>'
+                    # One chip per saved artifact, so a project with both a
+                    # lecture and a review shows both instead of one winner.
+                    chips = [
+                        ("chip-paper", "讲解", metadata.has_learning_report),
+                        ("chip-audit", "审计", project_store.has_audit_runs(metadata.project_id)),
+                        ("chip-review", "评审", metadata.has_peer_review),
+                        ("chip-code", "代码", metadata.has_code),
+                    ]
+                    kind_badge = "".join(
+                        f'<span class="pa-project-chip {css}">{label}</span>'
+                        for css, label, present in chips
+                        if present
+                    ) or '<span class="pa-project-chip chip-empty">仅原文</span>'
 
                     marker_class = " is-active" if is_active else ""
                     st.markdown(
                         f'<div class="pa-sidebar-project-meta">'
-                        f'<span class="pa-sidebar-project-marker{marker_class}"></span>{kind_badge}'
+                        f'<span class="pa-sidebar-project-marker{marker_class}"></span>'
+                        f'<span class="pa-project-chips">{kind_badge}</span>'
                         f'<span class="pa-sidebar-filename" title="{escape(metadata.original_filename)}">{escape(metadata.original_filename)}</span></div>',
                         unsafe_allow_html=True,
                     )

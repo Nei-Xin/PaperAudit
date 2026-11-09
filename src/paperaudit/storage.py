@@ -1076,6 +1076,14 @@ class ProjectStore:
                 continue
         return sorted(records, key=lambda item: item.created_at, reverse=True)
 
+    def has_audit_runs(self, project_id: str) -> bool:
+        """Cheap existence check for list views; does not parse any record."""
+        try:
+            audits_dir = self._project_dir(project_id) / "audits"
+        except StorageError:
+            return False
+        return any(audits_dir.glob("audit-*.json"))
+
     def list_audit_runs(self, project_id: str) -> list[AuditRecordMetadata]:
         project_dir = self._require_project_dir(project_id)
         audits_dir = project_dir / "audits"
