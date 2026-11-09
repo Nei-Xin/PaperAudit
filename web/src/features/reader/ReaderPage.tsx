@@ -370,6 +370,10 @@ function Reader({ projectId }: { projectId: string }) {
                     setSelectedCode(s);
                     setPane("assistant");
                   }}
+                  onReplaced={() => {
+                    setSelectedCode(undefined);
+                    setCodeCitation(undefined);
+                  }}
                   citation={codeCitation}
                   busy={busy}
                 />

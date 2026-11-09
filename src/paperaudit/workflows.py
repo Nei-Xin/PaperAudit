@@ -60,7 +60,8 @@ def answer_paper_question(store: ProjectStore, service, project_id: str, questio
     answer = service.answer_question(saved.paper, question, active.paper_history,
                                      selected_text=selected_text, selected_chunk_ids=selected_chunk_ids or [])
     updated = replace(active, paper_history=[*active.paper_history, answer][-10:],
-                      title=question[:36] if not active.paper_history and not active.joint_history else active.title,
+                      title=question[:36] if (active.title in {"新对话", "默认对话"}
+                          and not active.paper_history and not active.joint_history) else active.title,
                       updated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     store.save_conversations(project_id, [updated if c.conversation_id == active.conversation_id else c
                                          for c in records], updated.conversation_id, keep_empty=True)

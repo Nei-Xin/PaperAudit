@@ -160,6 +160,11 @@ test("code upload, selected lines, joint citations and conversation CRUD", async
   ).toBeVisible();
   await page.reload();
   await expect(
+    page
+      .getByRole("combobox", { name: "会话", exact: true })
+      .locator("option:checked"),
+  ).toHaveText("实现核对");
+  await expect(
     page.getByText("已结合论文和代码回答", { exact: true }),
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });

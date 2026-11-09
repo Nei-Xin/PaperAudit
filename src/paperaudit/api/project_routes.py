@@ -168,7 +168,8 @@ def code_question(request: Request, pid: str, body: CodeQuestion):
             history=current.joint_history, selected_paper_chunk_ids=ids,
             selected_paper_text=text, selected_code=selection)
         updated = replace(current, joint_history=[*current.joint_history, answer][-10:],
-                          title=body.question[:36] if not current.paper_history and not current.joint_history else current.title,
+                          title=body.question[:36] if (current.title in {"新对话", "默认对话"}
+                          and not current.paper_history and not current.joint_history) else current.title,
                           updated_at=datetime.now(timezone.utc).isoformat())
         state.api.store.save_conversations(pid, [updated if c.conversation_id == current.conversation_id else c for c in records],
                                            updated.conversation_id, keep_empty=True)

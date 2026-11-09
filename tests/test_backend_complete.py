@@ -422,3 +422,16 @@ def test_legacy_history_default_id_stable_and_read_does_not_migrate_files(setup)
         assert first==second
         assert first["conversations"][0]["paper_history"][0]["question"]=="Legacy question"
     assert before==path.read_bytes()
+
+
+@pytest.mark.parametrize("kind", ["qa", "code/qa"])
+def test_first_answer_preserves_user_named_empty_conversation(setup, kind):
+    options, _, store, pid, _ = setup
+    base = f"/api/projects/{pid}"
+    with TestClient(create_app(**options)) as client:
+        if kind == "code/qa":
+            assert client.post(base + "/code", files={"code_zip": ("code.zip", code_zip())}).status_code == 201
+        conversation = client.post(base + "/conversations", json={"title": "用户设置的主题"}).json()
+        cid = conversation["active_conversation_id"]
+        assert client.post(base + "/" + kind, json={"question": "First question", "conversation_id": cid}).status_code == 200
+    assert next(c for c in store.load_learning_project(pid).conversations if c.conversation_id == cid).title == "用户设置的主题"

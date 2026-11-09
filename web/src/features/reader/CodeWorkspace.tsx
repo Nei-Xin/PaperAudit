@@ -13,6 +13,7 @@ export function CodeWorkspace({
   path,
   onPath,
   onSelect,
+  onReplaced,
   citation,
   busy,
 }: {
@@ -21,6 +22,7 @@ export function CodeWorkspace({
   path: string;
   onPath: (p: string) => void;
   onSelect: (s: CodeSelection) => void;
+  onReplaced: () => void;
   citation?: CodeCitation;
   busy: boolean;
 }) {
@@ -41,6 +43,7 @@ export function CodeWorkspace({
     },
     onSuccess: async () => {
       setFile(undefined);
+      onReplaced();
       await client.invalidateQueries({ queryKey: keys.project(projectId) });
       await client.invalidateQueries({ queryKey: keys.projects });
     },
