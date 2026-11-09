@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getJson, send } from "./client";
 import type {
@@ -44,12 +45,35 @@ export function hasActiveJob(jobs: ProjectJobs | undefined): boolean {
   return [...jobs.audit, ...jobs.learning, ...jobs.review, ...jobs.revision].some((job) => ACTIVE.has(job.status));
 }
 /** Polls every 2s only while a background job is queued or running. */
-export const useJobs = (id: string) =>
-  useQuery({
+export function useJobs(id: string) {
+  const client = useQueryClient();
+  const previous = useRef<string | undefined>();
+  const query = useQuery({
     queryKey: keys.jobs(id),
     queryFn: () => getJson<ProjectJobs>(`/api/projects/${id}/jobs`),
-    refetchInterval: (query) => (hasActiveJob(query.state.data) ? 2000 : false),
+    refetchInterval: (q) => hasActiveJob(q.state.data) ? 2000 : false,
   });
+  useEffect(() => {
+    if (!query.data) return;
+    const signature = JSON.stringify([id, ...Object.values(query.data).flat().map(j => [j.job_id, j.status])]);
+    if (previous.current !== signature) {
+      previous.current = signature;
+      // Also refresh on first mount: a job may have completed while this page was closed.
+      for (const key of [keys.lecture(id), keys.project(id), keys.projects, keys.audits(id), keys.review(id)]) {
+        void client.invalidateQueries({ queryKey: key, exact: true });
+      }
+    }
+  }, [query.data, id, client]);
+  return query;
+}
+
+export function useGenerateLecture(id: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => send("POST", `/api/projects/${id}/lecture/jobs`),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.jobs(id) }),
+  });
+}
 
 export function useSaveReviewProgress(id: string) {
   const client = useQueryClient();

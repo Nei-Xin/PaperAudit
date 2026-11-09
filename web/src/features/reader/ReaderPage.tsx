@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Download, Send } from "lucide-react";
 import clsx from "clsx";
-import { useConversations, useJobs, useLecture, useProject } from "@/api/queries";
-import { READ_ONLY, USE_MOCK, resourceUrl } from "@/api/client";
-import type { EvidenceAnchor, LearningReport, PageRect, ProjectDetail } from "@/api/types";
+import { keys, useGenerateLecture, useConversations, useJobs, useLecture, useProject } from "@/api/queries";
+import { READ_ONLY, USE_MOCK, resourceUrl, send } from "@/api/client";
+import type { EvidenceAnchor, LearningReport, PageRect, ProjectDetail, PaperAnswer } from "@/api/types";
 import { TopBar } from "@/app/ProjectLayout";
 import { ResponsiveReader } from "@/components/ResponsiveReader";
 import { PdfPanel } from "@/components/PdfPanel";
@@ -42,6 +43,7 @@ function LectureView({
 }) {
   const [scope, setScope] = useState<"all" | "page">("all");
   const current = report.sections[section] ?? report.sections[0];
+  if (!current) return <EmptyState title="讲解尚无章节">请检查生成结果。</EmptyState>;
   const points = scope === "page"
     ? report.sections.flatMap((s) => s.points).filter((p) => p.evidence.some((a) => a.page === currentPage))
     : current.points;
@@ -110,66 +112,68 @@ function LectureView({
   );
 }
 
-function QaView({ projectId }: { projectId: string }) {
+function QaView({ projectId, selected, onSelected, onAnchor }: {
+  projectId: string; selected: string | undefined; onSelected: (id: string) => void; onAnchor: (anchor: EvidenceAnchor) => void;
+}) {
   const conversations = useConversations(projectId);
-  const [selected, setSelected] = useState<string | undefined>();
   if (conversations.isLoading) return <Loading />;
   if (conversations.error) return <div className="p-4"><ErrorState error={conversations.error} /></div>;
   const data = conversations.data!;
-  const active = data.conversations.find((c) => c.conversation_id === (selected ?? data.active_conversation_id)) ?? data.conversations[0];
+  const active = selected === "new" ? undefined : data.conversations.find((c) => c.conversation_id === (selected ?? data.active_conversation_id)) ?? data.conversations[0];
   const history = active ? [...active.paper_history, ...active.joint_history] : [];
-  return (
-    <>
-      <div className="flex shrink-0 items-center gap-2 px-4 pt-3">
-        <label className="min-w-0 flex-1">
-          <span className="sr-only">会话</span>
-          <select
-            value={active?.conversation_id}
-            onChange={(event) => setSelected(event.target.value)}
-            className="h-8 w-full rounded-lg bg-card px-2.5 text-[13px] shadow-card outline-none"
-          >
-            {data.conversations.map((c) => <option key={c.conversation_id} value={c.conversation_id}>{c.title}</option>)}
-          </select>
-        </label>
-      </div>
-      <div className="min-h-0 flex-1 overflow-auto px-5 py-4">
-        {history.length === 0 ? (
-          <EmptyState title="从一个具体问题开始">
-            可以问方法细节、实验数字、结果原因或局限性；也可以在左侧原文选中一段文字后提问。回答只使用本论文检索到的原文证据。
-          </EmptyState>
-        ) : (
-          <ol className="flex flex-col gap-5">
-            {history.map((item, index) => (
-              <li key={index} className="flex flex-col gap-2">
-                <p className="self-end rounded-xl bg-active px-3 py-2 text-sm">{item.question}</p>
-                {item.answer && <p className="whitespace-pre-line text-sm leading-7">{item.answer}</p>}
-              </li>
-            ))}
-          </ol>
-        )}
-      </div>
-    </>
-  );
+  return <>
+    <div className="flex shrink-0 items-center gap-2 px-4 pt-3">
+      <label className="min-w-0 flex-1"><span className="sr-only">会话</span>
+        <select value={selected === "new" ? "new" : active?.conversation_id} onChange={event => onSelected(event.target.value)} className="h-8 w-full rounded-lg bg-card px-2.5 text-[13px] shadow-card outline-none">
+          <option value="new">新对话</option>
+          {data.conversations.map(c => <option key={c.conversation_id} value={c.conversation_id}>{c.title}</option>)}
+        </select>
+      </label>
+    </div>
+    <div className="min-h-0 flex-1 overflow-auto px-5 py-4">
+      {history.length === 0 ? <EmptyState title="从一个具体问题开始">可以问方法细节、实验数字、结果原因或局限性。回答使用本论文检索到的原文证据。</EmptyState> :
+        <ol className="flex flex-col gap-5">{history.map((item, index) => <li key={index} className="flex flex-col gap-2">
+          <p className="self-end rounded-xl bg-active px-3 py-2 text-sm">{item.question}</p>
+          {item.answer && <p className="whitespace-pre-line text-sm leading-7">{item.answer}</p>}
+          <div className="flex flex-wrap gap-1.5">{("citations" in item ? item.citations : item.paper_citations)?.map((a: EvidenceAnchor) =>
+            <CitationChip key={a.chunk_id} anchor={a} active={false} onClick={() => onAnchor(a)} />)}</div>
+        </li>)}</ol>}
+    </div>
+  </>;
 }
 
-function AskBox({ placeholder }: { placeholder: string }) {
+function AskBox({ placeholder, projectId, selected, onAnswered }: {
+  placeholder: string; projectId: string; selected: string | undefined; onAnswered: () => void;
+}) {
   const [text, setText] = useState("");
-  return (
-    <form className="shrink-0 border-t border-line-soft p-3" onSubmit={(event) => event.preventDefault()}>
-      <label className="flex items-center gap-2 rounded-xl bg-[#FAFAF9] py-1.5 pl-3.5 pr-1.5 shadow-card">
-        <span className="sr-only">追问</span>
-        <input value={text} onChange={(event) => setText(event.target.value)} placeholder={placeholder} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
-        <button type="submit" className="btn-primary h-8 w-8 px-0" disabled={READ_ONLY || !text.trim()} aria-label="发送">
-          <Send className="h-4 w-4" />
-        </button>
-      </label>
-      <div className="mt-1.5"><MockNote /></div>
-    </form>
-  );
+  const client = useQueryClient();
+  const question = useMutation({
+    mutationFn: () => send<PaperAnswer>("POST", `/api/projects/${projectId}/qa`, {
+      question: text.trim(), conversation_id: selected === "new" ? undefined : selected, new_conversation: selected === "new",
+    }),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: keys.conversations(projectId) });
+      setText(""); onAnswered();
+    },
+  });
+  return <form className="shrink-0 border-t border-line-soft p-3" onSubmit={event => {
+    event.preventDefault(); if (!READ_ONLY && text.trim() && !question.isPending) question.mutate();
+  }}>
+    <label className="flex items-center gap-2 rounded-xl bg-[#FAFAF9] py-1.5 pl-3.5 pr-1.5 shadow-card">
+      <span className="sr-only">追问</span>
+      <input aria-label="追问" maxLength={1000} disabled={question.isPending} value={text} onChange={event => setText(event.target.value)} placeholder={placeholder} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
+      <button type="submit" className="btn-primary h-8 w-8 px-0" disabled={READ_ONLY || !text.trim() || question.isPending} aria-label="发送"><Send className="h-4 w-4" /></button>
+    </label>
+    {question.isPending && <p role="status" className="mt-2 text-xs text-ink-3">正在检索论文并生成回答…</p>}
+    {question.error && <div className="mt-2"><ErrorState error={question.error} /></div>}
+    <div className="mt-1.5"><MockNote /></div>
+  </form>;
 }
 
 function NoLecture({ projectId, project }: { projectId: string; project: ProjectDetail }) {
   const jobs = useJobs(projectId);
+  const generate = useGenerateLecture(projectId);
+  const failed = jobs.data?.learning.find(job => job.status === "FAILED" || job.status === "INTERRUPTED");
   const running = jobs.data?.learning.find((job) => job.status === "QUEUED" || job.status === "RUNNING");
   const [page, setPage] = useState(1);
   return (
@@ -181,7 +185,10 @@ function NoLecture({ projectId, project }: { projectId: string; project: Project
             <Progress value={running.progress} label={running.stage} />
           </div>
         ) : (
-          <EmptyState title="这篇论文还没有讲解" action={<button type="button" className="btn-primary self-start" disabled={READ_ONLY}>生成讲解</button>}>
+          <EmptyState title="这篇论文还没有讲解" action={<button type="button" className="btn-primary self-start" disabled={READ_ONLY || generate.isPending} onClick={() => generate.mutate()}>{generate.isPending ? "正在提交…" : failed ? "重试生成讲解" : "生成讲解"}</button>}>
+            {failed && <span role="alert" className="mb-2 block text-bad">上次任务未完成：{failed.error || failed.stage}</span>}
+            {generate.error && <ErrorState error={generate.error} />}
+            {jobs.error && <ErrorState error={jobs.error} />}
             生成后可以按章节阅读中文讲解、点击引用跳回原文高亮，并围绕论文继续追问。
             <span className="mt-2 block text-xs text-ink-4">生成讲解会把论文文本发送到你配置的模型服务。</span>
             <span className="mt-1 block"><MockNote /></span>
@@ -198,10 +205,12 @@ export function ReaderPage() {
   const project = useProject(projectId);
   const lecture = useLecture(projectId);
   const view = (params.get("view") as View | null) ?? "lecture";
-  const section = Number(params.get("section") ?? 0);
+  const rawSection = Number(params.get("section") ?? 0);
+  const section = Number.isFinite(rawSection) ? Math.max(0, Math.floor(rawSection)) : 0;
+  const [selectedConversation, setSelectedConversation] = useState<string | undefined>();
   const [page, setPage] = useState(1);
   const [anchor, setAnchor] = useState<EvidenceAnchor | undefined>();
-  const [pane, setPane] = useState<"source" | "assistant">("source");
+  const [pane, setPane] = useState<"source" | "assistant">(view === "qa" ? "assistant" : "source");
 
   const setParam = (key: string, value: string) =>
     setParams((current) => {
@@ -261,9 +270,9 @@ export function ReaderPage() {
                 currentPage={page}
               />
             ) : (
-              <QaView projectId={projectId} />
+              <QaView projectId={projectId} selected={selectedConversation} onSelected={setSelectedConversation} onAnchor={next => { setAnchor(next); if (next.page) setPage(next.page); setPane("source"); }} />
             )}
-            <AskBox placeholder={view === "lecture" ? `追问「${SECTION_LABELS[lecture.data.sections[Math.min(section, lecture.data.sections.length - 1)]?.section_type] ?? "本节"}」…` : "就这篇论文问点什么…"} />
+            <AskBox projectId={projectId} selected={selectedConversation} onAnswered={() => { setSelectedConversation(undefined); setParam("view", "qa"); setPane("assistant"); }} placeholder={view === "lecture" ? `追问「${SECTION_LABELS[lecture.data.sections[Math.min(section, lecture.data.sections.length - 1)]?.section_type] ?? "本节"}」…` : "就这篇论文问点什么…"} />
           </section>
         </ResponsiveReader>
       )}

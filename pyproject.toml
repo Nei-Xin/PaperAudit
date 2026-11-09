@@ -12,6 +12,9 @@ dependencies = [
     "python-pptx>=1.0,<2",
     "python-dotenv>=1.1,<2",
     "streamlit>=1.48,<2",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.34,<1",
+    "python-multipart>=0.0.20,<1",
 ]
 
 [build-system]
@@ -23,6 +26,7 @@ packages = ["src/paperaudit"]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28,<1",
     "pytest>=8.4,<10",
 ]
 

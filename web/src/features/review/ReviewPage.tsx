@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import clsx from "clsx";
 import { useJobs, useProject, useReview, useSaveReviewProgress } from "@/api/queries";
-import { READ_ONLY, USE_MOCK, resourceUrl } from "@/api/client";
+import { READ_ONLY, READING_ONLY, USE_MOCK, resourceUrl } from "@/api/client";
 import type {
   EvidenceAnchor, IssueCategory, IssueSeverity, IssueStatus, PeerReviewReport, ProjectDetail, ReviewConcern, ReviewProgress,
 } from "@/api/types";
@@ -129,7 +129,7 @@ function Overview({
                     type="checkbox"
                     className="mt-1 h-4 w-4 shrink-0 accent-ink"
                     checked={done}
-                    disabled={!key || READ_ONLY}
+                    disabled={!key || READ_ONLY || READING_ONLY}
                     onChange={(event) => key && onToggle(key, event.target.checked)}
                     aria-label={`第 ${index + 1} 步已完成`}
                   />
@@ -243,7 +243,7 @@ function Revisions({ projectId, count }: { projectId: string; count: number }) {
         <p className="text-sm text-ink-3">上传新版本后保留当前评审，并生成段落级差异与新的五档投稿建议。已有修改稿 {count} 版。</p>
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="sr-only">修改稿 PDF</span>
-          <input type="file" accept="application/pdf" disabled={READ_ONLY} />
+          <input type="file" accept="application/pdf" disabled={READ_ONLY || READING_ONLY} />
         </label>
         <MockNote />
       </section>
@@ -272,7 +272,7 @@ function NoReview({ projectId, project }: { projectId: string; project: ProjectD
               <span className="label">评审标准</span>
               <select className="h-9 rounded-lg bg-page px-2 text-sm">{Object.entries(VENUE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
             </label>
-            <button type="button" className="btn-primary mt-3" disabled={READ_ONLY}>开始模拟评审</button>
+            <button type="button" className="btn-primary mt-3" disabled={READ_ONLY || READING_ONLY}>开始模拟评审</button>
             <span className="mt-2 block text-xs text-ink-4">模拟评审会把论文文本发送到你配置的模型服务。</span>
             <MockNote />
           </EmptyState>
@@ -315,7 +315,7 @@ export function ReviewPage() {
 
   return (
     <div ref={containerRef} className="flex h-full min-h-0 min-w-0 flex-col">
-      <TopBar actions={report ? <button type="button" className="btn-secondary" disabled={READ_ONLY} title={READ_ONLY ? "需要后端接口" : undefined}>重新评审</button> : null} />
+      <TopBar actions={report ? <button type="button" className="btn-secondary" disabled={READ_ONLY || READING_ONLY} title={READ_ONLY || READING_ONLY ? "需要后端接口" : undefined}>重新评审</button> : null} />
       {review.isLoading || project.isLoading ? <Loading /> : review.error ? <ErrorState error={review.error} /> : !report ? (
         project.data && <NoReview projectId={projectId} project={project.data} />
       ) : (

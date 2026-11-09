@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FileUp, Lock } from "lucide-react";
 import clsx from "clsx";
-import { READ_ONLY, send } from "@/api/client";
+import { READ_ONLY, READING_ONLY, send } from "@/api/client";
 import { keys } from "@/api/queries";
 import type { ProjectSummary } from "@/api/types";
 import { ErrorState, MockNote } from "@/components/States";
@@ -44,6 +44,7 @@ export function HomePage() {
   const [report, setReport] = useState("");
   const [venue, setVenue] = useState("general_ai_ml");
   const [code, setCode] = useState<File | null>(null);
+  const [privacyAck, setPrivacyAck] = useState(false);
   const [fileError, setFileError] = useState("");
   const current = MODES.find((m) => m.value === mode)!;
 
@@ -68,7 +69,7 @@ export function HomePage() {
       if (mode === "audit_existing") form.set("report_text", report);
       if (mode === "peer_review") form.set("venue", venue);
       if (mode === "learn" && code) form.set("code_zip", code);
-      form.set("privacy_ack", "true");
+      form.set("privacy_ack", String(privacyAck));
       return send<{ project: ProjectSummary }>("POST", "/api/projects", form);
     },
     onSuccess: (result) => {
@@ -76,7 +77,7 @@ export function HomePage() {
       navigate(`/p/${result.project.project_id}`);
     },
   });
-  const ready = pdf !== null && (mode !== "audit_existing" || report.trim().length > 0);
+  const ready = pdf !== null && privacyAck && (!READING_ONLY || mode === "learn") && (mode !== "audit_existing" || report.trim().length > 0);
 
   return (
     <div className="card flex h-full items-start justify-center overflow-auto px-4 sm:px-6">
@@ -110,6 +111,8 @@ export function HomePage() {
                     type="button"
                     role="radio"
                     aria-checked={mode === item.value}
+                    disabled={READING_ONLY && !READ_ONLY && item.value !== "learn"}
+                    title={READING_ONLY && item.value !== "learn" ? "此模式正在接入，暂请使用旧版" : undefined}
                     onClick={() => setMode(item.value)}
                     className={clsx("pill", mode === item.value ? "bg-ink text-white shadow-none" : "bg-card text-ink-2 hover:bg-hover")}
                   >
@@ -118,7 +121,7 @@ export function HomePage() {
                 ))}
               </div>
               <button type="button" className="btn-primary ml-auto" disabled={!ready || READ_ONLY || create.isPending} onClick={() => create.mutate()}>
-                {mode === "learn" ? "生成讲解" : mode === "peer_review" ? "开始评审" : "开始审计"}
+                {create.isPending ? "正在上传并解析…" : mode === "learn" ? "生成讲解" : mode === "peer_review" ? "开始评审" : "开始审计"}
               </button>
             </div>
             {mode === "audit_existing" && (
@@ -135,7 +138,7 @@ export function HomePage() {
                 </select>
               </label>
             )}
-            {mode === "learn" && (
+            {mode === "learn" && READ_ONLY && (
               <label className="flex min-w-0 flex-col gap-2 text-[13px] text-ink-3 sm:flex-row sm:items-center">
                 <span className="label">源码 ZIP（可选）</span>
                 <input className="min-w-0 max-w-full flex-1" type="file" accept=".zip" onChange={(e) => setCode(e.target.files?.[0] ?? null)} />
@@ -144,6 +147,10 @@ export function HomePage() {
           </div>
         </div>
 
+        {!READ_ONLY && <label className="flex items-start gap-2 text-sm text-ink-3">
+          <input type="checkbox" checked={privacyAck} onChange={e => setPrivacyAck(e.target.checked)} className="mt-1" />
+          我同意将论文文本发送到已配置的模型服务以生成讲解和回答追问。
+        </label>}
         {fileError && <ErrorState error={new Error(fileError)} />}
         {create.error && <ErrorState error={create.error} />}
         <div className="flex flex-col items-center gap-1.5 text-center text-[13px] text-ink-4">

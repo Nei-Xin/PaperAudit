@@ -56,7 +56,7 @@ function ActiveJobs() {
   return (
     <div className="card mb-2 flex max-h-32 shrink-0 flex-col gap-2 overflow-auto px-4 py-3">
       {active.map((job) => (
-        <Progress key={job.job_id} value={job.progress} label={`${job.source_label ?? job.original_filename ?? "后台任务"} · ${job.stage}`} />
+        <Progress key={job.job_id} value={job.progress} label={`${("source_label" in job ? job.source_label : "original_filename" in job ? job.original_filename : "后台任务")} · ${job.stage}`} />
       ))}
     </div>
   );
@@ -69,7 +69,7 @@ export function ProjectLayout() {
   if (project.error) return <div className="p-6"><ErrorState error={project.error} /></div>;
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col">
-      <Outlet />
+      <Outlet key={projectId} />
     </div>
   );
 }

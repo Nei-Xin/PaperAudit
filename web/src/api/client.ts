@@ -2,10 +2,13 @@
 // - VITE_USE_MOCK=1: GET requests read static JSON exported by
 //   scripts/export_mock_api.py (local development without any server).
 // - VITE_READ_ONLY=1: GET requests hit the real /api paths (served by
-//   scripts/preview_server.py); writes are rejected until FastAPI exists.
+//   scripts/preview_server.py); writes are rejected in preview builds.
 
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "1";
 export const READ_ONLY = USE_MOCK || import.meta.env.VITE_READ_ONLY === "1";
+
+// Audit/review mutations are enabled in a later migration stage.
+export const READING_ONLY = true;
 
 export class ApiError extends Error {
   constructor(message: string, readonly status: number) {

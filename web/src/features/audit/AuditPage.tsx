@@ -129,7 +129,7 @@ function StatsTab({ detail }: { detail: AuditDetail }) {
         <h2 className="mb-4 text-sm font-semibold">六维评估体系得分</h2>
         <ul className="flex flex-col gap-3">
           {Object.entries(AUDIT_DIMENSION_NAMES).map(([key, name]) => {
-            const value = summary.dimensions[key];
+            const value = summary.dimensions[key as keyof typeof summary.dimensions];
             return (
               <li key={key} className="grid grid-cols-[7rem_minmax(0,1fr)_2.5rem] items-center gap-3 text-sm">
                 <span className="text-ink-3">{name}</span>

@@ -1,0 +1,27 @@
+[Unit]
+Description=PaperAudit React reading workflow (isolated validation)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=debian
+Group=debian
+WorkingDirectory=/srv/paperaudit/react-validation/current
+EnvironmentFile=/srv/paperaudit/react-validation/app.env
+Environment=PAPERAUDIT_SETTINGS_DIR=/srv/paperaudit/react-validation/settings
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+# Validation uses a separate settings/storage copy; do not share live project writes.
+# No login: loopback only, one worker for the in-process job manager.
+ExecStart=/srv/paperaudit/react-validation/current/.venv/bin/python -m uvicorn paperaudit.api.main:app --host 127.0.0.1 --port 18503 --workers 1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=180
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { READ_ONLY, send } from "@/api/client";
+import { READ_ONLY, READING_ONLY, send } from "@/api/client";
 import { keys } from "@/api/queries";
 import type { ClaimCategory, Job } from "@/api/types";
 import { Modal } from "@/components/Modal";
@@ -39,7 +39,7 @@ export function NewAuditDialog({ open, onClose }: { open: boolean; onClose: () =
     <Modal open={open} onClose={onClose} title="审计一份报告" footer={
       <div className="flex justify-end gap-2">
         <button type="button" className="btn-secondary" onClick={onClose}>取消</button>
-        <button type="button" className="btn-primary" disabled={READ_ONLY || !ready || submit.isPending} onClick={() => submit.mutate()}>开始审计</button>
+        <button type="button" className="btn-primary" disabled={READ_ONLY || READING_ONLY || !ready || submit.isPending} onClick={() => submit.mutate()}>开始审计</button>
       </div>
     }>
       <div className="flex flex-col gap-4">

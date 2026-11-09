@@ -8,6 +8,8 @@ from paperaudit.display import LABEL_NAMES, SEVERITY_NAMES, recover_paper_title
 from paperaudit.config import Settings
 from paperaudit.code_service import CodeLearningService
 from paperaudit.learning_jobs import LearningJobManager
+from paperaudit.workflows import submit_learning
+from paperaudit.hy3_client import Hy3ConfigurationError
 from paperaudit.peer_review_jobs import PeerReviewJobManager, PeerReviewRevisionJobManager
 from paperaudit.models import (
     AuditJob,
@@ -204,16 +206,7 @@ def _submit_active_project_learning() -> None:
     project_id = st.session_state.get("active_project_id")
     if not project_id:
         raise StorageError("请先打开一个已保存的论文项目。")
-    if not active_settings.is_configured:
-        raise ValueError("请先配置并连接 Hy3 API。")
-    runtime = AuditRuntimeSnapshot(
-        model=active_settings.model,
-        reasoning_effort=active_settings.reasoning_effort,
-        retrieval_top_k=active_settings.retrieval_top_k,
-        judge_batch_size=active_settings.judge_batch_size,
-    )
-    job = project_store.create_learning_job(str(project_id), runtime=runtime)
-    learning_job_manager.submit(str(project_id), job.job_id, active_settings)
+    job = submit_learning(project_store, learning_job_manager, active_settings, str(project_id))
     st.session_state["learning_job_id"] = job.job_id
 
 
@@ -417,7 +410,7 @@ def _render_lecture_empty() -> None:
         ):
             try:
                 _submit_active_project_learning()
-            except (StorageError, ValueError) as exc:
+            except (StorageError, ValueError, Hy3ConfigurationError) as exc:
                 st.error(str(exc))
             else:
                 st.rerun()

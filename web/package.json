@@ -9,7 +9,9 @@
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "preview": "vite preview",
-    "test:layout": "playwright test"
+    "test:layout": "playwright test",
+    "gen:api": "cd .. && uv run --locked python scripts/export_openapi.py && cd web && openapi-typescript openapi.json -o src/api/schema.d.ts",
+    "test:reading": "playwright test --config playwright.workflow.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "5.62.0",
@@ -26,6 +28,7 @@
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.3.4",
     "autoprefixer": "10.4.20",
+    "openapi-typescript": "7.10.1",
     "postcss": "8.4.49",
     "tailwindcss": "3.4.15",
     "typescript": "5.6.3",

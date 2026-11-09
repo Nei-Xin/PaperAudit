@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { READ_ONLY, READING_ONLY, send } from "@/api/client";
 import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Menu, PanelLeftClose, Plus, Search, Settings as SettingsIcon, Trash2 } from "lucide-react";
 import clsx from "clsx";
-import { useDeleteProject, useProjects, useSettings, useStorage } from "@/api/queries";
-import type { ProjectSummary } from "@/api/types";
+import { keys, useDeleteProject, useProjects, useSettings, useStorage } from "@/api/queries";
+import type { Settings, ProjectSummary } from "@/api/types";
 import { Modal } from "@/components/Modal";
 import { ErrorState, MockNote } from "@/components/States";
 
@@ -51,6 +53,8 @@ function ProjectRow({ project, onDelete }: { project: ProjectSummary; onDelete: 
       </NavLink>
       <button
         type="button"
+        disabled={READ_ONLY || READING_ONLY}
+        title="删除功能仍在接入，请使用旧版"
         onClick={() => onDelete(project)}
         className="icon-btn absolute right-1 top-1.5 h-7 w-7 opacity-100 hover:text-bad focus:opacity-100 min-[1100px]:opacity-0 group-hover:opacity-100"
         aria-label={`删除 ${project.title}`}
@@ -63,23 +67,41 @@ function ProjectRow({ project, onDelete }: { project: ProjectSummary; onDelete: 
 
 function SettingsDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const settings = useSettings();
-  const s = settings.data;
-  return (
-    <Modal open={open} onClose={onClose} title="模型与检索设置">
-      {s ? (
-        <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] [&_dd]:break-words gap-x-4 gap-y-3 text-sm">
-          <dt className="text-ink-4">API 地址</dt><dd className="break-all">{s.api_base || "未设置"}</dd>
-          <dt className="text-ink-4">API Key</dt><dd>{s.configured ? "已配置（不显示）" : "未配置"}</dd>
-          <dt className="text-ink-4">模型</dt><dd>{s.model || "未设置"}</dd>
-          <dt className="text-ink-4">推理强度</dt><dd>{s.reasoning_effort}</dd>
-          <dt className="text-ink-4">候选证据 Top-K</dt><dd>{s.retrieval_top_k}</dd>
-          <dt className="text-ink-4">研判批大小</dt><dd>{s.judge_batch_size}</dd>
-          <dt className="text-ink-4">深度核验</dt><dd>{s.deep_audit ? "开启" : "关闭"}</dd>
-        </dl>
-      ) : settings.error ? <ErrorState error={settings.error} /> : null}
-      <div className="mt-4"><MockNote /></div>
-    </Modal>
-  );
+  const client = useQueryClient();
+  const [values, setValues] = useState<Settings | undefined>();
+  const [apiKey, setApiKey] = useState("");
+  const save = useMutation({
+    mutationFn: () => {
+      const { configured: _, ...body } = values!;
+      return send<Settings>("PUT", "/api/settings", { ...body, api_key: apiKey || undefined });
+    },
+    onSuccess: result => { client.setQueryData(keys.settings, result); setApiKey(""); onClose(); },
+  });
+  useEffect(() => { if (open && settings.data) { setValues(settings.data); setApiKey(""); save.reset(); } }, [open, settings.data]);
+  const s = values ?? settings.data;
+  return <Modal open={open} onClose={onClose} title="模型与检索设置" footer={!READ_ONLY && <>
+    <button type="button" className="btn-secondary" onClick={onClose}>取消</button>
+    <button type="button" className="btn-primary" disabled={!values || save.isPending} onClick={() => save.mutate()}>{save.isPending ? "正在保存…" : "保存设置"}</button>
+  </>}>
+    {s && READ_ONLY ? <dl className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 gap-y-3 text-sm [&_dd]:break-words">
+      <dt>API 地址</dt><dd>{s.api_base || "未设置"}</dd><dt>API Key</dt><dd>{s.configured ? "已配置（不显示）" : "未配置"}</dd>
+      <dt>模型</dt><dd>{s.model || "未设置"}</dd><dt>推理强度</dt><dd>{s.reasoning_effort}</dd>
+      <dt>候选证据 Top-K</dt><dd>{s.retrieval_top_k}</dd><dt>研判批大小</dt><dd>{s.judge_batch_size}</dd><dt>深度核验</dt><dd>{s.deep_audit ? "开启" : "关闭"}</dd>
+    </dl> : s && <div className="flex flex-col gap-3">
+      {([["api_base", "API 地址"], ["model", "模型"]] as const).map(([key, label]) => <label key={key} className="flex flex-col gap-1 text-sm">{label}
+        <input className="h-9 rounded-lg bg-page px-3" value={s[key]} onChange={e => setValues({ ...s, [key]: e.target.value })} />
+      </label>)}
+      <label className="flex flex-col gap-1 text-sm">API Key
+        <input type="password" autoComplete="new-password" value={apiKey} placeholder={s.configured ? "已配置；留空保留现有密钥" : "输入模型服务密钥"} onChange={e => setApiKey(e.target.value)} className="h-9 rounded-lg bg-page px-3" />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">推理强度<select className="h-9 rounded-lg bg-page px-3" value={s.reasoning_effort} onChange={e => setValues({ ...s, reasoning_effort: e.target.value })}>
+        {["no_think", "low", "medium", "high"].map(v => <option key={v}>{v}</option>)}
+      </select></label>
+      <p className="text-xs text-ink-4">密钥只保存于服务端。留空会保留现有密钥。</p>
+    </div>}
+    {settings.error && <ErrorState error={settings.error} />}{save.error && <div className="mt-3"><ErrorState error={save.error} /></div>}
+    <div className="mt-4"><MockNote /></div>
+  </Modal>;
 }
 
 export function Shell() {
