@@ -1,5 +1,5 @@
 import { AuditTasks } from "./AuditTasks";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowDown, ArrowUp, List, Plus, Search, SlidersHorizontal } from "lucide-react";
 import clsx from "clsx";
@@ -258,15 +258,21 @@ export function AuditPage() {
   const selected = visible[index];
   const detailScroll = useRef<HTMLDivElement>(null);
   // A new claim starts at its top, not at the previous claim's scroll offset.
-  const evidenceScroll = useRef<HTMLDivElement>(null);
+  const evidenceScroll = useRef<HTMLDivElement | null>(null);
   const [evidenceHeight, setEvidenceHeight] = useState(0);
-  useEffect(() => {
-    const element = evidenceScroll.current;
+  // Callback ref: measure the evidence column every time it mounts (tab switches,
+  // audit changes, resizing into the wide layout), not only on the first render.
+  const evidenceObserver = useRef<ResizeObserver | null>(null);
+  const evidenceRef = useCallback((element: HTMLDivElement | null) => {
+    evidenceObserver.current?.disconnect();
+    evidenceObserver.current = null;
+    evidenceScroll.current = element;
     if (!element) return;
     const observer = new ResizeObserver(([entry]) => setEvidenceHeight(Math.floor(entry.contentRect.height)));
     observer.observe(element);
-    return () => observer.disconnect();
-  }, [split, Boolean(selected)]);
+    evidenceObserver.current = observer;
+  }, []);
+  useEffect(() => () => evidenceObserver.current?.disconnect(), []);
   useEffect(() => {
     detailScroll.current?.scrollTo({ top: 0 });
     evidenceScroll.current?.scrollTo({ top: 0 });
@@ -422,7 +428,7 @@ export function AuditPage() {
                     <strong className="text-sm">{isCandidateLabel(selected) ? "候选原文片段" : "原文依据"}</strong>
                     <span className="truncate text-xs text-ink-4">{evidenceHint(selected)}</span>
                   </div>
-                  <div ref={evidenceScroll} className="min-h-0 flex-1 overflow-auto p-4">
+                  <div ref={evidenceRef} className="min-h-0 flex-1 overflow-auto p-4">
                     <ClaimEvidence key={selected.claim.claim_id} availableHeight={evidenceHeight || undefined} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
                   </div>
                 </section>

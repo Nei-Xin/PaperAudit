@@ -119,6 +119,12 @@ test("wide screens split judgment and evidence into separate columns", async ({ 
   const detail = await page.getByRole("region", { name: "论断详情", exact: true }).boundingBox();
   const side = await evidence.boundingBox();
   expect(side!.x).toBeGreaterThan(detail!.x + detail!.width - 1);
+  // A lone crop fills the evidence column, also after the column remounts (tab switch).
+  const cropHeight = () => evidence.locator(".pdf-crop").first().evaluate((el) => el.getBoundingClientRect().height);
+  await page.getByRole("button", { name: "统计与核对", exact: true }).click();
+  await page.getByRole("button", { name: "逐条审计", exact: true }).click();
+  await expect(evidence.locator(".pdf-crop canvas").first()).toBeVisible();
+  await expect.poll(cropHeight).toBeGreaterThan(400);
   await page.setViewportSize({ width: 1440, height: 900 });
   await expect(evidence).toHaveCount(0);
 });
