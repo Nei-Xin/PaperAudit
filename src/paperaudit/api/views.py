@@ -114,9 +114,32 @@ class ReadOnlyApi:
 
     def projects(self) -> list[dict]:
         return [
-            asdict(m) | {"has_audit": self.store.has_audit_runs(m.project_id)}
+            asdict(m) | {"has_audit": self.store.has_audit_runs(m.project_id)} | self._status(m.project_id)
             for m in self.store.list_projects()
         ]
+
+    def _status(self, project_id: str) -> dict:
+        """Latest audit grade and review decision for list views (cached by file stamps)."""
+        directory = self._dir(project_id)
+        audits = directory / "audits"
+        count = sum(1 for _ in audits.glob("audit-*.json")) if audits.is_dir() else 0
+        stamp = _stamp(audits / "index.json", directory / "peer-review.json") + (count,)
+
+        def compute() -> dict:
+            status: dict = {"audit_count": 0, "audit_grade": None, "audit_score": None, "review_decision": None}
+            if count:
+                records = self.store.list_audit_runs(project_id)
+                if records:
+                    status.update(audit_count=len(records), audit_grade=records[0].grade, audit_score=records[0].total_score)
+            try:
+                review = self.store.load_peer_review(project_id)
+            except StorageError:
+                review = None
+            if review is not None:
+                status["review_decision"] = getattr(review.decision, "value", review.decision)
+            return status
+
+        return self._memo.get(("status", project_id), stamp, compute)
 
     def _summary(self, project_id: str) -> dict:
         for item in self.projects():

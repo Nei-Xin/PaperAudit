@@ -12,6 +12,7 @@ import {
 import {
   Menu,
   PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   Search,
   Settings as SettingsIcon,
@@ -285,6 +286,19 @@ function SettingsDialog({
   );
 }
 
+type ShellMode = "full" | "rail" | "drawer";
+
+function useShellMode(): ShellMode {
+  const pick = (): ShellMode => (window.innerWidth >= 1680 ? "full" : window.innerWidth >= 1024 ? "rail" : "drawer");
+  const [mode, setMode] = useState<ShellMode>(pick);
+  useEffect(() => {
+    const update = () => setMode(pick());
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return mode;
+}
+
 export function Shell() {
   const projects = useProjects();
   const settings = useSettings();
@@ -299,23 +313,15 @@ export function Shell() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const location = useLocation();
-  const [desktop, setDesktop] = useState(
-    () => window.matchMedia("(min-width: 1100px)").matches,
-  );
-  const [collapsed, setCollapsed] = useState(false);
+  // V4: full sidebar on wide screens, an icon rail on laptops/tablet landscape,
+  // a drawer on narrow screens. The rail gives the workspace ~180px back.
+  const autoMode = useShellMode();
+  const [pinned, setPinned] = useState<"full" | "rail" | null>(null);
+  const mode: ShellMode = autoMode === "drawer" ? "drawer" : (pinned ?? autoMode);
   const [drawerOpen, setDrawerOpen] = useState(false);
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 1100px)");
-    const update = () => {
-      setDesktop(media.matches);
-      setDrawerOpen(false);
-    };
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-  useEffect(() => {
     setDrawerOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, mode]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -337,11 +343,11 @@ export function Shell() {
           <Logo />
           <strong className="text-[15px] font-semibold">PaperAudit</strong>
         </Link>
-        {desktop && !collapsed && (
+        {mode === "full" && (
           <button
             type="button"
             className="icon-btn"
-            onClick={() => setCollapsed(true)}
+            onClick={() => setPinned("rail")}
             aria-label="收起项目侧栏"
           >
             <PanelLeftClose className="h-4 w-4" />
@@ -413,17 +419,42 @@ export function Shell() {
   );
   return (
     <div className="app-shell">
-      {desktop && !collapsed && sidebar}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col p-2">
-        {(!desktop || collapsed) && (
+      {mode === "full" && sidebar}
+      {mode === "rail" && (
+        <nav className="flex w-[60px] shrink-0 flex-col items-center gap-1.5 py-3.5" aria-label="应用导航">
+          <Link to="/" aria-label="PaperAudit" title="首页" className="mb-2"><Logo /></Link>
+          <Link to="/" className="icon-btn h-9 w-9" aria-label="新建论文" title="新建论文">
+            <Plus className="h-[18px] w-[18px]" aria-hidden />
+          </Link>
+          <button
+            type="button"
+            className="icon-btn h-9 w-9 bg-active text-ink"
+            aria-label="打开项目侧栏"
+            title="论文项目"
+            onClick={() => (autoMode === "full" ? setPinned(null) : setDrawerOpen(true))}
+          >
+            <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden />
+          </button>
+          <button
+            type="button"
+            className="icon-btn relative mt-auto h-9 w-9"
+            aria-label={`模型设置：${settings.data?.configured ? `已配置 · ${settings.data.model}` : "API 配置不完整"}`}
+            title={settings.data?.configured ? `已配置 · ${settings.data.model}` : "API 配置不完整"}
+            onClick={() => setSettingsOpen(true)}
+          >
+            <SettingsIcon className="h-[18px] w-[18px]" aria-hidden />
+            <span className={clsx("absolute right-1.5 top-1.5 h-2 w-2 rounded-full", settings.data?.configured ? "bg-ok" : "bg-warn")} />
+          </button>
+        </nav>
+      )}
+      <div className={clsx("flex min-h-0 min-w-0 flex-1 flex-col", mode === "drawer" ? "p-2" : "py-2 pr-2", mode === "full" && "pl-0")}>
+        {mode === "drawer" && (
           <div className="flex h-10 shrink-0 items-center gap-2 pb-2">
             <button
               type="button"
               className="btn-secondary"
               aria-label="打开项目侧栏"
-              onClick={() =>
-                desktop ? setCollapsed(false) : setDrawerOpen(true)
-              }
+              onClick={() => setDrawerOpen(true)}
             >
               <Menu className="h-4 w-4" /> 项目
             </button>
@@ -437,7 +468,7 @@ export function Shell() {
         </main>
       </div>
       <Modal
-        open={drawerOpen && !desktop}
+        open={drawerOpen && mode !== "full"}
         onClose={() => setDrawerOpen(false)}
         title="论文项目"
         drawer

@@ -324,6 +324,10 @@ function Reader({ projectId }: { projectId: string }) {
     );
     setPane("source");
   };
+  // Pages the lecture cites get a dot in the thumbnail strip.
+  const citedPages = useMemo(() => new Set(
+    (lecture.data?.sections ?? []).flatMap((s) => s.points.flatMap((p) => p.evidence.map((e) => e.page ?? 0))).filter(Boolean),
+  ), [lecture.data]);
   const highlights: PageRect[] = useMemo(
     () => (anchor && anchor.page === page ? anchor.rects : []),
     [anchor, page],
@@ -379,6 +383,8 @@ function Reader({ projectId }: { projectId: string }) {
                 />
               ) : (
                 <PdfPanel
+                  thumbnails
+                  markedPages={citedPages}
                   projectId={projectId}
                   page={page}
                   pageCount={project.data.page_count}

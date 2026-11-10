@@ -262,6 +262,9 @@ test("home report file mode, project rename and confirmed deletion", async ({
   await expect(
     page.getByRole("button", { name: "待删除验收项目", exact: true }),
   ).toBeVisible();
+  // Laptop widths show an icon rail; the project list (with delete) opens as a drawer.
+  const opener = page.getByRole("button", { name: "打开项目侧栏" });
+  if (await opener.isVisible()) await opener.click();
   await page
     .getByRole("button", { name: "删除 待删除验收项目", exact: true })
     .click();

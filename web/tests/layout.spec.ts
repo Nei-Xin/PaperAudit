@@ -125,8 +125,18 @@ test("wide screens split judgment and evidence into separate columns", async ({ 
   await page.getByRole("button", { name: "逐条审计", exact: true }).click();
   await expect(evidence.locator(".pdf-crop canvas").first()).toBeVisible();
   await expect.poll(cropHeight).toBeGreaterThan(400);
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(evidence).toHaveCount(0);
+  // Laptop widths keep three columns (sidebar becomes an icon rail); tablets stack the viewer below.
+  await page.setViewportSize({ width: 1366, height: 800 });
+  const laptop = await evidence.boundingBox();
+  const laptopDetail = await page.getByRole("region", { name: "论断详情", exact: true }).boundingBox();
+  expect(laptop!.x).toBeGreaterThan(laptopDetail!.x + laptopDetail!.width - 1);
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.waitForTimeout(300);
+  await evidence.scrollIntoViewIfNeeded();
+  await expect(evidence).toBeVisible();
+  const below = await evidence.boundingBox();
+  const above = await page.getByRole("region", { name: "论断详情", exact: true }).boundingBox();
+  expect(below!.y).toBeGreaterThanOrEqual(above!.y + above!.height - 1);
 });
 
 test("evidence crop is readable inline and the full page opens with zoom", async ({ page }) => {
@@ -148,12 +158,12 @@ test("evidence crop is readable inline and the full page opens with zoom", async
 test("mobile claim list, filters and dialog footer remain reachable", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 568 });
   await page.goto("/p/paper/audit/audit-1");
-  await page.getByRole("button", { name: "列表", exact: true }).click();
+  await page.getByRole("button", { name: /论断列表/ }).click();
   await page.getByRole("dialog").getByRole("button", { name: /示例论断 1/ }).click();
   await expect(page.getByRole("dialog")).not.toBeVisible();
-  await page.getByText("更多筛选", { exact: true }).click();
+  await page.getByText("筛选", { exact: true }).click();
   await expect(page.getByRole("combobox", { name: /^排序/ })).toBeInViewport();
-  await page.getByText("更多筛选", { exact: true }).click();
+  await page.getByText("筛选", { exact: true }).click();
   await page.getByRole("button", { name: "审计报告", exact: true }).click();
   const modal = page.getByRole("dialog", { name: "审计一份报告", exact: true });
   await expect(modal.getByRole("button", { name: "取消", exact: true })).toBeInViewport();

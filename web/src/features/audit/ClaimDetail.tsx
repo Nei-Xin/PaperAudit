@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Maximize2 } from "lucide-react";
 import clsx from "clsx";
-import type { ClaimAudit, EvidenceAnchor, EvidenceCandidate } from "@/api/types";
+import type { ClaimAudit, EvidenceAnchor } from "@/api/types";
 import {
   CATEGORY_LABELS, CLAIM_ERROR_NAMES, EVIDENCE_ERROR_NAMES, LABEL_NAMES, LABEL_TONE, SEVERITY_NAMES, anchorLabel,
 } from "@/lib/labels";
@@ -22,158 +22,139 @@ function Section({ label, aside, children }: { label: string; aside?: React.Reac
 
 type View = "page" | "text";
 
-/** One piece of evidence: a magnified crop of the page, or its extracted text. */
-function EvidenceItem({
-  item, index, anchor, pageSize, active, defaultView, onOpenPage, fillHeight,
-}: {
-  fillHeight?: number;
-  item: EvidenceCandidate;
-  index: number;
-  anchor: EvidenceAnchor | undefined;
-  pageSize: { width: number; height: number } | undefined;
-  active: boolean;
-  defaultView: View;
-  onOpenPage: () => void;
-}) {
-  const canCrop = Boolean(anchor?.page && anchor.rects.length && pageSize);
-  const [view, setView] = useState<View>(canCrop ? defaultView : "text");
-  const [expanded, setExpanded] = useState(false);
-  const text = normalizeEvidence(item.text);
-  const long = text.length > 320;
-  return (
-    <li className={clsx("evidence-item flex flex-col gap-2.5 rounded-xl p-3 transition-shadow", active ? "bg-accent-soft/60 shadow-[inset_0_0_0_1px_rgba(30,74,122,.18)]" : "bg-[#FAFAF9] shadow-[inset_0_0_0_1px_#F0EFEC]")}>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-        <span className="inline-flex h-5 items-center rounded-md bg-accent px-1.5 font-semibold text-white">证据 {index + 1}</span>
-        <span className="min-w-0 truncate text-ink-3" title={anchor ? anchorLabel(anchor) : undefined}>{anchor ? anchorLabel(anchor) : `第 ${item.page} 页`}</span>
-        <span className="ml-auto flex items-center gap-1">
-          {canCrop && (
-            <span className="inline-flex rounded-md bg-card p-0.5 shadow-card" role="group" aria-label="显示方式">
-              {([["page", "原文"], ["text", "文字"]] as [View, string][]).map(([key, text]) => (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={view === key}
-                  onClick={() => setView(key)}
-                  className={clsx("h-6 rounded px-2 text-xs", view === key ? "bg-ink text-white" : "text-ink-3 hover:text-ink")}
-                >
-                  {text}
-                </button>
-              ))}
-            </span>
-          )}
-          <button
-            type="button"
-            className="inline-flex h-7 items-center gap-1 rounded-md px-2 font-medium text-accent hover:bg-card disabled:text-ink-4"
-            onClick={onOpenPage}
-            disabled={!anchor?.page}
-          >
-            <Maximize2 className="h-3.5 w-3.5" aria-hidden /> 整页
-          </button>
-        </span>
-      </div>
-      {view === "page" && canCrop && anchor?.page ? (
-        <PdfCrop
-          page={anchor.page}
-          pageSize={pageSize}
-          rects={anchor.rects}
-          // A table/figure caption is often what gets cited: show the body next to it.
-          contextPt={/table|fig|表|图/i.test(anchor.locator ?? "") ? 120 : undefined}
-          fillHeight={fillHeight}
-          label={`证据 ${index + 1} 原文，${anchorLabel(anchor)}`}
-        />
-      ) : (
-        <div className="flex flex-col items-start gap-1 px-1">
-          <p className={clsx("break-words font-serif text-[15px] leading-[1.75] text-ink", long && !expanded && "line-clamp-4")}>{text}</p>
-          {long && (
-            <button type="button" className="text-xs font-medium text-accent hover:underline" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
-              {expanded ? "收起" : "展开全文"}
-            </button>
-          )}
-        </div>
-      )}
-    </li>
-  );
-}
-
 export const isCandidateLabel = (audit: ClaimAudit) =>
   audit.judgment.label === "NO_SUPPORT_FOUND" || audit.judgment.label === "ABSTAIN";
 
-export function evidenceHint(audit: ClaimAudit): string {
-  const count = detailEvidence(audit).length;
-  return `${count} 处${count && !isCandidateLabel(audit) ? " · 黄色为引用位置，片段可上下滚动" : ""}`;
+/** "Table 4" / "Figure 5" / "§4 …" from an anchor locator, short enough for a tab. */
+function shortLocator(anchor: EvidenceAnchor | undefined): string | undefined {
+  const locator = anchor?.locator ?? "";
+  const named = locator.match(/(Table|Figure|Fig\.|表|图)\s*[\dA-Za-z.]+/i);
+  if (named) return named[0].replace(/^Figure/i, "Fig.");
+  const section = locator.split("·")[0]?.trim();
+  return section ? (section.length > 18 ? `${section.slice(0, 17)}…` : section) : undefined;
 }
 
-/** The evidence list for one claim: page crops (or text), with a full-page action. */
-export function ClaimEvidence({
-  projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence, availableHeight,
+/**
+ * V4 evidence viewer: one piece of evidence at a time, filling its panel.
+ * Tabs switch evidence; the crop scrolls over the whole page; "整页" opens the page dialog.
+ */
+export function EvidenceViewer({
+  projectId, audit, anchors, pageSizes, activeChunk, onSelectChunk, onOpenPage, className,
 }: {
-  /** Height of the evidence column (split layout): crops share it instead of leaving it empty. */
-  availableHeight?: number;
   projectId: string;
   audit: ClaimAudit;
   anchors: Record<string, EvidenceAnchor>;
   pageSizes: { width: number; height: number }[];
   activeChunk: string | undefined;
-  onOpenEvidence: (chunkId: string) => void;
+  onSelectChunk: (chunkId: string) => void;
+  onOpenPage: (chunkId: string) => void;
+  className?: string;
 }) {
   const evidence = detailEvidence(audit);
-  const [showAll, setShowAll] = useState(false);
-  const COLLAPSED = 3;
-  const shown = showAll ? evidence : evidence.slice(0, COLLAPSED);
   const candidates = isCandidateLabel(audit);
-  const defaultView = (index: number): View => (candidates || index >= 3 ? "text" : "page");
-  const crops = shown.filter((_, index) => defaultView(index) === "page").length;
-  // Per-crop height: the column minus each card's header/padding and the gaps, shared evenly.
-  const fillHeight = availableHeight && crops
-    ? Math.min(1600, Math.max(320, Math.floor((availableHeight - crops * 70 - (shown.length - 1) * 12 - (evidence.length > COLLAPSED ? 48 : 0) - (shown.length - crops) * 160) / crops)))
-    : undefined;
-  if (!evidence.length) {
-    return <p className="rounded-xl bg-[#FAFAF9] px-4 py-3 text-sm text-ink-4">当前没有已验证的原文证据。</p>;
-  }
+  const index = Math.max(0, evidence.findIndex((item) => item.chunk_id === activeChunk));
+  const item = evidence[index];
+  const anchor = item ? anchors[item.chunk_id] : undefined;
+  const pageSize = anchor?.page ? pageSizes[anchor.page - 1] : undefined;
+  const canCrop = Boolean(anchor?.page && anchor.rects.length && pageSize);
+  const [preferred, setPreferred] = useState<View>(candidates ? "text" : "page");
+  const view: View = canCrop ? preferred : "text";
+  const [bodyHeight, setBodyHeight] = useState(0);
+  const observer = useRef<ResizeObserver | null>(null);
+  // Callback ref: React calls it with null on unmount, which disconnects the observer.
+  const bodyRef = useCallback((element: HTMLDivElement | null) => {
+    observer.current?.disconnect();
+    observer.current = null;
+    if (!element) return;
+    observer.current = new ResizeObserver(([entry]) => setBodyHeight(Math.floor(entry.contentRect.height)));
+    observer.current.observe(element);
+  }, []);
+
   return (
-    <PdfDocument projectId={projectId}>
-      <ol className="flex flex-col gap-3">
-        {shown.map((item, index) => {
-          const anchor = anchors[item.chunk_id];
-          return (
-            <EvidenceItem
-              key={`${audit.claim.claim_id}-${item.evidence_id}`}
-              item={item}
-              index={index}
-              anchor={anchor}
-              pageSize={anchor?.page ? pageSizes[anchor.page - 1] : undefined}
-              active={item.chunk_id === activeChunk}
-              // Candidates were not judged as support: show text first, the page on demand.
-              defaultView={defaultView(index)}
-              fillHeight={fillHeight}
-              onOpenPage={() => onOpenEvidence(item.chunk_id)}
-            />
-          );
-        })}
-      </ol>
-      {evidence.length > COLLAPSED && (
-        <button type="button" className="btn-ghost mt-2 self-start" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
-          {showAll ? "收起" : `显示其余 ${evidence.length - COLLAPSED} 处`}
-        </button>
+    <section className={clsx("evidence-viewer card flex min-h-0 min-w-0 flex-col overflow-hidden", className)} aria-label="原文依据">
+      <div className="flex shrink-0 items-end gap-2 border-b border-line-soft pl-2 pr-2">
+        <div className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto" role="tablist" aria-label={candidates ? "候选原文片段" : "证据"}>
+          {evidence.length ? evidence.map((entry, i) => {
+            const a = anchors[entry.chunk_id];
+            const selected = i === index;
+            const where = shortLocator(a);
+            return (
+              <button
+                key={entry.evidence_id}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => onSelectChunk(entry.chunk_id)}
+                className={clsx(
+                  "shrink-0 whitespace-nowrap border-b-2 px-2.5 pb-2 pt-2.5 text-[13px] transition-colors",
+                  selected ? "border-accent font-semibold text-ink" : "border-transparent text-ink-3 hover:text-ink",
+                )}
+              >
+                {candidates ? "候选" : "证据"} {i + 1}{where ? ` · ${where}` : ""}
+                <span className="ml-1 font-normal text-ink-4">p.{a?.page ?? entry.page}</span>
+              </button>
+            );
+          }) : <span className="px-2.5 pb-2 pt-2.5 text-[13px] font-semibold">原文依据</span>}
+        </div>
+        {item && (
+          <div className="flex shrink-0 items-center gap-1 pb-1.5">
+            {canCrop && (
+              <span className="inline-flex rounded-md bg-page p-0.5" role="group" aria-label="显示方式">
+                {([["page", "原文"], ["text", "文字"]] as [View, string][]).map(([key, text]) => (
+                  <button key={key} type="button" aria-pressed={view === key} onClick={() => setPreferred(key)}
+                    className={clsx("h-6 rounded px-2 text-xs", view === key ? "bg-ink text-white" : "text-ink-3 hover:text-ink")}>
+                    {text}
+                  </button>
+                ))}
+              </span>
+            )}
+            <button type="button" className="inline-flex h-7 items-center gap-1 rounded-md px-2 text-xs font-semibold text-accent hover:bg-hover disabled:text-ink-4"
+              onClick={() => onOpenPage(item.chunk_id)} disabled={!anchor?.page}>
+              <Maximize2 className="h-3.5 w-3.5" aria-hidden /> 整页
+            </button>
+          </div>
+        )}
+      </div>
+      <div ref={bodyRef} className="relative min-h-0 flex-1 bg-[#F6F6F4]">
+        {!item ? (
+          <p className="p-6 text-sm text-ink-4">当前没有已验证的原文证据。</p>
+        ) : view === "page" && anchor?.page && bodyHeight > 0 ? (
+          <div className="absolute inset-0 p-3">
+            <PdfDocument projectId={projectId}>
+              <PdfCrop
+                key={item.chunk_id}
+                page={anchor.page}
+                pageSize={pageSize}
+                rects={anchor.rects}
+                // A table/figure caption is often what gets cited: show the body next to it.
+                contextPt={/table|fig|表|图/i.test(anchor.locator ?? "") ? 120 : undefined}
+                fillHeight={Math.max(160, bodyHeight - 24)}
+                label={`证据 ${index + 1} 原文，${anchorLabel(anchor)}`}
+              />
+            </PdfDocument>
+          </div>
+        ) : (
+          <div className="absolute inset-0 overflow-auto p-5">
+            <p className="max-w-[720px] whitespace-pre-line break-words font-serif text-[15px] leading-[1.8] text-ink">{normalizeEvidence(item.text)}</p>
+          </div>
+        )}
+      </div>
+      {item && (
+        <div className="flex h-9 shrink-0 items-center gap-3 border-t border-line-soft px-4 text-xs text-ink-4">
+          <span className="min-w-0 truncate" title={anchor ? anchorLabel(anchor) : undefined}>{anchor ? anchorLabel(anchor) : `第 ${item.page} 页`}</span>
+          <span className="ml-auto hidden whitespace-nowrap sm:inline">{candidates ? "候选片段未被判定为支持" : view === "page" ? "滚动查看整页 · 黄色为引用位置" : `${index + 1} / ${evidence.length}`}</span>
+        </div>
       )}
-    </PdfDocument>
+    </section>
   );
 }
 
 export function ClaimDetail({
-  projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence, split = false,
+  audit,
 }: {
-  /** Evidence is rendered in its own column by the page (wide screens). */
-  split?: boolean;
-  projectId: string;
   audit: ClaimAudit;
-  anchors: Record<string, EvidenceAnchor>;
-  pageSizes: { width: number; height: number }[];
-  activeChunk: string | undefined;
-  onOpenEvidence: (chunkId: string) => void;
 }) {
   const { claim, judgment, citation_review: review } = audit;
-  const candidates = isCandidateLabel(audit);
   const tone = LABEL_TONE[judgment.label];
   const severityTone = judgment.severity === "critical" || judgment.severity === "high" ? "bg-bad-soft text-bad" : "bg-line-soft text-ink-2";
   const errors = [
@@ -182,7 +163,7 @@ export function ClaimDetail({
   ].filter(Boolean) as string[];
 
   return (
-    <article className={clsx("claim-detail mx-auto flex w-full min-w-0 flex-col gap-7 break-words px-4 py-5", split ? "max-w-[780px]" : "max-w-[860px]")}>
+    <article className="claim-detail flex w-full min-w-0 max-w-[780px] flex-col gap-6 break-words px-5 py-5">
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-4">
           <span>{claim.claim_id} · {CATEGORY_LABELS[claim.category]}{claim.report_location ? ` · ${claim.report_location}` : ""}</span>
@@ -210,12 +191,6 @@ export function ClaimDetail({
           </div>
         )}
       </Section>
-
-      {!split && (
-        <Section label={candidates ? "候选原文片段" : "原文依据"} aside={<span className="text-xs text-ink-4">{evidenceHint(audit)}</span>}>
-          <ClaimEvidence projectId={projectId} audit={audit} anchors={anchors} pageSizes={pageSizes} activeChunk={activeChunk} onOpenEvidence={onOpenEvidence} />
-        </Section>
-      )}
 
       {judgment.suggestion && (
         <Section label="修改建议">

@@ -1,5 +1,5 @@
 import { AuditTasks } from "./AuditTasks";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowDown, ArrowUp, List, Plus, Search, SlidersHorizontal } from "lucide-react";
 import clsx from "clsx";
@@ -15,7 +15,7 @@ import { Popover } from "@/components/Popover";
 import {
   AUDIT_DIMENSION_NAMES, CATEGORY_LABELS, LABEL_NAMES, LABEL_TONE, SEVERITY_NAMES, anchorLabel,
 } from "@/lib/labels";
-import { ClaimDetail, ClaimEvidence, evidenceHint, isCandidateLabel } from "./ClaimDetail";
+import { ClaimDetail, EvidenceViewer } from "./ClaimDetail";
 import { NewAuditDialog } from "./NewAuditDialog";
 import {
   filterAudits, isAttentionRequired, labelCounts, selectedEvidence, sortAudits,
@@ -32,74 +32,82 @@ function useParam<T extends string>(params: URLSearchParams, key: string, fallba
 function AuditSkeleton() {
   const bar = "animate-pulse rounded bg-line-soft";
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2" role="status" aria-label="正在载入审计结果">
-      <div className="card flex h-[74px] items-center gap-6 px-4">
-        {[40, 24, 24, 24, 24].map((w, i) => <div key={i} className={bar} style={{ width: `${w * 3}px`, height: i ? 28 : 36 }} />)}
+    <div className="audit-v4 min-h-0 flex-1" role="status" aria-label="正在载入审计结果">
+      <div className="audit-v4-side">
+        <div className="card flex flex-col gap-3 p-4"><div className={clsx(bar, "h-8 w-1/2")} /><div className={clsx(bar, "h-2")} /><div className={clsx(bar, "h-10")} /></div>
+        <div className="card flex flex-col gap-2 p-2">{Array.from({ length: 6 }, (_, i) => <div key={i} className={clsx(bar, "h-11")} />)}</div>
       </div>
-      <div className="audit-columns min-h-0 flex-1">
-        <div className="audit-list card flex-col gap-3 p-3">
-          {Array.from({ length: 7 }, (_, i) => <div key={i} className={clsx(bar, "h-12")} />)}
-        </div>
-        <div className="card flex flex-col gap-4 p-6">
-          <div className={clsx(bar, "h-6 w-3/4")} />
-          <div className={clsx(bar, "h-4 w-full")} />
-          <div className={clsx(bar, "h-4 w-5/6")} />
-          <div className={clsx(bar, "h-24 w-full")} />
-        </div>
-      </div>
+      <div className="card flex flex-col gap-4 self-start p-6"><div className={clsx(bar, "h-6 w-3/4")} /><div className={clsx(bar, "h-4")} /><div className={clsx(bar, "h-4 w-5/6")} /><div className={clsx(bar, "h-16")} /></div>
+      <div className="audit-v4-evidence card"><div className={clsx(bar, "m-4 h-[60%]")} /></div>
       <span className="sr-only">正在载入审计结果…</span>
     </div>
   );
 }
 
-function SummaryStrip({ detail }: { detail: AuditDetail }) {
+function SummaryCard({ detail, compact, tab, onTab }: { detail: AuditDetail; compact: boolean; tab: Tab; onTab: (tab: Tab) => void }) {
   const { summary, audits } = detail.run;
   const counts = labelCounts(audits);
   const attention = audits.filter(isAttentionRequired).length;
   const gradeTone = summary.grade === "可信" ? "text-ok-text" : summary.grade === "不可信" ? "text-bad" : "text-warn-text";
+  const order = ["SUPPORTED", "PARTIALLY_SUPPORTED", "CONTRADICTED", "NO_SUPPORT_FOUND", "ABSTAIN"] as const;
+  const bar = (
+    <div className="flex h-1.5 overflow-hidden rounded-full bg-line-soft" role="img"
+      aria-label={order.map((label) => `${LABEL_NAMES[label]} ${counts[label]}`).join("，")}>
+      {order.map((label) => counts[label] > 0 && (
+        <span key={label} className={clsx("h-full", LABEL_TONE[label].dot)} style={{ width: `${(counts[label] / Math.max(audits.length, 1)) * 100}%` }} title={`${LABEL_NAMES[label]} ${counts[label]}`} />
+      ))}
+    </div>
+  );
+  const links = (
+    <nav className="flex shrink-0 gap-3 text-[13px]" aria-label="审计视图">
+      {tab !== "claims" && <button type="button" className="font-medium text-accent hover:underline" onClick={() => onTab("claims")}>逐条审计</button>}
+      {tab !== "stats" && <button type="button" className="font-medium text-accent hover:underline" onClick={() => onTab("stats")}>统计与核对</button>}
+      {tab !== "export" && <button type="button" className="font-medium text-accent hover:underline" onClick={() => onTab("export")}>报告导出</button>}
+    </nav>
+  );
+  if (compact) {
+    return (
+      <section className="card flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3" aria-label="审计汇总">
+        <div className="flex items-baseline gap-2">
+          <strong className={clsx("text-base", gradeTone)}>{summary.grade}</strong>
+          <span className="text-sm text-ink-3">{summary.total_score === null ? "—" : summary.total_score.toFixed(1)} 分</span>
+        </div>
+        <div className="flex min-w-[160px] flex-1 flex-col gap-1.5">
+          {bar}
+          <span className="text-xs text-ink-3">需关注 {attention} · 冲突 {counts.CONTRADICTED} · 证据不足 {counts.ABSTAIN + counts.NO_SUPPORT_FOUND}</span>
+        </div>
+        {links}
+      </section>
+    );
+  }
   const metrics: [string, number, string][] = [
     ["需关注", attention, attention ? "text-warn-text" : "text-ink"],
     ["冲突", counts.CONTRADICTED, counts.CONTRADICTED ? "text-bad" : "text-ink"],
-    ["未找到证据", counts.NO_SUPPORT_FOUND, "text-ink"],
-    ["证据不足", counts.ABSTAIN, "text-ink"],
-    ["严重 / 高风险", summary.critical_count + summary.high_count, summary.critical_count + summary.high_count ? "text-bad" : "text-ink"],
+    ["证据不足", counts.ABSTAIN + counts.NO_SUPPORT_FOUND, "text-ink"],
   ];
-  const order = ["SUPPORTED", "PARTIALLY_SUPPORTED", "CONTRADICTED", "NO_SUPPORT_FOUND", "ABSTAIN"] as const;
   return (
-    <div className="audit-summary card shrink-0">
-      <div className="audit-grade">
-        <div>
-          <div className="text-xs text-ink-4">审计结果</div>
-          <div className={clsx("text-lg font-semibold leading-tight", gradeTone)}>{summary.grade}</div>
+    <section className="card flex shrink-0 flex-col gap-3 px-4 py-3.5" aria-label="审计汇总">
+      <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-col">
+          <span className="text-xs text-ink-4">审计结果</span>
+          <strong className={clsx("text-lg leading-tight", gradeTone)}>{summary.grade}</strong>
         </div>
         <div className="text-[28px] font-semibold leading-none tracking-tight">
           {summary.total_score === null ? "—" : summary.total_score.toFixed(1)}
           <span className="ml-0.5 text-sm font-normal text-ink-4">分</span>
         </div>
       </div>
-      <dl className="audit-metrics">
+      {bar}
+      <dl className="grid grid-cols-3 gap-2">
         {metrics.map(([label, value, tone]) => (
-          <div key={label} className="flex flex-col gap-0.5">
-            <dt className="whitespace-nowrap text-xs text-ink-4">{label}</dt>
+          <div key={label} className="flex flex-col">
+            <dt className="text-xs text-ink-4">{label}</dt>
             <dd className={clsx("text-lg font-semibold leading-tight tabular-nums", tone)}>{value}</dd>
           </div>
         ))}
       </dl>
-      <div className="audit-dist" aria-label="论断判断分布">
-        <div className="flex h-2 overflow-hidden rounded-full bg-line-soft">
-          {order.map((label) => counts[label] > 0 && (
-            <span key={label} className={clsx("h-full", LABEL_TONE[label].dot)} style={{ width: `${(counts[label] / Math.max(audits.length, 1)) * 100}%` }} title={`${LABEL_NAMES[label]} ${counts[label]}`} />
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-3">
-          {order.map((label) => (
-            <span key={label} className={clsx("inline-flex items-center gap-1.5", !counts[label] && "text-ink-4/70")}>
-              <span className={clsx("h-1.5 w-1.5 rounded-full", LABEL_TONE[label].dot)} aria-hidden />{LABEL_NAMES[label]} {counts[label]}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
+      <div className="border-t border-line-soft pt-2.5">{links}</div>
+    </section>
   );
 }
 
@@ -229,8 +237,10 @@ export function AuditPage() {
   const [sourceChunk, setSourceChunk] = useState<string | undefined>();
   const [dialogChunk, setDialogChunk] = useState<string | undefined>();
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
-  // Wide screens: judgment and evidence side by side instead of one long column.
-  const split = containerWidth >= 1320;
+  // V4: three columns (summary+list / judgment / evidence viewer) when there is room,
+  // otherwise one scrolling column with a pager and the list in a dialog.
+  const wide = containerWidth >= 1180;
+  const phone = containerWidth > 0 && containerWidth < 640;
   const [listOpen, setListOpen] = useState(false);
   const [dialogPage, setDialogPage] = useState(1);
   const openEvidence = (chunkId: string) => { setDialogPage(detail.data?.anchors[chunkId]?.page ?? 1); setDialogChunk(chunkId); };
@@ -258,24 +268,8 @@ export function AuditPage() {
   const selected = visible[index];
   const detailScroll = useRef<HTMLDivElement>(null);
   // A new claim starts at its top, not at the previous claim's scroll offset.
-  const evidenceScroll = useRef<HTMLDivElement | null>(null);
-  const [evidenceHeight, setEvidenceHeight] = useState(0);
-  // Callback ref: measure the evidence column every time it mounts (tab switches,
-  // audit changes, resizing into the wide layout), not only on the first render.
-  const evidenceObserver = useRef<ResizeObserver | null>(null);
-  const evidenceRef = useCallback((element: HTMLDivElement | null) => {
-    evidenceObserver.current?.disconnect();
-    evidenceObserver.current = null;
-    evidenceScroll.current = element;
-    if (!element) return;
-    const observer = new ResizeObserver(([entry]) => setEvidenceHeight(Math.floor(entry.contentRect.height)));
-    observer.observe(element);
-    evidenceObserver.current = observer;
-  }, []);
-  useEffect(() => () => evidenceObserver.current?.disconnect(), []);
   useEffect(() => {
     detailScroll.current?.scrollTo({ top: 0 });
-    evidenceScroll.current?.scrollTo({ top: 0 });
   }, [selectedId]);
   const select = (id: string) => { setSourceChunk(undefined); setListOpen(false); update({ claim: id }); };
 
@@ -336,107 +330,115 @@ export function AuditPage() {
             上传一份解读报告，系统会把它拆成论断，逐条对照原文核验事实、数字与结论。
           </EmptyState>
         </section>
-      ) : detail.isLoading ? <AuditSkeleton /> : detail.error ? <ErrorState error={detail.error} /> : detail.data && (
-        <div className="flex min-h-0 flex-1 flex-col gap-2">
-          <details className="audit-summary-wrap" open={containerWidth >= 560}>
-            <summary className="audit-summary-toggle card cursor-pointer px-3 py-2 text-sm">
-              {detail.data.run.summary.grade} · {detail.data.run.summary.total_score?.toFixed(1) ?? "—"} 分
-              <span className="ml-3 text-xs text-ink-4">需关注 {detail.data.run.audits.filter(isAttentionRequired).length} · 查看统计</span>
-            </summary>
-            <SummaryStrip detail={detail.data} />
-          </details>
-          <div className="audit-filter-bar">
-            <nav className="flex shrink-0 gap-5 overflow-x-auto text-sm" aria-label="审计视图">
-              {([["claims", "逐条审计"], ["stats", "统计与核对"], ["export", "报告导出"]] as [Tab, string][]).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => update({ tab: key === "claims" ? "" : key })}
-                  className={clsx("shrink-0 whitespace-nowrap border-b-2 py-2", tab === key ? "border-ink font-semibold" : "border-transparent text-ink-4 hover:text-ink")}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-            {tab === "claims" && (
-              <div className="audit-filters">
-                <label className="audit-search flex h-8 min-w-0 items-center gap-2 rounded-lg bg-card px-2.5 shadow-card">
-                  <Search className="h-4 w-4 text-ink-4" aria-hidden />
-                  <span className="sr-only">搜索论断</span>
-                  <input value={query} onChange={(e) => update({ q: e.target.value })} placeholder="搜索论断、证据或内容…" className="min-w-0 flex-1 bg-transparent text-[13px] outline-none" />
-                </label>
-                <label>
-                  <span className="sr-only">状态</span>
-                  <select value={status} onChange={(e) => update({ status: e.target.value === "all" ? "" : e.target.value })} className="h-8 rounded-lg bg-card px-2 text-[13px] shadow-card outline-none">
-                    <option value="all">全部状态</option>
-                    <option value="attention">需关注</option>
-                    {Object.entries(LABEL_NAMES).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                  </select>
-                </label>
-                <Popover
-                  className="flex w-56 flex-col gap-3"
-                  summary={<><SlidersHorizontal className="h-4 w-4" aria-hidden /> 更多筛选{extraFilters ? ` · ${extraFilters}` : ""}</>}
-                >
-                    <label className="flex flex-col gap-1 text-xs text-ink-4">分类
-                      <select value={category} onChange={(e) => update({ cat: e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
-                        <option value="">全部分类</option>
-                        {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                      </select>
-                    </label>
-                    <label className="flex flex-col gap-1 text-xs text-ink-4">风险
-                      <select value={severity} onChange={(e) => update({ sev: e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
-                        <option value="">全部风险</option>
-                        {(["critical", "high", "medium", "low", "none"] as Severity[]).map((v) => <option key={v} value={v}>{SEVERITY_NAMES[v]}</option>)}
-                      </select>
-                    </label>
-                    <label className="flex flex-col gap-1 text-xs text-ink-4">排序
-                      <select value={sort} onChange={(e) => update({ sort: e.target.value === "risk" ? "" : e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
-                        <option value="risk">风险优先</option>
-                        <option value="report">报告顺序</option>
-                      </select>
-                    </label>
-                </Popover>
-              </div>
-            )}
+      ) : detail.isLoading ? <AuditSkeleton /> : detail.error ? <ErrorState error={detail.error} /> : detail.data && (() => {
+        const filters = (
+          <div className={clsx("flex shrink-0 gap-2", wide && "flex-wrap")}>
+            <label className={clsx("flex h-9 min-w-0 flex-1 items-center gap-2 rounded-lg bg-card px-2.5 shadow-card", wide && "basis-full")}>
+              <Search className="h-4 w-4 shrink-0 text-ink-4" aria-hidden />
+              <span className="sr-only">搜索论断</span>
+              <input value={query} onChange={(e) => update({ q: e.target.value })} placeholder="搜索论断或证据" className="min-w-0 flex-1 bg-transparent text-[13px] outline-none" />
+            </label>
+            <label className={wide ? "flex-1" : undefined}>
+              <span className="sr-only">状态</span>
+              <select value={status} onChange={(e) => update({ status: e.target.value === "all" ? "" : e.target.value })} className="h-9 w-full rounded-lg bg-card px-2 text-[13px] shadow-card outline-none">
+                <option value="all">全部状态</option>
+                <option value="attention">需关注</option>
+                {Object.entries(LABEL_NAMES).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </label>
+            <Popover
+              className="flex w-56 flex-col gap-3"
+              summary={<><SlidersHorizontal className="h-4 w-4" aria-hidden />筛选{extraFilters ? ` · ${extraFilters}` : ""}</>}
+            >
+              <label className="flex flex-col gap-1 text-xs text-ink-4">分类
+                <select value={category} onChange={(e) => update({ cat: e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
+                  <option value="">全部分类</option>
+                  {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-xs text-ink-4">风险
+                <select value={severity} onChange={(e) => update({ sev: e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
+                  <option value="">全部风险</option>
+                  {(["critical", "high", "medium", "low", "none"] as Severity[]).map((v) => <option key={v} value={v}>{SEVERITY_NAMES[v]}</option>)}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-xs text-ink-4">排序
+                <select value={sort} onChange={(e) => update({ sort: e.target.value === "risk" ? "" : e.target.value })} className="h-8 rounded-md bg-page px-2 text-[13px] text-ink">
+                  <option value="risk">风险优先</option>
+                  <option value="report">报告顺序</option>
+                </select>
+              </label>
+            </Popover>
           </div>
+        );
+        const setTab = (next: Tab) => update({ tab: next === "claims" ? "" : next });
+        const pager = (
+          <div className={clsx("flex shrink-0 items-center gap-2", phone && "audit-phone-pager")} aria-label="论断切换">
+            <button type="button" className="icon-btn h-10 w-10 bg-card shadow-card" disabled={index <= 0} onClick={() => select(visible[index - 1].claim.claim_id)} aria-label="上一条 (↑)"><ArrowUp className="h-4 w-4 -rotate-90" /></button>
+            <button type="button" className={clsx("flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 text-[13px] font-medium", phone ? "bg-ink text-white" : "bg-card shadow-card")} onClick={() => setListOpen(true)}>
+              {selected && <span className={clsx("h-2 w-2 shrink-0 rounded-full", LABEL_TONE[selected.judgment.label].dot)} aria-hidden />}
+              论断 {index + 1} / {visible.length}<List className="h-4 w-4 shrink-0" aria-hidden /><span className="sr-only">打开论断列表</span>
+            </button>
+            <button type="button" className="icon-btn h-10 w-10 bg-card shadow-card" disabled={index >= visible.length - 1} onClick={() => select(visible[index + 1].claim.claim_id)} aria-label="下一条 (↓)"><ArrowDown className="h-4 w-4 -rotate-90" /></button>
+          </div>
+        );
+        const judgment = selected ? (
+          <ClaimDetail key={selected.claim.claim_id} audit={selected} />
+        ) : <p className="p-6 text-sm text-ink-4">当前筛选条件下没有论断。</p>;
+        const viewer = selected && (
+          <EvidenceViewer key={selected.claim.claim_id} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []}
+            activeChunk={chunk} onSelectChunk={setSourceChunk} onOpenPage={(id) => { setSourceChunk(id); openEvidence(id); }}
+            className={wide ? "audit-v4-evidence" : "audit-narrow-evidence"} />
+        );
+        const otherTab = tab === "stats" ? <StatsTab detail={detail.data} /> : tab === "export" ? <ExportTab detail={detail.data} projectId={projectId} /> : null;
 
-          {tab === "stats" ? <StatsTab detail={detail.data} /> : tab === "export" ? <ExportTab detail={detail.data} projectId={projectId} /> : (
-            <div className={clsx("audit-columns", split && "audit-columns-split")}>
-              <section className="audit-list card flex min-h-0 min-w-0 flex-col" aria-label="论断">
-                <div className="flex h-11 shrink-0 items-baseline gap-2 border-b border-line-soft px-4 pt-3">
-                  <strong className="text-sm">论断</strong>
-                  <span className="text-xs text-ink-4">{visible.length} 条 · 需关注 {visible.filter(isAttentionRequired).length}</span>
-                </div>
-                <div className="min-h-0 flex-1 overflow-auto"><ClaimList audits={visible} selectedId={selectedId} onSelect={select} /></div>
-              </section>
-              <section className="card flex min-h-0 min-w-0 flex-col" aria-label="论断详情">
-                <div className="flex h-11 shrink-0 items-center gap-1 border-b border-line-soft pl-5 pr-2 text-[13px] text-ink-4">
-                  <button type="button" className="audit-list-trigger btn-secondary mr-1" onClick={() => setListOpen(true)}><List className="h-4 w-4" /> 列表</button>
-                  <span className="mr-auto whitespace-nowrap">论断 {index + 1} / {visible.length}</span>
-                  <button type="button" className="icon-btn" disabled={index <= 0} onClick={() => select(visible[index - 1].claim.claim_id)} aria-label="上一条 (↑)" title="上一条 (↑)"><ArrowUp className="h-4 w-4" /></button>
-                  <button type="button" className="icon-btn" disabled={index >= visible.length - 1} onClick={() => select(visible[index + 1].claim.claim_id)} aria-label="下一条 (↓)" title="下一条 (↓)"><ArrowDown className="h-4 w-4" /></button>
-                </div>
-                <div ref={detailScroll} className="min-h-0 flex-1 overflow-auto">
-                  {selected ? (
-                    <ClaimDetail key={selected.claim.claim_id} split={split} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
-                  ) : <p className="p-6 text-sm text-ink-4">没有可显示的论断。</p>}
-                </div>
-              </section>
-              {split && selected && (
-                <section className="card flex min-h-0 min-w-0 flex-col" aria-label="原文依据">
-                  <div className="flex h-11 shrink-0 items-baseline gap-2 border-b border-line-soft px-5 pt-3">
-                    <strong className="text-sm">{isCandidateLabel(selected) ? "候选原文片段" : "原文依据"}</strong>
-                    <span className="truncate text-xs text-ink-4">{evidenceHint(selected)}</span>
-                  </div>
-                  <div ref={evidenceRef} className="min-h-0 flex-1 overflow-auto p-4">
-                    <ClaimEvidence key={selected.claim.claim_id} availableHeight={evidenceHeight || undefined} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
-                  </div>
-                </section>
+        if (wide) {
+          return (
+            <div className="audit-v4 min-h-0 flex-1">
+              <div className="audit-v4-side">
+                <SummaryCard detail={detail.data} compact={false} tab={tab} onTab={setTab} />
+                {tab === "claims" && filters}
+                {tab === "claims" && (
+                  <section className="audit-list card shrink-0" aria-label="论断">
+                    <div className="flex items-baseline gap-2 px-3.5 pb-1 pt-3"><strong className="text-[13px]">论断</strong><span className="text-xs text-ink-4">{visible.length} 条 · 需关注 {visible.filter(isAttentionRequired).length}</span></div>
+                    <ClaimList audits={visible} selectedId={selectedId} onSelect={select} />
+                  </section>
+                )}
+                {tab === "claims" && <p className="px-2 text-xs text-ink-4">↑ ↓ 切换论断</p>}
+              </div>
+              {otherTab ? <div className="audit-v4-span min-h-0 overflow-auto">{otherTab}</div> : (
+                <>
+                  <section ref={detailScroll} className="card relative min-h-0 min-w-0 self-start overflow-auto max-h-full" aria-label="论断详情">
+                    <div className="flex h-10 items-center gap-1 border-b border-line-soft pl-5 pr-2 text-[13px] text-ink-4">
+                      <span className="mr-auto whitespace-nowrap">论断 {index + 1} / {visible.length}</span>
+                      <button type="button" className="icon-btn" disabled={index <= 0} onClick={() => select(visible[index - 1].claim.claim_id)} aria-label="上一条 (↑)" title="上一条 (↑)"><ArrowUp className="h-4 w-4" /></button>
+                      <button type="button" className="icon-btn" disabled={index >= visible.length - 1} onClick={() => select(visible[index + 1].claim.claim_id)} aria-label="下一条 (↓)" title="下一条 (↓)"><ArrowDown className="h-4 w-4" /></button>
+                    </div>
+                    {judgment}
+                  </section>
+                  {viewer ?? <div />}
+                </>
               )}
             </div>
-          )}
-        </div>
-      )}
+          );
+        }
+        return (
+          <div ref={detailScroll} className="audit-narrow min-h-0 flex-1 overflow-auto">
+            <SummaryCard detail={detail.data} compact tab={tab} onTab={setTab} />
+            {otherTab ?? (
+              <>
+                {filters}
+                {!phone && pager}
+                <div className={containerWidth >= 900 ? "audit-mid" : "contents"}>
+                  <section className="card min-w-0" aria-label="论断详情">{judgment}</section>
+                  {viewer}
+                </div>
+                {phone && pager}
+              </>
+            )}
+          </div>
+        );
+      })()}
       <NewAuditDialog open={newOpen} onClose={() => setNewOpen(false)} />
       <Modal open={listOpen} onClose={() => setListOpen(false)} title={`论断列表 · ${visible.length} 条`}>
         <ClaimList audits={visible} selectedId={selectedId} onSelect={select} />

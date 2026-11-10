@@ -8,7 +8,7 @@ from paperaudit.models import (
 )
 from paperaudit.models import (
     AnswerScope, CodeSelection, PeerReviewVenue, IssueCategory, IssueSeverity,
-    IssueStatus, IssueSupportType, HumanReviewDecision, RelatedWorkReference,
+    IssueStatus, IssueSupportType, HumanReviewDecision, RelatedWorkReference, ReviewDecision,
 )
 from paperaudit.storage import AuditRecordMetadata
 
@@ -47,6 +47,11 @@ class ProjectSummary(BaseModel):
     has_learning_report: bool
     has_peer_review: bool
     has_audit: bool
+    # Status shown on the home page: latest audit grade and the review decision.
+    audit_count: int = 0
+    audit_grade: str | None = None
+    audit_score: float | None = None
+    review_decision: ReviewDecision | None = None
 
 
 class PageSize(BaseModel):

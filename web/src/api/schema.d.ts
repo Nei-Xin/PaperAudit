@@ -1705,6 +1705,16 @@ export interface components {
             has_peer_review: boolean;
             /** Has Audit */
             has_audit: boolean;
+            /**
+             * Audit Count
+             * @default 0
+             */
+            audit_count: number;
+            /** Audit Grade */
+            audit_grade?: string | null;
+            /** Audit Score */
+            audit_score?: number | null;
+            review_decision?: components["schemas"]["ReviewDecision"] | null;
             /** Page Count */
             page_count: number;
             /** Pages */
@@ -1743,6 +1753,16 @@ export interface components {
             has_peer_review: boolean;
             /** Has Audit */
             has_audit: boolean;
+            /**
+             * Audit Count
+             * @default 0
+             */
+            audit_count: number;
+            /** Audit Grade */
+            audit_grade?: string | null;
+            /** Audit Score */
+            audit_score?: number | null;
+            review_decision?: components["schemas"]["ReviewDecision"] | null;
         };
         /** Question */
         Question: {

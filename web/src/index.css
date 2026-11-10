@@ -50,12 +50,14 @@
 .app-shell { display:flex; height:100dvh; min-width:0; }
 .workspace { container:workspace / inline-size; flex:1; min-height:0; min-width:0; }
 .icon-btn { flex-shrink:0; }
-.project-topbar { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; padding:4px 4px 10px; flex-shrink:0; }
+.project-topbar { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:4px 4px 10px; flex-shrink:0; align-items:center; }
+.project-title { grid-column:1 / -1; }
+/* A single action shares the tabs' row on narrow screens; a record selector takes its own row. */
+@container workspace (max-width:759px) { .project-actions:has(select) { grid-column:1 / -1; } }
 .project-actions { display:flex; min-width:0; align-items:center; gap:8px; }
 .project-actions:empty { display:none; }
 .project-actions > button { flex-shrink:0; }
 .reader-layout { display:grid; grid-template-rows:auto minmax(0,1fr); gap:8px; flex:1; min-height:0; min-width:0; }
-.reader-pane-switch { display:flex; gap:8px; }
 .reader-source,.reader-assistant { min-width:0; min-height:0; }
 .reader-assistant { overflow:auto; }
 .reader-pane-hidden { display:none; }
@@ -70,23 +72,32 @@
 .modal-drawer { margin:0; height:100dvh; max-height:100dvh; width:280px; border-radius:0 14px 14px 0; }
 .modal-drawer .modal-content { height:100%; max-height:100dvh; }
 .modal-drawer aside { width:100%; }
+/* Home: start column + "继续工作"; side by side when there is room. */
+.home-grid { display:grid; grid-template-columns:minmax(0,680px); justify-content:center; gap:40px; }
+.home-title { text-align:center; }
 .home-recent-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
-.audit-summary-wrap { flex-shrink:0; }
-.audit-summary { display:flex; flex-direction:column; gap:12px; padding:12px 16px; }
-.audit-grade { display:flex; align-items:center; justify-content:space-between; gap:20px; }
-.audit-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px 16px; }
-.audit-dist { display:flex; flex-direction:column; gap:8px; min-width:0; }
-.audit-filter-bar { display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
-.audit-filters { display:flex; flex-wrap:wrap; gap:8px; align-items:center; min-width:0; }
-.audit-search { flex:1 1 100%; }
-.audit-columns { display:grid; grid-template-columns:minmax(0,1fr); gap:8px; flex:1; min-height:0; }
-.audit-list { display:none; }
 .audit-stats { grid-template-columns:minmax(0,1fr); }
-.review-layout { display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; overflow:auto; }
-.review-main { flex:1 0 auto; overflow:visible; }
-.review-properties { order:-1; flex-shrink:0; }
-.review-properties[open] .review-properties-chevron { transform:rotate(180deg); }
-.review-properties[open] > aside { max-height:38dvh; overflow:auto; }
+/* V4 audit. Wide: summary+list / judgment / evidence viewer, each column scrolls on its own;
+   cards hug their content, only the evidence viewer fills the height. */
+.audit-v4 { display:grid; grid-template-columns:300px minmax(0,1fr) minmax(0,1.1fr); grid-template-rows:minmax(0,1fr); gap:8px; }
+.audit-v4-side { position:relative; display:flex; flex-direction:column; gap:8px; min-height:0; min-width:0; overflow:auto; padding-bottom:2px; }
+.audit-v4-evidence { min-height:0; height:100%; }
+.audit-v4-span { grid-column:2 / -1; }
+/* Narrow: one scrolling column; the viewer gets most of a screen of its own. */
+/* Scroll containers are positioned so absolutely placed descendants (sr-only labels) stay inside them. */
+.audit-narrow { position:relative; display:flex; flex-direction:column; gap:8px; }
+.audit-narrow-evidence { flex-shrink:0; height:clamp(380px,72dvh,780px); }
+/* Tablet landscape / small windows: judgment beside a pinned viewer. */
+.audit-mid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:8px; align-items:start; }
+.audit-mid .audit-narrow-evidence { position:sticky; top:0; height:clamp(420px,calc(100dvh - 150px),900px); }
+.audit-phone-pager { position:sticky; bottom:0; margin-top:auto; padding:10px 0 2px; background:linear-gradient(to bottom, rgba(244,244,242,0), #F4F4F2 35%); }
+.review-layout { position:relative; display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; overflow:auto; }
+.review-main { position:relative; flex:1 0 auto; overflow:visible; }
+/* V4 review: one document; outline (wide) or sticky chapter chips (narrower) scroll to sections. */
+.review-section { scroll-margin-top:64px; }
+.review-outline { display:flex; flex-direction:column; gap:2px; align-self:start; padding-top:6px; }
+.review-chips { position:sticky; top:0; z-index:5; display:flex; gap:6px; overflow-x:auto; padding:4px 0 6px; background:#F4F4F2; flex-shrink:0; }
+.review-main .review-chips { padding:10px 20px; background:#FFFFFF; border-bottom:1px solid #F0EFEC; }
 .review-dimension { display:grid; grid-template-columns:6rem minmax(24px,1fr) 3rem; align-items:center; gap:8px; }
 .review-dimension > span:last-child { grid-column:1 / -1; width:auto; text-align:left; }
 @container pdf (max-width:440px) {
@@ -100,60 +111,43 @@
   .project-topbar { grid-template-columns:minmax(0,1fr) auto; align-items:center; }
   .project-title { grid-column:1 / -1; }
   .project-actions { justify-content:flex-end; }
-  .audit-summary-toggle { display:none; }
-  .audit-metrics { grid-template-columns:repeat(5,minmax(0,auto)); justify-content:start; column-gap:28px; }
-  .audit-search { flex:1 1 180px; }
   .claim-detail { padding-left:24px; padding-right:24px; }
 }
 @container workspace (min-width:760px) {
   .project-topbar { grid-template-columns:minmax(100px,1fr) auto minmax(240px,1fr); min-height:52px; padding-bottom:8px; }
   .project-title { grid-column:auto; }
   .project-actions { justify-self:end; width:100%; max-width:330px; }
-  .audit-columns { grid-template-columns:250px minmax(0,1fr); }
-  .audit-list { display:flex; }
-  .audit-list-trigger { display:none; }
   .audit-stats { grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); }
 }
 @container workspace (min-width:900px) {
   .reader-layout { grid-template-columns:minmax(440px,1fr) 420px; grid-template-rows:minmax(0,1fr); }
   .reader-pane-switch { display:none; }
   .reader-pane-hidden { display:block; }
-  .review-layout { display:grid; grid-template-columns:minmax(0,1fr) 260px; overflow:hidden; }
+  .review-layout { display:grid; grid-template-columns:minmax(0,1fr) 300px; grid-template-rows:minmax(0,1fr); overflow:hidden; }
+  .review-side { position:relative; display:flex; flex-direction:column; gap:8px; min-height:0; overflow:auto; }
   .review-main { min-height:0; overflow:auto; }
   .review-copy { padding:28px 32px; }
-  .review-properties { order:0; align-self:start; max-height:100%; overflow:auto; }
-  .review-properties[open] > aside { max-height:none; }
-  .review-properties-summary { pointer-events:none; padding-bottom:0; }
-  .review-properties-chevron { display:none; }
   .review-dimension { grid-template-columns:6rem minmax(24px,1fr) 3rem 5rem; }
   .review-dimension > span:last-child { grid-column:auto; text-align:right; }
 }
-@container workspace (min-width:1050px) {
-  .audit-filter-bar { flex-direction:row; align-items:center; }
-  .audit-filters { margin-left:auto; flex-wrap:nowrap; }
-  .audit-search { flex:1 1 220px; max-width:256px; }
+@container workspace (min-width:1500px) {
+  .audit-v4 { grid-template-columns:340px minmax(0,1fr) minmax(0,1.15fr); }
+}
+@container workspace (min-width:1100px) {
+  .home-grid { grid-template-columns:minmax(0,600px) minmax(0,560px); gap:48px; align-items:start; }
+  .home-title { text-align:left; }
+  .home-recent { padding-top:58px; }
+  .home-recent-grid { grid-template-columns:minmax(0,1fr); }
 }
 @container workspace (min-width:1400px) {
   /* The assistant grows with the screen; the PDF keeps a capped page width. */
   .reader-layout { grid-template-columns:minmax(0,1fr) clamp(440px,32cqw,600px); }
 }
 @container workspace (min-width:1240px) {
-  /* Document + properties as one centred block: no giant white card with a narrow text column. */
-  .review-layout { grid-template-columns:minmax(0,940px) 300px; justify-content:center; }
+  /* Document + conclusion column as one centred block: no giant white card with a narrow text column. */
+  .review-layout { grid-template-columns:minmax(0,900px) 320px; justify-content:center; }
 }
-@container workspace (min-width:1000px) {
-  /* One row: grade | metrics | distribution bar (fills the remaining width). */
-  .audit-summary { flex-direction:row; align-items:center; gap:0; padding:10px 20px; }
-  .audit-grade { justify-content:flex-start; padding-right:24px; margin-right:24px; border-right:1px solid #F0EFEC; }
-  .audit-dist { flex:1; margin-left:32px; max-width:560px; }
-}
-@container workspace (min-width:1160px) {
-  .audit-columns { grid-template-columns:290px minmax(0,1fr); }
-}
-@container workspace (min-width:1320px) {
-  .audit-columns-split { grid-template-columns:300px minmax(0,1fr) minmax(0,1.08fr); }
-}
-@container workspace (min-width:1900px) {
-  .audit-columns-split { grid-template-columns:340px minmax(0,1fr) minmax(0,1fr); }
+@container workspace (min-width:1380px) {
+  .review-layout-outline { grid-template-columns:180px minmax(0,880px) 330px; gap:12px; }
 }
 @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }

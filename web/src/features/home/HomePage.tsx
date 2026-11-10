@@ -10,6 +10,7 @@ import type { ProjectSummary, Venue, ClaimCategory } from "@/api/types";
 import { ErrorState, MockNote } from "@/components/States";
 import { AUDIT_SCOPE, ReportFields } from "./ReportFields";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
+import { DECISION_LABELS } from "@/lib/labels";
 
 type Mode = "learn" | "audit_existing" | "peer_review";
 
@@ -133,8 +134,9 @@ export function HomePage() {
 
   return (
     <div className="card flex h-full items-start justify-center overflow-auto px-4 sm:px-6">
-      <div className="flex w-full min-w-0 max-w-[680px] flex-col gap-6 pb-12 pt-[clamp(2rem,10vh,7rem)]">
-        <h1 className="text-center text-[30px] font-semibold tracking-tight">
+      <div className="home-grid w-full min-w-0 pb-12 pt-[clamp(2rem,9vh,6rem)]">
+      <div className="home-start flex min-w-0 flex-col gap-6">
+        <h1 className="home-title text-[30px] font-semibold tracking-tight">
           今天读哪篇论文？
         </h1>
 
@@ -287,6 +289,7 @@ export function HomePage() {
           </p>
           <MockNote />
         </div>
+      </div>
         <RecentProjects />
       </div>
     </div>
@@ -294,38 +297,47 @@ export function HomePage() {
 }
 
 const PROJECT_FEATURES: [keyof ProjectSummary, string][] = [
-  ["has_learning_report", "讲解"], ["has_audit", "审计"], ["has_peer_review", "评审"], ["has_code", "代码"],
+  ["has_learning_report", "讲解"], ["has_peer_review", "评审"], ["has_code", "代码"],
 ];
+const GRADE_TONE: Record<string, string> = { 可信: "bg-ok-soft text-ok-text", 需复核: "bg-warn-soft text-warn-text", 不可信: "bg-bad-soft text-bad-text" };
 
-/** The latest papers, so the start page is also a way back into recent work. */
+/** The latest papers with their verdicts, so the start page is also the way back into work. */
 function RecentProjects() {
   const projects = useProjects();
-  const recent = [...(projects.data ?? [])]
-    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
-    .slice(0, 6);
+  const all = projects.data ?? [];
+  const recent = [...all].sort((a, b) => b.updated_at.localeCompare(a.updated_at)).slice(0, 6);
   if (!recent.length) return null;
   return (
-    <section className="home-recent mt-6 flex flex-col gap-3" aria-label="最近的论文">
-      <h2 className="label px-1">最近的论文</h2>
+    <section className="home-recent flex min-w-0 flex-col gap-3" aria-label="继续工作">
+      <div className="flex items-baseline justify-between px-1">
+        <h2 className="text-[15px] font-semibold">继续工作</h2>
+        {all.length > recent.length && <span className="text-xs text-ink-4">最近 {recent.length} / {all.length} 篇</span>}
+      </div>
       <ul className="home-recent-grid">
         {recent.map((project) => {
-          const features = PROJECT_FEATURES.filter(([key]) => project[key]).map(([, label]) => label);
+          const features = PROJECT_FEATURES.filter(([key]) => project[key] && key !== "has_peer_review").map(([, label]) => label);
+          const decision = project.review_decision ? DECISION_LABELS[project.review_decision] : undefined;
           return (
             <li key={project.project_id}>
               <Link
                 to={`/p/${project.project_id}`}
-                className="group flex h-full flex-col gap-3 rounded-xl bg-[#FAFAF9] p-4 shadow-[0_0_0_1px_#ECEBE8] transition-[box-shadow,background-color] hover:bg-card hover:shadow-[0_6px_18px_rgba(26,26,25,.07),0_0_0_1px_#DAD8D3]"
+                className="group flex h-full flex-col gap-2.5 rounded-xl bg-[#FAFAF9] px-4 py-3.5 shadow-[0_0_0_1px_#ECEBE8] transition-[box-shadow,background-color] hover:bg-card hover:shadow-[0_6px_18px_rgba(26,26,25,.07),0_0_0_1px_#DAD8D3]"
               >
                 <span className="flex items-start gap-2.5">
                   <FileText className="mt-0.5 h-4 w-4 shrink-0 text-ink-4" aria-hidden />
                   <span className="line-clamp-2 flex-1 text-sm font-medium leading-snug">{project.title}</span>
-                  <ArrowUpRight className="h-4 w-4 shrink-0 text-ink-4 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
+                  <span className="whitespace-nowrap text-xs text-ink-4">{new Date(project.updated_at).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })}</span>
                 </span>
-                <span className="mt-auto flex flex-wrap items-center gap-1.5 pl-[26px] text-xs text-ink-4">
-                  {features.length ? features.map((label) => (
-                    <span key={label} className="rounded-md bg-page px-1.5 py-0.5 text-ink-3">{label}</span>
-                  )) : <span>仅原文</span>}
-                  <span className="ml-auto whitespace-nowrap">{new Date(project.updated_at).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })}</span>
+                <span className="flex flex-wrap items-center gap-1.5 pl-[26px] text-xs">
+                  {project.audit_count > 0 && (
+                    <span className={clsx("rounded-md px-1.5 py-0.5", GRADE_TONE[project.audit_grade ?? ""] ?? "bg-page text-ink-3")}>
+                      审计{project.audit_grade ? ` · ${project.audit_grade}` : ""}{project.audit_score !== null && project.audit_score !== undefined ? ` ${project.audit_score.toFixed(1)}` : ""}{project.audit_count > 1 ? ` · ${project.audit_count} 份` : ""}
+                    </span>
+                  )}
+                  {decision && <span className={clsx("rounded-md bg-page px-1.5 py-0.5 font-medium", decision.tone)}>评审 · {decision.zh}</span>}
+                  {features.map((label) => <span key={label} className="rounded-md bg-page px-1.5 py-0.5 text-ink-3">{label}</span>)}
+                  {!features.length && !decision && !project.audit_count && <span className="text-ink-4">仅原文</span>}
+                  <ArrowUpRight className="ml-auto h-4 w-4 text-ink-4 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
                 </span>
               </Link>
             </li>

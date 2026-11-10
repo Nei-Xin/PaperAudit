@@ -123,6 +123,51 @@ export function PdfPage({
   );
 }
 
+/** One lazily drawn page thumbnail: rendered once it scrolls near the strip's viewport. */
+function Thumb({ n, active, marked, onPage }: { n: number; active: boolean; marked: boolean; onPage: (page: number) => void }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || seen) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setSeen(true); observer.disconnect(); }
+    }, { rootMargin: "400px 0px" });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [seen]);
+  useEffect(() => {
+    if (active) ref.current?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+  return (
+    <button ref={ref} type="button" onClick={() => onPage(n)} aria-label={`第 ${n} 页${marked ? "（讲解引用）" : ""}`} aria-current={active ? "page" : undefined}
+      className="flex shrink-0 flex-col items-center gap-1 text-[11px]">
+      <span className={clsx("relative block min-h-[96px] w-[72px] overflow-hidden bg-white transition-shadow", active ? "shadow-[0_0_0_2px_#1E4A7A]" : "shadow-[0_0_0_1px_#E7E5E1] hover:shadow-[0_0_0_1px_#A8A29E]")}>
+        {seen && <Page pageNumber={n} width={72} renderTextLayer={false} renderAnnotationLayer={false} loading={null} />}
+        {marked && <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent ring-2 ring-white" aria-hidden />}
+      </span>
+      <span className={active ? "font-semibold text-ink" : "text-ink-4"}>{n}</span>
+    </button>
+  );
+}
+
+/** Page strip for wide PDF panels; its own Document so it never blocks the main page. */
+function PdfThumbnails({ projectId, pageCount, page, onPage, marked }: {
+  projectId: string; pageCount: number; page: number; onPage: (page: number) => void; marked?: ReadonlySet<number>;
+}) {
+  return (
+    <nav aria-label="页面缩略图" className="flex w-[100px] shrink-0 flex-col items-center gap-3 overflow-y-auto border-r border-line-soft py-3">
+      <Document file={pdfUrl(projectId)} loading={null} error={null}>
+        <div className="flex flex-col items-center gap-3">
+          {Array.from({ length: pageCount }, (_, i) => (
+            <Thumb key={i + 1} n={i + 1} active={page === i + 1} marked={marked?.has(i + 1) ?? false} onPage={onPage} />
+          ))}
+        </div>
+      </Document>
+    </nav>
+  );
+}
+
 /** Typing is a draft; the page changes on Enter or blur, and Esc restores it. */
 function PageInput({
   page,
@@ -174,7 +219,13 @@ export function PdfPanel({
   footer,
   className,
   onSelection,
+  thumbnails = false,
+  markedPages,
 }: {
+  /** Show a page-thumbnail strip when the panel is wide enough (≥ 980px). */
+  thumbnails?: boolean;
+  /** Pages to mark in the strip (e.g. pages the lecture cites). */
+  markedPages?: ReadonlySet<number>;
   projectId: string;
   page: number;
   pageCount: number;
@@ -188,6 +239,7 @@ export function PdfPanel({
 }) {
   const [zoom, setZoom] = useState(1);
   const selectionBox = useRef<HTMLDivElement>(null);
+  const [bodyRef, bodyWidth] = useElementWidth<HTMLDivElement>();
   const [selectedText, setSelectedText] = useState("");
   useEffect(() => {
     setSelectedText("");
@@ -298,17 +350,22 @@ export function PdfPanel({
           </button>
         </div>
       )}
-      <div
-        ref={selectionBox}
-        className="pdf-scroll min-h-0 flex-1 overflow-auto bg-[#F6F6F4] p-3 sm:p-5"
-      >
-        <PdfPage
-          projectId={projectId}
-          page={page}
-          pageWidthPt={pageSizes[page - 1]?.width ?? 0}
-          highlights={highlights}
-          zoom={zoom}
-        />
+      <div ref={bodyRef} className="flex min-h-0 flex-1">
+        {thumbnails && bodyWidth >= 980 && (
+          <PdfThumbnails projectId={projectId} pageCount={pageCount} page={page} onPage={(value) => onPage(clamp(value))} marked={markedPages} />
+        )}
+        <div
+          ref={selectionBox}
+          className="pdf-scroll min-h-0 min-w-0 flex-1 overflow-auto bg-[#F6F6F4] p-3 sm:p-5"
+        >
+          <PdfPage
+            projectId={projectId}
+            page={page}
+            pageWidthPt={pageSizes[page - 1]?.width ?? 0}
+            highlights={highlights}
+            zoom={zoom}
+          />
+        </div>
       </div>
       {footer && (
         <div className="shrink-0 border-t border-line-soft px-4 py-2 text-xs text-ink-4">

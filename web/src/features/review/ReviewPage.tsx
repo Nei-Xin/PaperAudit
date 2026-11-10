@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { ChevronDown, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import clsx from "clsx";
 import {
   useJobs,
@@ -370,10 +370,31 @@ function Overview({
 function Dimensions({
   report,
   onOpen,
+  compact = false,
 }: {
   report: PeerReviewReport;
   onOpen: (a: EvidenceAnchor) => void;
+  compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <ul className="flex flex-col gap-3">
+        {report.dimensions.map((dimension) => (
+          <li key={dimension.name} className="flex flex-col gap-1">
+            <div className="grid grid-cols-[4.75rem_minmax(0,1fr)_2.25rem] items-center gap-2 text-[13px]">
+              <span className="truncate text-ink-3">{REVIEW_DIMENSION_NAMES[dimension.name] ?? dimension.name}</span>
+              <span className="h-1.5 overflow-hidden rounded-full bg-line-soft">
+                <span className={clsx("block h-full rounded-full", dimension.score <= 2 ? "bg-bad" : dimension.score === 3 ? "bg-warn" : "bg-ok")} style={{ width: `${(dimension.score / 5) * 100}%` }} />
+              </span>
+              <span className="text-right font-medium tabular-nums">{dimension.score}/5</span>
+            </div>
+            <p className="line-clamp-2 text-xs leading-5 text-ink-4" title={dimension.rationale}>{dimension.rationale}</p>
+            {dimension.evidence[0] && <div><EvidenceButton anchor={dimension.evidence[0]} onOpen={onOpen} /></div>}
+          </li>
+        ))}
+      </ul>
+    );
+  }
   return (
     <ul className="flex flex-col divide-y divide-line-soft">
       {report.dimensions.map((dimension) => (
@@ -589,13 +610,8 @@ export function ReviewPage() {
   const running = Boolean(
     jobs.data?.review.some((j) => ["QUEUED", "RUNNING"].includes(j.status)),
   );
-  const tab = (
-    ["overview", "dimensions", "issues", "revisions"].includes(
-      params.get("tab") ?? "",
-    )
-      ? params.get("tab")
-      : "overview"
-  ) as Tab;
+  const initial = (["overview", "dimensions", "issues", "revisions"].includes(params.get("tab") ?? "") ? params.get("tab") : "overview") as Tab;
+  const [active, setActive] = useState<Tab>(initial);
 
   const saved = useMemo(
     () =>
@@ -672,179 +688,132 @@ export function ReviewPage() {
           <NoReview projectId={projectId} project={project.data} />
         )
       ) : (
-        <div className="review-layout">
-          <section className="review-main card min-h-0 min-w-0 overflow-auto">
-            <div className="review-copy mx-auto flex max-w-[860px] flex-col gap-6 px-4 py-5">
-              <ReviewTasks projectId={projectId} kind="review" />
-              <header className="flex flex-col gap-2.5">
-                <span className="text-xs font-medium text-ink-4">
-                  模拟投稿评审 · {VENUE_LABELS[report.venue]}
-                </span>
-                <div className="flex flex-wrap items-baseline gap-3">
-                  <h1
-                    className={clsx(
-                      "text-[28px] font-semibold tracking-tight",
-                      DECISION_LABELS[report.decision].tone,
-                    )}
-                  >
-                    {DECISION_LABELS[report.decision].zh}
-                  </h1>
-                  <span className="text-[15px] text-ink-3">
-                    {DECISION_LABELS[report.decision].en} ·{" "}
-                    {report.overall_score.toFixed(1)} / 10
-                  </span>
-                </div>
-                <p className="text-[15px] leading-[1.8] text-ink-2">
-                  {report.decision_rationale}
-                </p>
-              </header>
-              <nav
-                className="flex shrink-0 gap-5 overflow-x-auto border-b border-line-soft text-sm"
-                aria-label="评审视图"
-              >
-                {(
-                  [
-                    ["overview", "评审意见"],
-                    ["dimensions", "维度评分"],
-                    ["issues", "问题"],
-                    ["revisions", "修改稿与导出"],
-                  ] as [Tab, string][]
-                ).map(([key, label]) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() =>
-                      setParams(key === "overview" ? {} : { tab: key }, {
-                        replace: true,
-                      })
-                    }
-                    className={clsx(
-                      "-mb-px shrink-0 whitespace-nowrap border-b-2 py-2",
-                      tab === key
-                        ? "border-ink font-semibold"
-                        : "border-transparent text-ink-4 hover:text-ink",
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </nav>
-              {save.error && <ErrorState error={save.error} />}
-              {save.isPending && (
-                <p role="status" className="text-xs text-ink-3">
-                  正在保存修改进度…
-                </p>
-              )}
-              {tab === "overview" && (
-                <>
-                  <Overview
-                    report={report}
-                    progress={progress}
-                    onToggle={toggle}
-                    onOpen={setEvidence}
-                    disabled={save.isPending || running}
-                  />
-                  <RelatedWork
-                    key={report.run_id}
-                    projectId={projectId}
-                    report={report}
-                    disabled={running}
-                  />
-                </>
-              )}
-              {tab === "dimensions" && (
-                <Dimensions report={report} onOpen={setEvidence} />
-              )}
-              {tab === "issues" && (
-                <Issues
-                  projectId={projectId}
-                  report={report}
-                  onOpen={setEvidence}
-                  disabled={running}
-                />
-              )}
-              {tab === "revisions" && (
-                <Revisions
-                  projectId={projectId}
-                  revisions={review.data?.revisions ?? []}
-                  disabled={running}
-                />
-              )}
-            </div>
-          </section>
-          <details
-            className="review-properties card"
-            open={containerWidth >= 900}
-          >
-            <summary className="review-properties-summary flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold">
-              评审属性与修改进度
-              <ChevronDown className="review-properties-chevron h-4 w-4 text-ink-4 transition-transform" aria-hidden />
-            </summary>
-            <aside
-              className="flex flex-col gap-4 p-4 text-sm"
-              aria-label="评审属性"
-            >
-              {(
-                [
-                  [
-                    "结论",
-                    <span
-                      key="d"
-                      className={DECISION_LABELS[report.decision].tone}
-                    >
-                      {DECISION_LABELS[report.decision].zh}
-                    </span>,
-                  ],
-                  ["总分", `${report.overall_score.toFixed(1)} / 10`],
-                  ["置信度", `${report.confidence} / 5`],
-                  ["评审标准", VENUE_LABELS[report.venue]],
-                  [
-                    "修改稿复审",
-                    review.data?.revisions.length
-                      ? `${review.data.revisions.length} 版`
-                      : "暂无",
-                  ],
-                ] as [string, ReactNode][]
-              ).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="flex items-baseline justify-between gap-3"
-                >
-                  <span className="text-[13px] text-ink-4">{key}</span>
-                  <strong className="text-right font-medium">{value}</strong>
-                </div>
-              ))}
-              <hr className="border-line-soft" />
-              <div className="flex flex-col gap-2">
-                <span className="text-[13px] text-ink-4">修改进度</span>
-                <span className="h-1.5 overflow-hidden rounded-full bg-line-soft">
-                  <span
-                    className="block h-full rounded-full bg-ink"
-                    style={{
-                      width: `${actions.length ? (done / actions.length) * 100 : 0}%`,
-                    }}
-                  />
-                </span>
-                <span className="text-xs text-ink-4">
-                  {done} / {actions.length} 已处理
-                </span>
+        (() => {
+          // V4: one continuous document. Wide: outline / document / conclusion column;
+          // medium: chapter chips + conclusion column; narrow: conclusion card on top.
+          const outline = containerWidth >= 1380;
+          const side = containerWidth >= 900;
+          const sections: [Tab, string, string | number | undefined][] = [
+            ["overview", "评审意见", `${done}/${actions.length}`],
+            ["issues", "问题", allConcerns(report).length],
+            ["dimensions", "维度评分", undefined],
+            ["revisions", "修改稿与导出", review.data?.revisions.length || undefined],
+          ];
+          const goto = (id: Tab) => {
+            setActive(id);
+            setParams(id === "overview" ? {} : { tab: id }, { replace: true });
+            document.getElementById(`review-${id}`)?.scrollIntoView({ block: "start", behavior: "smooth" });
+          };
+          const spy = (event: React.UIEvent<HTMLElement>) => {
+            const top = event.currentTarget.getBoundingClientRect().top;
+            let current: Tab = "overview";
+            for (const [id] of sections) {
+              const element = document.getElementById(`review-${id}`);
+              if (element && element.getBoundingClientRect().top - top < 140) current = id;
+            }
+            if (current !== active) setActive(current);
+          };
+          const verdict = (
+            <section className={clsx("card flex flex-col gap-3", side ? "p-5" : "px-4 py-3.5")} aria-label="评审结论">
+              <span className="text-xs text-ink-4">模拟投稿评审 · {VENUE_LABELS[report.venue]}</span>
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h1 className={clsx("text-[28px] font-semibold leading-none tracking-tight", DECISION_LABELS[report.decision].tone)}>{DECISION_LABELS[report.decision].zh}</h1>
+                <span className="text-sm text-ink-3">{DECISION_LABELS[report.decision].en}</span>
               </div>
-              <hr className="border-line-soft" />
-              <p className="text-xs leading-6 text-ink-4">
-                基于论文原文的 AI 辅助预审，不代表真实会议录用决定。
-                {report.rubric_change_note}
-                {report.model_name && (
-                  <span
-                    className="block"
-                    title={`评审标准 ${report.rubric_version} · 运行 ${report.run_id}`}
-                  >
-                    模型 {report.model_name}
-                  </span>
+              <dl className="grid grid-cols-3 gap-2">
+                {([["总分", <>{report.overall_score.toFixed(1)}<span className="text-xs font-normal text-ink-4">/10</span></>], ["置信度", <>{report.confidence}<span className="text-xs font-normal text-ink-4">/5</span></>], ["修改稿", review.data?.revisions.length ? `${review.data.revisions.length} 版` : "暂无"]] as [string, ReactNode][]).map(([key, value]) => (
+                  <div key={key} className="flex flex-col"><dt className="text-xs text-ink-4">{key}</dt><dd className="text-lg font-semibold tabular-nums">{value}</dd></div>
+                ))}
+              </dl>
+              <div className="flex flex-col gap-1.5 border-t border-line-soft pt-3">
+                <div className="flex justify-between text-[13px]"><span className="font-medium">修改进度</span><span className="text-ink-4">{done} / {actions.length} 已处理</span></div>
+                <span className="h-1.5 overflow-hidden rounded-full bg-line-soft"><span className="block h-full rounded-full bg-accent" style={{ width: `${actions.length ? (done / actions.length) * 100 : 0}%` }} /></span>
+              </div>
+            </section>
+          );
+          const nav = outline ? (
+            <nav className="review-outline" aria-label="评审视图">
+              <span className="px-2.5 pb-1.5 text-xs font-semibold text-ink-4">本页内容</span>
+              {sections.map(([id, label, extra]) => (
+                <button key={id} type="button" aria-label={label} aria-current={active === id ? "true" : undefined} onClick={() => goto(id)}
+                  className={clsx("flex items-center rounded-lg px-2.5 py-1.5 text-left text-[13px] transition-colors", active === id ? "bg-active font-semibold text-ink" : "text-ink-3 hover:bg-hover hover:text-ink")}>
+                  {label}{extra !== undefined && <span className="ml-auto text-xs font-normal text-ink-4">{extra}</span>}
+                </button>
+              ))}
+            </nav>
+          ) : (
+            <nav className="review-chips" aria-label="评审视图">
+              {sections.map(([id, label, extra]) => (
+                <button key={id} type="button" aria-label={label} aria-current={active === id ? "true" : undefined} onClick={() => goto(id)}
+                  className={clsx("shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[13px] transition-colors", active === id ? "bg-ink text-white" : "bg-card text-ink-3 shadow-card hover:text-ink")}>
+                  {label}{extra !== undefined ? ` ${extra}` : ""}
+                </button>
+              ))}
+            </nav>
+          );
+          const disclaimer = (
+            <p className="px-1 text-xs leading-6 text-ink-4">
+              基于论文原文的 AI 辅助预审，不代表真实会议录用决定。{report.rubric_change_note}
+              {report.model_name && <span className="block" title={`评审标准 ${report.rubric_version} · 运行 ${report.run_id}`}>模型 {report.model_name}</span>}
+            </p>
+          );
+          const document_ = (
+            <section className="review-main card min-h-0 min-w-0" aria-label="评审正文" onScroll={side ? spy : undefined}>
+              {!outline && side && nav}
+              <div className="review-copy flex flex-col gap-8 px-4 py-5">
+                <ReviewTasks projectId={projectId} kind="review" />
+                <section className="flex flex-col gap-2" aria-label="结论与理由">
+                  <span className="label">结论与理由</span>
+                  <p className="text-[15px] leading-[1.85] text-ink-2">{report.decision_rationale}</p>
+                </section>
+                {save.error && <ErrorState error={save.error} />}
+                {save.isPending && <p role="status" className="text-xs text-ink-3">正在保存修改进度…</p>}
+                <div id="review-overview" className="review-section flex flex-col gap-6">
+                  <Overview report={report} progress={progress} onToggle={toggle} onOpen={setEvidence} disabled={save.isPending || running} />
+                  <RelatedWork key={report.run_id} projectId={projectId} report={report} disabled={running} />
+                </div>
+                <div id="review-issues" className="review-section flex flex-col gap-3">
+                  <h2 className="text-[17px] font-semibold">问题清单</h2>
+                  <Issues projectId={projectId} report={report} onOpen={setEvidence} disabled={running} />
+                </div>
+                {!side && (
+                  <div id="review-dimensions" className="review-section flex flex-col gap-3">
+                    <h2 className="text-[17px] font-semibold">维度评分</h2>
+                    <Dimensions report={report} onOpen={setEvidence} />
+                  </div>
                 )}
-              </p>
-            </aside>
-          </details>
-        </div>
+                <div id="review-revisions" className="review-section flex flex-col gap-3">
+                  <h2 className="text-[17px] font-semibold">修改稿与导出</h2>
+                  <Revisions projectId={projectId} revisions={review.data?.revisions ?? []} disabled={running} />
+                </div>
+              </div>
+            </section>
+          );
+          if (!side) {
+            return (
+              <div className="review-layout" onScroll={spy}>
+                {verdict}
+                {nav}
+                {document_}
+                {disclaimer}
+              </div>
+            );
+          }
+          return (
+            <div className={clsx("review-layout", outline && "review-layout-outline")}>
+              {outline && nav}
+              {document_}
+              <div className="review-side">
+                {verdict}
+                <section id="review-dimensions" className="card flex flex-col gap-3 p-5" aria-label="维度评分">
+                  <h2 className="text-sm font-semibold">维度评分</h2>
+                  <Dimensions report={report} onOpen={setEvidence} compact />
+                </section>
+                {disclaimer}
+              </div>
+            </div>
+          );
+        })()
       )}
       <Modal
         open={evidence !== undefined}
