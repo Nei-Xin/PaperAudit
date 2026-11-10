@@ -4,8 +4,8 @@ import clsx from "clsx";
 
 /** Native <dialog>: focus trap, Esc to close and backdrop come for free. */
 export function Modal({
-  open, onClose, title, children, wide = false, drawer = false, footer,
-}: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean; drawer?: boolean; footer?: ReactNode }) {
+  open, onClose, title, children, wide = false, size, drawer = false, footer,
+}: { open: boolean; onClose: () => void; title: string; children: ReactNode; wide?: boolean; size?: "xl"; drawer?: boolean; footer?: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = ref.current;
@@ -21,7 +21,7 @@ export function Modal({
       className={clsx(
         "modal rounded-card bg-card p-0 text-ink shadow-pop backdrop:bg-ink/30",
         drawer && "modal-drawer",
-        wide ? "w-[min(960px,94vw)]" : "w-[min(520px,94vw)]",
+        size === "xl" ? "w-[min(1180px,96vw)]" : wide ? "w-[min(960px,94vw)]" : "w-[min(520px,94vw)]",
       )}
       aria-label={title}
     >

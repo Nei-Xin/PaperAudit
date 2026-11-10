@@ -1,66 +1,189 @@
-import { ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Maximize2 } from "lucide-react";
 import clsx from "clsx";
-import type { ClaimAudit, EvidenceAnchor } from "@/api/types";
+import type { ClaimAudit, EvidenceAnchor, EvidenceCandidate } from "@/api/types";
 import {
   CATEGORY_LABELS, CLAIM_ERROR_NAMES, EVIDENCE_ERROR_NAMES, LABEL_NAMES, LABEL_TONE, SEVERITY_NAMES, anchorLabel,
 } from "@/lib/labels";
+import { PdfCrop, PdfDocument } from "@/components/PdfCrop";
 import { detailEvidence, normalizeEvidence, splitClaimNumbers } from "./auditView";
 
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function Section({ label, aside, children }: { label: string; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-2">
-      <h3 className="label">{label}</h3>
+    <section className="flex flex-col gap-2.5">
+      <div className="flex items-baseline gap-2">
+        <h3 className="label">{label}</h3>
+        {aside}
+      </div>
       {children}
     </section>
   );
 }
 
-export function ClaimDetail({
-  audit, anchors, activeChunk, onOpenEvidence,
+type View = "page" | "text";
+
+/** One piece of evidence: a magnified crop of the page, or its extracted text. */
+function EvidenceItem({
+  item, index, anchor, pageSize, active, defaultView, onOpenPage,
 }: {
+  item: EvidenceCandidate;
+  index: number;
+  anchor: EvidenceAnchor | undefined;
+  pageSize: { width: number; height: number } | undefined;
+  active: boolean;
+  defaultView: View;
+  onOpenPage: () => void;
+}) {
+  const canCrop = Boolean(anchor?.page && anchor.rects.length && pageSize);
+  const [view, setView] = useState<View>(canCrop ? defaultView : "text");
+  const [expanded, setExpanded] = useState(false);
+  const text = normalizeEvidence(item.text);
+  const long = text.length > 320;
+  return (
+    <li className={clsx("evidence-item flex flex-col gap-2.5 rounded-xl p-3 transition-shadow", active ? "bg-accent-soft/60 shadow-[inset_0_0_0_1px_rgba(30,74,122,.18)]" : "bg-[#FAFAF9] shadow-[inset_0_0_0_1px_#F0EFEC]")}>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+        <span className="inline-flex h-5 items-center rounded-md bg-accent px-1.5 font-semibold text-white">证据 {index + 1}</span>
+        <span className="min-w-0 truncate text-ink-3" title={anchor ? anchorLabel(anchor) : undefined}>{anchor ? anchorLabel(anchor) : `第 ${item.page} 页`}</span>
+        <span className="ml-auto flex items-center gap-1">
+          {canCrop && (
+            <span className="inline-flex rounded-md bg-card p-0.5 shadow-card" role="group" aria-label="显示方式">
+              {([["page", "原文"], ["text", "文字"]] as [View, string][]).map(([key, text]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={view === key}
+                  onClick={() => setView(key)}
+                  className={clsx("h-6 rounded px-2 text-xs", view === key ? "bg-ink text-white" : "text-ink-3 hover:text-ink")}
+                >
+                  {text}
+                </button>
+              ))}
+            </span>
+          )}
+          <button
+            type="button"
+            className="inline-flex h-7 items-center gap-1 rounded-md px-2 font-medium text-accent hover:bg-card disabled:text-ink-4"
+            onClick={onOpenPage}
+            disabled={!anchor?.page}
+          >
+            <Maximize2 className="h-3.5 w-3.5" aria-hidden /> 整页
+          </button>
+        </span>
+      </div>
+      {view === "page" && canCrop && anchor?.page ? (
+        <PdfCrop
+          page={anchor.page}
+          pageSize={pageSize}
+          rects={anchor.rects}
+          // A table/figure caption is often what gets cited: show the body next to it.
+          contextPt={/table|fig|表|图/i.test(anchor.locator ?? "") ? 120 : undefined}
+          label={`证据 ${index + 1} 原文，${anchorLabel(anchor)}`}
+        />
+      ) : (
+        <div className="flex flex-col items-start gap-1 px-1">
+          <p className={clsx("break-words font-serif text-[15px] leading-[1.75] text-ink", long && !expanded && "line-clamp-4")}>{text}</p>
+          {long && (
+            <button type="button" className="text-xs font-medium text-accent hover:underline" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded}>
+              {expanded ? "收起" : "展开全文"}
+            </button>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}
+
+export function ClaimDetail({
+  projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence,
+}: {
+  projectId: string;
   audit: ClaimAudit;
   anchors: Record<string, EvidenceAnchor>;
+  pageSizes: { width: number; height: number }[];
   activeChunk: string | undefined;
   onOpenEvidence: (chunkId: string) => void;
 }) {
   const { claim, judgment, citation_review: review } = audit;
   const evidence = detailEvidence(audit);
+  const [showAll, setShowAll] = useState(false);
+  const COLLAPSED = 3;
+  const shown = showAll ? evidence : evidence.slice(0, COLLAPSED);
+  const candidates = judgment.label === "NO_SUPPORT_FOUND" || judgment.label === "ABSTAIN";
   const tone = LABEL_TONE[judgment.label];
   const severityTone = judgment.severity === "critical" || judgment.severity === "high" ? "bg-bad-soft text-bad" : "bg-line-soft text-ink-2";
-  return (
-    <article className="claim-detail flex min-w-0 flex-col gap-6 break-words px-4 py-5">
-      <header className="flex flex-wrap items-center gap-2 text-xs text-ink-4">
-        <span>{claim.claim_id} · {CATEGORY_LABELS[claim.category]}{claim.report_location ? ` · ${claim.report_location}` : ""}</span>
-        <span className="ml-auto flex flex-wrap gap-1.5">
-          <span className={clsx("inline-flex h-6 items-center gap-1.5 rounded-md px-2 text-xs font-semibold", tone.chip)}>
-            <span className={clsx("h-1.5 w-1.5 rounded-full", tone.dot)} aria-hidden />{LABEL_NAMES[judgment.label]}
-          </span>
-          <span className={clsx("inline-flex h-6 items-center rounded-md px-2 text-xs font-semibold", severityTone)}>
-            {SEVERITY_NAMES[judgment.severity]}
-          </span>
-        </span>
-      </header>
+  const errors = [
+    judgment.claim_error_type && `论断：${CLAIM_ERROR_NAMES[judgment.claim_error_type]}`,
+    judgment.evidence_error_type && `证据：${EVIDENCE_ERROR_NAMES[judgment.evidence_error_type]}`,
+  ].filter(Boolean) as string[];
 
-      <h2 className="text-[19px] font-semibold leading-[1.55]">
-        {splitClaimNumbers(claim.text, claim.numbers).map((part, i) =>
-          part.number ? <mark key={i} className="rounded-sm bg-yellow-200/60 px-0.5 text-inherit">{part.text}</mark> : <span key={i}>{part.text}</span>,
-        )}
-      </h2>
+  return (
+    <article className="claim-detail mx-auto flex w-full max-w-[860px] min-w-0 flex-col gap-7 break-words px-4 py-5">
+      <header className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-ink-4">
+          <span>{claim.claim_id} · {CATEGORY_LABELS[claim.category]}{claim.report_location ? ` · ${claim.report_location}` : ""}</span>
+          <span className="ml-auto flex flex-wrap gap-1.5">
+            <span className={clsx("inline-flex h-6 items-center gap-1.5 rounded-md px-2 text-xs font-semibold", tone.chip)}>
+              <span className={clsx("h-1.5 w-1.5 rounded-full", tone.dot)} aria-hidden />{LABEL_NAMES[judgment.label]}
+            </span>
+            <span className={clsx("inline-flex h-6 items-center rounded-md px-2 text-xs font-semibold", severityTone)}>
+              {SEVERITY_NAMES[judgment.severity]}
+            </span>
+          </span>
+        </div>
+        <h2 className="text-[20px] font-semibold leading-[1.6] tracking-[-0.005em]">
+          {splitClaimNumbers(claim.text, claim.numbers).map((part, i) =>
+            part.number ? <mark key={i} className="rounded-[3px] bg-yellow-200/70 px-0.5 text-inherit">{part.text}</mark> : <span key={i}>{part.text}</span>,
+          )}
+        </h2>
+      </header>
 
       <Section label="判断说明">
         <p className="whitespace-pre-line text-[15px] leading-[1.8] text-ink-2">{judgment.explanation}</p>
+        {errors.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {errors.map((text) => <span key={text} className="rounded-md bg-line-soft px-2 py-0.5 text-xs text-ink-3">{text}</span>)}
+          </div>
+        )}
       </Section>
 
-      <Section label="问题分类">
-        <p className="text-sm text-ink-2">
-          论断：{judgment.claim_error_type ? CLAIM_ERROR_NAMES[judgment.claim_error_type] : "无"} · 证据：
-          {judgment.evidence_error_type ? EVIDENCE_ERROR_NAMES[judgment.evidence_error_type] : "无"}
-        </p>
+      <Section
+        label={candidates ? "候选原文片段" : "原文依据"}
+        aside={<span className="text-xs text-ink-4">{evidence.length} 处{evidence.length && !candidates ? " · 黄色为引用位置，片段可上下滚动" : ""}</span>}
+      >
+        {evidence.length ? (
+          <PdfDocument projectId={projectId}>
+            <ol className="flex flex-col gap-3">
+              {shown.map((item, index) => {
+                const anchor = anchors[item.chunk_id];
+                return (
+                  <EvidenceItem
+                    key={`${claim.claim_id}-${item.evidence_id}`}
+                    item={item}
+                    index={index}
+                    anchor={anchor}
+                    pageSize={anchor?.page ? pageSizes[anchor.page - 1] : undefined}
+                    active={item.chunk_id === activeChunk}
+                    // Candidates were not judged as support: show text first, the page on demand.
+                    defaultView={candidates || index >= 3 ? "text" : "page"}
+                    onOpenPage={() => onOpenEvidence(item.chunk_id)}
+                  />
+                );
+              })}
+            </ol>
+            {evidence.length > COLLAPSED && (
+              <button type="button" className="btn-ghost mt-1 self-start" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
+                {showAll ? "收起" : `显示其余 ${evidence.length - COLLAPSED} 处`}
+              </button>
+            )}
+          </PdfDocument>
+        ) : (
+          <p className="rounded-xl bg-[#FAFAF9] px-4 py-3 text-sm text-ink-4">当前没有已验证的原文证据。</p>
+        )}
       </Section>
 
       {judgment.suggestion && (
         <Section label="修改建议">
-          <p className="rounded-[10px] bg-accent-soft px-4 py-3 text-[15px] leading-[1.7]">{judgment.suggestion}</p>
+          <p className="rounded-xl bg-accent-soft px-4 py-3 text-[15px] leading-[1.75]">{judgment.suggestion}</p>
         </Section>
       )}
 
@@ -71,7 +194,7 @@ export function ClaimDetail({
             {" · "}{review.explanation}
           </p>
           {review.aspects.length > 0 && (
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-3 border-l-2 border-line-soft pl-4">
               {review.aspects.map((aspect) => (
                 <li key={aspect.aspect} className="text-sm leading-7">
                   <strong className="font-semibold">{aspect.aspect}：</strong>
@@ -94,36 +217,6 @@ export function ClaimDetail({
       {audit.investigation ? (
         <p className="rounded-lg bg-page px-3 py-2 text-sm text-ink-3">本条论断启动了深度核验，调查记录随结果保存。</p>
       ) : null}
-
-      <Section label={`${judgment.label === "NO_SUPPORT_FOUND" || judgment.label === "ABSTAIN" ? "候选原文片段" : "关键原文依据"} · ${evidence.length}`}>
-        {evidence.length ? (
-          <ol className="flex flex-col gap-3">
-            {evidence.map((item, index) => {
-              const anchor = anchors[item.chunk_id];
-              const active = item.chunk_id === activeChunk;
-              return (
-                <li key={item.evidence_id} className={clsx("rounded-[10px] px-4 py-3 shadow-[inset_0_0_0_1px_#F0EFEC]", active ? "bg-accent-soft" : "bg-[#FAFAF9]")}>
-                  <div className="mb-1.5 flex flex-wrap items-center gap-2 text-xs">
-                    <span className="font-semibold text-accent">证据 {index + 1}</span>
-                    <span className="text-ink-4">{anchor ? anchorLabel(anchor) : `第 ${item.page} 页`}</span>
-                    <button
-                      type="button"
-                      className="ml-auto inline-flex items-center gap-1 font-medium text-accent hover:underline disabled:text-ink-4 disabled:no-underline"
-                      onClick={() => onOpenEvidence(item.chunk_id)}
-                      disabled={!anchor?.page}
-                    >
-                      在原文中查看 <ExternalLink className="h-3 w-3" aria-hidden />
-                    </button>
-                  </div>
-                  <p className="break-words font-serif text-[15px] leading-[1.7]">{normalizeEvidence(item.text)}</p>
-                </li>
-              );
-            })}
-          </ol>
-        ) : (
-          <p className="text-sm text-ink-4">当前没有已验证的原文证据。</p>
-        )}
-      </Section>
     </article>
   );
 }

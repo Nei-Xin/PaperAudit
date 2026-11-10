@@ -61,14 +61,22 @@ export function PdfPage({
   const renderWidth = Math.max(0, Math.floor(boxWidth * zoom));
   const scale = pageWidthPt > 0 ? renderWidth / pageWidthPt : 1;
 
+  // Scroll once the page has actually rendered: before that the page box has
+  // no height and the highlight would be scrolled to the wrong place.
+  const [renderedPage, setRenderedPage] = useState(0);
   useEffect(() => {
-    if (scrollToHighlight && highlights.length) {
-      firstMark.current?.scrollIntoView({
-        block: "center",
-        behavior: "smooth",
-      });
+    if (scrollToHighlight && highlights.length && renderedPage === page) {
+      const mark = firstMark.current;
+      const scroller = mark?.closest<HTMLElement>(".pdf-scroll");
+      if (mark && scroller) {
+        // Scroll only the PDF viewport; scrollIntoView would also move dialogs and the page.
+        const offset = mark.getBoundingClientRect().top - scroller.getBoundingClientRect().top;
+        scroller.scrollTo({ top: scroller.scrollTop + offset - scroller.clientHeight / 3, behavior: "smooth" });
+      } else {
+        mark?.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
     }
-  }, [highlights, page, scrollToHighlight, renderWidth]);
+  }, [highlights, page, scrollToHighlight, renderWidth, renderedPage]);
 
   return (
     <div ref={boxRef} className="w-full">
@@ -88,6 +96,7 @@ export function PdfPage({
               renderAnnotationLayer={false}
               renderTextLayer
               loading={<Loading />}
+              onRenderSuccess={() => setRenderedPage(page)}
             />
             {highlights.map((rect, index) => (
               <div
@@ -287,7 +296,7 @@ export function PdfPanel({
       )}
       <div
         ref={selectionBox}
-        className="min-h-0 flex-1 overflow-auto p-3 sm:p-5"
+        className="pdf-scroll min-h-0 flex-1 overflow-auto p-3 sm:p-5"
       >
         <PdfPage
           projectId={projectId}

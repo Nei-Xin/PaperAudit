@@ -9,6 +9,18 @@
     font-size: 14px;
   }
   :focus-visible { outline: 2px solid #1E4A7A; outline-offset: 2px; }
+  /* Native controls in the V3 palette instead of the browser's black/blue defaults. */
+  input[type="checkbox"], input[type="radio"] { accent-color: #1E4A7A; }
+  input[type="file"] { @apply text-[13px] text-ink-4; }
+  input[type="file"]::file-selector-button {
+    @apply mr-2.5 h-[30px] cursor-pointer rounded-lg border-0 bg-card px-3 text-[13px] font-medium text-ink transition-colors;
+    /* Tailwind shadow utilities rely on variables pseudo-elements do not get. */
+    box-shadow: 0 0 0 1px #E7E5E1;
+  }
+  input[type="file"]::file-selector-button:hover { @apply bg-hover; }
+  input[type="file"]:disabled::file-selector-button { @apply cursor-not-allowed opacity-50; }
+  ::selection { background: rgba(30, 74, 122, .16); }
+  summary::-webkit-details-marker { display: none; }
 }
 
 @layer components {
@@ -49,6 +61,10 @@
 .reader-pane-hidden { display:none; }
 .pdf-panel { container:pdf / inline-size; }
 .pdf-modal { height: min(68dvh,800px); min-height:160px; }
+/* Fade the cut edges so a crop reads as part of a longer page. */
+.pdf-crop { -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 12px,#000 calc(100% - 12px),transparent 100%); mask-image:linear-gradient(to bottom,transparent 0,#000 12px,#000 calc(100% - 12px),transparent 100%); scrollbar-width:thin; }
+/* Fits the dialog body (header + padding) so only the PDF itself scrolls. */
+.pdf-modal-xl { height: calc(92dvh - 112px); }
 .modal { max-height:92dvh; max-width:calc(100vw - 24px); }
 .modal-content { display:flex; flex-direction:column; max-height:92dvh; min-width:0; }
 .modal-drawer { margin:0; height:100dvh; max-height:100dvh; width:280px; border-radius:0 14px 14px 0; }
@@ -66,6 +82,7 @@
 .review-layout { display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; overflow:auto; }
 .review-main { flex:1 0 auto; overflow:visible; }
 .review-properties { order:-1; flex-shrink:0; }
+.review-properties[open] .review-properties-chevron { transform:rotate(180deg); }
 .review-properties[open] > aside { max-height:38dvh; overflow:auto; }
 .review-dimension { display:grid; grid-template-columns:6rem minmax(24px,1fr) 3rem; align-items:center; gap:8px; }
 .review-dimension > span:last-child { grid-column:1 / -1; width:auto; text-align:left; }
@@ -104,6 +121,8 @@
   .review-copy { padding:28px 32px; }
   .review-properties { order:0; align-self:start; max-height:100%; overflow:auto; }
   .review-properties[open] > aside { max-height:none; }
+  .review-properties-summary { pointer-events:none; padding-bottom:0; }
+  .review-properties-chevron { display:none; }
   .review-dimension { grid-template-columns:6rem minmax(24px,1fr) 3rem 5rem; }
   .review-dimension > span:last-child { grid-column:auto; text-align:right; }
 }
@@ -113,6 +132,6 @@
   .audit-search { flex:1 1 220px; max-width:256px; }
 }
 @container workspace (min-width:1160px) {
-  .audit-columns-wide { grid-template-columns:260px minmax(440px,1fr) 360px; }
+  .audit-columns { grid-template-columns:290px minmax(0,1fr); }
 }
 @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; } }

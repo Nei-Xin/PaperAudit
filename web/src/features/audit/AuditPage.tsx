@@ -1,14 +1,14 @@
 import { AuditTasks } from "./AuditTasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowDown, ArrowUp, Maximize2, List, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowDown, ArrowUp, List, Plus, Search, SlidersHorizontal } from "lucide-react";
 import clsx from "clsx";
 import { useAudit, useAudits, useProject } from "@/api/queries";
 import { USE_MOCK, resourceUrl } from "@/api/client";
-import type { AuditDetail, ClaimAudit, ClaimCategory, EvidenceAnchor, Severity } from "@/api/types";
+import type { AuditDetail, ClaimAudit, ClaimCategory, Severity } from "@/api/types";
 import { TopBar } from "@/app/ProjectLayout";
 import { useContainerWidth } from "@/components/useContainerWidth";
-import { PdfPage, PdfPanel } from "@/components/PdfPanel";
+import { PdfPanel } from "@/components/PdfPanel";
 import { EmptyState, ErrorState, Loading } from "@/components/States";
 import { Modal } from "@/components/Modal";
 import { Popover } from "@/components/Popover";
@@ -125,26 +125,6 @@ function ClaimList({
   );
 }
 
-function SourcePane({
-  projectId, anchor, pageWidthPt, onExpand,
-}: { projectId: string; anchor: EvidenceAnchor | undefined; pageWidthPt: number; onExpand: () => void }) {
-  return (
-    <section className="card flex h-full min-h-0 min-w-0 flex-col" aria-label="原文">
-      <div className="flex h-11 shrink-0 items-center gap-2 border-b border-line-soft px-3 text-[13px] text-ink-3">
-        <span className="min-w-0 flex-1 truncate" title={anchor ? anchorLabel(anchor) : undefined}>{anchor?.page ? `原文 · ${anchorLabel(anchor)}` : "原文"}</span>
-        <button type="button" className="icon-btn" onClick={onExpand} disabled={!anchor?.page} aria-label="放大原文"><Maximize2 className="h-4 w-4" /></button>
-      </div>
-      <div className="min-h-0 flex-1 overflow-auto p-4">
-        {anchor?.page ? (
-          <PdfPage projectId={projectId} page={anchor.page} pageWidthPt={pageWidthPt} highlights={anchor.rects} />
-        ) : (
-          <p className="py-8 text-center text-sm text-ink-4">这条论断没有可定位的原文证据。</p>
-        )}
-      </div>
-    </section>
-  );
-}
-
 function StatsTab({ detail }: { detail: AuditDetail }) {
   const { summary, audits } = detail.run;
   const counts = labelCounts(audits);
@@ -232,7 +212,6 @@ export function AuditPage() {
   const [sourceChunk, setSourceChunk] = useState<string | undefined>();
   const [dialogChunk, setDialogChunk] = useState<string | undefined>();
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
-  const wide = containerWidth >= 1160;
   const [listOpen, setListOpen] = useState(false);
   const [dialogPage, setDialogPage] = useState(1);
   const openEvidence = (chunkId: string) => { setDialogPage(detail.data?.anchors[chunkId]?.page ?? 1); setDialogChunk(chunkId); };
@@ -258,6 +237,11 @@ export function AuditPage() {
   const selectedId = visible.some((a) => a.claim.claim_id === params.get("claim")) ? params.get("claim")! : visible[0]?.claim.claim_id;
   const index = visible.findIndex((a) => a.claim.claim_id === selectedId);
   const selected = visible[index];
+  const detailScroll = useRef<HTMLDivElement>(null);
+  // A new claim starts at its top, not at the previous claim's scroll offset.
+  useEffect(() => {
+    detailScroll.current?.scrollTo({ top: 0 });
+  }, [selectedId]);
   const select = (id: string) => { setSourceChunk(undefined); setListOpen(false); update({ claim: id }); };
 
   // ↑ / ↓ (or k / j) move between claims unless typing in a field.
@@ -306,8 +290,6 @@ export function AuditPage() {
   const anchors = detail.data?.anchors ?? {};
   const claimChunks = selected ? selectedEvidence(selected).map((c) => c.chunk_id) : [];
   const chunk = sourceChunk && claimChunks.includes(sourceChunk) ? sourceChunk : claimChunks[0];
-  const anchor = chunk ? anchors[chunk] : undefined;
-  const pageWidth = anchor?.page ? project.data?.pages[anchor.page - 1]?.width ?? 0 : 0;
 
   return (
     <div ref={containerRef} className="flex h-full min-h-0 min-w-0 flex-col">
@@ -384,7 +366,7 @@ export function AuditPage() {
           </div>
 
           {tab === "stats" ? <StatsTab detail={detail.data} /> : tab === "export" ? <ExportTab detail={detail.data} projectId={projectId} /> : (
-            <div className={clsx("audit-columns", wide && "audit-columns-wide")}>
+            <div className="audit-columns">
               <section className="audit-list card flex min-h-0 min-w-0 flex-col" aria-label="论断">
                 <div className="flex h-11 shrink-0 items-baseline gap-2 border-b border-line-soft px-4 pt-3">
                   <strong className="text-sm">论断</strong>
@@ -399,15 +381,12 @@ export function AuditPage() {
                   <button type="button" className="icon-btn" disabled={index <= 0} onClick={() => select(visible[index - 1].claim.claim_id)} aria-label="上一条 (↑)" title="上一条 (↑)"><ArrowUp className="h-4 w-4" /></button>
                   <button type="button" className="icon-btn" disabled={index >= visible.length - 1} onClick={() => select(visible[index + 1].claim.claim_id)} aria-label="下一条 (↓)" title="下一条 (↓)"><ArrowDown className="h-4 w-4" /></button>
                 </div>
-                <div className="min-h-0 flex-1 overflow-auto">
+                <div ref={detailScroll} className="min-h-0 flex-1 overflow-auto">
                   {selected ? (
-                    <ClaimDetail audit={selected} anchors={anchors} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
+                    <ClaimDetail key={selected.claim.claim_id} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
                   ) : <p className="p-6 text-sm text-ink-4">没有可显示的论断。</p>}
                 </div>
               </section>
-              {wide && <div className="min-h-0 min-w-0">
-                <SourcePane projectId={projectId} anchor={anchor} pageWidthPt={pageWidth} onExpand={() => chunk && openEvidence(chunk)} />
-              </div>}
             </div>
           )}
         </div>
@@ -416,9 +395,9 @@ export function AuditPage() {
       <Modal open={listOpen} onClose={() => setListOpen(false)} title={`论断列表 · ${visible.length} 条`}>
         <ClaimList audits={visible} selectedId={selectedId} onSelect={select} />
       </Modal>
-      <Modal open={dialogChunk !== undefined} onClose={() => setDialogChunk(undefined)} title="原文证据" wide>
+      <Modal open={dialogChunk !== undefined} onClose={() => setDialogChunk(undefined)} title={dialogChunk && anchors[dialogChunk] ? `原文 · ${anchorLabel(anchors[dialogChunk])}` : "原文"} size="xl">
         {dialogChunk && anchors[dialogChunk]?.page && (
-          <div className="pdf-modal">
+          <div className="pdf-modal pdf-modal-xl">
             <PdfPanel projectId={projectId} page={dialogPage} pageCount={project.data?.page_count ?? 1}
               pageSizes={project.data?.pages ?? []} onPage={setDialogPage}
               highlights={dialogPage === anchors[dialogChunk].page ? anchors[dialogChunk].rects : []} />

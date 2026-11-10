@@ -111,14 +111,16 @@ test("reader pane switch preserves chapter and citation opens the original", asy
   await expect(page.getByRole("combobox", { name: "章节", exact: true })).toHaveValue("1");
 });
 
-test("short-screen PDF stays in its pane and desktop zoom is usable", async ({ page }) => {
+test("evidence crop is readable inline and the full page opens with zoom", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 500 });
   await page.goto("/p/paper/audit/audit-1");
-  await expect(page.locator("canvas.react-pdf__Page__canvas")).toBeVisible();
-  const box = await page.getByRole("region", { name: "原文", exact: true }).boundingBox();
-  expect(box!.y + box!.height).toBeLessThanOrEqual(500);
-  await page.getByRole("button", { name: "放大原文", exact: true }).click();
-  const modal = page.getByRole("dialog", { name: "原文证据", exact: true });
+  const crop = page.locator(".pdf-crop").first();
+  await expect(crop.locator("canvas.react-pdf__Page__canvas")).toBeVisible();
+  // The crop magnifies the cited lines instead of shrinking the whole page into a side column.
+  const scale = await crop.evaluate((el) => (el.querySelector("canvas") as HTMLCanvasElement).getBoundingClientRect().width / 595);
+  expect(scale).toBeGreaterThan(1.2);
+  await page.getByRole("button", { name: "整页", exact: true }).first().click();
+  const modal = page.getByRole("dialog", { name: /^原文 · 第 1 页/ });
   await modal.getByRole("button", { name: "放大", exact: true }).click();
   await expect(modal.getByText("110%", { exact: true })).toBeVisible();
   await expect(modal.getByRole("button", { name: "关闭", exact: true })).toBeInViewport();

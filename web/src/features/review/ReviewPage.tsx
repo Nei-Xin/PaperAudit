@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { ExternalLink } from "lucide-react";
+import { ChevronDown, ExternalLink } from "lucide-react";
 import clsx from "clsx";
 import {
   useJobs,
@@ -248,7 +248,7 @@ function Overview({
                 >
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 shrink-0 accent-ink"
+                    className="mt-1 h-4 w-4 shrink-0"
                     checked={done}
                     disabled={!key || READ_ONLY || disabled}
                     onChange={(event) =>
@@ -776,8 +776,9 @@ export function ReviewPage() {
             className="review-properties card"
             open={containerWidth >= 900}
           >
-            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">
+            <summary className="review-properties-summary flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold">
               评审属性与修改进度
+              <ChevronDown className="review-properties-chevron h-4 w-4 text-ink-4 transition-transform" aria-hidden />
             </summary>
             <aside
               className="flex flex-col gap-4 p-4 text-sm"
