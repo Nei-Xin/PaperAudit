@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import clsx from "clsx";
@@ -388,8 +388,16 @@ function Dimensions({
               </span>
               <span className="text-right font-medium tabular-nums">{dimension.score}/5</span>
             </div>
-            <p className="line-clamp-2 text-xs leading-5 text-ink-4" title={dimension.rationale}>{dimension.rationale}</p>
-            {dimension.evidence[0] && <div><EvidenceButton anchor={dimension.evidence[0]} onOpen={onOpen} /></div>}
+            <span className="text-xs text-ink-4">置信度 {dimension.confidence} / 5</span>
+            <details className="text-xs leading-5 text-ink-4">
+              <summary className="cursor-pointer">查看完整评分理由</summary>
+              <p className="mt-1 whitespace-pre-line break-words">{dimension.rationale}</p>
+            </details>
+            <div className="flex flex-wrap gap-2">
+              {dimension.evidence.length ? dimension.evidence.map((anchor) => (
+                <EvidenceButton key={anchor.chunk_id} anchor={anchor} onOpen={onOpen} />
+              )) : <span className="text-xs text-ink-4">AI 评审判断 · 未绑定可定位原文依据</span>}
+            </div>
           </li>
         ))}
       </ul>
@@ -422,11 +430,9 @@ function Dimensions({
           <p className="text-sm leading-7 text-ink-2">{dimension.rationale}</p>
           <div className="flex flex-wrap gap-3">
             {dimension.evidence.length ? (
-              dimension.evidence
-                .slice(0, 3)
-                .map((a) => (
-                  <EvidenceButton key={a.chunk_id} anchor={a} onOpen={onOpen} />
-                ))
+              dimension.evidence.map((a) => (
+                <EvidenceButton key={a.chunk_id} anchor={a} onOpen={onOpen} />
+              ))
             ) : (
               <span className="text-xs text-ink-4">
                 AI 评审判断 · 未绑定可定位原文依据
@@ -610,8 +616,8 @@ export function ReviewPage() {
   const running = Boolean(
     jobs.data?.review.some((j) => ["QUEUED", "RUNNING"].includes(j.status)),
   );
-  const initial = (["overview", "dimensions", "issues", "revisions"].includes(params.get("tab") ?? "") ? params.get("tab") : "overview") as Tab;
-  const [active, setActive] = useState<Tab>(initial);
+  const requestedTab = (["overview", "dimensions", "issues", "revisions"].includes(params.get("tab") ?? "") ? params.get("tab") : "overview") as Tab;
+  const [active, setActive] = useState<Tab>(requestedTab);
 
   const saved = useMemo(
     () =>
@@ -646,6 +652,20 @@ export function ReviewPage() {
 
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
   const report = review.data?.report;
+  const outline = containerWidth >= 1380;
+  const side = containerWidth >= 900;
+  const navigationReady = Boolean(report && !project.isLoading && !review.isLoading && containerWidth > 0);
+  useLayoutEffect(() => {
+    if (!navigationReady) return;
+    setActive(requestedTab);
+    // Wait for both the report and the measured responsive layout before restoring a URL section.
+    // The default overview starts at the conclusion, above the first named section.
+    if (requestedTab === "overview") {
+      document.querySelector(side ? ".review-main" : ".review-layout")?.scrollTo({ top: 0 });
+    } else {
+      document.getElementById(`review-${requestedTab}`)?.scrollIntoView({ block: "start" });
+    }
+  }, [requestedTab, projectId, navigationReady, side, outline]);
   const actions = useMemo(() => (report ? planActions(report) : []), [report]);
   const actionKeys = useActionKeys(actions);
   const done = actionKeys.filter((key) => progress[key]).length;
@@ -691,8 +711,6 @@ export function ReviewPage() {
         (() => {
           // V4: one continuous document. Wide: outline / document / conclusion column;
           // medium: chapter chips + conclusion column; narrow: conclusion card on top.
-          const outline = containerWidth >= 1380;
-          const side = containerWidth >= 900;
           const sections: [Tab, string, string | number | undefined][] = [
             ["overview", "评审意见", `${done}/${actions.length}`],
             ["issues", "问题", allConcerns(report).length],
@@ -701,15 +719,27 @@ export function ReviewPage() {
           ];
           const goto = (id: Tab) => {
             setActive(id);
-            setParams(id === "overview" ? {} : { tab: id }, { replace: true });
-            document.getElementById(`review-${id}`)?.scrollIntoView({ block: "start", behavior: "smooth" });
+            setParams((current) => {
+              const next = new URLSearchParams(current);
+              if (id === "overview") next.delete("tab");
+              else next.set("tab", id);
+              return next;
+            }, { replace: true });
+            if (id === "overview") {
+              document.querySelector(side ? ".review-main" : ".review-layout")?.scrollTo({ top: 0 });
+            } else {
+              document.getElementById(`review-${id}`)?.scrollIntoView({ block: "start" });
+            }
           };
           const spy = (event: React.UIEvent<HTMLElement>) => {
-            const top = event.currentTarget.getBoundingClientRect().top;
+            const scroller = event.currentTarget;
+            const top = scroller.getBoundingClientRect().top;
+            const atBottom = scroller.scrollTop > 0 && scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop < 2;
             let current: Tab = "overview";
             for (const [id] of sections) {
               const element = document.getElementById(`review-${id}`);
-              if (element && element.getBoundingClientRect().top - top < 140) current = id;
+              // Desktop dimensions scroll independently in the sidebar.
+              if (element && scroller.contains(element) && (atBottom || element.getBoundingClientRect().top - top < 140)) current = id;
             }
             if (current !== active) setActive(current);
           };

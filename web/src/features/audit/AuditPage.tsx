@@ -18,7 +18,7 @@ import {
 import { ClaimDetail, EvidenceViewer } from "./ClaimDetail";
 import { NewAuditDialog } from "./NewAuditDialog";
 import {
-  filterAudits, isAttentionRequired, labelCounts, selectedEvidence, sortAudits,
+  detailEvidence, filterAudits, isAttentionRequired, labelCounts, sortAudits,
   type SortMode, type StatusFilter,
 } from "./auditView";
 
@@ -317,7 +317,7 @@ export function AuditPage() {
   );
 
   const anchors = detail.data?.anchors ?? {};
-  const claimChunks = selected ? selectedEvidence(selected).map((c) => c.chunk_id) : [];
+  const claimChunks = selected ? detailEvidence(selected).map((c) => c.chunk_id) : [];
   const chunk = sourceChunk && claimChunks.includes(sourceChunk) ? sourceChunk : claimChunks[0];
 
   return (

@@ -184,3 +184,70 @@ test("long uploaded filename wraps inside its card", async ({ page }) => {
   expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   await fits(page);
 });
+
+for (const label of ["NO_SUPPORT_FOUND", "ABSTAIN"]) {
+  test(`unselected candidates can be inspected for ${label}`, async ({ page }) => {
+    const audit = structuredClone(fixtures.audit);
+    const claim = audit.run.audits.find((item: { judgment: { label: string } }) => item.judgment.label === label);
+    claim.candidates.push({
+      ...claim.candidates[0], evidence_id: "candidate-2", chunk_id: "p2_candidate", page: 2,
+      text: "Second candidate with distinct evidence text.",
+    });
+    await page.route("http://127.0.0.1:5180/api/projects/paper/audits/audit-1", (route) => route.fulfill({ json: audit }));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/p/paper/audit/audit-1?claim=${claim.claim.claim_id}`);
+    const viewer = page.getByRole("region", { name: "原文依据", exact: true });
+    const tabs = viewer.getByRole("tablist", { name: "候选原文片段" }).getByRole("tab");
+    await tabs.nth(1).click();
+    await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+    await expect(viewer.getByText(claim.candidates[1].text, { exact: true })).toBeVisible();
+    await expect(viewer.getByText(claim.candidates[0].text, { exact: true })).toHaveCount(0);
+    await tabs.nth(0).click();
+    await expect(tabs.nth(0)).toHaveAttribute("aria-selected", "true");
+    await expect(viewer.getByText(claim.candidates[0].text, { exact: true })).toBeVisible();
+  });
+}
+
+for (const width of [390, 1440, 1920]) {
+  test(`review section links restore their scroll position at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    for (const [tab, heading] of [["issues", "问题清单"], ["dimensions", "维度评分"], ["revisions", "修改稿与导出"]]) {
+      await page.goto(`/p/paper/review?tab=${tab}`);
+      await expect(page.locator(`#review-${tab}`).getByRole("heading", { name: heading, exact: true })).toBeInViewport();
+    }
+    await page.reload();
+    await expect(page.locator("#review-revisions").getByRole("heading", { name: "修改稿与导出", exact: true })).toBeInViewport();
+    const nav = page.getByRole("navigation", { name: "评审视图" });
+    await nav.getByRole("button", { name: "评审意见", exact: true }).click();
+    await expect(page.getByRole("region", { name: "结论与理由" })).toBeInViewport();
+    await nav.getByRole("button", { name: "修改稿与导出", exact: true }).click();
+    await expect(page.locator("#review-revisions").getByRole("heading", { name: "修改稿与导出", exact: true })).toBeInViewport();
+    await expect(nav.getByRole("button", { name: "修改稿与导出", exact: true })).toHaveAttribute("aria-current", "true");
+    await fits(page);
+  });
+}
+
+test("desktop dimensions expose confidence, full reasons and every evidence link", async ({ page }) => {
+  const review = structuredClone(fixtures.review);
+  const dimension = review.report.dimensions[0];
+  dimension.rationale = "完整评分理由需要结合实验设计和对照结果核查。".repeat(20);
+  dimension.evidence.push({ ...dimension.evidence[0], chunk_id: "p2_dimension", page: 2 });
+  await page.route("http://127.0.0.1:5180/api/projects/paper/review", (route) => route.fulfill({ json: review }));
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("/p/paper/review?tab=dimensions");
+  const scores = page.locator("#review-dimensions");
+  await expect(scores.getByText(`置信度 ${dimension.confidence} / 5`, { exact: true })).toBeVisible();
+  await scores.getByText("查看完整评分理由", { exact: true }).click();
+  const rationale = scores.getByText(dimension.rationale, { exact: true });
+  await expect(rationale).toBeVisible();
+  expect(await rationale.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
+  await expect(scores.getByRole("button", { name: /定位原文/ })).toHaveCount(2);
+  await scores.getByRole("button", { name: "定位原文 · 第 2 页", exact: true }).click();
+  const modal = page.getByRole("dialog", { name: "原文证据 · 第 2 页", exact: true });
+  await expect(modal.locator('canvas')).toBeVisible();
+  await modal.getByRole("button", { name: "关闭", exact: true }).click();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(scores.getByText(`置信度 ${dimension.confidence} / 5`, { exact: true })).toBeVisible();
+  await expect(scores.getByRole("button", { name: /定位原文/ })).toHaveCount(2);
+  await fits(page);
+});
