@@ -59,7 +59,12 @@ def contains_label(text: str, label: str) -> bool:
     left = r"(?<![a-z_-])" if label and label[0].isascii() and label[0].isalnum() else ""
     right = r"(?![a-z_-])" if label and label[-1].isascii() and label[-1].isalnum() else ""
     text = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text)).casefold()
-    return bool(re.search(left + re.escape(label) + right, text))
+    # CJK prose commonly inserts spaces at script boundaries (Transformer 模型
+    # vs Transformer模型). Ignore only those layout spaces, never spaces within
+    # ASCII identifiers: AdamW / Adam W and Set-A / Set-AB remain distinct.
+    def cjk_spacing(value):
+        return re.sub(r"(?<=[\u3400-\u9fff])\s+(?=[a-z0-9])|(?<=[a-z0-9])\s+(?=[\u3400-\u9fff])", "", value)
+    return bool(re.search(left + re.escape(cjk_spacing(label)) + right, cjk_spacing(text)))
 
 
 def number_text(text: str) -> str:

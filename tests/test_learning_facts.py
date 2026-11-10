@@ -205,3 +205,18 @@ def test_symbolic_operator_support_does_not_reconstruct_a_missing_fraction_bar()
     assert {e.code for e in validate_fact(fact, sources)} == {"value_not_grounded"}
     fact.source_value = "1/√dk"
     assert {e.code for e in validate_fact(fact, sources)} == {"source_value_absent"}
+
+
+@pytest.mark.parametrize("text,label,expected", [
+    ("Transformer 编码器与解码器", "Transformer编码器与解码器", True),
+    ("WMT 2014 英德与英法", "WMT 2014英德与英法", True),
+    ("8 块 P100 GPU", "8块P100 GPU", True),
+    ("newstest2013 开发集", "newstest2013开发集", True),
+    ("Transformer模型", "Transformer 模型", True),
+    ("Adam W 优化器", "AdamW", False),
+    ("AdamW 优化器", "Adam", False),
+    ("Set-AB 数据集", "Set-A", False),
+    ("WMT 2015 英德", "WMT 2014英德", False),
+])
+def test_canonical_labels_ignore_only_cjk_ascii_layout_spaces(text, label, expected):
+    assert contains_label(text, label) is expected

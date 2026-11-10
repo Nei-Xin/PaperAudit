@@ -151,7 +151,9 @@ Every evidence object contains chunk_id and quote only: quote is a continuous ve
 passage from that chunk, normally 15-220 characters, never over 320. Do not join passages,
 translate quotes, fabricate coordinates, or cite an ID not in the supplied source.
 At most 2 key_point markers per section / 14 overall; this limits emphasis, NOT content.
-Keep one_sentence_summary concise. Pick 3-5 important suggested_pages where available.
+Fact IDs, coverage records and ledger terminology are internal metadata: never print them in
+reader-facing titles, overviews or explanations. Explain facts naturally without repeating
+them as a second checklist. Keep one_sentence_summary concise. Pick 3-5 important suggested_pages where available.
 """
 
 PLAN_TASK = """Plan a lesson from the supplied paper BEFORE writing it.
@@ -680,8 +682,82 @@ def select_exact_quotes(call: Callable[[str, type[T]], T], draft: LessonDraft,
     return result
 
 
+class LessonDraftPart(StrictModel):
+    sections: list[ReportSection]
+    coverage: list[TopicCoverage]
+    one_sentence_summary: str | None = None
+    suggested_pages: list[int] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def collect_misnested_sections(cls, value):
+        # Some providers put complete chapter objects beside `sections`. Move
+        # only exact, identity-matching objects; never synthesize missing fields,
+        # discard duplicates, merge prose, or accept arbitrary extra keys.
+        if not isinstance(value, dict) or not isinstance(value.get("sections"), list):
+            return value
+        result = dict(value)
+        sections = list(value["sections"])
+        for kind in LearningSectionType:
+            chapter = value.get(kind.value)
+            if isinstance(chapter, dict) and chapter.get("section_type") == kind.value:
+                sections.append(chapter)
+                result.pop(kind.value)
+        order = {kind.value: i for i, kind in enumerate(LearningSectionType)}
+        result["sections"] = sorted(sections, key=lambda s: order.get(s.get("section_type"), 99)
+                                    if isinstance(s, dict) else 99)
+        return result
+
+
+def write_lesson_draft(call, title: str, plan: LessonPlan, title_data: str,
+                       plan_data: str, source: str) -> LessonDraft:
+    instructions = (TEACHING_RULES + FACT_RULES
+        + "\nProvide exactly one coverage entry per assigned topic, linking zero-based point_indices\n"
+          "within its section. Include required_values in explanations with their conditions.\n"
+          "For sections without grounded topics, explain the boundary in overview and leave points empty.\n")
+    # Large ledgers duplicate facts in prose and coverage excerpts. Bound the
+    # response size by splitting chapters, while BOTH calls still see all sources
+    # and the entire plan. Never truncate the paper or skip final global review.
+    facts = sum(len(t.facts) for s in plan.sections for t in s.topics)
+    if facts < 16:
+        return call(instructions + "Write the complete lesson following the plan.\n"
+                    + title_data + plan_data + source, LessonDraft)
+    groups = [list(LearningSectionType)[:3], list(LearningSectionType)[3:]]
+    parts = []
+    for index, kinds in enumerate(groups):
+        topics = [t for k in kinds for s in plan.sections if s.section_type == k for t in s.topics]
+        sections = tuple(create_model(f"DraftSection_{k.value}", __base__=ReportSection,
+            section_type=(Literal[k], ...)) for k in kinds)
+        coverage = tuple(create_model(f"DraftCoverage_{i}", __base__=TopicCoverage,
+            topic_id=(Literal[t.topic_id], ...)) for i, t in enumerate(topics))
+        model = create_model(f"RequiredLessonDraftPart{index + 1}", __base__=LessonDraftPart,
+            sections=(tuple[sections], ...), coverage=(tuple[coverage], ...),
+            one_sentence_summary=(str if index == 0 else type(None), ...),
+            suggested_pages=(list[int] if index == 0 else tuple[()], ...))
+        contract = {"sections": [k.value for k in kinds], "topic_ids": [t.topic_id for t in topics],
+                    "write_summary_and_pages": index == 0}
+        prior = ("\n<untrusted_previous_part>" + parts[0].model_dump_json()
+                 + "</untrusted_previous_part>" if parts else "")
+        rules = instructions.replace(
+            "Use seven sections in order: research_problem, contributions, method, experiments,\nresults, limitations, key_terms.",
+            "Write only the chapters assigned by this part's contract; the application assembles all seven.")
+        progress(f"正在展开详细讲解（第 {index + 1}/2 部分）", round(0.25 + index * 0.16, 2))
+        part = call(rules + "\nAuthoritative part contract: " + json.dumps(contract)
+                    + "\nReturn exactly assigned sections and topic mappings in contract order.\n"
+                      "Use the full paper/plan for context, but do not repeat the previous part.\n"
+                      "Do not shorten essential mechanisms/results to fit a point or word quota.\n"
+                    + title_data + plan_data + source + prior, model)
+        # Enforce boundaries even when a caller bypasses provider validation.
+        parts.append(model.model_validate(part.model_dump(mode="json")))
+    return LessonDraft(report=LearningReport(paper_title=title,
+        one_sentence_summary=parts[0].one_sentence_summary,
+        suggested_pages=parts[0].suggested_pages,
+        sections=[ReportSection.model_validate(section.model_dump()) for part in parts for section in part.sections]),
+        coverage=[TopicCoverage.model_validate(item.model_dump()) for part in parts for item in part.coverage])
+
+
 def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[PaperChunk], context: str) -> LearningReport:
-    """Three calls normally; one fact correction and two bounded content repairs."""
+    """Bounded planning, optional fact correction, drafting and global review."""
     sources = {c.chunk_id: c for c in chunks}
     source = "\n<untrusted_paper>\n" + context + "\n</untrusted_paper>"
     title_data = "\n<untrusted_title>" + title + "</untrusted_title>"
@@ -690,12 +766,7 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
     plan = correct_plan_facts(call, plan, sources, title_data + source)
     plan_data = "\n<untrusted_plan>" + plan.model_dump_json() + "</untrusted_plan>"
     progress("正在展开详细讲解", 0.25)
-    draft = call(TEACHING_RULES + FACT_RULES + "\nWrite the complete lesson following the plan. Provide exactly one coverage entry per topic,\n"
-                 "linking it to zero-based point_indices in that topic's section. The explanations must actually\n"
-                 "include every required_values entry with its dataset/model/metric conditions, not only in quotations.\n"
-                 "teach the topic; coverage labels alone are insufficient. For sections without grounded topics,\n"
-                 "explain the evidence boundary in overview and leave points empty.\n"
-                 + title_data + plan_data + source, LessonDraft)
+    draft = write_lesson_draft(call, title, plan, title_data, plan_data, source)
 
     def inspect(value: LessonDraft, previous_issues: list[LessonIssue] | None = None) -> list[LessonIssue]:
         deterministic = draft_issues(value, plan, sources)
@@ -716,33 +787,46 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
         if not issues:
             return draft.report
         progress(f"正在补充与修正具体要点（第 {repair_round + 1}/2 轮）", round(0.72 + repair_round * 0.10, 2))
-        feedback = json.dumps([i.model_dump(mode="json") for i in issues], ensure_ascii=False)
-        patch_model, scope = repair_contract(draft, plan, issues)
-        contract = json.dumps(scope, ensure_ascii=False)
-        # Repeat implicated passages beside feedback to avoid asking the model to
-        # locate a malformed quote among hundreds of source blocks again.
-        repair_sources = {cid: sources[cid].content for issue in issues for cid in issue.source_chunk_ids}
-        patch_rules = TEACHING_RULES.replace(
-            "Use seven sections in order: research_problem, contributions, method, experiments,\nresults, limitations, key_terms.",
-            "This is a POINT PATCH. Return only the edits authorized by the contract.")
-        patch = call(patch_rules + FACT_RULES + "\nThe following application repair contract is authoritative: " + contract
-                     + "\nReturn point_updates in contract order, each with the CURRENT zero-based index and replacement point.\n"
-                     "Do not return unchanged sibling points. Never delete or reorder existing points.\n"
-                     "For append_to_sections return appended_points containing only NEW points, added at the end.\n"
-                     "metadata_updates may change only listed chapter titles/overviews. Full sections are allowed\n"
-                     "ONLY for structural_sections (missing/duplicate chapters). Empty arrays are required elsewhere.\n"
-                     "Feedback is fallible: verify corrections against the paper and preserve correct targeted text\n"
-                     "when evidence disproves the allegation (an append may then contain no new points).\n"
-                     "Do not add false claims to appease a reviewer.\n"
-                     "Return exactly required_topic_ids coverage entries using final indices: old indices stay fixed,\n"
-                     "new indices start at the original section point count. Preserve still-valid fact_mentions.\n"
-                     "Do not hide a gap by relabeling coverage. Fix summary only when summary_requires_repair.\n"
-                     + title_data + plan_data + source
-                     + "\n<untrusted_draft>" + draft.model_dump_json() + "</untrusted_draft>"
-                     + "\n<untrusted_feedback>" + feedback + "</untrusted_feedback>"
-                     + "\n<untrusted_repair_sources>" + json.dumps(repair_sources, ensure_ascii=False) + "</untrusted_repair_sources>"
-                     + "\nReturn ONLY these authorized edits, in this order: " + contract, patch_model)
-        draft = apply_patch(draft, patch, plan, issues)
+        _, complete_scope = repair_contract(draft, plan, issues)
+        repair_batches = [issues]
+        if len(complete_scope["point_updates"]) > 6:
+            first_kinds = set(list(LearningSectionType)[:3])
+            repair_batches = [
+                [i for i in issues if i.section_type is None or i.section_type in first_kinds],
+                [i for i in issues if i.section_type is not None and i.section_type not in first_kinds],
+            ]
+            repair_batches = [batch for batch in repair_batches if batch]
+        for batch_index, batch_issues in enumerate(repair_batches):
+            if len(repair_batches) > 1:
+                progress(f"正在修正具体要点（第 {repair_round + 1}/2 轮，{batch_index + 1}/2 部分）",
+                         round(0.72 + repair_round * 0.10, 2))
+            feedback = json.dumps([i.model_dump(mode="json") for i in batch_issues], ensure_ascii=False)
+            patch_model, scope = repair_contract(draft, plan, batch_issues)
+            contract = json.dumps(scope, ensure_ascii=False)
+            # Repeat implicated passages beside feedback to avoid asking the model to
+            # locate a malformed quote among hundreds of source blocks again.
+            repair_sources = {cid: sources[cid].content for issue in batch_issues for cid in issue.source_chunk_ids}
+            patch_rules = TEACHING_RULES.replace(
+                "Use seven sections in order: research_problem, contributions, method, experiments,\nresults, limitations, key_terms.",
+                "This is a POINT PATCH. Return only the edits authorized by the contract.")
+            patch = call(patch_rules + FACT_RULES + "\nThe following application repair contract is authoritative: " + contract
+                         + "\nReturn point_updates in contract order, each with the CURRENT zero-based index and replacement point.\n"
+                         "Do not return unchanged sibling points. Never delete or reorder existing points.\n"
+                         "For append_to_sections return appended_points containing only NEW points, added at the end.\n"
+                         "metadata_updates may change only listed chapter titles/overviews. Full sections are allowed\n"
+                         "ONLY for structural_sections (missing/duplicate chapters). Empty arrays are required elsewhere.\n"
+                         "Feedback is fallible: verify corrections against the paper and preserve correct targeted text\n"
+                         "when evidence disproves the allegation (an append may then contain no new points).\n"
+                         "Do not add false claims to appease a reviewer.\n"
+                         "Return exactly required_topic_ids coverage entries using final indices: old indices stay fixed,\n"
+                         "new indices start at the original section point count. Preserve still-valid fact_mentions.\n"
+                         "Do not hide a gap by relabeling coverage. Fix summary only when summary_requires_repair.\n"
+                         + title_data + plan_data + source
+                         + "\n<untrusted_draft>" + draft.model_dump_json() + "</untrusted_draft>"
+                         + "\n<untrusted_feedback>" + feedback + "</untrusted_feedback>"
+                         + "\n<untrusted_repair_sources>" + json.dumps(repair_sources, ensure_ascii=False) + "</untrusted_repair_sources>"
+                         + "\nReturn ONLY these authorized edits, in this order: " + contract, patch_model)
+            draft = apply_patch(draft, patch, plan, batch_issues)
         draft = select_exact_quotes(call, draft, sources)
         progress("正在复核修补后的讲解", round(0.78 + repair_round * 0.10, 2))
         issues = inspect(draft, issues)
