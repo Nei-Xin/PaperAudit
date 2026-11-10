@@ -2,7 +2,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from io import BytesIO
-from threading import Event
 import json
 import subprocess
 import sys
@@ -208,7 +207,7 @@ def test_revision_baseline_retry_pdf_and_human_matching(setup):
     options, runner, store, pid, runtime = setup
     base = f"/api/projects/{pid}"
     with TestClient(create_app(**options)) as client:
-        original = generate(client, pid)["report"]
+        generate(client, pid)
         assert client.post(base+"/revisions", data={"privacy_ack":"true"}, files={"pdf":("bad.pdf", b"bad")}).status_code == 422
         assert not store.list_peer_review_revision_jobs(pid)
         runner.fail = True

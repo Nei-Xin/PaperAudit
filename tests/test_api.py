@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
-from pathlib import Path
 from threading import Event
 import time
 
@@ -196,7 +195,7 @@ def test_restart_marks_pending_job_interrupted_without_replay(setup):
     store = ProjectStore(options["storage_root"])
     data = test_pdf()
     pid = store.save_paper_project(data, "paper.pdf", parse_pdf(data)).project_id
-    job = store.create_learning_job(pid, runtime=AuditRuntimeSnapshot(model="fake", reasoning_effort="low", retrieval_top_k=5, judge_batch_size=6))
+    store.create_learning_job(pid, runtime=AuditRuntimeSnapshot(model="fake", reasoning_effort="low", retrieval_top_k=5, judge_batch_size=6))
     with TestClient(create_app(**options)) as client:
         assert client.get(f"/api/projects/{pid}/jobs").json()["learning"][0]["status"] == "INTERRUPTED"
         assert runner.calls == 0
