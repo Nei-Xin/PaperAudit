@@ -37,10 +37,17 @@ export function cropGeometry(
     (acc, r) => ({ x0: Math.min(acc.x0, r.x0), y0: Math.min(acc.y0, r.y0), x1: Math.max(acc.x1, r.x1), y1: Math.max(acc.y1, r.y1) }),
     { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity },
   );
-  const width = Math.min(page.width, Math.max(bbox.x1 - bbox.x0 + padPt * 2, minWidthPt));
+  // Evidence wider than ~half the page spans the whole text block (two-column
+  // figures, tables, captions): show the full block so lines are not cut mid-word.
+  const spansBlock = bbox.x1 - bbox.x0 > page.width * 0.45;
+  const left = spansBlock ? Math.max(0, Math.min(bbox.x0 - padPt, page.width * 0.08)) : undefined;
+  const right = spansBlock ? Math.min(page.width, Math.max(bbox.x1 + padPt, page.width * 0.92)) : undefined;
+  const width = spansBlock
+    ? right! - left!
+    : Math.min(page.width, Math.max(bbox.x1 - bbox.x0 + padPt * 2, minWidthPt));
   const scale = Math.min(maxScale, boxWidth / width);
   const center = (bbox.x0 + bbox.x1) / 2;
-  const x = Math.min(Math.max(center - width / 2, 0), Math.max(page.width - width, 0));
+  const x = spansBlock ? left! : Math.min(Math.max(center - width / 2, 0), Math.max(page.width - width, 0));
   const top = Math.max(0, bbox.y0 - bandPt);
   const bottom = Math.min(page.height, bbox.y1 + bandPt);
   const focusTop = Math.max(top, bbox.y0 - contextPt);
@@ -102,6 +109,8 @@ export function PdfCrop({
                 renderAnnotationLayer={false}
                 renderTextLayer={false}
                 loading={<div style={{ width: pageSize.width * crop.scale, height: pageSize.height * crop.scale }} />}
+                // Re-apply the start position once drawn: canvas layout can move the scroll offset.
+                onRenderSuccess={() => { if (scroller.current) scroller.current.scrollTop = focus; }}
               />
               {rects.map((rect, index) => (
                 <div

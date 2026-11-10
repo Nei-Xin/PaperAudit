@@ -22,6 +22,9 @@ import { Loading } from "./States";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
 
+/** Widest a page is drawn at 100% (≈1.5× an A4/Letter page); wide screens get margins, not giant text. */
+const MAX_FIT_WIDTH = 920;
+
 function useElementWidth<T extends HTMLElement>() {
   const ref = useRef<T>(null);
   const [width, setWidth] = useState(0);
@@ -58,7 +61,8 @@ export function PdfPage({
 }) {
   const [boxRef, boxWidth] = useElementWidth<HTMLDivElement>();
   const firstMark = useRef<HTMLDivElement>(null);
-  const renderWidth = Math.max(0, Math.floor(boxWidth * zoom));
+  // "Fit width" stops at a comfortable reading size; zoom still goes beyond it.
+  const renderWidth = Math.max(0, Math.floor(Math.min(boxWidth, MAX_FIT_WIDTH) * zoom));
   const scale = pageWidthPt > 0 ? renderWidth / pageWidthPt : 1;
 
   // Scroll once the page has actually rendered: before that the page box has
@@ -296,7 +300,7 @@ export function PdfPanel({
       )}
       <div
         ref={selectionBox}
-        className="pdf-scroll min-h-0 flex-1 overflow-auto p-3 sm:p-5"
+        className="pdf-scroll min-h-0 flex-1 overflow-auto bg-[#F6F6F4] p-3 sm:p-5"
       >
         <PdfPage
           projectId={projectId}

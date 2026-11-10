@@ -36,7 +36,7 @@ async function hitTest(page: Page, selector: string) {
     return node.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
   });
 }
-for (const [width, height] of [[1440,900],[1280,720],[1024,768],[768,900],[390,844],[320,568],[1440,500]]) {
+for (const [width, height] of [[2560,1440],[1920,1080],[1440,900],[1280,720],[1024,768],[768,900],[390,844],[320,568],[1440,500]]) {
   test(`all page layouts fit ${width}x${height}`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     const errors: string[] = [];
@@ -109,6 +109,18 @@ test("reader pane switch preserves chapter and citation opens the original", asy
   await expect(page.getByRole("region", { name: "论文原文", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "助手与设置", exact: true }).click();
   await expect(page.getByRole("combobox", { name: "章节", exact: true })).toHaveValue("1");
+});
+
+test("wide screens split judgment and evidence into separate columns", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("/p/paper/audit/audit-1");
+  const evidence = page.getByRole("region", { name: "原文依据", exact: true });
+  await expect(evidence.locator(".pdf-crop canvas")).toBeVisible();
+  const detail = await page.getByRole("region", { name: "论断详情", exact: true }).boundingBox();
+  const side = await evidence.boundingBox();
+  expect(side!.x).toBeGreaterThan(detail!.x + detail!.width - 1);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(evidence).toHaveCount(0);
 });
 
 test("evidence crop is readable inline and the full page opens with zoom", async ({ page }) => {

@@ -15,7 +15,7 @@ import { Popover } from "@/components/Popover";
 import {
   AUDIT_DIMENSION_NAMES, CATEGORY_LABELS, LABEL_NAMES, LABEL_TONE, SEVERITY_NAMES, anchorLabel,
 } from "@/lib/labels";
-import { ClaimDetail } from "./ClaimDetail";
+import { ClaimDetail, ClaimEvidence, evidenceHint, isCandidateLabel } from "./ClaimDetail";
 import { NewAuditDialog } from "./NewAuditDialog";
 import {
   filterAudits, isAttentionRequired, labelCounts, selectedEvidence, sortAudits,
@@ -57,31 +57,48 @@ function SummaryStrip({ detail }: { detail: AuditDetail }) {
   const counts = labelCounts(audits);
   const attention = audits.filter(isAttentionRequired).length;
   const gradeTone = summary.grade === "可信" ? "text-ok-text" : summary.grade === "不可信" ? "text-bad" : "text-warn-text";
-  const cells: [string, number, string][] = [
-    ["需关注", attention, "text-warn-text"],
-    ["冲突", counts.CONTRADICTED, "text-bad"],
+  const metrics: [string, number, string][] = [
+    ["需关注", attention, attention ? "text-warn-text" : "text-ink"],
+    ["冲突", counts.CONTRADICTED, counts.CONTRADICTED ? "text-bad" : "text-ink"],
     ["未找到证据", counts.NO_SUPPORT_FOUND, "text-ink"],
     ["证据不足", counts.ABSTAIN, "text-ink"],
-    ["严重 / 高风险", summary.critical_count + summary.high_count, "text-bad"],
+    ["严重 / 高风险", summary.critical_count + summary.high_count, summary.critical_count + summary.high_count ? "text-bad" : "text-ink"],
   ];
+  const order = ["SUPPORTED", "PARTIALLY_SUPPORTED", "CONTRADICTED", "NO_SUPPORT_FOUND", "ABSTAIN"] as const;
   return (
     <div className="audit-summary card shrink-0">
-      <div className="flex min-w-[180px] items-center justify-between gap-4 bg-[#FAFAF9] px-4 py-2.5">
+      <div className="audit-grade">
         <div>
           <div className="text-xs text-ink-4">审计结果</div>
-          <div className={clsx("text-lg font-semibold", gradeTone)}>{summary.grade}</div>
+          <div className={clsx("text-lg font-semibold leading-tight", gradeTone)}>{summary.grade}</div>
         </div>
-        <div className="text-2xl font-semibold">
+        <div className="text-[28px] font-semibold leading-none tracking-tight">
           {summary.total_score === null ? "—" : summary.total_score.toFixed(1)}
           <span className="ml-0.5 text-sm font-normal text-ink-4">分</span>
         </div>
       </div>
-      {cells.map(([label, value, tone]) => (
-        <div key={label} className="flex flex-1 flex-col items-center justify-center border-l border-line-soft py-2">
-          <span className="text-xs text-ink-4">{label}</span>
-          <span className={clsx("text-lg font-semibold", tone)}>{value}</span>
+      <dl className="audit-metrics">
+        {metrics.map(([label, value, tone]) => (
+          <div key={label} className="flex flex-col gap-0.5">
+            <dt className="whitespace-nowrap text-xs text-ink-4">{label}</dt>
+            <dd className={clsx("text-lg font-semibold leading-tight tabular-nums", tone)}>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <div className="audit-dist" aria-label="论断判断分布">
+        <div className="flex h-2 overflow-hidden rounded-full bg-line-soft">
+          {order.map((label) => counts[label] > 0 && (
+            <span key={label} className={clsx("h-full", LABEL_TONE[label].dot)} style={{ width: `${(counts[label] / Math.max(audits.length, 1)) * 100}%` }} title={`${LABEL_NAMES[label]} ${counts[label]}`} />
+          ))}
         </div>
-      ))}
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-3">
+          {order.map((label) => (
+            <span key={label} className={clsx("inline-flex items-center gap-1.5", !counts[label] && "text-ink-4/70")}>
+              <span className={clsx("h-1.5 w-1.5 rounded-full", LABEL_TONE[label].dot)} aria-hidden />{LABEL_NAMES[label]} {counts[label]}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -212,6 +229,8 @@ export function AuditPage() {
   const [sourceChunk, setSourceChunk] = useState<string | undefined>();
   const [dialogChunk, setDialogChunk] = useState<string | undefined>();
   const [containerRef, containerWidth] = useContainerWidth<HTMLDivElement>();
+  // Wide screens: judgment and evidence side by side instead of one long column.
+  const split = containerWidth >= 1320;
   const [listOpen, setListOpen] = useState(false);
   const [dialogPage, setDialogPage] = useState(1);
   const openEvidence = (chunkId: string) => { setDialogPage(detail.data?.anchors[chunkId]?.page ?? 1); setDialogChunk(chunkId); };
@@ -239,8 +258,10 @@ export function AuditPage() {
   const selected = visible[index];
   const detailScroll = useRef<HTMLDivElement>(null);
   // A new claim starts at its top, not at the previous claim's scroll offset.
+  const evidenceScroll = useRef<HTMLDivElement>(null);
   useEffect(() => {
     detailScroll.current?.scrollTo({ top: 0 });
+    evidenceScroll.current?.scrollTo({ top: 0 });
   }, [selectedId]);
   const select = (id: string) => { setSourceChunk(undefined); setListOpen(false); update({ claim: id }); };
 
@@ -366,7 +387,7 @@ export function AuditPage() {
           </div>
 
           {tab === "stats" ? <StatsTab detail={detail.data} /> : tab === "export" ? <ExportTab detail={detail.data} projectId={projectId} /> : (
-            <div className="audit-columns">
+            <div className={clsx("audit-columns", split && "audit-columns-split")}>
               <section className="audit-list card flex min-h-0 min-w-0 flex-col" aria-label="论断">
                 <div className="flex h-11 shrink-0 items-baseline gap-2 border-b border-line-soft px-4 pt-3">
                   <strong className="text-sm">论断</strong>
@@ -383,10 +404,21 @@ export function AuditPage() {
                 </div>
                 <div ref={detailScroll} className="min-h-0 flex-1 overflow-auto">
                   {selected ? (
-                    <ClaimDetail key={selected.claim.claim_id} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
+                    <ClaimDetail key={selected.claim.claim_id} split={split} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
                   ) : <p className="p-6 text-sm text-ink-4">没有可显示的论断。</p>}
                 </div>
               </section>
+              {split && selected && (
+                <section className="card flex min-h-0 min-w-0 flex-col" aria-label="原文依据">
+                  <div className="flex h-11 shrink-0 items-baseline gap-2 border-b border-line-soft px-5 pt-3">
+                    <strong className="text-sm">{isCandidateLabel(selected) ? "候选原文片段" : "原文依据"}</strong>
+                    <span className="truncate text-xs text-ink-4">{evidenceHint(selected)}</span>
+                  </div>
+                  <div ref={evidenceScroll} className="min-h-0 flex-1 overflow-auto p-4">
+                    <ClaimEvidence key={selected.claim.claim_id} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
+                  </div>
+                </section>
+              )}
             </div>
           )}
         </div>

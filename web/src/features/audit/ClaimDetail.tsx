@@ -93,7 +93,16 @@ function EvidenceItem({
   );
 }
 
-export function ClaimDetail({
+export const isCandidateLabel = (audit: ClaimAudit) =>
+  audit.judgment.label === "NO_SUPPORT_FOUND" || audit.judgment.label === "ABSTAIN";
+
+export function evidenceHint(audit: ClaimAudit): string {
+  const count = detailEvidence(audit).length;
+  return `${count} 处${count && !isCandidateLabel(audit) ? " · 黄色为引用位置，片段可上下滚动" : ""}`;
+}
+
+/** The evidence list for one claim: page crops (or text), with a full-page action. */
+export function ClaimEvidence({
   projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence,
 }: {
   projectId: string;
@@ -103,12 +112,57 @@ export function ClaimDetail({
   activeChunk: string | undefined;
   onOpenEvidence: (chunkId: string) => void;
 }) {
-  const { claim, judgment, citation_review: review } = audit;
   const evidence = detailEvidence(audit);
   const [showAll, setShowAll] = useState(false);
   const COLLAPSED = 3;
   const shown = showAll ? evidence : evidence.slice(0, COLLAPSED);
-  const candidates = judgment.label === "NO_SUPPORT_FOUND" || judgment.label === "ABSTAIN";
+  const candidates = isCandidateLabel(audit);
+  if (!evidence.length) {
+    return <p className="rounded-xl bg-[#FAFAF9] px-4 py-3 text-sm text-ink-4">当前没有已验证的原文证据。</p>;
+  }
+  return (
+    <PdfDocument projectId={projectId}>
+      <ol className="flex flex-col gap-3">
+        {shown.map((item, index) => {
+          const anchor = anchors[item.chunk_id];
+          return (
+            <EvidenceItem
+              key={`${audit.claim.claim_id}-${item.evidence_id}`}
+              item={item}
+              index={index}
+              anchor={anchor}
+              pageSize={anchor?.page ? pageSizes[anchor.page - 1] : undefined}
+              active={item.chunk_id === activeChunk}
+              // Candidates were not judged as support: show text first, the page on demand.
+              defaultView={candidates || index >= 3 ? "text" : "page"}
+              onOpenPage={() => onOpenEvidence(item.chunk_id)}
+            />
+          );
+        })}
+      </ol>
+      {evidence.length > COLLAPSED && (
+        <button type="button" className="btn-ghost mt-2 self-start" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
+          {showAll ? "收起" : `显示其余 ${evidence.length - COLLAPSED} 处`}
+        </button>
+      )}
+    </PdfDocument>
+  );
+}
+
+export function ClaimDetail({
+  projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence, split = false,
+}: {
+  /** Evidence is rendered in its own column by the page (wide screens). */
+  split?: boolean;
+  projectId: string;
+  audit: ClaimAudit;
+  anchors: Record<string, EvidenceAnchor>;
+  pageSizes: { width: number; height: number }[];
+  activeChunk: string | undefined;
+  onOpenEvidence: (chunkId: string) => void;
+}) {
+  const { claim, judgment, citation_review: review } = audit;
+  const candidates = isCandidateLabel(audit);
   const tone = LABEL_TONE[judgment.label];
   const severityTone = judgment.severity === "critical" || judgment.severity === "high" ? "bg-bad-soft text-bad" : "bg-line-soft text-ink-2";
   const errors = [
@@ -117,7 +171,7 @@ export function ClaimDetail({
   ].filter(Boolean) as string[];
 
   return (
-    <article className="claim-detail mx-auto flex w-full max-w-[860px] min-w-0 flex-col gap-7 break-words px-4 py-5">
+    <article className={clsx("claim-detail mx-auto flex w-full min-w-0 flex-col gap-7 break-words px-4 py-5", split ? "max-w-[780px]" : "max-w-[860px]")}>
       <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-4">
           <span>{claim.claim_id} · {CATEGORY_LABELS[claim.category]}{claim.report_location ? ` · ${claim.report_location}` : ""}</span>
@@ -146,40 +200,11 @@ export function ClaimDetail({
         )}
       </Section>
 
-      <Section
-        label={candidates ? "候选原文片段" : "原文依据"}
-        aside={<span className="text-xs text-ink-4">{evidence.length} 处{evidence.length && !candidates ? " · 黄色为引用位置，片段可上下滚动" : ""}</span>}
-      >
-        {evidence.length ? (
-          <PdfDocument projectId={projectId}>
-            <ol className="flex flex-col gap-3">
-              {shown.map((item, index) => {
-                const anchor = anchors[item.chunk_id];
-                return (
-                  <EvidenceItem
-                    key={`${claim.claim_id}-${item.evidence_id}`}
-                    item={item}
-                    index={index}
-                    anchor={anchor}
-                    pageSize={anchor?.page ? pageSizes[anchor.page - 1] : undefined}
-                    active={item.chunk_id === activeChunk}
-                    // Candidates were not judged as support: show text first, the page on demand.
-                    defaultView={candidates || index >= 3 ? "text" : "page"}
-                    onOpenPage={() => onOpenEvidence(item.chunk_id)}
-                  />
-                );
-              })}
-            </ol>
-            {evidence.length > COLLAPSED && (
-              <button type="button" className="btn-ghost mt-1 self-start" onClick={() => setShowAll((value) => !value)} aria-expanded={showAll}>
-                {showAll ? "收起" : `显示其余 ${evidence.length - COLLAPSED} 处`}
-              </button>
-            )}
-          </PdfDocument>
-        ) : (
-          <p className="rounded-xl bg-[#FAFAF9] px-4 py-3 text-sm text-ink-4">当前没有已验证的原文证据。</p>
-        )}
-      </Section>
+      {!split && (
+        <Section label={candidates ? "候选原文片段" : "原文依据"} aside={<span className="text-xs text-ink-4">{evidenceHint(audit)}</span>}>
+          <ClaimEvidence projectId={projectId} audit={audit} anchors={anchors} pageSizes={pageSizes} activeChunk={activeChunk} onOpenEvidence={onOpenEvidence} />
+        </Section>
+      )}
 
       {judgment.suggestion && (
         <Section label="修改建议">

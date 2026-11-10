@@ -1,10 +1,10 @@
 import { useRef, useState, type DragEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileUp, Lock } from "lucide-react";
+import { ArrowUpRight, FileText, FileUp, Lock } from "lucide-react";
 import clsx from "clsx";
 import { READ_ONLY, send } from "@/api/client";
-import { keys } from "@/api/queries";
+import { keys, useProjects } from "@/api/queries";
 import { DEFAULT_WEIGHTS, RubricFields } from "@/features/review/ReviewForms";
 import type { ProjectSummary, Venue, ClaimCategory } from "@/api/types";
 import { ErrorState, MockNote } from "@/components/States";
@@ -287,7 +287,51 @@ export function HomePage() {
           </p>
           <MockNote />
         </div>
+        <RecentProjects />
       </div>
     </div>
+  );
+}
+
+const PROJECT_FEATURES: [keyof ProjectSummary, string][] = [
+  ["has_learning_report", "讲解"], ["has_audit", "审计"], ["has_peer_review", "评审"], ["has_code", "代码"],
+];
+
+/** The latest papers, so the start page is also a way back into recent work. */
+function RecentProjects() {
+  const projects = useProjects();
+  const recent = [...(projects.data ?? [])]
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+    .slice(0, 6);
+  if (!recent.length) return null;
+  return (
+    <section className="home-recent mt-6 flex flex-col gap-3" aria-label="最近的论文">
+      <h2 className="label px-1">最近的论文</h2>
+      <ul className="home-recent-grid">
+        {recent.map((project) => {
+          const features = PROJECT_FEATURES.filter(([key]) => project[key]).map(([, label]) => label);
+          return (
+            <li key={project.project_id}>
+              <Link
+                to={`/p/${project.project_id}`}
+                className="group flex h-full flex-col gap-3 rounded-xl bg-[#FAFAF9] p-4 shadow-[0_0_0_1px_#ECEBE8] transition-[box-shadow,background-color] hover:bg-card hover:shadow-[0_6px_18px_rgba(26,26,25,.07),0_0_0_1px_#DAD8D3]"
+              >
+                <span className="flex items-start gap-2.5">
+                  <FileText className="mt-0.5 h-4 w-4 shrink-0 text-ink-4" aria-hidden />
+                  <span className="line-clamp-2 flex-1 text-sm font-medium leading-snug">{project.title}</span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-ink-4 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden />
+                </span>
+                <span className="mt-auto flex flex-wrap items-center gap-1.5 pl-[26px] text-xs text-ink-4">
+                  {features.length ? features.map((label) => (
+                    <span key={label} className="rounded-md bg-page px-1.5 py-0.5 text-ink-3">{label}</span>
+                  )) : <span>仅原文</span>}
+                  <span className="ml-auto whitespace-nowrap">{new Date(project.updated_at).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" })}</span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
