@@ -25,13 +25,13 @@ type Box = { x0: number; y0: number; x1: number; y1: number };
  * Pick the region of the page to show and its scale.
  * - Width: the highlighted lines (at least a text column), so a neighbouring
  *   column is not sliced in half; never magnified past `maxScale`.
- * - Height: a band of extra page above/below is rendered so the reader can
- *   scroll to a table body or the preceding sentence; the viewport starts
- *   at the highlight with `contextPt` above it.
+ * - Height: the whole page is scrollable inside the crop, so the reader can
+ *   reach a table body or the preceding sentence; the viewport starts at the
+ *   highlight with `contextPt` above it.
  */
 export function cropGeometry(
   rects: PageRect[], page: { width: number; height: number }, boxWidth: number,
-  { maxScale = 1.6, minWidthPt = 240, contextPt = 30, bandPt = 220, padPt = 8 } = {},
+  { maxScale = 1.6, minWidthPt = 240, contextPt = 30, bandPt = Infinity, padPt = 8 } = {},
 ) {
   const bbox: Box = rects.reduce(
     (acc, r) => ({ x0: Math.min(acc.x0, r.x0), y0: Math.min(acc.y0, r.y0), x1: Math.max(acc.x1, r.x1), y1: Math.max(acc.y1, r.y1) }),
@@ -60,8 +60,10 @@ export function cropGeometry(
  * Must be rendered inside <PdfDocument>. Rects are PyMuPDF points (top-left origin).
  */
 export function PdfCrop({
-  page, pageSize, rects, maxHeight = 360, label, contextPt,
+  page, pageSize, rects, maxHeight = 360, fillHeight, label, contextPt,
 }: {
+  /** Viewport height to fill (e.g. a tall evidence column); shows more page around the highlight. */
+  fillHeight?: number;
   page: number;
   pageSize: { width: number; height: number } | undefined;
   rects: PageRect[];
@@ -83,8 +85,12 @@ export function PdfCrop({
   const ready = boxWidth > 0 && pageSize && pageSize.width > 0 && rects.length > 0;
   const crop = ready ? cropGeometry(rects, pageSize, boxWidth, contextPt === undefined ? {} : { contextPt }) : undefined;
   const scroller = useRef<HTMLDivElement>(null);
-  const viewport = crop ? Math.min(maxHeight, Math.max(150, crop.focusHeight * crop.scale)) : 0;
-  const focus = crop ? crop.focusOffset * crop.scale : 0;
+  const focusPx = crop ? crop.focusHeight * crop.scale : 0;
+  const viewport = crop
+    ? Math.min(crop.height * crop.scale, fillHeight ?? maxHeight, Math.max(150, focusPx, fillHeight ?? 0))
+    : 0;
+  // Extra room goes mostly below the highlight: what follows usually explains it.
+  const focus = crop ? Math.max(0, crop.focusOffset * crop.scale - Math.max(0, viewport - focusPx) * 0.3) : 0;
   // Start each crop at the highlight; the band around it stays reachable by scrolling.
   useLayoutEffect(() => {
     if (scroller.current) scroller.current.scrollTop = focus;

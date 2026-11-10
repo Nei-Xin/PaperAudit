@@ -259,6 +259,14 @@ export function AuditPage() {
   const detailScroll = useRef<HTMLDivElement>(null);
   // A new claim starts at its top, not at the previous claim's scroll offset.
   const evidenceScroll = useRef<HTMLDivElement>(null);
+  const [evidenceHeight, setEvidenceHeight] = useState(0);
+  useEffect(() => {
+    const element = evidenceScroll.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => setEvidenceHeight(Math.floor(entry.contentRect.height)));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [split, Boolean(selected)]);
   useEffect(() => {
     detailScroll.current?.scrollTo({ top: 0 });
     evidenceScroll.current?.scrollTo({ top: 0 });
@@ -415,7 +423,7 @@ export function AuditPage() {
                     <span className="truncate text-xs text-ink-4">{evidenceHint(selected)}</span>
                   </div>
                   <div ref={evidenceScroll} className="min-h-0 flex-1 overflow-auto p-4">
-                    <ClaimEvidence key={selected.claim.claim_id} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
+                    <ClaimEvidence key={selected.claim.claim_id} availableHeight={evidenceHeight || undefined} projectId={projectId} audit={selected} anchors={anchors} pageSizes={project.data?.pages ?? []} activeChunk={chunk} onOpenEvidence={(id) => { setSourceChunk(id); openEvidence(id); }} />
                   </div>
                 </section>
               )}

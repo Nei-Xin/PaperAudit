@@ -24,8 +24,9 @@ type View = "page" | "text";
 
 /** One piece of evidence: a magnified crop of the page, or its extracted text. */
 function EvidenceItem({
-  item, index, anchor, pageSize, active, defaultView, onOpenPage,
+  item, index, anchor, pageSize, active, defaultView, onOpenPage, fillHeight,
 }: {
+  fillHeight?: number;
   item: EvidenceCandidate;
   index: number;
   anchor: EvidenceAnchor | undefined;
@@ -77,6 +78,7 @@ function EvidenceItem({
           rects={anchor.rects}
           // A table/figure caption is often what gets cited: show the body next to it.
           contextPt={/table|fig|表|图/i.test(anchor.locator ?? "") ? 120 : undefined}
+          fillHeight={fillHeight}
           label={`证据 ${index + 1} 原文，${anchorLabel(anchor)}`}
         />
       ) : (
@@ -103,8 +105,10 @@ export function evidenceHint(audit: ClaimAudit): string {
 
 /** The evidence list for one claim: page crops (or text), with a full-page action. */
 export function ClaimEvidence({
-  projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence,
+  projectId, audit, anchors, pageSizes, activeChunk, onOpenEvidence, availableHeight,
 }: {
+  /** Height of the evidence column (split layout): crops share it instead of leaving it empty. */
+  availableHeight?: number;
   projectId: string;
   audit: ClaimAudit;
   anchors: Record<string, EvidenceAnchor>;
@@ -117,6 +121,12 @@ export function ClaimEvidence({
   const COLLAPSED = 3;
   const shown = showAll ? evidence : evidence.slice(0, COLLAPSED);
   const candidates = isCandidateLabel(audit);
+  const defaultView = (index: number): View => (candidates || index >= 3 ? "text" : "page");
+  const crops = shown.filter((_, index) => defaultView(index) === "page").length;
+  // Per-crop height: the column minus each card's header/padding and the gaps, shared evenly.
+  const fillHeight = availableHeight && crops
+    ? Math.min(1600, Math.max(320, Math.floor((availableHeight - crops * 70 - (shown.length - 1) * 12 - (evidence.length > COLLAPSED ? 48 : 0) - (shown.length - crops) * 160) / crops)))
+    : undefined;
   if (!evidence.length) {
     return <p className="rounded-xl bg-[#FAFAF9] px-4 py-3 text-sm text-ink-4">当前没有已验证的原文证据。</p>;
   }
@@ -134,7 +144,8 @@ export function ClaimEvidence({
               pageSize={anchor?.page ? pageSizes[anchor.page - 1] : undefined}
               active={item.chunk_id === activeChunk}
               // Candidates were not judged as support: show text first, the page on demand.
-              defaultView={candidates || index >= 3 ? "text" : "page"}
+              defaultView={defaultView(index)}
+              fillHeight={fillHeight}
               onOpenPage={() => onOpenEvidence(item.chunk_id)}
             />
           );
