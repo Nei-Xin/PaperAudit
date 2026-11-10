@@ -18,7 +18,7 @@ _usage_lock = Lock()
 @contextmanager
 def meter(operation: str):
     # Enough for generation/QA plus JSON repair, without unbounded paid retries.
-    budget = RequestBudget(max_requests=12, max_seconds=600)
+    budget = RequestBudget(max_requests=18 if operation == "lecture" else 12, max_seconds=600)
     started = monotonic()
     succeeded = False
     try:

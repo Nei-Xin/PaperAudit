@@ -56,7 +56,7 @@ def refresh_learning_report_evidence(
     for section in report.sections:
         refreshed_points = []
         for point in section.points:
-            refreshed_anchors = refresh_evidence_anchors(point.evidence, paper)
+            refreshed_anchors = refresh_evidence_anchors(point.evidence, paper, preserve_distinct_quotes=True)
             refreshed_points.append(point.model_copy(update={"evidence": refreshed_anchors}))
         refreshed_sections.append(section.model_copy(update={"points": refreshed_points}))
     return report.model_copy(
@@ -67,23 +67,28 @@ def refresh_learning_report_evidence(
 def refresh_evidence_anchors(
     evidence: Sequence[EvidenceAnchor],
     paper: ParsedPaper,
+    *,
+    preserve_distinct_quotes: bool = False,
 ) -> list[EvidenceAnchor]:
     """Rebuild citation metadata from the trusted local PDF index."""
 
     chunk_map = {chunk.chunk_id: chunk for chunk in paper.chunks}
     chunk_positions = {chunk.chunk_id: index for index, chunk in enumerate(paper.chunks)}
     refreshed: list[EvidenceAnchor] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str | None]] = set()
     for anchor in evidence:
         chunk = chunk_map.get(anchor.chunk_id)
-        if chunk is None or chunk.chunk_id in seen:
+        if chunk is None:
             continue
-        seen.add(chunk.chunk_id)
         quote = (
             _validated_evidence_quote(anchor.quote, chunk.content)
             if anchor.quote
             else None
         )
+        identity = (chunk.chunk_id, quote if preserve_distinct_quotes else None)
+        if identity in seen:
+            continue
+        seen.add(identity)
         refreshed.append(
             EvidenceAnchor(
                 chunk_id=chunk.chunk_id,

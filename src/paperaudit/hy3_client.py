@@ -225,8 +225,13 @@ class Hy3Client:
         except (json.JSONDecodeError, ValidationError, TypeError) as first_error:
             task_context = (f"\nOriginal task (retain its content and source requirements):\n{user_prompt}\n"
                             if repair_content_limit is None else "")
+            repair_scope = (
+                "Correct the specific validation failures, including factual coverage constraints. "
+                "If a required literal condition or uncertainty is missing, include that exact text in "
+                "the explanation AND its matching excerpt. Preserve all already-valid content."
+                if repair_content_limit is None else "Fix formatting and schema errors only.")
             repair_prompt = f"""The previous response did not match the required JSON schema.
-Fix formatting and schema errors only. Preserve all valid explanations and evidence;
+{repair_scope} Preserve all valid explanations and evidence;
 do not shorten, merge or discard content to satisfy array lengths. Do not add commentary.
 {task_context}
 Validation errors:

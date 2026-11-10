@@ -183,9 +183,9 @@ def check_mention(fact: LessonFact, mention: FactMention, explanation: str,
         if not present:
             fail("missing_value", f"事实原句缺少对应数值或符号表达式 {fact.value}，或指数/单位比例错误。")
     if fact.value is None and fact.source_value and normalized(fact.source_value) not in normalized(mention.excerpt):
-        fail("missing_raw_value", "有歧义的原始数值必须按抽取形式保留，不得补猜。")
+        fail("missing_raw_value", f"原始值须在事实原句中按抽取形式保留：{fact.source_value}；不得补猜。")
     if fact.uncertainty and normalized(fact.uncertainty) not in normalized(mention.excerpt):
-        fail("uncertainty_hidden", "事实原句未保留歧义或冲突说明。")
+        fail("uncertainty_hidden", f"事实原句必须保留完整的证据边界说明：{fact.uncertainty}")
     if not {a.chunk_id for a in fact.sources}.issubset(cited_chunk_ids):
         fail("fact_evidence_missing", "解释未引用该事实的全部支持来源。")
     return errors

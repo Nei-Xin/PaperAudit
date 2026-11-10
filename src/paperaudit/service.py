@@ -794,17 +794,20 @@ class AuditService:
                     and total_key_points < 14
                 )
                 anchors: list[EvidenceAnchor] = []
-                seen: set[str] = set()
+                seen: set[tuple[str, str | None]] = set()
                 for anchor in point.evidence:
                     chunk = chunk_map.get(anchor.chunk_id)
-                    if chunk is None or chunk.chunk_id in seen:
+                    if chunk is None:
                         continue
-                    seen.add(chunk.chunk_id)
                     quote = (
                         _validated_evidence_quote(anchor.quote, chunk.content)
                         if anchor.quote
                         else None
                     )
+                    identity = (chunk.chunk_id, quote)
+                    if identity in seen:
+                        continue
+                    seen.add(identity)
                     anchors.append(
                         EvidenceAnchor(
                             chunk_id=chunk.chunk_id,

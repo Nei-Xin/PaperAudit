@@ -387,3 +387,20 @@ def test_learning_markdown_exports_verified_quote_and_locator() -> None:
 
     assert "精确摘录" in markdown
     assert "> The cited paper evidence." in markdown
+
+
+def test_enrichment_preserves_distinct_passages_from_same_chunk():
+    report = make_report()
+    paper = make_paper()
+    paper.chunks[0].content = 'First supporting passage. Second supporting passage.'
+    report.sections[0].points[0].evidence = [
+        EvidenceAnchor(chunk_id='p2_b1', quote='First supporting passage.'),
+        EvidenceAnchor(chunk_id='p2_b1', quote='Second supporting passage.'),
+        EvidenceAnchor(chunk_id='p2_b1', quote='First supporting passage.'),
+    ]
+    settings = Settings(api_base='https://example.invalid/v1', api_key='test', model='fake')
+    enriched = AuditService(settings, client=FakeLearningClient(report)).generate_learning_report(paper)
+    assert [a.quote for a in enriched.sections[0].points[0].evidence] == [
+        'First supporting passage.', 'Second supporting passage.']
+    refreshed = refresh_learning_report_evidence(enriched, paper)
+    assert refreshed.sections[0].points[0].evidence == enriched.sections[0].points[0].evidence

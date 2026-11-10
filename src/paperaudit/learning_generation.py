@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field, create_model, model_validator
 
 from .evidence import _validated_evidence_quote
 from .learning_facts import FactMention, LessonFact, check_mention, validate_fact
-from .models import LearningReport, LearningSectionType, ExplanationPoint, PaperChunk, ReportSection, StrictModel
+from .models import EvidenceAnchor, LearningReport, LearningSectionType, ExplanationPoint, PaperChunk, ReportSection, StrictModel
 
 
 class LearningQualityError(ValueError):
@@ -74,6 +74,8 @@ class LessonIssue(StrictModel):
     edit_metadata: bool = False
     problem: str = Field(min_length=1)
     source_chunk_ids: list[str] = Field(default_factory=list)
+    fact_id: str | None = None
+    fact_code: str | None = None
 
 
 class LessonReview(StrictModel):
@@ -203,7 +205,15 @@ Ledger labels, facts and mappings are model claims, NOT proof: verify them again
 """
 
 REVIEW_TASK = """Check this lesson against the actual paper and plan as a critical teaching editor.
-Check independently for important omissions EVEN IF the plan missed them. Inspect:
+Check independently for important omissions EVEN IF the plan missed them.
+The plan is immutable during content repair. Its ledger is a minimum inventory, not an
+exhaustive list of every number that may be taught. New source-backed content added to
+fix an omission must be checked directly against the paper (entity, value, condition and
+citations); lack of a new ledger entry for that added content is NOT a reader-facing defect
+and cannot be fixed by this point-patch interface. Never ask a content patch to alter the
+plan. Existing planned facts still require coverage and must not be contradicted. Report
+actual missing/false/unsupported content, not bookkeeping requests to expand the ledger.
+Inspect:
 1. Essential method steps, variable meanings, assumptions and input/output logic.
 2. Experiment-to-result links, main comparisons, ablations, numbers AND their conditions.
 3. Each explanation's full support by its cited passages, not merely related vocabulary.
@@ -510,7 +520,8 @@ def draft_issues(draft: LessonDraft, plan: LessonPlan, sources: dict[str, PaperC
                         point_indices=[mention.point_index] if mention and mention.point_index in link.point_indices else list(link.point_indices),
                         topic_ids=[topic.topic_id],
                         problem=f"事实 {fact.fact_id}（{fact.finding}）：{message}",
-                        source_chunk_ids=[a.chunk_id for a in fact.sources]))
+                        source_chunk_ids=[a.chunk_id for a in fact.sources], fact_id=fact.fact_id,
+                        fact_code=message.split("]", 1)[0][1:] if message.startswith("[") else None))
             explanation = "\n".join(section.points[i].explanation for i in link.point_indices)
             for value in topic.required_values:
                 if not re.search(r"(?<![\d.])" + re.escape(value) + r"(?!\d|\.\d)", explanation):
@@ -622,6 +633,118 @@ def apply_patch(draft: LessonDraft, patch: LessonPatch, plan: LessonPlan, issues
     result.coverage = [c for c in result.coverage if c.topic_id in known and c.topic_id not in replacements]
     result.coverage.extend(replacements.values())
     return result
+
+
+def normalize_draft_quotes(draft: LessonDraft, sources: dict[str, PaperChunk]) -> LessonDraft:
+    result = draft.model_copy(deep=True)
+    for section in result.report.sections:
+        for point in section.points:
+            normalized = split_long_fact_quotes({"sources": [a.model_dump() for a in point.evidence]}, sources)
+            point.evidence = [EvidenceAnchor.model_validate(a) for a in normalized["sources"]]
+    return result
+
+
+def repair_coverage_excerpts(draft: LessonDraft, plan: LessonPlan) -> LessonDraft:
+    """Repair stale excerpts only when the SAME point passes hard fact checks.
+
+    Never edit reader-facing text, move facts to other points, or infer semantics.
+    """
+    result = draft.model_copy(deep=True)
+    sections = {s.section_type: s for s in result.report.sections}
+    topics = {t.topic_id: (s.section_type, t) for s in plan.sections for t in s.topics}
+    for link in result.coverage:
+        if link.topic_id not in topics:
+            continue
+        kind, topic = topics[link.topic_id]
+        section = sections.get(kind)
+        facts = {f.fact_id: f for f in topic.facts}
+        for mention in link.fact_mentions:
+            fact = facts.get(mention.fact_id)
+            if not fact or not section or mention.point_index not in link.point_indices or not 0 <= mention.point_index < len(section.points):
+                continue
+            point = section.points[mention.point_index]
+            cited = {a.chunk_id for a in point.evidence}
+            if check_mention(fact, mention, point.explanation, cited):
+                candidate = mention.model_copy(update={"excerpt": point.explanation})
+                remaining = check_mention(fact, candidate, point.explanation, cited)
+                if all(e.code in {"missing_condition", "uncertainty_hidden"} for e in remaining):
+                    # These wording questions remain in draft_issues and MUST
+                    # receive an independent verdict before returning a report.
+                    mention.excerpt = point.explanation
+    return result
+
+
+def validated_repair_contract(draft, plan, issues, sources):
+    base, scope = repair_contract(draft, plan, issues)
+    affected = {i.section_type for i in issues}
+    def validate_content(patch):
+        merged = repair_coverage_excerpts(apply_patch(draft, patch, plan, issues), plan)
+        remaining = [i for i in draft_issues(merged, plan, sources)
+                     if i.section_type in affected and "不是有效的连续原文摘录" not in i.problem
+                     and i.fact_code not in {"missing_condition", "uncertainty_hidden"}]
+        if remaining:
+            raise ValueError("修补仍未解决以下确定性问题（必须修正正文及对应事实原句，不可省略条件）：\n"
+                             + "\n".join(i.problem for i in remaining))
+        # Only the authorized mappings can be returned by the dynamic schema.
+        fixed = {c.topic_id: c for c in merged.coverage}
+        patch.coverage = tuple(c.model_copy(update={"fact_mentions": fixed[c.topic_id].fact_mentions}, deep=True)
+                               for c in patch.coverage)
+        return patch
+    return create_model("RequiredLessonPatch", __base__=base,
+        __validators__={"validate_content": model_validator(mode="after")(validate_content)}), scope
+
+
+class FactWordingCheck(StrictModel):
+    check_id: str
+    equivalent: bool
+    explanation_excerpt: str
+    reason: str = Field(min_length=1)
+
+
+def wording_review_contract(draft, plan, deterministic):
+    """Literal wording failures require independent semantic checks, not deletion.
+
+    Scores, entity names, units, raw values and citations are never waived here.
+    """
+    checks = []
+    payload = []
+    candidates = []
+    sections = {s.section_type: s for s in draft.report.sections}
+    facts = {f.fact_id: f for s in plan.sections for t in s.topics for f in t.facts}
+    for index, issue in enumerate(deterministic):
+        if issue.fact_code not in {"missing_condition", "uncertainty_hidden"} or issue.fact_id not in facts:
+            continue
+        if len(issue.point_indices) != 1:
+            continue
+        section = sections.get(issue.section_type)
+        pi = issue.point_indices[0]
+        if not section or not 0 <= pi < len(section.points):
+            continue
+        check_id = f"wording_{index}"
+        point = section.points[pi]
+        fact = facts[issue.fact_id]
+        checks.append(create_model(f"Wording_{index}", __base__=FactWordingCheck,
+            check_id=(Literal[check_id], ...)))
+        candidates.append((index, point.explanation))
+        payload.append({"check_id": check_id, "literal_failure": issue.problem,
+            "fact": fact.model_dump(mode="json"), "actual_explanation": point.explanation,
+            "actual_citations": [a.model_dump(mode="json") for a in point.evidence]})
+    if not checks:
+        return LessonReview, [], []
+    def validate_excerpts(review):
+        owners = {t.topic_id: s.section_type for s in plan.sections for t in s.topics}
+        narrowed = [issue.model_copy(update={"topic_ids": [t for t in issue.topic_ids
+                    if owners.get(t) == issue.section_type]}) if issue.point_indices else issue
+                    for issue in review.issues]
+        repair_contract(draft, plan, narrowed)
+        for check, (_, explanation) in zip(review.fact_checks, candidates):
+            if check.equivalent and (not check.explanation_excerpt.strip() or check.explanation_excerpt not in explanation):
+                raise ValueError(f"{check.check_id}: 等价判断必须引用实际解释中非空的连续原句。")
+        return review
+    model = create_model("LessonReviewWithWording", __base__=LessonReview,
+        fact_checks=(tuple[tuple(checks)], ...),
+        __validators__={"validate_excerpts": model_validator(mode="after")(validate_excerpts)})
+    return model, payload, candidates
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -766,20 +889,45 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
     plan = correct_plan_facts(call, plan, sources, title_data + source)
     plan_data = "\n<untrusted_plan>" + plan.model_dump_json() + "</untrusted_plan>"
     progress("正在展开详细讲解", 0.25)
-    draft = write_lesson_draft(call, title, plan, title_data, plan_data, source)
+    draft = repair_coverage_excerpts(normalize_draft_quotes(
+        write_lesson_draft(call, title, plan, title_data, plan_data, source), sources), plan)
 
     def inspect(value: LessonDraft, previous_issues: list[LessonIssue] | None = None) -> list[LessonIssue]:
         deterministic = draft_issues(value, plan, sources)
-        review = call(REVIEW_TASK + TEACHING_RULES + FACT_RULES + title_data + plan_data + source
+        review_model, wording_checks, wording_candidates = wording_review_contract(value, plan, deterministic)
+        point_index = {s.section_type.value: [{"index": i, "title": p.title} for i, p in enumerate(s.points)]
+                       for s in value.report.sections}
+        review = call(REVIEW_TASK + "\nUse ONLY the zero-based indices in this authoritative point inventory; "
+                      "do not count section headings or use one-based numbering: "
+                      + json.dumps(point_index, ensure_ascii=False) + TEACHING_RULES + FACT_RULES + title_data + plan_data + source
                       + "\nCheck the ledger itself against sources, including entity/value binding and omitted essential facts. "
                         "Use previous issues to verify repairs, retain real new defects, and avoid changing the acceptance standard.\n"
                       + "<untrusted_previous_issues>" + json.dumps([i.model_dump(mode="json") for i in previous_issues or []], ensure_ascii=False)
                       + "</untrusted_previous_issues>"
-                      + "\n<untrusted_draft>" + value.model_dump_json() + "</untrusted_draft>", LessonReview)
+                      + "\n<untrusted_draft>" + value.model_dump_json() + "</untrusted_draft>"
+                      + "\nAdditionally adjudicate every wording check independently against its exact explanation and source. "
+                        "Only accept equivalent=true when the cited explanation actually conveys ALL the stated "
+                        "conditions or uncertainty with the same scope. Paraphrases may be equivalent; missing, "
+                        "contradicted, softened or unrelated conditions are NOT equivalent. A claim in the ledger "
+                        "or citation alone is not coverage in the explanation. Quote the precise explanation passage "
+                        "and give a concrete reason. Do not copy the ledger as proof. Scores, entity labels, raw "
+                        "values and units remain hard checks and cannot be waived. Return each check in order.\n"
+                      + "<untrusted_wording_checks>" + json.dumps(wording_checks, ensure_ascii=False)
+                      + "</untrusted_wording_checks>", review_model)
+        accepted = {index for check, (index, _) in zip(getattr(review, "fact_checks", []), wording_candidates)
+                    if check.equivalent}
+        deterministic = [issue for index, issue in enumerate(deterministic) if index not in accepted]
         if any(cid not in sources for issue in review.issues for cid in issue.source_chunk_ids):
             raise LearningQualityError("讲解质量检查引用了不存在的原文。")
-        repair_contract(value, plan, review.issues)  # Reject ambiguous or invalid reviewer targets.
-        return deterministic + review.issues
+        # A reviewer may attach an experiment topic to a precisely located result
+        # point. Discard only that unrelated mapping permission; never move the
+        # point target or rewrite a different chapter to satisfy the topic ID.
+        owners = {t.topic_id: s.section_type for s in plan.sections for t in s.topics}
+        review_issues = [issue.model_copy(update={"topic_ids": [t for t in issue.topic_ids
+                         if owners.get(t) == issue.section_type]}) if issue.point_indices else issue
+                         for issue in review.issues]
+        repair_contract(value, plan, review_issues)  # Reject ambiguous or invalid point targets.
+        return deterministic + review_issues
 
     progress("正在核对内容覆盖、数值与原文证据", 0.60)
     issues = inspect(draft)
@@ -801,8 +949,11 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
                 progress(f"正在修正具体要点（第 {repair_round + 1}/2 轮，{batch_index + 1}/2 部分）",
                          round(0.72 + repair_round * 0.10, 2))
             feedback = json.dumps([i.model_dump(mode="json") for i in batch_issues], ensure_ascii=False)
-            patch_model, scope = repair_contract(draft, plan, batch_issues)
+            patch_model, scope = validated_repair_contract(draft, plan, batch_issues, sources)
             contract = json.dumps(scope, ensure_ascii=False)
+            required_facts = {t.topic_id: [f.model_dump(mode="json") for f in t.facts]
+                              for section in plan.sections for t in section.topics
+                              if t.topic_id in scope["required_topic_ids"]}
             # Repeat implicated passages beside feedback to avoid asking the model to
             # locate a malformed quote among hundreds of source blocks again.
             repair_sources = {cid: sources[cid].content for issue in batch_issues for cid in issue.source_chunk_ids}
@@ -821,13 +972,21 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
                          "Return exactly required_topic_ids coverage entries using final indices: old indices stay fixed,\n"
                          "new indices start at the original section point count. Preserve still-valid fact_mentions.\n"
                          "Do not hide a gap by relabeling coverage. Fix summary only when summary_requires_repair.\n"
+                         "The following fact requirements are machine-checked, NOT fallible stylistic feedback.\n"
+                         "Each fact excerpt must be copied from its explanation and retain ALL canonical entity labels,\n"
+                         "raw/value and units. Preserve all conditions and uncertainty; reuse their exact wording\n"
+                         "where natural to avoid ambiguity (equivalent wording is independently reviewed).\n"
+                         "Use a longer excerpt when necessary. Preserve valid text while inserting missing\n"
+                         "labels naturally. When value=null, retain source_value literally even if it is an English phrase.\n"
+                         + "<required_fact_requirements>" + json.dumps(required_facts, ensure_ascii=False)
+                         + "</required_fact_requirements>"
                          + title_data + plan_data + source
                          + "\n<untrusted_draft>" + draft.model_dump_json() + "</untrusted_draft>"
                          + "\n<untrusted_feedback>" + feedback + "</untrusted_feedback>"
                          + "\n<untrusted_repair_sources>" + json.dumps(repair_sources, ensure_ascii=False) + "</untrusted_repair_sources>"
                          + "\nReturn ONLY these authorized edits, in this order: " + contract, patch_model)
-            draft = apply_patch(draft, patch, plan, batch_issues)
-        draft = select_exact_quotes(call, draft, sources)
+            draft = repair_coverage_excerpts(apply_patch(draft, patch, plan, batch_issues), plan)
+        draft = select_exact_quotes(call, normalize_draft_quotes(draft, sources), sources)
         progress("正在复核修补后的讲解", round(0.78 + repair_round * 0.10, 2))
         issues = inspect(draft, issues)
     if issues:
