@@ -178,8 +178,8 @@ function LectureView({
             第 {currentPage} 页相关的讲解要点 · {points.length} 条
           </p>
         )}
-        {(scope === "all" ? report.sections : [{ ...current, points }]).map((group) => (
-        <section key={group.section_type} className="mb-5">
+        {(scope === "all" ? report.sections : [{ ...current, points }]).map((group, groupIndex) => (
+        <section key={`${groupIndex}-${group.section_type}`} className="mb-5">
           {scope === "all" && <><h2 className="mb-2 text-base font-semibold">{SECTION_LABELS[group.section_type] ?? group.title} · {group.points.length} 点</h2><p className="mb-4 text-sm leading-7">{group.overview}</p></>}
         <ol className="flex flex-col gap-5">
           {group.points.map((point, index) => (

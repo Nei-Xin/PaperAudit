@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import clsx from "clsx";
@@ -655,8 +655,13 @@ export function ReviewPage() {
   const outline = containerWidth >= 1380;
   const side = containerWidth >= 900;
   const navigationReady = Boolean(report && !project.isLoading && !review.isLoading && containerWidth > 0);
+  // Restore a URL section once per project/section; crossing a breakpoint must not move the reader.
+  const restored = useRef<string | undefined>(undefined);
   useLayoutEffect(() => {
     if (!navigationReady) return;
+    const key = `${projectId}:${requestedTab}`;
+    if (restored.current === key) return;
+    restored.current = key;
     setActive(requestedTab);
     // Wait for both the report and the measured responsive layout before restoring a URL section.
     // The default overview starts at the conclusion, above the first named section.
@@ -665,7 +670,7 @@ export function ReviewPage() {
     } else {
       document.getElementById(`review-${requestedTab}`)?.scrollIntoView({ block: "start" });
     }
-  }, [requestedTab, projectId, navigationReady, side, outline]);
+  }, [requestedTab, projectId, navigationReady, side]);
   const actions = useMemo(() => (report ? planActions(report) : []), [report]);
   const actionKeys = useActionKeys(actions);
   const done = actionKeys.filter((key) => progress[key]).length;

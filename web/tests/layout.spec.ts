@@ -227,6 +227,20 @@ for (const width of [390, 1440, 1920]) {
   });
 }
 
+test("crossing a review breakpoint keeps the reader's position instead of re-applying the URL section", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 900 });
+  await page.goto("/p/paper/review?tab=revisions");
+  await expect(page.locator(".review-outline")).toBeVisible();
+  await expect(page.locator("#review-revisions").getByRole("heading", { name: "修改稿与导出", exact: true })).toBeInViewport();
+  await page.locator(".review-main").evaluate((element) => element.scrollTo({ top: 0 }));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(page.locator(".review-outline")).toHaveCount(0);
+  await page.waitForTimeout(300);
+  const scrollTop = await page.locator(".review-main").evaluate((element) => element.scrollTop);
+  expect(scrollTop).toBeLessThan(40);
+  await expect(page.getByRole("region", { name: "结论与理由" })).toBeInViewport();
+});
+
 test("desktop dimensions expose confidence, full reasons and every evidence link", async ({ page }) => {
   const review = structuredClone(fixtures.review);
   const dimension = review.report.dimensions[0];
