@@ -16,3 +16,6 @@ Browser_Actual_*.png
 _archive/
 eval/
 docs/
+
+# Internal deployment and validation records (server paths, evidence) stay local.
+deploy/*-validation.md

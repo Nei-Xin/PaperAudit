@@ -1,4 +1,4 @@
-/** V3 design tokens — see docs/react-migration.md §5.3. */
+/** V3 design tokens: colours, radii and shadows shared by every page. */
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
