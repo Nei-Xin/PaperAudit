@@ -437,6 +437,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{pid}/lecture/jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Lecture */
+        post: operations["retry_lecture_api_projects__pid__lecture_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{pid}/qa": {
         parameters: {
             query?: never;
@@ -1331,6 +1348,13 @@ export interface components {
             /** Error */
             error: string | null;
             runtime: components["schemas"]["AuditRuntimeSnapshot"];
+            /**
+             * Regenerate
+             * @default false
+             */
+            regenerate: boolean;
+            /** Previous Report Hash */
+            previous_report_hash: string | null;
         };
         /** LearningReport */
         LearningReport: {
@@ -1342,6 +1366,19 @@ export interface components {
             sections: components["schemas"]["ReportSection"][];
             /** Suggested Pages */
             suggested_pages: number[];
+        };
+        /** LearningRequest */
+        LearningRequest: {
+            /**
+             * Regenerate
+             * @default false
+             */
+            regenerate: boolean;
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
         };
         /**
          * LearningSectionType
@@ -3191,6 +3228,42 @@ export interface operations {
             header?: never;
             path: {
                 pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["LearningRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_lecture_api_projects__pid__lecture_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                job_id: string;
             };
             cookie?: never;
         };

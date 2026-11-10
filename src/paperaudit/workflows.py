@@ -16,14 +16,25 @@ def require_model(settings: Settings) -> None:
         raise Hy3ConfigurationError("请先配置模型 API 地址、密钥和模型名称。")
 
 
-def submit_learning(store: ProjectStore, manager, settings: Settings, project_id: str) -> LearningJob:
+def submit_learning(store: ProjectStore, manager, settings: Settings, project_id: str, *,
+                    regenerate: bool = False, runtime: AuditRuntimeSnapshot | None = None,
+                    expected_report_hash: str | None = None) -> LearningJob:
     require_model(settings)
-    job = store.create_learning_job(project_id, runtime=AuditRuntimeSnapshot(
+    job = store.create_learning_job(project_id, regenerate=regenerate,
+        expected_report_hash=expected_report_hash, runtime=runtime or AuditRuntimeSnapshot(
         model=settings.model, reasoning_effort=settings.reasoning_effort,
         retrieval_top_k=settings.retrieval_top_k, judge_batch_size=settings.judge_batch_size,
     ))
     manager.submit(project_id, job.job_id, settings)
     return job
+
+
+def retry_learning(store: ProjectStore, manager, settings: Settings, project_id: str, job_id: str) -> LearningJob:
+    previous = store.load_learning_job(project_id, job_id)
+    if previous.status not in {"FAILED", "INTERRUPTED"}:
+        raise StorageError("只有失败或中断的讲解任务可以重试。")
+    return submit_learning(store, manager, settings, project_id, regenerate=previous.regenerate,
+                           runtime=previous.runtime, expected_report_hash=previous.previous_report_hash)
 
 
 def create_project_from_upload(store: ProjectStore, manager, settings: Settings,

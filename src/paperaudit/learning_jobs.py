@@ -10,6 +10,7 @@ from paperaudit.job_runner import BackgroundJobManager, JobContext
 from paperaudit.models import LearningJob, LearningReport
 from paperaudit.service import AuditService
 from paperaudit.storage import ProjectStore
+from paperaudit.learning_generation import learning_progress
 
 
 class LearningRunner(Protocol):
@@ -35,7 +36,13 @@ class LearningJobManager(BackgroundJobManager[LearningJob]):
 
     def _execute(self, context: JobContext[LearningJob], settings: Settings) -> dict[str, str]:
         saved = self._store.load_learning_project(context.job.project_id)
-        report = self._service_factory(settings).generate_learning_report(saved.paper)
+        token = learning_progress.set(context.progress)
+        try:
+            report = self._service_factory(settings).generate_learning_report(saved.paper)
+        finally:
+            learning_progress.reset(token)
         context.progress("正在保存论文讲解", 0.9)
-        self._store.save_learning_report(context.job.project_id, report)
+        self._store.save_learning_report(context.job.project_id, report,
+                                        expected_report_hash=context.job.previous_report_hash,
+                                        archive_id=context.job.job_id if context.job.regenerate else None)
         return {}

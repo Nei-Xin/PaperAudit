@@ -251,3 +251,24 @@ test("desktop dimensions expose confidence, full reasons and every evidence link
   await expect(scores.getByRole("button", { name: /定位原文/ })).toHaveCount(2);
   await fits(page);
 });
+
+
+test("lecture overview, all chapters and recommended pages remain usable on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/p/paper/read");
+  await page.getByRole("button", { name: "助手与设置", exact: true }).click();
+  const pane = page.getByRole("region", { name: "讲解与追问", exact: true });
+  await expect(pane.getByRole("region", { name: "阅读导览" })).toBeVisible();
+  await expect(pane.getByRole("button", { name: "重新生成详细讲解", exact: true })).toBeDisabled();
+  await pane.getByRole("radio", { name: "全部章节", exact: true }).click();
+  const titles = fixtures.lecture.sections.map((s: { points: unknown[] }) => s.points.length);
+  await expect(pane.locator("ol > li")).toHaveCount(titles.reduce((a: number, b: number) => a + b, 0));
+  await pane.getByRole("radio", { name: "本节全部", exact: true }).click();
+  await expect(pane.locator("ol > li")).toHaveCount(titles[0]);
+  await pane.getByText("推荐阅读页", { exact: true }).click();
+  const recommended = fixtures.lecture.suggested_pages[0];
+  await pane.getByRole("button", { name: `第 ${recommended} 页`, exact: true }).click();
+  await expect(page.getByRole("region", { name: "论文原文", exact: true })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: /^页码，共/ })).toHaveValue(String(recommended));
+  await fits(page);
+});

@@ -70,7 +70,15 @@ export function useJobs(id: string) {
 export function useGenerateLecture(id: string) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: () => send("POST", `/api/projects/${id}/lecture/jobs`),
+    mutationFn: (options?: { regenerate: boolean; privacy_ack: boolean }) => send<ProjectJobs["learning"][number]>("POST", `/api/projects/${id}/lecture/jobs`, options),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.jobs(id) }),
+  });
+}
+
+export function useRetryLecture(id: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (jobId: string) => send<ProjectJobs["learning"][number]>("POST", `/api/projects/${id}/lecture/jobs/${jobId}/retry`),
     onSuccess: () => client.invalidateQueries({ queryKey: keys.jobs(id) }),
   });
 }

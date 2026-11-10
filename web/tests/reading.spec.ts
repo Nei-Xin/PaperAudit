@@ -56,3 +56,28 @@ test("failed question retains input and settings can be saved without returning 
   await page.reload();
   await expect(page.getByRole("button", { name: /已配置 · updated-test-model/ })).toBeVisible();
 });
+
+
+test("detailed lecture keeps old content on failure and explicit retry replaces it", async ({ page }) => {
+  await upload(page, "regenerate");
+  const summary = page.getByRole("region", { name: "阅读导览" });
+  await expect(summary.getByText("测试论文讲解", { exact: true })).toBeVisible({ timeout: 15_000 });
+  await page.getByRole("button", { name: "重新生成详细讲解", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "重新生成详细讲解", exact: true });
+  await expect(dialog.getByRole("button", { name: "开始生成", exact: true })).toBeDisabled();
+  await dialog.getByRole("checkbox", { name: /我同意/ }).check();
+  await dialog.getByRole("button", { name: "开始生成", exact: true }).click();
+  await expect(page.getByText("生成期间可继续阅读当前讲解")).toBeVisible();
+  await expect(summary.getByText("测试论文讲解", { exact: true })).toBeVisible();
+  await expect(page.getByText(/详细讲解未完成，当前讲解已保留/)).toBeVisible({ timeout: 15_000 });
+  await page.reload();
+  await expect(summary.getByText("测试论文讲解", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "重试详细讲解", exact: true }).click();
+  await expect(summary.getByText("重新生成的详细讲解", { exact: true })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("详细讲解的新解释，已通过质量检查。", { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(summary.getByText("重新生成的详细讲解", { exact: true })).toBeVisible();
+  await expect(page.getByText(/详细讲解未完成/)).toHaveCount(0);
+  await page.getByRole("radio", { name: "全部章节", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /研究方法.*1 点/ })).toBeVisible();
+});

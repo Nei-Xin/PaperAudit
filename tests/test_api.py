@@ -200,3 +200,65 @@ def test_restart_marks_pending_job_interrupted_without_replay(setup):
     with TestClient(create_app(**options)) as client:
         assert client.get(f"/api/projects/{pid}/jobs").json()["learning"][0]["status"] == "INTERRUPTED"
         assert runner.calls == 0
+
+
+def test_regeneration_preserves_old_until_success_and_archives_it(setup):
+    options, runner = setup
+    with TestClient(create_app(**options)) as client:
+        pid = upload(client).json()["project"]["project_id"]
+        wait_job(client, pid)
+        store = ProjectStore(options["storage_root"])
+        old = store.load_learning_project(pid).report
+        release, entered = Event(), Event()
+        def regenerate(paper):
+            entered.set()
+            assert release.wait(5)
+            return old.model_copy(update={"one_sentence_summary": "详细版已完成"})
+        runner.generate_learning_report = regenerate
+        path = f"/api/projects/{pid}/lecture/jobs"
+        assert client.post(path, json={"regenerate": True}).status_code == 400
+        response = client.post(path, json={"regenerate": True, "privacy_ack": True})
+        assert response.status_code == 202, response.text
+        job = response.json()
+        try:
+            assert entered.wait(2)
+            assert client.get(f"/api/projects/{pid}/lecture").json()["one_sentence_summary"] == old.one_sentence_summary
+            assert client.post(path, json={"regenerate": True, "privacy_ack": True}).status_code == 400
+        finally:
+            release.set()
+        wait_job(client, pid, job_id=job["job_id"])
+        assert client.get(f"/api/projects/{pid}/lecture").json()["one_sentence_summary"] == "详细版已完成"
+        archive = store._project_dir(pid) / "learning-history" / (job["job_id"] + ".json")
+        assert LearningReport.model_validate_json(archive.read_text()) == old
+
+
+def test_regeneration_failure_retry_and_stale_report_protection(setup):
+    options, runner = setup
+    with TestClient(create_app(**options)) as client:
+        pid = upload(client).json()["project"]["project_id"]
+        wait_job(client, pid)
+        store = ProjectStore(options["storage_root"])
+        old = store.load_learning_project(pid).report
+        original = runner.generate_learning_report
+        runner.generate_learning_report = lambda _: (_ for _ in ()).throw(RuntimeError("质量检查失败"))
+        path = f"/api/projects/{pid}/lecture/jobs"
+        failed = client.post(path, json={"regenerate": True, "privacy_ack": True}).json()
+        wait_job(client, pid, "FAILED", failed["job_id"])
+        assert store.load_learning_project(pid).report == old
+        client.put("/api/settings", json={"model": "changed-model"})
+        runner.generate_learning_report = original
+        retry = client.post(path + "/" + failed["job_id"] + "/retry")
+        assert retry.status_code == 202, retry.text
+        assert retry.json()["runtime"] == failed["runtime"]
+        assert retry.json()["regenerate"]
+        wait_job(client, pid, job_id=retry.json()["job_id"])
+        # Another writer updates the report while a generation is in flight.
+        updated = old.model_copy(update={"one_sentence_summary": "其他操作保存的版本"})
+        def concurrent(paper):
+            store.save_learning_report(pid, updated)
+            return old.model_copy(update={"one_sentence_summary": "过期后台结果"})
+        runner.generate_learning_report = concurrent
+        stale = client.post(path, json={"regenerate": True, "privacy_ack": True}).json()
+        wait_job(client, pid, "FAILED", stale["job_id"])
+        assert store.load_learning_project(pid).report == updated
+        assert client.post(path + "/" + stale["job_id"] + "/retry").status_code == 400

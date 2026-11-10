@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import clsx from "clsx";
@@ -7,6 +7,7 @@ import {
   useJobs,
   useLecture,
   useProject,
+  useRetryLecture,
 } from "@/api/queries";
 import { READ_ONLY, USE_MOCK, resourceUrl } from "@/api/client";
 import type {
@@ -18,6 +19,7 @@ import type {
   CodeCitation,
 } from "@/api/types";
 import { QaView, AskBox } from "./ConversationPanel";
+import { LectureTools } from "./LectureTools";
 import { CodeWorkspace } from "./CodeWorkspace";
 import { TopBar } from "@/app/ProjectLayout";
 import { ResponsiveReader } from "@/components/ResponsiveReader";
@@ -61,21 +63,27 @@ function CitationChip({
 }
 
 function LectureView({
+  projectId,
   report,
   section,
   onSection,
   activeAnchor,
   onAnchor,
   currentPage,
+  onPage,
 }: {
+  projectId: string;
   report: LearningReport;
   section: number;
   onSection: (index: number) => void;
   activeAnchor: string | undefined;
   onAnchor: (anchor: EvidenceAnchor) => void;
   currentPage: number;
+  onPage: (page: number) => void;
 }) {
-  const [scope, setScope] = useState<"all" | "page">("all");
+  const [scope, setScope] = useState<"section" | "all" | "page">("section");
+  const scroll = useRef<HTMLDivElement>(null);
+  useEffect(() => { scroll.current?.scrollTo({ top: 0 }); }, [section, scope]);
   const current = report.sections[section] ?? report.sections[0];
   if (!current)
     return <EmptyState title="讲解尚无章节">请检查生成结果。</EmptyState>;
@@ -84,14 +92,14 @@ function LectureView({
       ? report.sections
           .flatMap((s) => s.points)
           .filter((p) => p.evidence.some((a) => a.page === currentPage))
-      : current.points;
+      : scope === "all" ? report.sections.flatMap(s => s.points) : current.points;
   return (
     <>
       <div className="flex shrink-0 flex-wrap items-center gap-1.5 px-4 pt-3">
         <button
           type="button"
           className="icon-btn shadow-card"
-          disabled={section <= 0 || scope === "page"}
+          disabled={section <= 0 || scope !== "section"}
           onClick={() => onSection(section - 1)}
           aria-label="上一节"
         >
@@ -102,7 +110,7 @@ function LectureView({
           <select
             value={section}
             onChange={(event) => onSection(Number(event.target.value))}
-            disabled={scope === "page"}
+            disabled={scope !== "section"}
             className="h-8 w-full rounded-lg bg-card px-2.5 text-[13px] font-medium shadow-card outline-none disabled:opacity-50"
           >
             {report.sections.map((s, i) => (
@@ -116,7 +124,7 @@ function LectureView({
         <button
           type="button"
           className="icon-btn shadow-card"
-          disabled={section >= report.sections.length - 1 || scope === "page"}
+          disabled={section >= report.sections.length - 1 || scope !== "section"}
           onClick={() => onSection(section + 1)}
           aria-label="下一节"
         >
@@ -129,7 +137,8 @@ function LectureView({
         >
           {(
             [
-              ["all", "全文"],
+              ["section", "本节全部"],
+              ["all", "全部章节"],
               ["page", "当前页"],
             ] as const
           ).map(([value, label]) => (
@@ -151,17 +160,29 @@ function LectureView({
           ))}
         </div>
       </div>
-      <div className="min-h-0 flex-1 overflow-auto px-5 py-4">
-        {scope === "all" && (
-          <p className="mb-5 text-[15px] leading-[1.8]">{current.overview}</p>
+      <div ref={scroll} className="min-h-0 flex-1 overflow-auto px-5 py-4">
+        <div className="-mx-5 -mt-4 mb-4"><LectureTools projectId={projectId} /></div>
+        <section className="mb-5 rounded-lg bg-page p-3" aria-label="阅读导览">
+          <p className="text-sm leading-7">{report.one_sentence_summary}</p>
+          <p className="mt-1 text-xs text-ink-4">{report.sections.length} 个章节 · {report.sections.reduce((n, s) => n + s.points.length, 0)} 个要点</p>
+          {report.suggested_pages.length > 0 && <details className="mt-2 text-xs text-ink-3">
+            <summary className="cursor-pointer">推荐阅读页</summary>
+            <div className="mt-2 flex flex-wrap gap-2">{report.suggested_pages.map(p => <button key={p} type="button" className="btn-secondary" onClick={() => onPage(p)}>第 {p} 页</button>)}</div>
+          </details>}
+        </section>
+        {scope === "section" && (
+          <div className="mb-5"><p className="mb-2 text-xs text-ink-4">本节 {current.points.length} 个要点</p><p className="text-[15px] leading-[1.8]">{current.overview}</p></div>
         )}
         {scope === "page" && (
           <p className="mb-4 text-xs text-ink-4">
             第 {currentPage} 页相关的讲解要点 · {points.length} 条
           </p>
         )}
+        {(scope === "all" ? report.sections : [{ ...current, points }]).map((group) => (
+        <section key={group.section_type} className="mb-5">
+          {scope === "all" && <><h2 className="mb-2 text-base font-semibold">{SECTION_LABELS[group.section_type] ?? group.title} · {group.points.length} 点</h2><p className="mb-4 text-sm leading-7">{group.overview}</p></>}
         <ol className="flex flex-col gap-5">
-          {points.map((point, index) => (
+          {group.points.map((point, index) => (
             <li key={`${point.title}-${index}`} className="flex gap-3">
               <span
                 aria-hidden
@@ -173,14 +194,14 @@ function LectureView({
                 )}
               />
               <div className="flex min-w-0 flex-col gap-1.5">
-                <h3 className="text-sm font-semibold">{point.title}</h3>
-                <p className="text-sm leading-[1.75] text-ink-2">
+                <h3 className="text-sm font-semibold">{point.title}{point.key_point && <span className="ml-2 whitespace-nowrap rounded bg-accent-soft px-1.5 py-0.5 text-xs font-normal text-accent">重点</span>}</h3>
+                <p className="whitespace-pre-line break-words text-sm leading-[1.75] text-ink-2">
                   {point.explanation}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {point.evidence.map((anchor) => (
+                  {point.evidence.map((anchor, evidenceIndex) => (
                     <CitationChip
-                      key={anchor.chunk_id}
+                      key={`${anchor.chunk_id}-${evidenceIndex}`}
                       anchor={anchor}
                       active={anchor.chunk_id === activeAnchor}
                       onClick={() => onAnchor(anchor)}
@@ -191,8 +212,9 @@ function LectureView({
             </li>
           ))}
         </ol>
+        </section>))}
         {points.length === 0 && (
-          <p className="text-sm text-ink-4">这一页没有对应的讲解要点。</p>
+          <p className="text-sm text-ink-4">{scope === "page" ? "这一页没有对应的讲解要点。" : "本节暂无独立要点，请参阅章节导读。"}</p>
         )}
       </div>
     </>
@@ -202,9 +224,9 @@ function LectureView({
 function NoLecture({ projectId }: { projectId: string }) {
   const jobs = useJobs(projectId);
   const generate = useGenerateLecture(projectId);
-  const failed = jobs.data?.learning.find(
-    (job) => job.status === "FAILED" || job.status === "INTERRUPTED",
-  );
+  const retry = useRetryLecture(projectId);
+  const latest = jobs.data?.learning[0];
+  const failed = latest && ["FAILED", "INTERRUPTED"].includes(latest.status) ? latest : undefined;
   const running = jobs.data?.learning.find(
     (job) => job.status === "QUEUED" || job.status === "RUNNING",
   );
@@ -223,10 +245,10 @@ function NoLecture({ projectId }: { projectId: string }) {
               <button
                 type="button"
                 className="btn-primary self-start"
-                disabled={READ_ONLY || generate.isPending}
-                onClick={() => generate.mutate()}
+                disabled={READ_ONLY || generate.isPending || retry.isPending}
+                onClick={() => failed ? retry.mutate(failed.job_id) : generate.mutate(undefined)}
               >
-                {generate.isPending
+                {generate.isPending || retry.isPending
                   ? "正在提交…"
                   : failed
                     ? "重试生成讲解"
@@ -240,6 +262,7 @@ function NoLecture({ projectId }: { projectId: string }) {
               </span>
             )}
             {generate.error && <ErrorState error={generate.error} />}
+            {retry.error && <ErrorState error={retry.error} />}
             {jobs.error && <ErrorState error={jobs.error} />}
             生成后可以按章节阅读中文讲解、点击引用跳回原文高亮，并围绕论文继续追问。
             <span className="mt-2 block text-xs text-ink-4">
@@ -439,17 +462,21 @@ function Reader({ projectId }: { projectId: string }) {
               </div>
               {view === "lecture" ? (
                 lecture.data ? (
-                  <LectureView
-                    report={lecture.data}
-                    section={Math.min(
-                      section,
-                      lecture.data.sections.length - 1,
-                    )}
-                    onSection={(i) => setParam("section", String(i))}
-                    activeAnchor={anchor?.chunk_id}
-                    onAnchor={openAnchor}
-                    currentPage={page}
-                  />
+                  <>
+                    <LectureView
+                      projectId={projectId}
+                      report={lecture.data}
+                      section={Math.min(
+                        section,
+                        lecture.data.sections.length - 1,
+                      )}
+                      onSection={(i) => setParam("section", String(i))}
+                      activeAnchor={anchor?.chunk_id}
+                      onAnchor={openAnchor}
+                      currentPage={page}
+                      onPage={(p) => { setAnchor(undefined); setPage(p); setPane("source"); }}
+                    />
+                  </>
                 ) : (
                   <NoLecture projectId={projectId} />
                 )

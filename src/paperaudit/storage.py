@@ -494,14 +494,22 @@ class ProjectStore:
         return self.save_learning_report(project_id, report)
 
     @_serialized_write
-    def save_learning_report(self, project_id: str, report: LearningReport) -> ProjectMetadata:
+    def save_learning_report(self, project_id: str, report: LearningReport, *,
+                             expected_report_hash: str | None = None,
+                             archive_id: str | None = None) -> ProjectMetadata:
         """Save a generated report without writing a stale project snapshot."""
+        if expected_report_hash is not None and self.learning_report_hash(project_id) != expected_report_hash:
+            raise StorageError("讲解已被其他操作更新，本次结果未覆盖当前版本，请刷新后重新生成。")
         project_dir = self._require_project_dir(project_id)
         metadata_path = project_dir / "metadata.json"
         try:
             current = _metadata_from_dict(json.loads(metadata_path.read_text(encoding="utf-8")))
         except (OSError, KeyError, TypeError, ValueError) as exc:
             raise StorageError("项目元数据已损坏，无法保存讲解。") from exc
+        previous = project_dir / "learning-report.json"
+        if archive_id and previous.exists():
+            _validate_record_id(archive_id, "learning-job", "论文讲解任务")
+            _atomic_write(project_dir / "learning-history" / f"{archive_id}.json", previous.read_bytes())
         _atomic_write(project_dir / "learning-report.json", report.model_dump_json(indent=2).encode("utf-8"))
         metadata = replace(
             current,
@@ -1309,10 +1317,17 @@ class ProjectStore:
         project_id: str,
         *,
         runtime: AuditRuntimeSnapshot | dict[str, Any],
+        regenerate: bool = False,
+        expected_report_hash: str | None = None,
     ) -> LearningJob:
         saved = self.load_learning_project(project_id)
-        if saved.report is not None:
+        if saved.report is not None and not regenerate:
             raise StorageError("当前项目已经包含论文讲解。")
+        if regenerate and saved.report is None:
+            raise StorageError("当前项目尚无讲解，请先生成讲解。")
+        report_hash = self.learning_report_hash(project_id)
+        if expected_report_hash is not None and report_hash != expected_report_hash:
+            raise StorageError("讲解已更新，不能重试旧任务，请刷新后重新生成。")
         for existing in self.list_learning_jobs(project_id):
             if existing.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
                 raise StorageError("当前论文已有讲解任务正在执行。")
@@ -1320,8 +1335,10 @@ class ProjectStore:
             schema_version=LEARNING_JOB_SCHEMA_VERSION,
             job_id=_record_id("learning-job"),
             project_id=project_id,
-            created_at=_utc_now(),
+            created_at=datetime.now(timezone.utc).isoformat(),
             runtime=AuditRuntimeSnapshot.model_validate(runtime),
+            regenerate=regenerate,
+            previous_report_hash=report_hash,
         )
         jobs_dir = self._project_dir(project_id) / "learning-jobs"
         jobs_dir.mkdir(parents=True, exist_ok=True)
@@ -1330,6 +1347,10 @@ class ProjectStore:
             job.model_dump_json(indent=2).encode("utf-8"),
         )
         return job
+
+    def learning_report_hash(self, project_id: str) -> str:
+        path = self._require_project_dir(project_id) / "learning-report.json"
+        return sha256(path.read_bytes()).hexdigest() if path.exists() else ""
 
     def load_learning_job(self, project_id: str, job_id: str) -> LearningJob:
         project_dir = self._require_project_dir(project_id)

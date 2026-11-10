@@ -1428,6 +1428,71 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/LearningRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{pid}/lecture/jobs/{job_id}/retry": {
+      "post": {
+        "summary": "Retry Lecture",
+        "operationId": "retry_lecture_api_projects__pid__lecture_jobs__job_id__retry_post",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
         "responses": {
           "202": {
             "description": "Successful Response",
@@ -4048,6 +4113,22 @@
           },
           "runtime": {
             "$ref": "#/components/schemas/AuditRuntimeSnapshot"
+          },
+          "regenerate": {
+            "type": "boolean",
+            "title": "Regenerate",
+            "default": false
+          },
+          "previous_report_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Report Hash"
           }
         },
         "additionalProperties": false,
@@ -4063,7 +4144,9 @@
           "progress",
           "stage",
           "error",
-          "runtime"
+          "runtime",
+          "regenerate",
+          "previous_report_hash"
         ],
         "title": "LearningJob",
         "description": "Persisted status for generating a learning report in the background."
@@ -4102,6 +4185,23 @@
           "suggested_pages"
         ],
         "title": "LearningReport"
+      },
+      "LearningRequest": {
+        "properties": {
+          "regenerate": {
+            "type": "boolean",
+            "title": "Regenerate",
+            "default": false
+          },
+          "privacy_ack": {
+            "type": "boolean",
+            "title": "Privacy Ack",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "LearningRequest"
       },
       "LearningSectionType": {
         "type": "string",

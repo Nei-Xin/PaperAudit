@@ -18,6 +18,15 @@ class BrowserService(FakeService):
         self.attempts[paper.title] = count
         if "Retry" in paper.title and count == 1:
             raise RuntimeError("测试任务失败，请手动重试。")
+        if "Regenerate" in paper.title:
+            time.sleep(2)
+            if count == 2:
+                raise RuntimeError("测试详细讲解质量检查失败")
+            report = super().generate_learning_report(paper)
+            if count >= 3:
+                report.one_sentence_summary = "重新生成的详细讲解"
+                report.sections[0].points[0].explanation = "详细讲解的新解释，已通过质量检查。"
+            return report
         return super().generate_learning_report(paper)
 
     def audit(self, paper, text, scope, *, mode, progress=None):

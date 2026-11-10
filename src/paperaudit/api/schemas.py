@@ -107,6 +107,11 @@ class ProjectJobs(BaseModel):
     revision: list[PeerReviewRevisionJob]
 
 
+class LearningRequest(Input):
+    regenerate: bool = False
+    privacy_ack: bool = False
+
+
 class AuditDetail(BaseModel):
     record: AuditRecordMetadata
     run: AuditRun

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from contextlib import nullcontext
 from collections import Counter
 from collections.abc import Sequence
 from typing import TypeVar
@@ -10,7 +11,8 @@ from openai import OpenAI
 from pydantic import BaseModel, ValidationError
 
 from .agents.models import InvestigationAction
-from .request_budget import active_budget
+from .request_budget import BudgetExceeded, RequestBudget, active_budget, use_request_budget
+from .learning_generation import LearningQualityError, generate_lesson
 
 from .config import Settings
 from .claim_extraction import (
@@ -173,7 +175,7 @@ class Hy3Client:
             max_retries=2,
         )
 
-    def _complete(self, user_prompt: str, reasoning_effort: str | None = None) -> str:
+    def _complete(self, user_prompt: str, reasoning_effort: str | None = None, *, json_mode: bool = False) -> str:
         effort = reasoning_effort or self.settings.reasoning_effort
         extra_body = {"chat_template_kwargs": {"reasoning_effort": effort}} if effort else None
         budget = active_budget.get()
@@ -194,6 +196,7 @@ class Hy3Client:
             temperature=self.settings.temperature,
             top_p=self.settings.top_p,
             extra_body=extra_body,
+            **({"response_format": {"type": "json_object"}} if json_mode else {}),
         )
         if budget is not None and response.usage is not None:
             budget.tokens += response.usage.total_tokens
@@ -208,22 +211,33 @@ class Hy3Client:
         user_prompt: str,
         response_model: type[ResponseModel],
         reasoning_effort: str | None = None,
+        *,
+        repair_content_limit: int | None = 12000,
     ) -> ResponseModel:
         schema = json.dumps(response_model.model_json_schema(), ensure_ascii=False)
         prompt = f"{user_prompt}\n\nReturn one JSON object matching this schema exactly:\n{schema}"
-        content = self._complete(prompt, reasoning_effort)
+        # Long lessons need provider-level JSON syntax enforcement; schema and
+        # content validation still run locally. Other tasks retain their protocol.
+        completion_options = {"json_mode": True} if repair_content_limit is None else {}
+        content = self._complete(prompt, reasoning_effort, **completion_options)
         try:
             return response_model.model_validate(_extract_json(content))
         except (json.JSONDecodeError, ValidationError, TypeError) as first_error:
+            task_context = (f"\nOriginal task (retain its content and source requirements):\n{user_prompt}\n"
+                            if repair_content_limit is None else "")
             repair_prompt = f"""The previous response did not match the required JSON schema.
-Fix formatting and schema errors only. Do not add commentary.
+Fix formatting and schema errors only. Preserve all valid explanations and evidence;
+do not shorten, merge or discard content to satisfy array lengths. Do not add commentary.
+{task_context}
+Validation errors:
+{str(first_error)[:6000]}
 
 Schema:
 {schema}
 
 Previous response:
-{content[:12000]}"""
-            repaired = self._complete(repair_prompt, "no_think")
+{content[:repair_content_limit]}"""
+            repaired = self._complete(repair_prompt, "no_think", **completion_options)
             try:
                 return response_model.model_validate(_extract_json(repaired))
             except (json.JSONDecodeError, ValidationError, TypeError) as exc:
@@ -256,41 +270,29 @@ Source data:\n""" + json.dumps(payload, ensure_ascii=False), InvestigationAction
         )
 
     def generate_learning_report(self, title: str, chunks: list[PaperChunk]) -> LearningReport:
-        context = format_paper_context(chunks, self.settings.max_paper_chars)
-        prompt = f"""Create a structured Chinese learning report for the English AI paper below.
-The report is for students who need to understand the research logic, not just read a summary.
-
-Use each section_type exactly once and in this order:
-research_problem, contributions, method, experiments, results, limitations, key_terms.
-
-Requirements:
-- one_sentence_summary must explain the paper in one concise Chinese sentence.
-- Each section needs a concise Chinese overview and concrete explanation points.
-- Use 2-4 explanation points per section. Mark at most 2 points per section and at most
-  14 points in the whole report as key_point. Do not mark every point as a key point.
-- Each explanation should state what the paper says and why it matters for understanding it.
-- Method points should explain the sequence or causal logic step by step, but do not infer
-  concurrency, causality, or implementation details unless the paper states them explicitly.
-- Results must distinguish reported facts from interpretation.
-- Counts, metric names, and experimental values must match their cited evidence exactly.
-- Do not invent limitations, metrics, significance tests, conditions, or terminology.
-- Every key_point must cite at least one exact chunk_id from the supplied paper.
-- Each evidence object must contain chunk_id and quote. quote must be the shortest exact,
-  continuous English passage that supports the point (normally one sentence, 15-220
-  characters), copied verbatim from that chunk.
-- Do not paraphrase, translate, join non-contiguous phrases, add ellipses, or create page
-  numbers, locators, coordinates, or evidence text. The application validates every quote
-  against the local PDF and derives all location data itself.
-- Use only chunk IDs that appear inside <untrusted_paper>.
-- suggested_pages must contain 3-5 genuinely important pages, prioritizing the method,
-  main results, and limitations rather than listing every content page.
-
-Paper title: {title}
-
-<untrusted_paper>
-{context}
-</untrusted_paper>"""
-        return self._json_call(prompt, LearningReport, self.settings.reasoning_effort)
+        # A complete lesson must not silently lose the middle of a long paper.
+        context = "\n".join(f"[{c.chunk_id} | page {c.page}]\n{c.content}\n" for c in chunks)
+        if not chunks or not any(c.content.strip() for c in chunks):
+            raise Hy3ResponseError("论文没有可用于生成讲解的正文。")
+        if len(context) > self.settings.max_paper_chars:
+            raise Hy3ResponseError("论文正文超过讲解上下文预算；请提高 PAPERAUDIT_MAX_PAPER_CHARS 后重试，避免生成缺失中间章节的讲解。")
+        # Reuse the caller's meter (including tokens); standalone calls get the same
+        # bounded timeout/request behavior instead of hidden SDK retries.
+        budget_scope = nullcontext() if active_budget.get() is not None else use_request_budget(
+            RequestBudget(max_requests=18, max_seconds=600),
+        )
+        try:
+            with budget_scope:
+                return generate_lesson(
+                    lambda prompt, model: self._json_call(
+                        prompt, model, self.settings.reasoning_effort, repair_content_limit=None,
+                    ),
+                    title, chunks, context,
+                )
+        except LearningQualityError as exc:
+            raise Hy3ResponseError(str(exc)) from exc
+        except BudgetExceeded as exc:
+            raise Hy3ResponseError("讲解生成达到请求次数或时间上限，请稍后显式重试。") from exc
 
     def generate_peer_review(
         self,

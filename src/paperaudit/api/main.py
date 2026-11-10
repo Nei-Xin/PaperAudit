@@ -26,10 +26,10 @@ from .project_routes import router as project_router, read_code_upload, selected
 from .review_routes import router as review_router
 from paperaudit.service import AuditService
 from paperaudit.storage import AuditRecordMetadata, StorageError, load_storage_settings, default_settings_dir, _atomic_write_json
-from paperaudit.workflows import require_model, submit_learning, create_project_from_upload, answer_paper_question
+from paperaudit.workflows import require_model, submit_learning, retry_learning, create_project_from_upload, answer_paper_question
 from .schemas import (
     SettingsView, SettingsUpdate, ProjectSummary, ProjectDetail, ProjectCreated,
-    Conversations, Question, ProjectJobs, AuditDetail, ReviewPayload,
+    Conversations, Question, ProjectJobs, AuditDetail, ReviewPayload, LearningRequest,
 )
 from .views import ReadOnlyApi, NotFound
 
@@ -274,10 +274,19 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
         return api().lecture(pid)
 
     @app.post("/api/projects/{pid}/lecture/jobs", response_model=LearningJob, status_code=202)
-    def generate(pid: str):
+    def generate(pid: str, body: LearningRequest | None = None):
+        require_project(pid)
+        if body and body.regenerate and not body.privacy_ack:
+            raise ApiProblem(400, "privacy_ack_required", "请确认将论文文本发送至已配置的模型服务。")
+        with app.state.locks.hold(pid):
+            return submit_learning(api().store, app.state.manager, api().settings, pid,
+                                   regenerate=bool(body and body.regenerate))
+
+    @app.post("/api/projects/{pid}/lecture/jobs/{job_id}/retry", response_model=LearningJob, status_code=202)
+    def retry_lecture(pid: str, job_id: str):
         require_project(pid)
         with app.state.locks.hold(pid):
-            return submit_learning(api().store, app.state.manager, api().settings, pid)
+            return retry_learning(api().store, app.state.manager, api().settings, pid, job_id)
 
     @app.get("/api/projects/{pid}/conversations", response_model=Conversations)
     def conversations(pid: str):

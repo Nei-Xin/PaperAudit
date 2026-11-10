@@ -711,6 +711,8 @@ class LearningJob(StrictModel):
     stage: str = "等待生成"
     error: str | None = None
     runtime: AuditRuntimeSnapshot
+    regenerate: bool = False
+    previous_report_hash: str | None = None
 
 
 class PeerReviewJob(StrictModel):
