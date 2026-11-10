@@ -54,3 +54,6 @@ uv run --locked python scripts/check_lecture_facts.py \
 
 
 `provider_snapshots/transformer-rejected-facts.json` 保存整篇 Transformer 试验 `full-v11-point-facts` 中 5 个未改写的失败事实及其实际来源块，作为负例回归。它不属于上面的 32 个固定正反例，也不是新的独立质量基准。覆盖补写除号、不连续引文、整段短语与规范数值不等价、合并指标缺少数值等真实失败。模型调用共 2 次/53,228 token，在提纲校验阶段终止；没有正文产物、没有业务库写入。根号/乘号原样符号表示的校验误拒另已修复，但不放行这些真实缺陷。
+
+
+`provider_snapshots/transformer-fact-correction.json` 保存未改写的整篇失败提纲、`resume-v13-fact-contract` 最后一份原始纠错响应字符串及对应原文块。该响应唯一剩余格式问题是一条 330 字符的真实连续引文；应用验证整段存在后无损拆分，离线重放通过。5 个失败事实修正后，由 30 个事实变为 32 个（两个混合指标各拆成两项），其余 25 个事实逐对象保持一致。回归同时检查身份、未涉及事实保留和重新校验；不是完整讲解或事实语义认证。

@@ -1,0 +1,1177 @@
+{
+  "description": "Unedited full-v11 plan and final raw response from resume-v13. Quote normalization is performed by application code, never by editing this fixture. This is a provider replay, not semantic certification.",
+  "plan": {
+    "sections": [
+      {
+        "section_type": "research_problem",
+        "topics": [
+          {
+            "topic_id": "rp1",
+            "title": "序列模型的顺序计算瓶颈",
+            "learning_goal": "理解论文为何尝试用纯注意力替代循环与卷积结构，并识别其要解决的并行化和长距离依赖问题。",
+            "source_chunk_ids": [
+              "p2_b3",
+              "p2_b4",
+              "p2_b5"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "rp1f1",
+                "kind": "taxonomy",
+                "subject": "循环序列模型",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "循环模型按序列位置逐步计算隐藏状态，训练样例内部难以并行。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p2_b3",
+                    "quote": "Recurrent models typically factor computation along the symbol positions of the input and output sequences."
+                  }
+                ]
+              },
+              {
+                "fact_id": "rp1f2",
+                "kind": "assumption",
+                "subject": "Transformer动机",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "论文提出完全依赖注意力来连接输入与输出的全局依赖，以改善并行化。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p2_b5",
+                    "quote": "The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "section_type": "contributions",
+        "topics": [
+          {
+            "topic_id": "co1",
+            "title": "纯注意力编码器—解码器架构",
+            "learning_goal": "区分论文提出的架构主张与其通过翻译和句法分析实验展示的效益。",
+            "source_chunk_ids": [
+              "p1_b16",
+              "p10_b7",
+              "p10_b8"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "co1f1",
+                "kind": "mechanism",
+                "subject": "Transformer",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "Transformer用注意力取代常见编码器—解码器中的循环层，不使用循环或卷积来计算表示。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p10_b7",
+                    "quote": "the first sequence transduction model based entirely on attention, replacing the recurrent layers most commonly used in encoder-decoder architectures with multi-headed self-attention."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "section_type": "method",
+        "topics": [
+          {
+            "topic_id": "me1",
+            "title": "编码器和自回归解码器的层级组织",
+            "learning_goal": "说明编码器、解码器各层的组成，以及移位目标与因果掩码如何限制预测位置可见的信息。",
+            "source_chunk_ids": [
+              "p3_b5",
+              "p3_b6",
+              "p3_b3"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "me1f1",
+                "kind": "mechanism",
+                "subject": "Transformer编码器与解码器",
+                "dataset": null,
+                "metric": null,
+                "source_value": "N = 6",
+                "value": "6",
+                "unit": "层",
+                "finding": "编码器和解码器均由6个相同层堆叠；解码器另含对编码器输出的注意力子层。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p3_b5",
+                    "quote": "The encoder is composed of a stack of N = 6 identical layers."
+                  },
+                  {
+                    "chunk_id": "p3_b6",
+                    "quote": "The decoder is also composed of a stack of N = 6 identical layers."
+                  }
+                ]
+              },
+              {
+                "fact_id": "me1f2",
+                "kind": "mechanism",
+                "subject": "解码器因果掩码",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "解码器自注意力屏蔽后续位置，并将输出嵌入偏移一位，使位置i只依赖已知的更早输出。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p3_b6",
+                    "quote": "This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "topic_id": "me2",
+            "title": "缩放点积注意力与多头并行",
+            "learning_goal": "解释注意力权重的计算、缩放项的目的，以及多头投影如何从不同表示子空间并行汇集信息。",
+            "source_chunk_ids": [
+              "p4_b8",
+              "p4_b9",
+              "p4_b14",
+              "p5_b2",
+              "p5_b12"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "me2f1",
+                "kind": "mechanism",
+                "subject": "缩放点积注意力",
+                "dataset": null,
+                "metric": null,
+                "source_value": "1/√dk",
+                "value": "1/√dk",
+                "unit": null,
+                "finding": "查询与键的点积除以√dk后经softmax形成权重；缩放用于抑制大点积将softmax推入梯度很小区域的风险。",
+                "conditions": [
+                  "键维度为dk"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p4_b8",
+                    "quote": "We compute the dot products of the query with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values."
+                  },
+                  {
+                    "chunk_id": "p4_b14",
+                    "quote": "To counteract this effect, we scale the dot products by\n1\n√dk ."
+                  }
+                ]
+              },
+              {
+                "fact_id": "me2f2",
+                "kind": "mechanism",
+                "subject": "Transformer多头注意力",
+                "dataset": null,
+                "metric": null,
+                "source_value": "h = 8",
+                "value": "8",
+                "unit": "头",
+                "finding": "模型使用8个并行注意力头，每头的键和值维度均为64。",
+                "conditions": [
+                  "dmodel=512"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p5_b12",
+                    "quote": "In this work we employ h = 8 parallel attention layers, or heads. For each of these we use dk = dv = dmodel/h = 64."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "topic_id": "me3",
+            "title": "位置前馈网络、残差与归一化",
+            "learning_goal": "理解每个位置独立应用的前馈变换，以及子层输出如何经残差连接和层归一化。",
+            "source_chunk_ids": [
+              "p3_b5",
+              "p5_b19",
+              "p5_b20",
+              "p5_b21"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "me3f1",
+                "kind": "mechanism",
+                "subject": "位置前馈网络",
+                "dataset": null,
+                "metric": null,
+                "source_value": "dff = 2048",
+                "value": "2048",
+                "unit": "维",
+                "finding": "每个位置共享同一组两层线性变换，中间使用ReLU；隐层维度为2048，输入输出维度为512。",
+                "conditions": [
+                  "层间参数不同"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p5_b19",
+                    "quote": "This consists of two linear transformations with a ReLU activation in between."
+                  },
+                  {
+                    "chunk_id": "p5_b21",
+                    "quote": "The dimensionality of input and output is dmodel = 512, and the inner-layer has dimensionality dff = 2048."
+                  }
+                ]
+              },
+              {
+                "fact_id": "me3f2",
+                "kind": "mechanism",
+                "subject": "子层残差与层归一化",
+                "dataset": null,
+                "metric": null,
+                "source_value": "LayerNorm(x + Sublayer(x))",
+                "value": "LayerNorm(x + Sublayer(x))",
+                "unit": null,
+                "finding": "每个子层输出与其输入相加后进行层归一化。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p3_b5",
+                    "quote": "The output of each sub-layer is LayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer itself."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "topic_id": "me4",
+            "title": "位置编码与序列顺序",
+            "learning_goal": "说明无循环、无卷积时如何把位置信息加到词嵌入，并交代论文对正弦编码和学习式编码的观察。",
+            "source_chunk_ids": [
+              "p6_b4",
+              "p6_b5",
+              "p6_b8",
+              "p6_b9"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "me4f1",
+                "kind": "mechanism",
+                "subject": "正弦位置编码",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "论文将不同频率的正弦、余弦位置编码加到输入嵌入；作者选择它的理由是预期其有利于学习相对位置关系。",
+                "conditions": [
+                  "编码维度与嵌入维度相同"
+                ],
+                "status": "reported",
+                "uncertainty": "相对位置易于学习是论文提出的动机，不是独立证明的结论。",
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p6_b4",
+                    "quote": "we add \"positional encodings\" to the input embeddings at the bottoms of the encoder and decoder stacks."
+                  },
+                  {
+                    "chunk_id": "p6_b8",
+                    "quote": "We chose this function because we hypothesized it would allow the model to easily learn to attend by relative positions"
+                  }
+                ]
+              },
+              {
+                "fact_id": "me4f2",
+                "kind": "result",
+                "subject": "学习式位置嵌入相对正弦编码",
+                "dataset": "WMT 2014英德开发集",
+                "metric": "PPL与BLEU",
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "作者报告学习式位置嵌入与正弦版本结果近似相同。",
+                "conditions": [
+                  "Table 3变体实验",
+                  "newstest2013开发集"
+                ],
+                "status": "reported",
+                "uncertainty": "此处引用的正文只报告近似相同；表格变体行数值见结果主题。",
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p6_b9",
+                    "quote": "we experimented with using learned positional embeddings [9] instead, and found that the two versions produced nearly identical results"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "section_type": "experiments",
+        "topics": [
+          {
+            "topic_id": "ex1",
+            "title": "机器翻译数据、训练与解码评测设置",
+            "learning_goal": "掌握英德和英法翻译实验的数据规模、训练硬件与时长，以及测试时解码协议。",
+            "source_chunk_ids": [
+              "p7_b7",
+              "p7_b9",
+              "p8_b19",
+              "p8_b20"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "ex1f1",
+                "kind": "training",
+                "subject": "Transformer基础模型",
+                "dataset": "WMT 2014英德与英法",
+                "metric": null,
+                "source_value": "100,000 steps or 12 hours",
+                "value": null,
+                "unit": null,
+                "finding": "基础模型训练100,000步、约12小时；训练使用一台配备8块NVIDIA P100的机器。",
+                "conditions": [
+                  "英德数据约4.5M句对",
+                  "英法数据36M句子"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p7_b9",
+                    "quote": "We trained our models on one machine with 8 NVIDIA P100 GPUs."
+                  },
+                  {
+                    "chunk_id": "p7_b9",
+                    "quote": "We trained the base models for a total of 100,000 steps or 12 hours."
+                  },
+                  {
+                    "chunk_id": "p7_b7",
+                    "quote": "We trained on the standard WMT 2014 English-German dataset consisting of about 4.5 million sentence pairs."
+                  }
+                ]
+              },
+              {
+                "fact_id": "ex1f2",
+                "kind": "training",
+                "subject": "Transformer大模型",
+                "dataset": "WMT 2014英德与英法",
+                "metric": null,
+                "source_value": "300,000 steps (3.5 days)",
+                "value": null,
+                "unit": null,
+                "finding": "大模型训练300,000步，耗时3.5天。",
+                "conditions": [
+                  "8块P100 GPU"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p7_b9",
+                    "quote": "The big models were trained for 300,000 steps (3.5 days)."
+                  }
+                ]
+              },
+              {
+                "fact_id": "ex1f3",
+                "kind": "training",
+                "subject": "机器翻译推理",
+                "dataset": "WMT 2014英德与英法",
+                "metric": null,
+                "source_value": "beam size of 4 and length penalty α = 0.6",
+                "value": null,
+                "unit": null,
+                "finding": "翻译推理采用束搜索，束宽为4，长度惩罚α为0.6；这些参数通过开发集实验选择。",
+                "conditions": [
+                  "最大输出长度为输入长度+50",
+                  "可提前结束"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b19",
+                    "quote": "We used beam search with a beam size of 4 and length penalty α = 0.6 [38]. These hyperparameters were chosen after experimentation on the development set."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "topic_id": "ex2",
+            "title": "架构变体和句法分析实验设计",
+            "learning_goal": "识别组件变体评估所用开发集，以及英句法分析的训练数据设置、评价集与解码条件。",
+            "source_chunk_ids": [
+              "p9_b1",
+              "p9_b11",
+              "p9_b16",
+              "p10_b1",
+              "p10_b3"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "ex2f1",
+                "kind": "training",
+                "subject": "Transformer架构变体",
+                "dataset": "WMT 2014英德newstest2013开发集",
+                "metric": "PPL、BLEU",
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "架构变体在英德newstest2013开发集评测，使用束搜索，且不做检查点平均。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p9_b1",
+                    "quote": "All metrics are on the English-to-German translation development set, newstest2013."
+                  },
+                  {
+                    "chunk_id": "p9_b11",
+                    "quote": "We used beam search as described in the previous section, but no checkpoint averaging."
+                  }
+                ]
+              },
+              {
+                "fact_id": "ex2f2",
+                "kind": "training",
+                "subject": "Transformer句法分析模型",
+                "dataset": "Penn Treebank WSJ",
+                "metric": "WSJ 23 F1",
+                "source_value": "about 40K training sentences",
+                "value": "40K",
+                "unit": "句",
+                "finding": "句法分析包含仅WSJ训练约40K句子的设置，以及使用约17M句子的半监督设置；报告Section 23的F1。",
+                "conditions": [
+                  "WSJ-only词表16K",
+                  "半监督词表32K"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p9_b16",
+                    "quote": "We trained a 4-layer transformer with dmodel = 1024 on the Wall Street Journal (WSJ) portion of the Penn Treebank [25], about 40K training sentences."
+                  },
+                  {
+                    "chunk_id": "p10_b1",
+                    "quote": "Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23 of WSJ)"
+                  }
+                ]
+              },
+              {
+                "fact_id": "ex2f3",
+                "kind": "training",
+                "subject": "Transformer句法分析推理",
+                "dataset": "Penn Treebank WSJ",
+                "metric": null,
+                "source_value": "beam size of 21 and α = 0.3",
+                "value": null,
+                "unit": null,
+                "finding": "两种句法分析设置均使用束宽21和α=0.3，最大输出长度设为输入长度+300。",
+                "conditions": [
+                  "WSJ-only与半监督设置"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p10_b3",
+                    "quote": "We used a beam size of 21 and α = 0.3 for both WSJ only and the semi-supervised setting."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "section_type": "results",
+        "topics": [
+          {
+            "topic_id": "re1",
+            "title": "WMT 2014主结果：模型变体、分数与可读成本",
+            "learning_goal": "比较主表中Transformer基础版和大模型在英德、英法上的所有可读BLEU结果，并保留成本文本中的指数歧义及正文数值冲突。",
+            "source_chunk_ids": [
+              "p8_b1",
+              "p8_b3",
+              "p8_b11",
+              "p8_b12",
+              "p8_b17",
+              "p8_b18"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "re1f1",
+                "kind": "result",
+                "subject": "Transformer基础模型",
+                "dataset": "WMT 2014英德",
+                "metric": "BLEU",
+                "source_value": "27.3",
+                "value": "27.3",
+                "unit": "BLEU",
+                "finding": "主表报告基础模型英德BLEU为27.3。",
+                "conditions": [
+                  "newstest2014测试集"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b11",
+                    "quote": "Transformer (base model)\n27.3\n38.1"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re1f2",
+                "kind": "result",
+                "subject": "Transformer基础模型",
+                "dataset": "WMT 2014英法",
+                "metric": "BLEU",
+                "source_value": "38.1",
+                "value": "38.1",
+                "unit": "BLEU",
+                "finding": "主表报告基础模型英法BLEU为38.1。",
+                "conditions": [
+                  "newstest2014测试集"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b11",
+                    "quote": "Transformer (base model)\n27.3\n38.1"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re1f3",
+                "kind": "result",
+                "subject": "Transformer大模型",
+                "dataset": "WMT 2014英德",
+                "metric": "BLEU",
+                "source_value": "28.4",
+                "value": "28.4",
+                "unit": "BLEU",
+                "finding": "主表和正文报告大模型英德BLEU为28.4；正文称其超过此前最佳报告模型（包括集成）2.0以上。",
+                "conditions": [
+                  "newstest2014测试集"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b12",
+                    "quote": "Transformer (big)\n28.4\n41.8"
+                  },
+                  {
+                    "chunk_id": "p8_b17",
+                    "quote": "establishing a new state-of-the-art BLEU score of 28.4."
+                  }
+                ]
+              },
+              {
+                "fact_id": "re1f4",
+                "kind": "result",
+                "subject": "Transformer大模型",
+                "dataset": "WMT 2014英法",
+                "metric": "BLEU",
+                "source_value": "41.8",
+                "value": "41.8",
+                "unit": "BLEU",
+                "finding": "主表读数为41.8。",
+                "conditions": [
+                  "newstest2014测试集"
+                ],
+                "status": "conflicting",
+                "uncertainty": "正文另报告41.0，存在冲突。",
+                "conflict_group": "英法大模型BLEU",
+                "sources": [
+                  {
+                    "chunk_id": "p8_b12",
+                    "quote": "Transformer (big)\n28.4\n41.8"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re1f5",
+                "kind": "result",
+                "subject": "Transformer大模型",
+                "dataset": "WMT 2014英法",
+                "metric": "BLEU",
+                "source_value": "41.0",
+                "value": "41.0",
+                "unit": "BLEU",
+                "finding": "正文叙述报告大模型英法BLEU为41.0，与主表41.8冲突。",
+                "conditions": [
+                  "英法翻译任务"
+                ],
+                "status": "conflicting",
+                "uncertainty": "正文值与Table 2值不一致；不根据上下文替作者纠正。",
+                "conflict_group": "英法大模型BLEU",
+                "sources": [
+                  {
+                    "chunk_id": "p8_b18",
+                    "quote": "On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41.0"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re1f6",
+                "kind": "cost",
+                "subject": "Transformer基础模型",
+                "dataset": null,
+                "metric": "训练成本",
+                "source_value": "3.3 · 1018",
+                "value": null,
+                "unit": "FLOPs",
+                "finding": "主表可读成本字符串为3.3 · 1018 FLOPs。",
+                "conditions": [
+                  "主表列有英德、英法成本栏"
+                ],
+                "status": "ambiguous",
+                "uncertainty": "解析文本未保留指数上标格式，不能确定1018是指数还是普通字符；数据集列对齐也不明确，故不重建精确数值或归属。",
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b11",
+                    "quote": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re1f7",
+                "kind": "cost",
+                "subject": "Transformer大模型",
+                "dataset": null,
+                "metric": "训练成本",
+                "source_value": "2.3 · 1019",
+                "value": null,
+                "unit": "FLOPs",
+                "finding": "主表可读成本字符串为2.3 · 1019 FLOPs。",
+                "conditions": [
+                  "主表列有英德、英法成本栏"
+                ],
+                "status": "ambiguous",
+                "uncertainty": "解析文本未保留指数上标格式，不能确定1019是指数还是普通字符；数据集列对齐也不明确，故不重建精确数值或归属。",
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b12",
+                    "quote": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "topic_id": "re2",
+            "title": "英德开发集上的架构变体观察",
+            "learning_goal": "概述注意力头数、模型维度、dropout及位置编码变体的开发集结果趋势，并提醒表格抽取的行列不完整处不作重建。",
+            "source_chunk_ids": [
+              "p9_b1",
+              "p9_b3",
+              "p9_b5",
+              "p9_b8",
+              "p9_b10",
+              "p9_b12",
+              "p9_b13"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "re2f1",
+                "kind": "result",
+                "subject": "Transformer基础模型",
+                "dataset": "WMT 2014英德newstest2013开发集",
+                "metric": "PPL",
+                "source_value": "4.92",
+                "value": "4.92",
+                "unit": "per-wordpiece PPL",
+                "finding": "基础模型开发集per-wordpiece PPL为4.92。",
+                "conditions": [
+                  "非测试集指标"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p9_b3",
+                    "quote": "base\n6\n512\n2048\n8\n64\n64\n0.1\n0.1\n100K\n4.92\n25.8\n65"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re2f2",
+                "kind": "result",
+                "subject": "Transformer基础模型",
+                "dataset": "WMT 2014英德newstest2013开发集",
+                "metric": "BLEU",
+                "source_value": "25.8",
+                "value": "25.8",
+                "unit": "BLEU",
+                "finding": "基础模型开发集BLEU为25.8。",
+                "conditions": [
+                  "不做检查点平均"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p9_b3",
+                    "quote": "base\n6\n512\n2048\n8\n64\n64\n0.1\n0.1\n100K\n4.92\n25.8\n65"
+                  }
+                ]
+              },
+              {
+                "fact_id": "re2f3",
+                "kind": "result",
+                "subject": "学习式位置嵌入变体",
+                "dataset": "WMT 2014英德newstest2013开发集",
+                "metric": "PPL与BLEU",
+                "source_value": "4.92\n25.7",
+                "value": null,
+                "unit": null,
+                "finding": "表格抽取给出学习式位置嵌入变体PPL 4.92、BLEU 25.7。",
+                "conditions": [
+                  "相较正弦位置编码",
+                  "开发集"
+                ],
+                "status": "reported",
+                "uncertainty": "行列布局在解析文本中不完整；与正文“近乎相同”的定性描述一致，但不扩展重建其他变体行。",
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p9_b10",
+                    "quote": "(E)\npositional embedding instead of sinusoids\n4.92\n25.7"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "section_type": "limitations",
+        "topics": [
+          {
+            "topic_id": "li1",
+            "title": "效率优势与适用范围的边界",
+            "learning_goal": "区分论文明确提出的未来工作与由其复杂度讨论限定的适用条件，不把未验证方向说成已解决。",
+            "source_chunk_ids": [
+              "p7_b1",
+              "p10_b9",
+              "p8_b18"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "li1f1",
+                "kind": "assumption",
+                "subject": "自注意力计算复杂度",
+                "dataset": null,
+                "metric": null,
+                "source_value": "O(n2 · d)",
+                "value": "O(n2 · d)",
+                "unit": null,
+                "finding": "自注意力每层复杂度随序列长度平方增长；论文指出其相对循环层更快的条件是序列长度n小于表示维度d。",
+                "conditions": [
+                  "标准全局自注意力"
+                ],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p6_b2",
+                    "quote": "Self-Attention\nO(n2 · d)\nO(1)\nO(1)"
+                  },
+                  {
+                    "chunk_id": "p7_b1",
+                    "quote": "self-attention layers are faster than recurrent layers when the sequence length n is smaller than the representation dimensionality d"
+                  }
+                ]
+              },
+              {
+                "fact_id": "li1f2",
+                "kind": "taxonomy",
+                "subject": "作者计划的后续方向",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "作者计划研究局部受限注意力以处理大型输入输出，并探索降低生成的顺序性；这些是计划而非本文已验证的结果。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p10_b9",
+                    "quote": "to investigate local, restricted attention mechanisms to efficiently handle large inputs and outputs such as images, audio and video. Making generation less sequential is another research goals of ours."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      },
+      {
+        "section_type": "key_terms",
+        "topics": [
+          {
+            "topic_id": "kt1",
+            "title": "BLEU、PPL与F1",
+            "learning_goal": "理解本课结果表中三种评价指标的名称和论文报告时的适用数据设置。",
+            "source_chunk_ids": [
+              "p8_b3",
+              "p9_b1",
+              "p10_b1"
+            ],
+            "required_values": [],
+            "facts": [
+              {
+                "fact_id": "kt1f1",
+                "kind": "taxonomy",
+                "subject": "BLEU、PPL与F1",
+                "dataset": null,
+                "metric": null,
+                "source_value": null,
+                "value": null,
+                "unit": null,
+                "finding": "论文以BLEU报告翻译结果，以per-wordpiece PPL报告架构变体的开发集结果，以F1报告WSJ句法分析；这里仅按论文指标名称说明，不引入额外定义。",
+                "conditions": [],
+                "status": "reported",
+                "uncertainty": null,
+                "conflict_group": null,
+                "sources": [
+                  {
+                    "chunk_id": "p8_b3",
+                    "quote": "BLEU\nTraining Cost (FLOPs)"
+                  },
+                  {
+                    "chunk_id": "p9_b1",
+                    "quote": "Listed perplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to per-word perplexities."
+                  },
+                  {
+                    "chunk_id": "p10_b1",
+                    "quote": "Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23 of WSJ)"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "unavailable_reason": null
+      }
+    ]
+  },
+  "patch_response": "{\"corrections\":[{\"topic_id\":\"me2\",\"fact_id\":\"me2f1\",\"replacement\":{\"fact_id\":\"me2f1\",\"kind\":\"mechanism\",\"subject\":\"缩放点积注意力\",\"dataset\":null,\"metric\":null,\"source_value\":\"√dk\",\"value\":\"√dk\",\"unit\":null,\"finding\":\"查询与键的点积除以√dk后经softmax形成权重；缩放用于抑制大点积将softmax推入梯度很小区域的风险。\",\"conditions\":[\"键维度为dk\"],\"status\":\"reported\",\"uncertainty\":null,\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p4_b8\",\"quote\":\"We compute the dot products of the query with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values.\"},{\"chunk_id\":\"p4_b14\",\"quote\":\"While for small values of dk the two mechanisms perform similarly, additive attention outperforms dot product attention without scaling for larger values of dk [3]. We suspect that for large values of dk, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients 4.\"}]},\"additional_facts\":[]},{\"topic_id\":\"me4\",\"fact_id\":\"me4f2\",\"replacement\":{\"fact_id\":\"me4f2\",\"kind\":\"result\",\"subject\":\"学习式位置嵌入变体\",\"dataset\":\"WMT 2014英德newstest2013开发集\",\"metric\":\"PPL\",\"source_value\":\"4.92\",\"value\":\"4.92\",\"unit\":\"per-wordpiece PPL\",\"finding\":\"学习式位置嵌入变体的开发集per-wordpiece PPL为4.92；作者报告学习式位置嵌入与正弦版本结果近似相同。\",\"conditions\":[\"Table 3变体实验\",\"newstest2013开发集\"],\"status\":\"reported\",\"uncertainty\":\"正文定性称结果近似相同；表格行(E)报告学习式位置嵌入变体的数值，但未给出与正弦版本逐项相同的比较值。\",\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p6_b9\",\"quote\":\"We also experimented with using learned positional embeddings [9] instead, and found that the two\\nversions produced nearly identical results (see Table 3 row (E)).\"},{\"chunk_id\":\"p9_b10\",\"quote\":\"(E)\\npositional embedding instead of sinusoids\\n4.92\\n25.7\"}]},\"additional_facts\":[{\"fact_id\":\"me4f2_bleu\",\"kind\":\"result\",\"subject\":\"学习式位置嵌入变体\",\"dataset\":\"WMT 2014英德newstest2013开发集\",\"metric\":\"BLEU\",\"source_value\":\"25.7\",\"value\":\"25.7\",\"unit\":\"BLEU\",\"finding\":\"学习式位置嵌入变体的开发集BLEU为25.7；作者报告学习式位置嵌入与正弦版本结果近似相同。\",\"conditions\":[\"Table 3变体实验\",\"newstest2013开发集\"],\"status\":\"reported\",\"uncertainty\":\"正文定性称结果近似相同；表格行(E)报告学习式位置嵌入变体的数值，但未给出与正弦版本逐项相同的比较值。\",\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p6_b9\",\"quote\":\"We also experimented with using learned positional embeddings [9] instead, and found that the two\\nversions produced nearly identical results (see Table 3 row (E)).\"},{\"chunk_id\":\"p9_b10\",\"quote\":\"(E)\\npositional embedding instead of sinusoids\\n4.92\\n25.7\"}]}]},{\"topic_id\":\"ex2\",\"fact_id\":\"ex2f2\",\"replacement\":{\"fact_id\":\"ex2f2\",\"kind\":\"training\",\"subject\":\"Transformer句法分析模型\",\"dataset\":\"Penn Treebank WSJ\",\"metric\":\"WSJ 23 F1\",\"source_value\":\"about 40K training sentences\",\"value\":null,\"unit\":\"句\",\"finding\":\"WSJ-only句法分析训练集约有40K句；另有约17M句子的半监督设置，报告Section 23的F1。\",\"conditions\":[\"WSJ-only词表16K\",\"半监督词表32K\"],\"status\":\"reported\",\"uncertainty\":\"保留论文的约数表述；40K是原文缩写，未推断其尺度。\",\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p9_b16\",\"quote\":\"We trained a 4-layer transformer with dmodel = 1024 on the Wall Street Journal (WSJ) portion of the Penn Treebank [25], about 40K training sentences.\"},{\"chunk_id\":\"p10_b1\",\"quote\":\"Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23\\nof WSJ)\"}]},\"additional_facts\":[]},{\"topic_id\":\"re2\",\"fact_id\":\"re2f3\",\"replacement\":{\"fact_id\":\"re2f3\",\"kind\":\"result\",\"subject\":\"学习式位置嵌入变体\",\"dataset\":\"WMT 2014英德newstest2013开发集\",\"metric\":\"PPL\",\"source_value\":\"4.92\",\"value\":\"4.92\",\"unit\":\"per-wordpiece PPL\",\"finding\":\"学习式位置嵌入变体的开发集per-wordpiece PPL为4.92。\",\"conditions\":[\"相较正弦位置编码\",\"开发集\",\"不做检查点平均\"],\"status\":\"reported\",\"uncertainty\":\"表格解析行列布局不完整；行(E)可读的PPL值为4.92。\",\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p9_b10\",\"quote\":\"(E)\\npositional embedding instead of sinusoids\\n4.92\\n25.7\"}]},\"additional_facts\":[{\"fact_id\":\"re2f3_bleu\",\"kind\":\"result\",\"subject\":\"学习式位置嵌入变体\",\"dataset\":\"WMT 2014英德newstest2013开发集\",\"metric\":\"BLEU\",\"source_value\":\"25.7\",\"value\":\"25.7\",\"unit\":\"BLEU\",\"finding\":\"学习式位置嵌入变体的开发集BLEU为25.7。\",\"conditions\":[\"相较正弦位置编码\",\"开发集\",\"不做检查点平均\"],\"status\":\"reported\",\"uncertainty\":\"表格解析行列布局不完整；行(E)可读的BLEU值为25.7。\",\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p9_b10\",\"quote\":\"(E)\\npositional embedding instead of sinusoids\\n4.92\\n25.7\"}]}]},{\"topic_id\":\"li1\",\"fact_id\":\"li1f1\",\"replacement\":{\"fact_id\":\"li1f1\",\"kind\":\"assumption\",\"subject\":\"自注意力计算复杂度\",\"dataset\":null,\"metric\":\"每层复杂度\",\"source_value\":\"O(n2 · d)\",\"value\":\"O(n2 · d)\",\"unit\":null,\"finding\":\"自注意力每层复杂度为O(n2 · d)；论文指出其相对循环层更快的条件是序列长度n小于表示维度d。\",\"conditions\":[\"标准全局自注意力\"],\"status\":\"reported\",\"uncertainty\":null,\"conflict_group\":null,\"sources\":[{\"chunk_id\":\"p6_b2\",\"quote\":\"Self-Attention\\nO(n2 · d)\\nO(1)\\nO(1)\"},{\"chunk_id\":\"p6_b15\",\"quote\":\"In terms of computational complexity, self-attention layers are faster than recurrent layers when the sequence\"},{\"chunk_id\":\"p7_b1\",\"quote\":\"length n is smaller than the representation dimensionality d, which is most often the case with\"}]},\"additional_facts\":[]}]}",
+  "sources": [
+    {
+      "chunk_id": "p1_b16",
+      "page": 1,
+      "content": "The dominant sequence transduction models are based on complex recurrent or\nconvolutional neural networks that include an encoder and a decoder. The best\nperforming models also connect the encoder and decoder through an attention\nmechanism. We propose a new simple network architecture, the Transformer,\nbased solely on attention mechanisms, dispensing with recurrence and convolutions\nentirely. Experiments on two machine translation tasks show these models to\nbe superior in quality while being more parallelizable and requiring significantly\nless time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-\nto-German translation task, improving over the existing best results, including\nensembles, by over 2 BLEU. On the WMT 2014 English-to-French translation task,\nour model establishes a new single-model state-of-the-art BLEU score of 41.8 after\ntraining for 3.5 days on eight GPUs, a small fraction of the training costs of the\nbest models from the literature. We show that the Transformer generalizes well to\nother tasks by applying it successfully to English constituency parsing both with\nlarge and limited training data."
+    },
+    {
+      "chunk_id": "p2_b3",
+      "page": 2,
+      "content": "Recurrent models typically factor computation along the symbol positions of the input and output\nsequences. Aligning the positions to steps in computation time, they generate a sequence of hidden\nstates ht, as a function of the previous hidden state ht−1 and the input for position t. This inherently\nsequential nature precludes parallelization within training examples, which becomes critical at longer\nsequence lengths, as memory constraints limit batching across examples. Recent work has achieved\nsignificant improvements in computational efficiency through factorization tricks [21] and conditional\ncomputation [32], while also improving model performance in case of the latter. The fundamental\nconstraint of sequential computation, however, remains."
+    },
+    {
+      "chunk_id": "p2_b4",
+      "page": 2,
+      "content": "Attention mechanisms have become an integral part of compelling sequence modeling and transduc-\ntion models in various tasks, allowing modeling of dependencies without regard to their distance in\nthe input or output sequences [2, 19]. In all but a few cases [27], however, such attention mechanisms\nare used in conjunction with a recurrent network."
+    },
+    {
+      "chunk_id": "p2_b5",
+      "page": 2,
+      "content": "In this work we propose the Transformer, a model architecture eschewing recurrence and instead\nrelying entirely on an attention mechanism to draw global dependencies between input and output.\nThe Transformer allows for significantly more parallelization and can reach a new state of the art in\ntranslation quality after being trained for as little as twelve hours on eight P100 GPUs."
+    },
+    {
+      "chunk_id": "p3_b3",
+      "page": 3,
+      "content": "The Transformer follows this overall architecture using stacked self-attention and point-wise, fully\nconnected layers for both the encoder and decoder, shown in the left and right halves of Figure 1,\nrespectively."
+    },
+    {
+      "chunk_id": "p3_b5",
+      "page": 3,
+      "content": "Encoder:\nThe encoder is composed of a stack of N = 6 identical layers. Each layer has two\nsub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, position-\nwise fully connected feed-forward network. We employ a residual connection [11] around each of\nthe two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is\nLayerNorm(x + Sublayer(x)), where Sublayer(x) is the function implemented by the sub-layer\nitself. To facilitate these residual connections, all sub-layers in the model, as well as the embedding\nlayers, produce outputs of dimension dmodel = 512."
+    },
+    {
+      "chunk_id": "p3_b6",
+      "page": 3,
+      "content": "Decoder:\nThe decoder is also composed of a stack of N = 6 identical layers. In addition to the two\nsub-layers in each encoder layer, the decoder inserts a third sub-layer, which performs multi-head\nattention over the output of the encoder stack. Similar to the encoder, we employ residual connections\naround each of the sub-layers, followed by layer normalization. We also modify the self-attention\nsub-layer in the decoder stack to prevent positions from attending to subsequent positions. This\nmasking, combined with fact that the output embeddings are offset by one position, ensures that the\npredictions for position i can depend only on the known outputs at positions less than i."
+    },
+    {
+      "chunk_id": "p4_b8",
+      "page": 4,
+      "content": "We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of\nqueries and keys of dimension dk, and values of dimension dv. We compute the dot products of the\nquery with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the\nvalues."
+    },
+    {
+      "chunk_id": "p4_b9",
+      "page": 4,
+      "content": "In practice, we compute the attention function on a set of queries simultaneously, packed together\ninto a matrix Q. The keys and values are also packed together into matrices K and V . We compute\nthe matrix of outputs as:"
+    },
+    {
+      "chunk_id": "p4_b14",
+      "page": 4,
+      "content": "While for small values of dk the two mechanisms perform similarly, additive attention outperforms\ndot product attention without scaling for larger values of dk [3]. We suspect that for large values of\ndk, the dot products grow large in magnitude, pushing the softmax function into regions where it has\nextremely small gradients 4. To counteract this effect, we scale the dot products by\n1\n√dk ."
+    },
+    {
+      "chunk_id": "p5_b2",
+      "page": 5,
+      "content": "Multi-head attention allows the model to jointly attend to information from different representation\nsubspaces at different positions. With a single attention head, averaging inhibits this."
+    },
+    {
+      "chunk_id": "p5_b12",
+      "page": 5,
+      "content": "In this work we employ h = 8 parallel attention layers, or heads. For each of these we use\ndk = dv = dmodel/h = 64. Due to the reduced dimension of each head, the total computational cost\nis similar to that of single-head attention with full dimensionality."
+    },
+    {
+      "chunk_id": "p5_b19",
+      "page": 5,
+      "content": "In addition to attention sub-layers, each of the layers in our encoder and decoder contains a fully\nconnected feed-forward network, which is applied to each position separately and identically. This\nconsists of two linear transformations with a ReLU activation in between."
+    },
+    {
+      "chunk_id": "p5_b20",
+      "page": 5,
+      "content": "FFN(x) = max(0, xW1 + b1)W2 + b2\n(2)"
+    },
+    {
+      "chunk_id": "p5_b21",
+      "page": 5,
+      "content": "While the linear transformations are the same across different positions, they use different parameters\nfrom layer to layer. Another way of describing this is as two convolutions with kernel size 1.\nThe dimensionality of input and output is dmodel = 512, and the inner-layer has dimensionality\ndff = 2048."
+    },
+    {
+      "chunk_id": "p6_b2",
+      "page": 6,
+      "content": "Layer Type\nComplexity per Layer\nSequential\nMaximum Path Length\nOperations\nSelf-Attention\nO(n2 · d)\nO(1)\nO(1)\nRecurrent\nO(n · d2)\nO(n)\nO(n)\nConvolutional\nO(k · n · d2)\nO(1)\nO(logk(n))\nSelf-Attention (restricted)\nO(r · n · d)\nO(1)\nO(n/r)"
+    },
+    {
+      "chunk_id": "p6_b4",
+      "page": 6,
+      "content": "Since our model contains no recurrence and no convolution, in order for the model to make use of the\norder of the sequence, we must inject some information about the relative or absolute position of the\ntokens in the sequence. To this end, we add \"positional encodings\" to the input embeddings at the\nbottoms of the encoder and decoder stacks. The positional encodings have the same dimension dmodel\nas the embeddings, so that the two can be summed. There are many choices of positional encodings,\nlearned and fixed [9]."
+    },
+    {
+      "chunk_id": "p6_b5",
+      "page": 6,
+      "content": "In this work, we use sine and cosine functions of different frequencies:"
+    },
+    {
+      "chunk_id": "p6_b8",
+      "page": 6,
+      "content": "where pos is the position and i is the dimension. That is, each dimension of the positional encoding\ncorresponds to a sinusoid. The wavelengths form a geometric progression from 2π to 10000 · 2π. We\nchose this function because we hypothesized it would allow the model to easily learn to attend by\nrelative positions, since for any fixed offset k, PEpos+k can be represented as a linear function of\nPEpos."
+    },
+    {
+      "chunk_id": "p6_b9",
+      "page": 6,
+      "content": "We also experimented with using learned positional embeddings [9] instead, and found that the two\nversions produced nearly identical results (see Table 3 row (E)). We chose the sinusoidal version\nbecause it may allow the model to extrapolate to sequence lengths longer than the ones encountered\nduring training."
+    },
+    {
+      "chunk_id": "p6_b15",
+      "page": 6,
+      "content": "As noted in Table 1, a self-attention layer connects all positions with a constant number of sequentially\nexecuted operations, whereas a recurrent layer requires O(n) sequential operations. In terms of\ncomputational complexity, self-attention layers are faster than recurrent layers when the sequence"
+    },
+    {
+      "chunk_id": "p7_b1",
+      "page": 7,
+      "content": "length n is smaller than the representation dimensionality d, which is most often the case with\nsentence representations used by state-of-the-art models in machine translations, such as word-piece\n[38] and byte-pair [31] representations. To improve computational performance for tasks involving\nvery long sequences, self-attention could be restricted to considering only a neighborhood of size r in\nthe input sequence centered around the respective output position. This would increase the maximum\npath length to O(n/r). We plan to investigate this approach further in future work."
+    },
+    {
+      "chunk_id": "p7_b7",
+      "page": 7,
+      "content": "We trained on the standard WMT 2014 English-German dataset consisting of about 4.5 million\nsentence pairs. Sentences were encoded using byte-pair encoding [3], which has a shared source-\ntarget vocabulary of about 37000 tokens. For English-French, we used the significantly larger WMT\n2014 English-French dataset consisting of 36M sentences and split tokens into a 32000 word-piece\nvocabulary [38]. Sentence pairs were batched together by approximate sequence length. Each training\nbatch contained a set of sentence pairs containing approximately 25000 source tokens and 25000\ntarget tokens."
+    },
+    {
+      "chunk_id": "p7_b9",
+      "page": 7,
+      "content": "We trained our models on one machine with 8 NVIDIA P100 GPUs. For our base models using\nthe hyperparameters described throughout the paper, each training step took about 0.4 seconds. We\ntrained the base models for a total of 100,000 steps or 12 hours. For our big models,(described on the\nbottom line of table 3), step time was 1.0 seconds. The big models were trained for 300,000 steps\n(3.5 days)."
+    },
+    {
+      "chunk_id": "p8_b1",
+      "page": 8,
+      "content": "Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost."
+    },
+    {
+      "chunk_id": "p8_b3",
+      "page": 8,
+      "content": "BLEU\nTraining Cost (FLOPs)"
+    },
+    {
+      "chunk_id": "p8_b11",
+      "page": 8,
+      "content": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+    },
+    {
+      "chunk_id": "p8_b12",
+      "page": 8,
+      "content": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+    },
+    {
+      "chunk_id": "p8_b17",
+      "page": 8,
+      "content": "On the WMT 2014 English-to-German translation task, the big transformer model (Transformer (big)\nin Table 2) outperforms the best previously reported models (including ensembles) by more than 2.0\nBLEU, establishing a new state-of-the-art BLEU score of 28.4. The configuration of this model is\nlisted in the bottom line of Table 3. Training took 3.5 days on 8 P100 GPUs. Even our base model\nsurpasses all previously published models and ensembles, at a fraction of the training cost of any of\nthe competitive models."
+    },
+    {
+      "chunk_id": "p8_b18",
+      "page": 8,
+      "content": "On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41.0,\noutperforming all of the previously published single models, at less than 1/4 the training cost of the\nprevious state-of-the-art model. The Transformer (big) model trained for English-to-French used\ndropout rate Pdrop = 0.1, instead of 0.3."
+    },
+    {
+      "chunk_id": "p8_b19",
+      "page": 8,
+      "content": "For the base models, we used a single model obtained by averaging the last 5 checkpoints, which\nwere written at 10-minute intervals. For the big models, we averaged the last 20 checkpoints. We\nused beam search with a beam size of 4 and length penalty α = 0.6 [38]. These hyperparameters\nwere chosen after experimentation on the development set. We set the maximum output length during\ninference to input length + 50, but terminate early when possible [38]."
+    },
+    {
+      "chunk_id": "p8_b20",
+      "page": 8,
+      "content": "Table 2 summarizes our results and compares our translation quality and training costs to other model\narchitectures from the literature. We estimate the number of floating point operations used to train a\nmodel by multiplying the training time, the number of GPUs used, and an estimate of the sustained\nsingle-precision floating-point capacity of each GPU 5."
+    },
+    {
+      "chunk_id": "p9_b1",
+      "page": 9,
+      "content": "Table 3: Variations on the Transformer architecture. Unlisted values are identical to those of the base\nmodel. All metrics are on the English-to-German translation development set, newstest2013. Listed\nperplexities are per-wordpiece, according to our byte-pair encoding, and should not be compared to\nper-word perplexities."
+    },
+    {
+      "chunk_id": "p9_b3",
+      "page": 9,
+      "content": "base\n6\n512\n2048\n8\n64\n64\n0.1\n0.1\n100K\n4.92\n25.8\n65"
+    },
+    {
+      "chunk_id": "p9_b5",
+      "page": 9,
+      "content": "1\n512\n512\n5.29\n24.9\n4\n128\n128\n5.00\n25.5\n16\n32\n32\n4.91\n25.8\n32\n16\n16\n5.01\n25.4"
+    },
+    {
+      "chunk_id": "p9_b8",
+      "page": 9,
+      "content": "2\n6.11\n23.7\n36\n4\n5.19\n25.3\n50\n8\n4.88\n25.5\n80\n256\n32\n32\n5.75\n24.5\n28\n1024\n128\n128\n4.66\n26.0\n168\n1024\n5.12\n25.4\n53\n4096\n4.75\n26.2\n90"
+    },
+    {
+      "chunk_id": "p9_b10",
+      "page": 9,
+      "content": "0.0\n5.77\n24.6\n0.2\n4.95\n25.5\n0.0\n4.67\n25.3\n0.2\n5.47\n25.7\n(E)\npositional embedding instead of sinusoids\n4.92\n25.7\nbig\n6\n1024\n4096\n16\n0.3\n300K\n4.33\n26.4\n213"
+    },
+    {
+      "chunk_id": "p9_b11",
+      "page": 9,
+      "content": "development set, newstest2013. We used beam search as described in the previous section, but no\ncheckpoint averaging. We present these results in Table 3."
+    },
+    {
+      "chunk_id": "p9_b12",
+      "page": 9,
+      "content": "In Table 3 rows (A), we vary the number of attention heads and the attention key and value dimensions,\nkeeping the amount of computation constant, as described in Section 3.2.2. While single-head\nattention is 0.9 BLEU worse than the best setting, quality also drops off with too many heads."
+    },
+    {
+      "chunk_id": "p9_b13",
+      "page": 9,
+      "content": "In Table 3 rows (B), we observe that reducing the attention key size dk hurts model quality. This\nsuggests that determining compatibility is not easy and that a more sophisticated compatibility\nfunction than dot product may be beneficial. We further observe in rows (C) and (D) that, as expected,\nbigger models are better, and dropout is very helpful in avoiding over-fitting. In row (E) we replace our\nsinusoidal positional encoding with learned positional embeddings [9], and observe nearly identical\nresults to the base model."
+    },
+    {
+      "chunk_id": "p9_b16",
+      "page": 9,
+      "content": "We trained a 4-layer transformer with dmodel = 1024 on the Wall Street Journal (WSJ) portion of the\nPenn Treebank [25], about 40K training sentences. We also trained it in a semi-supervised setting,\nusing the larger high-confidence and BerkleyParser corpora from with approximately 17M sentences\n[37]. We used a vocabulary of 16K tokens for the WSJ only setting and a vocabulary of 32K tokens\nfor the semi-supervised setting."
+    },
+    {
+      "chunk_id": "p10_b1",
+      "page": 10,
+      "content": "Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23\nof WSJ)"
+    },
+    {
+      "chunk_id": "p10_b3",
+      "page": 10,
+      "content": "increased the maximum output length to input length + 300. We used a beam size of 21 and α = 0.3\nfor both WSJ only and the semi-supervised setting."
+    },
+    {
+      "chunk_id": "p10_b7",
+      "page": 10,
+      "content": "In this work, we presented the Transformer, the first sequence transduction model based entirely on\nattention, replacing the recurrent layers most commonly used in encoder-decoder architectures with\nmulti-headed self-attention."
+    },
+    {
+      "chunk_id": "p10_b8",
+      "page": 10,
+      "content": "For translation tasks, the Transformer can be trained significantly faster than architectures based\non recurrent or convolutional layers. On both WMT 2014 English-to-German and WMT 2014\nEnglish-to-French translation tasks, we achieve a new state of the art. In the former task our best\nmodel outperforms even all previously reported ensembles."
+    },
+    {
+      "chunk_id": "p10_b9",
+      "page": 10,
+      "content": "We are excited about the future of attention-based models and plan to apply them to other tasks. We\nplan to extend the Transformer to problems involving input and output modalities other than text and\nto investigate local, restricted attention mechanisms to efficiently handle large inputs and outputs\nsuch as images, audio and video. Making generation less sequential is another research goals of ours."
+    }
+  ]
+}
