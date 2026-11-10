@@ -1,0 +1,209 @@
+{
+  "sections": [
+    {
+      "section_type": "research_problem",
+      "topics": [
+        {
+          "topic_id": "rp1",
+          "title": "收敛问题与适用范围",
+          "learning_goal": "说明该理论说明研究的优化问题，以及其结论明确排除的情形。",
+          "source_chunk_ids": [
+            "theorem"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "f1",
+              "kind": "assumption",
+              "subject": "梯度下降",
+              "dataset": null,
+              "metric": "目标函数差距",
+              "source_value": "O(1/T)",
+              "value": null,
+              "unit": null,
+              "finding": "在凸且 L-smooth 的目标函数上，梯度下降具有目标函数差距收敛保证。",
+              "conditions": [
+                "步长为 1/L",
+                "目标函数凸且 L-smooth"
+              ],
+              "status": "reported",
+              "uncertainty": "来源未给出大 O 界的常数。",
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "theorem",
+                  "quote": "For a convex L-smooth objective, gradient descent with step size 1/L has an O(1/T) objective gap."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "contributions",
+      "topics": [
+        {
+          "topic_id": "co1",
+          "title": "理论结论而非经验贡献",
+          "learning_goal": "区分该材料报告的理论保证与未报告的实验验证。",
+          "source_chunk_ids": [
+            "theorem",
+            "scope"
+          ],
+          "required_values": [],
+          "facts": []
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "method",
+      "topics": [
+        {
+          "topic_id": "m1",
+          "title": "梯度下降的步长设定",
+          "learning_goal": "识别材料给出的算法设定及其理论条件。",
+          "source_chunk_ids": [
+            "theorem"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "f2",
+              "kind": "mechanism",
+              "subject": "梯度下降",
+              "dataset": null,
+              "metric": "步长",
+              "source_value": "1/L",
+              "value": "1/L",
+              "unit": null,
+              "finding": "材料指定梯度下降使用步长 1/L。",
+              "conditions": [
+                "目标函数凸且 L-smooth"
+              ],
+              "status": "reported",
+              "uncertainty": "材料未提供迭代更新公式或证明细节。",
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "theorem",
+                  "quote": "For a convex L-smooth objective, gradient descent with step size 1/L has an O(1/T) objective gap."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "experiments",
+      "topics": [],
+      "unavailable_reason": "材料明确说明没有报告经验实验，因此没有数据集、基线、评估协议或消融结果可供整理。"
+    },
+    {
+      "section_type": "results",
+      "topics": [
+        {
+          "topic_id": "rs1",
+          "title": "凸目标上的收敛率",
+          "learning_goal": "陈述收敛率结论及其条件，并避免把它外推到非凸目标。",
+          "source_chunk_ids": [
+            "theorem"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "f3",
+              "kind": "result",
+              "subject": "梯度下降",
+              "dataset": null,
+              "metric": "目标函数差距",
+              "source_value": "O(1/T)",
+              "value": null,
+              "unit": null,
+              "finding": "对于凸且 L-smooth 的目标函数，步长为 1/L 时，目标函数差距为 O(1/T) 量级。",
+              "conditions": [
+                "目标函数凸且 L-smooth",
+                "步长为 1/L"
+              ],
+              "status": "reported",
+              "uncertainty": "只给出渐近阶，未报告常数或更具体的界。",
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "theorem",
+                  "quote": "For a convex L-smooth objective, gradient descent with step size 1/L has an O(1/T) objective gap."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "limitations",
+      "topics": [
+        {
+          "topic_id": "l1",
+          "title": "非凸情形与实验范围",
+          "learning_goal": "辨认结论明确不覆盖的目标类别，以及材料未提供的实证证据。",
+          "source_chunk_ids": [
+            "theorem",
+            "scope"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "f4",
+              "kind": "assumption",
+              "subject": "梯度下降收敛结论",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "该收敛结论不覆盖非凸目标；材料也未报告经验实验。",
+              "conditions": [
+                "理论说明的范围限于凸且 L-smooth 目标"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "theorem",
+                  "quote": "This statement does not cover non-convex objectives."
+                },
+                {
+                  "chunk_id": "scope",
+                  "quote": "This theoretical note presents a convergence argument and reports no empirical experiments."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "key_terms",
+      "topics": [
+        {
+          "topic_id": "kt1",
+          "title": "L-smooth 与 O(1/T)",
+          "learning_goal": "理解材料中光滑性条件和渐近收敛阶的作用。",
+          "source_chunk_ids": [
+            "theorem"
+          ],
+          "required_values": [],
+          "facts": []
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ]
+}

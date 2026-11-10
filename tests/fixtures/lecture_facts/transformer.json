@@ -1,0 +1,324 @@
+{
+  "case_id": "transformer_excerpts",
+  "paper_type": "empirical",
+  "provenance": {
+    "kind": "real_paper_excerpts",
+    "title": "Attention Is All You Need",
+    "note": "Selected parsed text from the existing project; not a full-paper benchmark. Flat 1018 does not prove an exponent."
+  },
+  "chunks": [
+    {
+      "chunk_id": "p7_b11",
+      "page": 7,
+      "content": "We used the Adam optimizer [20] with β1 = 0.9, β2 = 0.98 and ϵ = 10−9. We varied the learning\nrate over the course of training, according to the formula:"
+    },
+    {
+      "chunk_id": "p7_b14",
+      "page": 7,
+      "content": "This corresponds to increasing the learning rate linearly for the first warmup_steps training steps,\nand decreasing it thereafter proportionally to the inverse square root of the step number. We used\nwarmup_steps = 4000."
+    },
+    {
+      "chunk_id": "p8_b11",
+      "page": 8,
+      "content": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+    },
+    {
+      "chunk_id": "p8_b12",
+      "page": 8,
+      "content": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+    },
+    {
+      "chunk_id": "p8_b18",
+      "page": 8,
+      "content": "On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41.0,\noutperforming all of the previously published single models, at less than 1/4 the training cost of the\nprevious state-of-the-art model. The Transformer (big) model trained for English-to-French used\ndropout rate Pdrop = 0.1, instead of 0.3."
+    },
+    {
+      "chunk_id": "p8_b1",
+      "page": 8,
+      "content": "Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost."
+    },
+    {
+      "chunk_id": "p8_b3",
+      "page": 8,
+      "content": "BLEU\nTraining Cost (FLOPs)"
+    },
+    {
+      "chunk_id": "p8_b4",
+      "page": 8,
+      "content": "EN-DE\nEN-FR\nEN-DE\nEN-FR\nByteNet [18]\n23.75\nDeep-Att + PosUnk [39]\n39.2\n1.0 · 1020"
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "base_fr",
+      "kind": "result",
+      "subject": "Transformer base",
+      "finding": "base 的英法测试结果",
+      "sources": [
+        {
+          "chunk_id": "p8_b11",
+          "quote": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+        },
+        {
+          "chunk_id": "p8_b1",
+          "quote": "Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost."
+        },
+        {
+          "chunk_id": "p8_b4",
+          "quote": "EN-DE\nEN-FR\nEN-DE\nEN-FR"
+        }
+      ],
+      "dataset": "英法",
+      "metric": "BLEU",
+      "source_value": "38.1",
+      "value": "38.1",
+      "conditions": [
+        "newstest2014"
+      ]
+    },
+    {
+      "fact_id": "big_fr_table",
+      "kind": "result",
+      "subject": "Transformer big",
+      "finding": "英法表格分数",
+      "sources": [
+        {
+          "chunk_id": "p8_b12",
+          "quote": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+        },
+        {
+          "chunk_id": "p8_b1",
+          "quote": "Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the\nEnglish-to-German and English-to-French newstest2014 tests at a fraction of the training cost."
+        },
+        {
+          "chunk_id": "p8_b4",
+          "quote": "EN-DE\nEN-FR\nEN-DE\nEN-FR"
+        }
+      ],
+      "dataset": "英法",
+      "metric": "BLEU",
+      "source_value": "41.8",
+      "value": "41.8",
+      "status": "conflicting",
+      "conflict_group": "fr_big",
+      "uncertainty": "表格与正文不一致"
+    },
+    {
+      "fact_id": "big_fr_text",
+      "kind": "result",
+      "subject": "Transformer big",
+      "finding": "英法正文分数",
+      "sources": [
+        {
+          "chunk_id": "p8_b18",
+          "quote": "our big model achieves a BLEU score of 41.0"
+        }
+      ],
+      "dataset": "英法",
+      "metric": "BLEU",
+      "source_value": "41.0",
+      "value": "41.0",
+      "status": "conflicting",
+      "conflict_group": "fr_big",
+      "uncertainty": "表格与正文不一致"
+    },
+    {
+      "fact_id": "base_cost",
+      "kind": "cost",
+      "subject": "Transformer base",
+      "finding": "保留成本的可读片段，不猜丢失指数",
+      "sources": [
+        {
+          "chunk_id": "p8_b11",
+          "quote": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+        },
+        {
+          "chunk_id": "p8_b3",
+          "quote": "BLEU\nTraining Cost (FLOPs)"
+        }
+      ],
+      "metric": "训练成本",
+      "unit": "FLOPs",
+      "source_value": "3.3 · 1018",
+      "status": "ambiguous",
+      "uncertainty": "指数及数据集归属无法从抽取文本确认"
+    },
+    {
+      "fact_id": "training_adam",
+      "kind": "training",
+      "subject": "Transformer",
+      "finding": "训练优化器和预热",
+      "sources": [
+        {
+          "chunk_id": "p7_b11",
+          "quote": "We used the Adam optimizer [20] with β1 = 0.9, β2 = 0.98 and ϵ = 10−9. We varied the learning\nrate over the course of training, according to the formula:"
+        },
+        {
+          "chunk_id": "p7_b14",
+          "quote": "This corresponds to increasing the learning rate linearly for the first warmup_steps training steps,\nand decreasing it thereafter proportionally to the inverse square root of the step number. We used\nwarmup_steps = 4000."
+        }
+      ],
+      "conditions": [
+        "Adam",
+        "4000步预热"
+      ]
+    },
+    {
+      "fact_id": "warmup_assignment",
+      "kind": "training",
+      "subject": "Transformer",
+      "metric": "预热步数",
+      "source_value": "warmup_steps = 4000",
+      "value": "4000",
+      "unit": "步",
+      "finding": "学习率预热",
+      "conditions": [
+        "学习率调度"
+      ],
+      "sources": [
+        {
+          "chunk_id": "p7_b14",
+          "quote": "This corresponds to increasing the learning rate linearly for the first warmup_steps training steps,\nand decreasing it thereafter proportionally to the inverse square root of the step number. We used\nwarmup_steps = 4000."
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "name": "base_correct",
+      "fact_id": "base_fr",
+      "explanation": "Transformer base 在英法 newstest2014 上的 BLEU 为38.1。",
+      "excerpt": "Transformer base 在英法 newstest2014 上的 BLEU 为38.1。",
+      "expected_codes": []
+    },
+    {
+      "name": "same_number_wrong_dataset",
+      "fact_id": "base_fr",
+      "explanation": "Transformer base 在英德 newstest2014 上的 BLEU 为38.1。",
+      "excerpt": "Transformer base 在英德 newstest2014 上的 BLEU 为38.1。",
+      "expected_codes": [
+        "missing_dataset"
+      ]
+    },
+    {
+      "name": "same_number_wrong_variant",
+      "fact_id": "base_fr",
+      "explanation": "Transformer big 在英法 newstest2014 上的 BLEU 为38.1。",
+      "excerpt": "Transformer big 在英法 newstest2014 上的 BLEU 为38.1。",
+      "expected_codes": [
+        "missing_subject"
+      ]
+    },
+    {
+      "name": "missing_value",
+      "fact_id": "base_fr",
+      "explanation": "Transformer base 在英法 newstest2014 上报告 BLEU。",
+      "excerpt": "Transformer base 在英法 newstest2014 上报告 BLEU。",
+      "expected_codes": [
+        "missing_value"
+      ]
+    },
+    {
+      "name": "value_only_in_quote",
+      "fact_id": "base_fr",
+      "explanation": "Transformer base 在英法 newstest2014 上报告 BLEU。",
+      "excerpt": "Transformer base 英法 newstest2014 BLEU 38.1",
+      "expected_codes": [
+        "excerpt_not_in_explanation"
+      ]
+    },
+    {
+      "name": "lost_split",
+      "fact_id": "base_fr",
+      "explanation": "Transformer base 在英法的 BLEU 为38.1。",
+      "excerpt": "Transformer base 在英法的 BLEU 为38.1。",
+      "expected_codes": [
+        "missing_condition"
+      ]
+    },
+    {
+      "name": "wrong_quote_binding",
+      "fact_id": "base_fr",
+      "explanation": "Transformer base 在英法 newstest2014 上的 BLEU 为38.1。",
+      "excerpt": "Transformer base 在英法 newstest2014 上的 BLEU 为38.1。",
+      "expected_codes": [
+        "fact_evidence_missing"
+      ],
+      "cited_chunk_ids": [
+        "p8_b12"
+      ]
+    },
+    {
+      "name": "both_conflict_values_kept_table",
+      "fact_id": "big_fr_table",
+      "explanation": "Transformer big 英法 BLEU 表格值41.8，表格与正文不一致。",
+      "excerpt": "Transformer big 英法 BLEU 表格值41.8，表格与正文不一致。",
+      "expected_codes": []
+    },
+    {
+      "name": "both_conflict_values_kept_text",
+      "fact_id": "big_fr_text",
+      "explanation": "Transformer big 英法 BLEU 正文值41.0，表格与正文不一致。",
+      "excerpt": "Transformer big 英法 BLEU 正文值41.0，表格与正文不一致。",
+      "expected_codes": []
+    },
+    {
+      "name": "silently_resolved_conflict",
+      "fact_id": "big_fr_table",
+      "explanation": "Transformer big 英法 BLEU 为41.8。",
+      "excerpt": "Transformer big 英法 BLEU 为41.8。",
+      "expected_codes": [
+        "uncertainty_hidden"
+      ]
+    },
+    {
+      "name": "keep_ambiguous_cost",
+      "fact_id": "base_cost",
+      "explanation": "Transformer base 训练成本抽取为3.3 · 1018 FLOPs，指数及数据集归属无法从抽取文本确认。",
+      "excerpt": "Transformer base 训练成本抽取为3.3 · 1018 FLOPs，指数及数据集归属无法从抽取文本确认。",
+      "expected_codes": []
+    },
+    {
+      "name": "invent_lost_exponent",
+      "fact_id": "base_cost",
+      "explanation": "Transformer base 训练成本为3.3×10^18 FLOPs。",
+      "excerpt": "Transformer base 训练成本为3.3×10^18 FLOPs。",
+      "expected_codes": [
+        "missing_raw_value",
+        "uncertainty_hidden"
+      ]
+    },
+    {
+      "name": "optimizer_and_schedule",
+      "fact_id": "training_adam",
+      "explanation": "Transformer 采用 Adam 与4000步预热。",
+      "excerpt": "Transformer 采用 Adam 与4000步预热。",
+      "expected_codes": []
+    },
+    {
+      "name": "missing_optimizer",
+      "fact_id": "training_adam",
+      "explanation": "Transformer 采用4000步预热。",
+      "excerpt": "Transformer 采用4000步预热。",
+      "expected_codes": [
+        "missing_condition"
+      ]
+    },
+    {
+      "name": "assignment_numeric_value",
+      "fact_id": "warmup_assignment",
+      "explanation": "Transformer 学习率调度的预热步数为4000步。",
+      "excerpt": "Transformer 学习率调度的预热步数为4000步。",
+      "expected_codes": []
+    },
+    {
+      "name": "assignment_wrong_value",
+      "fact_id": "warmup_assignment",
+      "explanation": "Transformer 学习率调度的预热步数为400步。",
+      "excerpt": "Transformer 学习率调度的预热步数为400步。",
+      "expected_codes": [
+        "missing_value"
+      ]
+    }
+  ]
+}

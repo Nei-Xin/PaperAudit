@@ -1,0 +1,344 @@
+{
+  "sections": [
+    {
+      "section_type": "research_problem",
+      "topics": [],
+      "unavailable_reason": "所给摘录未说明研究动机、既有瓶颈或明确的研究问题；不能据此补写。"
+    },
+    {
+      "section_type": "contributions",
+      "topics": [
+        {
+          "topic_id": "contrib_transformer_results",
+          "title": "摘录所呈现的模型表现主张",
+          "learning_goal": "区分论文对 Transformer 表现的概括性主张与摘录中可核实的具体结果。",
+          "source_chunk_ids": [
+            "p8_b1",
+            "p8_b18"
+          ],
+          "required_values": [],
+          "facts": []
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "method",
+      "topics": [
+        {
+          "topic_id": "method_adam_schedule",
+          "title": "优化器与学习率调度",
+          "learning_goal": "说明摘录明确给出的优化器设置和学习率调度过程，并指出公式未完整提供。",
+          "source_chunk_ids": [
+            "p7_b11",
+            "p7_b14"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact_adam_params",
+              "kind": "training",
+              "subject": "Transformer训练",
+              "dataset": null,
+              "metric": "Adam优化器参数",
+              "source_value": "β1 = 0.9, β2 = 0.98 and ϵ = 10−9",
+              "value": null,
+              "unit": null,
+              "finding": "摘录报告使用Adam优化器，给出β1、β2及ϵ的设置。",
+              "conditions": [
+                "训练设置"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p7_b11",
+                  "quote": "We used the Adam optimizer [20] with β1 = 0.9, β2 = 0.98 and ϵ = 10−9."
+                }
+              ]
+            },
+            {
+              "fact_id": "fact_warmup",
+              "kind": "training",
+              "subject": "Transformer训练",
+              "dataset": null,
+              "metric": "warmup_steps",
+              "source_value": "warmup_steps = 4000",
+              "value": "4000",
+              "unit": "步",
+              "finding": "学习率先线性升高，warmup阶段后按步数平方根的倒数比例下降。",
+              "conditions": [
+                "训练学习率调度"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p7_b14",
+                  "quote": "This corresponds to increasing the learning rate linearly for the first warmup_steps training steps, and decreasing it thereafter proportionally to the inverse square root of the step number. We used warmup_steps = 4000."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "experiments",
+      "topics": [
+        {
+          "topic_id": "experiments_scope",
+          "title": "摘录中可确认的评测范围",
+          "learning_goal": "识别摘录明确提到的翻译任务、测试集名称及训练成本比较范围，同时避免补齐未提供的实验协议。",
+          "source_chunk_ids": [
+            "p8_b1",
+            "p8_b18",
+            "p8_b3",
+            "p8_b4"
+          ],
+          "required_values": [],
+          "facts": []
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "results",
+      "topics": [
+        {
+          "topic_id": "results_bleu_variants",
+          "title": "英德与英法任务的Transformer变体BLEU结果",
+          "learning_goal": "逐一对应摘录中可辨认的Transformer base与big模型BLEU分数及数据集，并保留英法big模型文字报告的差异。",
+          "source_chunk_ids": [
+            "p8_b11",
+            "p8_b12",
+            "p8_b18",
+            "p8_b3",
+            "p8_b4"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact_base_bleu_ende",
+              "kind": "result",
+              "subject": "Transformer (base model)",
+              "dataset": "WMT 2014英德",
+              "metric": "BLEU",
+              "source_value": "27.3",
+              "value": "27.3",
+              "unit": "BLEU分",
+              "finding": "Transformer base在英德任务的BLEU为27.3。",
+              "conditions": [
+                "表2所述newstest2014测试"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p8_b11",
+                  "quote": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+                }
+              ]
+            },
+            {
+              "fact_id": "fact_base_bleu_enfr",
+              "kind": "result",
+              "subject": "Transformer (base model)",
+              "dataset": "WMT 2014英法",
+              "metric": "BLEU",
+              "source_value": "38.1",
+              "value": "38.1",
+              "unit": "BLEU分",
+              "finding": "Transformer base在英法任务的BLEU为38.1。",
+              "conditions": [
+                "表2所述newstest2014测试"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p8_b11",
+                  "quote": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+                }
+              ]
+            },
+            {
+              "fact_id": "fact_big_bleu_ende",
+              "kind": "result",
+              "subject": "Transformer (big)",
+              "dataset": "WMT 2014英德",
+              "metric": "BLEU",
+              "source_value": "28.4",
+              "value": "28.4",
+              "unit": "BLEU分",
+              "finding": "Transformer big在英德任务的BLEU为28.4。",
+              "conditions": [
+                "表2所述newstest2014测试"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p8_b12",
+                  "quote": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+                }
+              ]
+            },
+            {
+              "fact_id": "fact_big_bleu_enfr_table",
+              "kind": "result",
+              "subject": "Transformer (big)",
+              "dataset": "WMT 2014英法",
+              "metric": "BLEU",
+              "source_value": "41.8",
+              "value": "41.8",
+              "unit": "BLEU分",
+              "finding": "表格摘录中的Transformer big英法BLEU为41.8。",
+              "conditions": [
+                "表2所述newstest2014测试"
+              ],
+              "status": "conflicting",
+              "uncertainty": "同一摘录的正文另报告英法big模型BLEU为41.0；表格与正文数值冲突，无法据摘录消解。",
+              "conflict_group": "big_enfr_bleu",
+              "sources": [
+                {
+                  "chunk_id": "p8_b12",
+                  "quote": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+                }
+              ]
+            },
+            {
+              "fact_id": "fact_big_bleu_enfr_text",
+              "kind": "result",
+              "subject": "Transformer (big)",
+              "dataset": "WMT 2014英法",
+              "metric": "BLEU",
+              "source_value": "41.0",
+              "value": "41.0",
+              "unit": "BLEU分",
+              "finding": "正文报告英法big模型达到BLEU 41.0。",
+              "conditions": [
+                "WMT 2014英法翻译任务"
+              ],
+              "status": "conflicting",
+              "uncertainty": "同一摘录的表格记录为41.8；两处报告冲突，无法据摘录消解。",
+              "conflict_group": "big_enfr_bleu",
+              "sources": [
+                {
+                  "chunk_id": "p8_b18",
+                  "quote": "On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41.0, outperforming all of the previously published single models"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "topic_id": "results_costs",
+          "title": "训练成本读数及其可判定边界",
+          "learning_goal": "保留表格中可读的成本字符串，同时说明摘录缺失的列值及指数格式不允许精确归一化。",
+          "source_chunk_ids": [
+            "p8_b11",
+            "p8_b12",
+            "p8_b3",
+            "p8_b4",
+            "p8_b18"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact_base_cost_ambiguous",
+              "kind": "cost",
+              "subject": "Transformer (base model)",
+              "dataset": null,
+              "metric": "训练成本",
+              "source_value": "3.3 · 1018",
+              "value": null,
+              "unit": "FLOPs",
+              "finding": "摘录可读到base模型成本字符串，但指数格式及数据集列归属不明确，不能据此还原精确数值或分配到英德/英法。",
+              "conditions": [
+                "表2训练成本列"
+              ],
+              "status": "ambiguous",
+              "uncertainty": "解析文本显示为“3.3 · 1018”，指数排版可能丢失；表头有英德、英法两列，但该行仅保留一个成本读数。",
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p8_b11",
+                  "quote": "Transformer (base model)\n27.3\n38.1\n3.3 · 1018"
+                }
+              ]
+            },
+            {
+              "fact_id": "fact_big_cost_ambiguous",
+              "kind": "cost",
+              "subject": "Transformer (big)",
+              "dataset": null,
+              "metric": "训练成本",
+              "source_value": "2.3 · 1019",
+              "value": null,
+              "unit": "FLOPs",
+              "finding": "摘录可读到big模型成本字符串，但指数格式及数据集列归属不明确，不能据此还原精确数值或分配到英德/英法。",
+              "conditions": [
+                "表2训练成本列"
+              ],
+              "status": "ambiguous",
+              "uncertainty": "解析文本显示为“2.3 · 1019”，指数排版可能丢失；表头有英德、英法两列，但该行仅保留一个成本读数。",
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "p8_b12",
+                  "quote": "Transformer (big)\n28.4\n41.8\n2.3 · 1019"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "limitations",
+      "topics": [
+        {
+          "topic_id": "limitations_excerpts",
+          "title": "摘录范围对结论的限制",
+          "learning_goal": "区分摘录可支持的判断与因缺少完整方法、表格或讨论而无法判断的方面。",
+          "source_chunk_ids": [
+            "p8_b11",
+            "p8_b12",
+            "p8_b18",
+            "p7_b11",
+            "p7_b14"
+          ],
+          "required_values": [],
+          "facts": []
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "key_terms",
+      "topics": [
+        {
+          "topic_id": "terms_metrics_cost",
+          "title": "BLEU与FLOPs在摘录中的含义",
+          "learning_goal": "理解摘录使用的评测指标与成本单位，并避免把不完整表格读数误作精确值。",
+          "source_chunk_ids": [
+            "p8_b3",
+            "p8_b4",
+            "p8_b18"
+          ],
+          "required_values": [],
+          "facts": []
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ]
+}

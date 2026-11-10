@@ -1,0 +1,87 @@
+{
+  "case_id": "synthetic_survey",
+  "paper_type": "survey",
+  "provenance": {
+    "kind": "synthetic",
+    "note": "Synthetic taxonomy and evidence-boundary cases."
+  },
+  "chunks": [
+    {
+      "chunk_id": "taxonomy",
+      "page": 1,
+      "content": "We organize the surveyed methods by feedback signal: supervised, self-supervised, and reinforcement learning. This taxonomy is not a ranking of performance."
+    },
+    {
+      "chunk_id": "scope",
+      "page": 1,
+      "content": "The survey synthesizes published results under different datasets and protocols; it runs no new controlled benchmark."
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "feedback_taxonomy",
+      "kind": "taxonomy",
+      "subject": "综述",
+      "finding": "按反馈信号组织方法",
+      "sources": [
+        {
+          "chunk_id": "taxonomy",
+          "quote": "We organize the surveyed methods by feedback signal: supervised, self-supervised, and reinforcement learning. This taxonomy is not a ranking of performance."
+        }
+      ],
+      "conditions": [
+        "按反馈信号",
+        "监督、自监督、强化学习"
+      ]
+    },
+    {
+      "fact_id": "survey_boundary",
+      "kind": "taxonomy",
+      "subject": "综述",
+      "finding": "跨论文结果不等于统一实验",
+      "sources": [
+        {
+          "chunk_id": "scope",
+          "quote": "The survey synthesizes published results under different datasets and protocols; it runs no new controlled benchmark."
+        }
+      ],
+      "conditions": [
+        "未运行新的受控基准"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "name": "taxonomy_preserved",
+      "fact_id": "feedback_taxonomy",
+      "explanation": "综述按反馈信号分为监督、自监督、强化学习，不是性能排序。",
+      "excerpt": "综述按反馈信号分为监督、自监督、强化学习，不是性能排序。",
+      "expected_codes": []
+    },
+    {
+      "name": "wrong_taxonomy_axis",
+      "fact_id": "feedback_taxonomy",
+      "explanation": "综述按计算成本分为监督、自监督、强化学习。",
+      "excerpt": "综述按计算成本分为监督、自监督、强化学习。",
+      "expected_codes": [
+        "missing_condition"
+      ]
+    },
+    {
+      "name": "survey_scope",
+      "fact_id": "survey_boundary",
+      "explanation": "综述未运行新的受控基准，比较来自不同设置的文献。",
+      "excerpt": "综述未运行新的受控基准，比较来自不同设置的文献。",
+      "expected_codes": []
+    },
+    {
+      "name": "invent_common_benchmark",
+      "fact_id": "survey_boundary",
+      "explanation": "综述在统一数据集上重新评测所有方法。",
+      "excerpt": "综述在统一数据集上重新评测所有方法。",
+      "expected_codes": [
+        "missing_condition"
+      ]
+    }
+  ]
+}

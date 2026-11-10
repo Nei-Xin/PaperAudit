@@ -1,0 +1,122 @@
+{
+  "case_id": "synthetic_theory",
+  "paper_type": "theoretical",
+  "provenance": {
+    "kind": "synthetic",
+    "note": "Synthetic theorem/scope stress cases; not a published theorem claim."
+  },
+  "chunks": [
+    {
+      "chunk_id": "theorem",
+      "page": 1,
+      "content": "For a convex L-smooth objective, gradient descent with step size 1/L has an O(1/T) objective gap. This statement does not cover non-convex objectives."
+    },
+    {
+      "chunk_id": "scope",
+      "page": 1,
+      "content": "This theoretical note presents a convergence argument and reports no empirical experiments."
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "convex_scope",
+      "kind": "assumption",
+      "subject": "梯度下降",
+      "finding": "收敛结论及假设",
+      "sources": [
+        {
+          "chunk_id": "theorem",
+          "quote": "For a convex L-smooth objective, gradient descent with step size 1/L has an O(1/T) objective gap. This statement does not cover non-convex objectives."
+        }
+      ],
+      "conditions": [
+        "凸且L光滑",
+        "步长1/L"
+      ]
+    },
+    {
+      "fact_id": "no_experiments",
+      "kind": "assumption",
+      "subject": "理论分析",
+      "finding": "没有实验数据",
+      "sources": [
+        {
+          "chunk_id": "scope",
+          "quote": "This theoretical note presents a convergence argument and reports no empirical experiments."
+        }
+      ],
+      "conditions": [
+        "未报告实验"
+      ]
+    },
+    {
+      "fact_id": "symbolic_bound",
+      "kind": "result",
+      "subject": "梯度下降",
+      "metric": "目标函数差距",
+      "source_value": "O(1/T)",
+      "value": "O(1/T)",
+      "finding": "收敛阶",
+      "conditions": [
+        "凸且L光滑",
+        "步长1/L"
+      ],
+      "sources": [
+        {
+          "chunk_id": "theorem",
+          "quote": "For a convex L-smooth objective, gradient descent with step size 1/L has an O(1/T) objective gap. This statement does not cover non-convex objectives."
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "name": "qualified_theorem",
+      "fact_id": "convex_scope",
+      "explanation": "梯度下降在目标凸且L光滑、步长1/L时具有所述收敛界。",
+      "excerpt": "梯度下降在目标凸且L光滑、步长1/L时具有所述收敛界。",
+      "expected_codes": []
+    },
+    {
+      "name": "drops_convexity",
+      "fact_id": "convex_scope",
+      "explanation": "梯度下降在步长1/L时具有所述收敛界。",
+      "excerpt": "梯度下降在步长1/L时具有所述收敛界。",
+      "expected_codes": [
+        "missing_condition"
+      ]
+    },
+    {
+      "name": "no_fake_experiments",
+      "fact_id": "no_experiments",
+      "explanation": "理论分析未报告实验，只给出收敛论证。",
+      "excerpt": "理论分析未报告实验，只给出收敛论证。",
+      "expected_codes": []
+    },
+    {
+      "name": "invent_experimental_evidence",
+      "fact_id": "no_experiments",
+      "explanation": "理论分析包含三个图像分类实验。",
+      "excerpt": "理论分析包含三个图像分类实验。",
+      "expected_codes": [
+        "missing_condition"
+      ]
+    },
+    {
+      "name": "symbolic_bound_preserved",
+      "fact_id": "symbolic_bound",
+      "explanation": "梯度下降在凸且L光滑、步长1/L时，目标函数差距为O(1/T)。",
+      "excerpt": "梯度下降在凸且L光滑、步长1/L时，目标函数差距为O(1/T)。",
+      "expected_codes": []
+    },
+    {
+      "name": "symbolic_bound_changed",
+      "fact_id": "symbolic_bound",
+      "explanation": "梯度下降在凸且L光滑、步长1/L时，目标函数差距为O(1/T²)。",
+      "excerpt": "梯度下降在凸且L光滑、步长1/L时，目标函数差距为O(1/T²)。",
+      "expected_codes": [
+        "missing_value"
+      ]
+    }
+  ]
+}

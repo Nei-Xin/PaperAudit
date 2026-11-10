@@ -1,0 +1,105 @@
+{
+  "case_id": "synthetic_scientific",
+  "paper_type": "empirical",
+  "provenance": {
+    "kind": "synthetic",
+    "note": "Synthetic explicit exponent/unit stress cases."
+  },
+  "chunks": [
+    {
+      "chunk_id": "cost",
+      "page": 1,
+      "content": "Model Atlas on Set-A requires 3.3 × 10^18 FLOPs. The value is measured training cost."
+    },
+    {
+      "chunk_id": "accuracy",
+      "page": 1,
+      "content": "Model Atlas reaches 91.3% accuracy on Set-A test data."
+    }
+  ],
+  "facts": [
+    {
+      "fact_id": "cost_exact",
+      "kind": "cost",
+      "subject": "Atlas",
+      "finding": "训练成本",
+      "sources": [
+        {
+          "chunk_id": "cost",
+          "quote": "Model Atlas on Set-A requires 3.3 × 10^18 FLOPs. The value is measured training cost."
+        }
+      ],
+      "dataset": "Set-A",
+      "metric": "训练成本",
+      "unit": "FLOPs",
+      "source_value": "3.3 × 10^18",
+      "value": "3.3e18"
+    },
+    {
+      "fact_id": "percent",
+      "kind": "result",
+      "subject": "Atlas",
+      "finding": "准确率",
+      "sources": [
+        {
+          "chunk_id": "accuracy",
+          "quote": "Model Atlas reaches 91.3% accuracy on Set-A test data."
+        }
+      ],
+      "dataset": "Set-A",
+      "metric": "准确率",
+      "source_value": "91.3%",
+      "value": "91.3%"
+    }
+  ],
+  "examples": [
+    {
+      "name": "scientific_e",
+      "fact_id": "cost_exact",
+      "explanation": "Atlas 在 Set-A 的训练成本为3.3e18 FLOPs。",
+      "excerpt": "Atlas 在 Set-A 的训练成本为3.3e18 FLOPs。",
+      "expected_codes": []
+    },
+    {
+      "name": "scientific_superscript",
+      "fact_id": "cost_exact",
+      "explanation": "Atlas 在 Set-A 的训练成本为3.3×10¹⁸ FLOPs。",
+      "excerpt": "Atlas 在 Set-A 的训练成本为3.3×10¹⁸ FLOPs。",
+      "expected_codes": []
+    },
+    {
+      "name": "wrong_exponent",
+      "fact_id": "cost_exact",
+      "explanation": "Atlas 在 Set-A 的训练成本为3.3×10^19 FLOPs。",
+      "excerpt": "Atlas 在 Set-A 的训练成本为3.3×10^19 FLOPs。",
+      "expected_codes": [
+        "missing_value"
+      ]
+    },
+    {
+      "name": "lost_unit",
+      "fact_id": "cost_exact",
+      "explanation": "Atlas 在 Set-A 的训练成本为3.3e18。",
+      "excerpt": "Atlas 在 Set-A 的训练成本为3.3e18。",
+      "expected_codes": [
+        "missing_unit"
+      ]
+    },
+    {
+      "name": "percent_correct",
+      "fact_id": "percent",
+      "explanation": "Atlas 在 Set-A 的准确率为91.3%。",
+      "excerpt": "Atlas 在 Set-A 的准确率为91.3%。",
+      "expected_codes": []
+    },
+    {
+      "name": "percent_scale_lost",
+      "fact_id": "percent",
+      "explanation": "Atlas 在 Set-A 的准确率为0.913。",
+      "excerpt": "Atlas 在 Set-A 的准确率为0.913。",
+      "expected_codes": [
+        "missing_value"
+      ]
+    }
+  ]
+}

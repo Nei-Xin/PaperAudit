@@ -1,0 +1,254 @@
+{
+  "sections": [
+    {
+      "section_type": "research_problem",
+      "topics": [
+        {
+          "topic_id": "problem-feedback-taxonomy",
+          "title": "以反馈信号组织方法分类",
+          "learning_goal": "理解综述采用反馈信号作为方法分类依据，并区分分类框架与性能排序。",
+          "source_chunk_ids": [
+            "taxonomy"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact-feedback-taxonomy",
+              "kind": "taxonomy",
+              "subject": "综述方法分类",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "综述按反馈信号组织方法类别，而非按性能高低排列。",
+              "conditions": [
+                "分类依据为反馈信号"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "taxonomy",
+                  "quote": "We organize the surveyed methods by feedback signal: supervised, self-supervised, and reinforcement learning. This taxonomy is not a ranking of performance."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "contributions",
+      "topics": [
+        {
+          "topic_id": "contribution-survey-synthesis",
+          "title": "综述综合已发表研究结果",
+          "learning_goal": "识别本文贡献的性质与边界：它综合不同数据集和协议下的已发表结果，而非报告统一的新基准。",
+          "source_chunk_ids": [
+            "scope"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact-synthesis-scope",
+              "kind": "assumption",
+              "subject": "综述的证据范围",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "综述综合不同数据集与实验协议下的已发表结果；没有运行新的受控基准。",
+              "conditions": [
+                "证据来自已发表结果"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "scope",
+                  "quote": "The survey synthesizes published results under different datasets and protocols; it runs no new controlled benchmark."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "method",
+      "topics": [
+        {
+          "topic_id": "method-feedback-categories",
+          "title": "反馈信号分类框架",
+          "learning_goal": "说出综述列出的三类反馈信号，并理解分类所依据的是反馈类型。",
+          "source_chunk_ids": [
+            "taxonomy"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact-three-feedback-types",
+              "kind": "taxonomy",
+              "subject": "监督学习、自监督学习与强化学习",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "综述列出的反馈信号类别为监督、自监督和强化学习。",
+              "conditions": [
+                "作为方法分类，不代表性能排名"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "taxonomy",
+                  "quote": "We organize the surveyed methods by feedback signal: supervised, self-supervised, and reinforcement learning."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "experiments",
+      "topics": [
+        {
+          "topic_id": "experiments-not-conducted",
+          "title": "没有新的受控基准实验",
+          "learning_goal": "区分综述对已有结果的综合与作者新开展的实验，并避免把跨协议结果当作统一控制比较。",
+          "source_chunk_ids": [
+            "scope"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact-no-controlled-benchmark",
+              "kind": "training",
+              "subject": "本文实验活动",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "本文没有运行新的受控基准；其综合对象来自不同数据集和协议下的已发表结果。",
+              "conditions": [
+                "综述研究"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "scope",
+                  "quote": "The survey synthesizes published results under different datasets and protocols; it runs no new controlled benchmark."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "results",
+      "topics": [],
+      "unavailable_reason": "所给摘录未提供任何具体结果、表格、模型变体、数据集分数或成本数据。"
+    },
+    {
+      "section_type": "limitations",
+      "topics": [
+        {
+          "topic_id": "limitations-evidence-boundary",
+          "title": "证据与可比较性边界",
+          "learning_goal": "说明摘录所述综述证据跨越不同数据集与协议，且没有新受控基准，因此不能据此声称统一条件下的性能比较。",
+          "source_chunk_ids": [
+            "scope",
+            "taxonomy"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact-cross-protocol-boundary",
+              "kind": "assumption",
+              "subject": "跨研究结果的比较范围",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "综述综合的结果来自不同数据集和协议，且分类框架本身不是性能排名。",
+              "conditions": [
+                "仅依据所给摘录"
+              ],
+              "status": "reported",
+              "uncertainty": "摘录没有说明如何对不同研究结果进行归一化或控制差异。",
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "scope",
+                  "quote": "The survey synthesizes published results under different datasets and protocols; it runs no new controlled benchmark."
+                },
+                {
+                  "chunk_id": "taxonomy",
+                  "quote": "This taxonomy is not a ranking of performance."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    },
+    {
+      "section_type": "key_terms",
+      "topics": [
+        {
+          "topic_id": "terms-feedback-signals",
+          "title": "反馈信号与三类学习范式",
+          "learning_goal": "掌握摘录中监督、自监督、强化学习作为反馈信号分类标签的用法；不从摘录外推其技术定义。",
+          "source_chunk_ids": [
+            "taxonomy"
+          ],
+          "required_values": [],
+          "facts": [
+            {
+              "fact_id": "fact-feedback-terms",
+              "kind": "taxonomy",
+              "subject": "反馈信号分类标签",
+              "dataset": null,
+              "metric": null,
+              "source_value": null,
+              "value": null,
+              "unit": null,
+              "finding": "摘录将监督、自监督和强化学习列为按反馈信号划分的类别。",
+              "conditions": [
+                "摘录仅给出类别名称，未提供各类别的技术定义"
+              ],
+              "status": "reported",
+              "uncertainty": null,
+              "conflict_group": null,
+              "sources": [
+                {
+                  "chunk_id": "taxonomy",
+                  "quote": "We organize the surveyed methods by feedback signal: supervised, self-supervised, and reinforcement learning."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "unavailable_reason": null
+    }
+  ]
+}
