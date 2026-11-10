@@ -1,0 +1,211 @@
+{
+  "description": "Unedited rejected facts from full-v11-point-facts, full Transformer planning response; source excerpts come from the parsed paper. These are negative regressions, not accepted lesson content.",
+  "cases": [
+    {
+      "fact": {
+        "fact_id": "me2f1",
+        "kind": "mechanism",
+        "subject": "缩放点积注意力",
+        "dataset": null,
+        "metric": null,
+        "source_value": "1/√dk",
+        "value": "1/√dk",
+        "unit": null,
+        "finding": "查询与键的点积除以√dk后经softmax形成权重；缩放用于抑制大点积将softmax推入梯度很小区域的风险。",
+        "conditions": [
+          "键维度为dk"
+        ],
+        "status": "reported",
+        "uncertainty": null,
+        "conflict_group": null,
+        "sources": [
+          {
+            "chunk_id": "p4_b8",
+            "quote": "We compute the dot products of the query with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the values."
+          },
+          {
+            "chunk_id": "p4_b14",
+            "quote": "To counteract this effect, we scale the dot products by\n1\n√dk ."
+          }
+        ]
+      },
+      "sources": [
+        {
+          "chunk_id": "p4_b8",
+          "page": 4,
+          "content": "We call our particular attention \"Scaled Dot-Product Attention\" (Figure 2). The input consists of\nqueries and keys of dimension dk, and values of dimension dv. We compute the dot products of the\nquery with all keys, divide each by √dk, and apply a softmax function to obtain the weights on the\nvalues."
+        },
+        {
+          "chunk_id": "p4_b14",
+          "page": 4,
+          "content": "While for small values of dk the two mechanisms perform similarly, additive attention outperforms\ndot product attention without scaling for larger values of dk [3]. We suspect that for large values of\ndk, the dot products grow large in magnitude, pushing the softmax function into regions where it has\nextremely small gradients 4. To counteract this effect, we scale the dot products by\n1\n√dk ."
+        }
+      ],
+      "expected_codes": [
+        "source_value_absent"
+      ]
+    },
+    {
+      "fact": {
+        "fact_id": "me4f2",
+        "kind": "result",
+        "subject": "学习式位置嵌入相对正弦编码",
+        "dataset": "WMT 2014英德开发集",
+        "metric": "PPL与BLEU",
+        "source_value": null,
+        "value": null,
+        "unit": null,
+        "finding": "作者报告学习式位置嵌入与正弦版本结果近似相同。",
+        "conditions": [
+          "Table 3变体实验",
+          "newstest2013开发集"
+        ],
+        "status": "reported",
+        "uncertainty": "此处引用的正文只报告近似相同；表格变体行数值见结果主题。",
+        "conflict_group": null,
+        "sources": [
+          {
+            "chunk_id": "p6_b9",
+            "quote": "we experimented with using learned positional embeddings [9] instead, and found that the two versions produced nearly identical results"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "chunk_id": "p6_b9",
+          "page": 6,
+          "content": "We also experimented with using learned positional embeddings [9] instead, and found that the two\nversions produced nearly identical results (see Table 3 row (E)). We chose the sinusoidal version\nbecause it may allow the model to extrapolate to sequence lengths longer than the ones encountered\nduring training."
+        }
+      ],
+      "expected_codes": [
+        "invalid_fact_source",
+        "missing_result_value"
+      ]
+    },
+    {
+      "fact": {
+        "fact_id": "ex2f2",
+        "kind": "training",
+        "subject": "Transformer句法分析模型",
+        "dataset": "Penn Treebank WSJ",
+        "metric": "WSJ 23 F1",
+        "source_value": "about 40K training sentences",
+        "value": "40K",
+        "unit": "句",
+        "finding": "句法分析包含仅WSJ训练约40K句子的设置，以及使用约17M句子的半监督设置；报告Section 23的F1。",
+        "conditions": [
+          "WSJ-only词表16K",
+          "半监督词表32K"
+        ],
+        "status": "reported",
+        "uncertainty": null,
+        "conflict_group": null,
+        "sources": [
+          {
+            "chunk_id": "p9_b16",
+            "quote": "We trained a 4-layer transformer with dmodel = 1024 on the Wall Street Journal (WSJ) portion of the Penn Treebank [25], about 40K training sentences."
+          },
+          {
+            "chunk_id": "p10_b1",
+            "quote": "Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23 of WSJ)"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "chunk_id": "p9_b16",
+          "page": 9,
+          "content": "We trained a 4-layer transformer with dmodel = 1024 on the Wall Street Journal (WSJ) portion of the\nPenn Treebank [25], about 40K training sentences. We also trained it in a semi-supervised setting,\nusing the larger high-confidence and BerkleyParser corpora from with approximately 17M sentences\n[37]. We used a vocabulary of 16K tokens for the WSJ only setting and a vocabulary of 32K tokens\nfor the semi-supervised setting."
+        },
+        {
+          "chunk_id": "p10_b1",
+          "page": 10,
+          "content": "Table 4: The Transformer generalizes well to English constituency parsing (Results are on Section 23\nof WSJ)"
+        }
+      ],
+      "expected_codes": [
+        "value_not_grounded"
+      ]
+    },
+    {
+      "fact": {
+        "fact_id": "re2f3",
+        "kind": "result",
+        "subject": "学习式位置嵌入变体",
+        "dataset": "WMT 2014英德newstest2013开发集",
+        "metric": "PPL与BLEU",
+        "source_value": "4.92\n25.7",
+        "value": null,
+        "unit": null,
+        "finding": "表格抽取给出学习式位置嵌入变体PPL 4.92、BLEU 25.7。",
+        "conditions": [
+          "相较正弦位置编码",
+          "开发集"
+        ],
+        "status": "reported",
+        "uncertainty": "行列布局在解析文本中不完整；与正文“近乎相同”的定性描述一致，但不扩展重建其他变体行。",
+        "conflict_group": null,
+        "sources": [
+          {
+            "chunk_id": "p9_b10",
+            "quote": "(E)\npositional embedding instead of sinusoids\n4.92\n25.7"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "chunk_id": "p9_b10",
+          "page": 9,
+          "content": "0.0\n5.77\n24.6\n0.2\n4.95\n25.5\n0.0\n4.67\n25.3\n0.2\n5.47\n25.7\n(E)\npositional embedding instead of sinusoids\n4.92\n25.7\nbig\n6\n1024\n4096\n16\n0.3\n300K\n4.33\n26.4\n213"
+        }
+      ],
+      "expected_codes": [
+        "missing_result_value"
+      ]
+    },
+    {
+      "fact": {
+        "fact_id": "li1f1",
+        "kind": "assumption",
+        "subject": "自注意力计算复杂度",
+        "dataset": null,
+        "metric": null,
+        "source_value": "O(n2 · d)",
+        "value": "O(n2 · d)",
+        "unit": null,
+        "finding": "自注意力每层复杂度随序列长度平方增长；论文指出其相对循环层更快的条件是序列长度n小于表示维度d。",
+        "conditions": [
+          "标准全局自注意力"
+        ],
+        "status": "reported",
+        "uncertainty": null,
+        "conflict_group": null,
+        "sources": [
+          {
+            "chunk_id": "p6_b2",
+            "quote": "Self-Attention\nO(n2 · d)\nO(1)\nO(1)"
+          },
+          {
+            "chunk_id": "p7_b1",
+            "quote": "self-attention layers are faster than recurrent layers when the sequence length n is smaller than the representation dimensionality d"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "chunk_id": "p6_b2",
+          "page": 6,
+          "content": "Layer Type\nComplexity per Layer\nSequential\nMaximum Path Length\nOperations\nSelf-Attention\nO(n2 · d)\nO(1)\nO(1)\nRecurrent\nO(n · d2)\nO(n)\nO(n)\nConvolutional\nO(k · n · d2)\nO(1)\nO(logk(n))\nSelf-Attention (restricted)\nO(r · n · d)\nO(1)\nO(n/r)"
+        },
+        {
+          "chunk_id": "p7_b1",
+          "page": 7,
+          "content": "length n is smaller than the representation dimensionality d, which is most often the case with\nsentence representations used by state-of-the-art models in machine translations, such as word-piece\n[38] and byte-pair [31] representations. To improve computational performance for tasks involving\nvery long sequences, self-attention could be restricted to considering only a neighborhood of size r in\nthe input sequence centered around the respective output position. This would increase the maximum\npath length to O(n/r). We plan to investigate this approach further in future work."
+        }
+      ],
+      "expected_codes": [
+        "invalid_fact_source"
+      ]
+    }
+  ]
+}

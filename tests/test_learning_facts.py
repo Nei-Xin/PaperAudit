@@ -5,7 +5,7 @@ import pytest
 
 from paperaudit.learning_facts import FactMention, LessonFact, contains_label, contains_quantity, quantity, validate_fact
 from paperaudit.learning_generation import (
-    LessonPlan, LessonPatch, LessonReview, LearningQualityError, draft_issues, validate_plan,
+    LessonPlan, LessonPatch, PointUpdate, LessonReview, LearningQualityError, draft_issues, validate_plan,
 )
 from scripts.check_lecture_facts import SUITE, evaluate_artifact, evaluate_case, load_case
 from test_learning_generation import materials, run, scripted, transport_client
@@ -93,7 +93,7 @@ def test_fact_defect_triggers_selective_repair_even_if_reviewer_misses_it():
     draft = deepcopy(valid)
     draft.report.sections[4].points[0].explanation = "Atlas base 在法语测试集上的 BLEU 未说明。"
     draft.coverage[4].fact_mentions[0].excerpt = draft.report.sections[4].points[0].explanation
-    patch = LessonPatch(sections=[valid.report.sections[4]], coverage=[valid.coverage[4]])
+    patch = LessonPatch(point_updates=[PointUpdate(section_type="results", point_index=0, point=valid.report.sections[4].points[0])], coverage=[valid.coverage[4]])
     call, calls = scripted([plan, draft, LessonReview(issues=[]), patch, LessonReview(issues=[])])
     result = run(call, chunks)
     assert result == valid.report
@@ -170,3 +170,38 @@ def test_fixed_gold_prevents_model_from_redefining_wrong_bindings_or_omitting_fa
     missing["facts"].pop()
     assert not evaluate_artifact(path, missing)["passed"]
     assert not evaluate_artifact(path, {"facts": [], "mentions": []})["passed"]
+
+
+def test_rejected_full_paper_provider_facts_remain_rejected_without_rewriting_response():
+    import json
+    from paperaudit.models import PaperChunk
+    snapshot = json.loads((SUITE / "provider_snapshots/transformer-rejected-facts.json").read_text())
+    assert len(snapshot["cases"]) == 5
+    for case in snapshot["cases"]:
+        sources = {c["chunk_id"]: PaperChunk.model_validate(c) for c in case["sources"]}
+        fact = LessonFact.model_validate(case["fact"])
+        assert sorted({e.code for e in validate_fact(fact, sources)}) == case["expected_codes"]
+
+
+@pytest.mark.parametrize("expression", ["1/√dk", "O(n2 · d)", "O(n × d)", "1/√d_k"])
+def test_verbatim_symbolic_operators_are_retained_without_interpreting_typography(expression):
+    from paperaudit.models import PaperChunk
+    quote = f"The literal expression is {expression}."
+    sources = {"math": PaperChunk(chunk_id="math", page=1, content=quote)}
+    fact = LessonFact(fact_id="math", kind="mechanism", subject="公式", finding="按原文保留表达式",
+                      source_value=expression, value=expression, sources=[{"chunk_id": "math", "quote": quote}])
+    assert validate_fact(fact, sources) == []
+    mention = FactMention(fact_id="math", point_index=0, excerpt=f"公式保留为 {expression}。")
+    from paperaudit.learning_facts import check_mention
+    assert check_mention(fact, mention, mention.excerpt, {"math"}) == []
+
+
+def test_symbolic_operator_support_does_not_reconstruct_a_missing_fraction_bar():
+    from paperaudit.models import PaperChunk
+    quote = "The factor is 1\n√dk in the extracted text."
+    sources = {"math": PaperChunk(chunk_id="math", page=1, content=quote)}
+    fact = LessonFact(fact_id="math", kind="mechanism", subject="公式", finding="抽取的表达式",
+                      source_value="1\n√dk", value="1/√dk", sources=[{"chunk_id": "math", "quote": quote}])
+    assert {e.code for e in validate_fact(fact, sources)} == {"value_not_grounded"}
+    fact.source_value = "1/√dk"
+    assert {e.code for e in validate_fact(fact, sources)} == {"source_value_absent"}

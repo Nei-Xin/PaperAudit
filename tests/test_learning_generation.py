@@ -11,7 +11,8 @@ from paperaudit.config import Settings
 from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
 from paperaudit.learning_generation import (
     LessonDraft, LessonIssue, LessonPatch, LessonPlan, LessonReview,
-    LearningQualityError, TopicCoverage, draft_issues, generate_lesson, select_exact_quotes,
+    LearningQualityError, TopicCoverage, PointUpdate, PointAppend, SectionMetadataUpdate,
+    apply_patch, repair_contract, draft_issues, generate_lesson, select_exact_quotes,
 )
 from paperaudit.models import (
     EvidenceAnchor, ExplanationPoint, LearningReport, LearningSectionType,
@@ -63,7 +64,7 @@ def run(call, chunks):
 def method_patch(draft, explanation="修补后的完整机制解释。"):
     section = deepcopy(draft.report.sections[2])
     section.points[0].explanation = explanation
-    return LessonPatch(sections=[section], coverage=[draft.coverage[2]])
+    return LessonPatch(point_updates=[PointUpdate(section_type="method", point_index=0, point=section.points[0])], coverage=[draft.coverage[2]])
 
 
 def test_grounded_report_keeps_more_than_four_method_points_and_legacy_contract():
@@ -83,21 +84,21 @@ def test_grounded_report_keeps_more_than_four_method_points_and_legacy_contract(
 
 def test_semantic_gap_is_repaired_once_and_other_sections_are_preserved():
     chunks, plan, draft = materials()
-    issue = LessonIssue(section_type="method", problem="未解释方法的输入与输出。", source_chunk_ids=["method"])
+    issue = LessonIssue(section_type="method", point_indices=[0], problem="未解释方法的输入与输出。", source_chunk_ids=["method"])
     patch = method_patch(draft)
     call, calls = scripted([plan, draft, LessonReview(issues=[issue]), patch, LessonReview(issues=[])])
     report = run(call, chunks)
     assert len(calls) == 5
-    assert report.sections[2].points[0].explanation == patch.sections[0].points[0].explanation
+    assert report.sections[2].points[0].explanation == patch.point_updates[0].point.explanation
     assert report.sections[:2] + report.sections[3:] == draft.report.sections[:2] + draft.report.sections[3:]
     assert report.suggested_pages == draft.report.suggested_pages
     assert "未解释方法的输入与输出" in calls[3][0]
-    assert patch.sections[0].points[0].explanation in calls[4][0]
+    assert patch.point_updates[0].point.explanation in calls[4][0]
 
 
 def test_unresolved_semantic_problem_never_returns_partial_report_or_retries_forever():
     chunks, plan, draft = materials()
-    review = LessonReview(issues=[LessonIssue(section_type="method", problem="结论仍超出原文支持。")])
+    review = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="结论仍超出原文支持。")])
     call, calls = scripted([plan, draft, review, method_patch(draft), review, method_patch(draft), review])
     with pytest.raises(LearningQualityError, match="两轮修补上限"):
         run(call, chunks)
@@ -116,7 +117,13 @@ def test_deterministic_checks_catch_errors_even_when_model_review_passes(damage)
     elif damage == "empty_explanation": draft.report.sections[2].points[0].explanation = " "
     elif damage == "missing_section": draft.report.sections.pop(2)
     elif damage == "duplicate_section": draft.report.sections.append(deepcopy(draft.report.sections[2]))
-    call, calls = scripted([plan, draft, LessonReview(issues=[]), method_patch(valid), LessonReview(issues=[])])
+    patch = method_patch(valid)
+    if damage in {"coverage", "index"}:
+        patch.point_updates = []
+    elif damage in {"missing_section", "duplicate_section"}:
+        patch.point_updates = []
+        patch.sections = [valid.report.sections[2]]
+    call, calls = scripted([plan, draft, LessonReview(issues=[]), patch, LessonReview(issues=[])])
     report = run(call, chunks)
     assert len(calls) == 5
     assert len(report.sections) == 7
@@ -160,7 +167,7 @@ def test_patch_cannot_silently_rewrite_passed_sections():
     chunks, plan, draft = materials()
     patch = method_patch(draft)
     patch.sections.append(draft.report.sections[0])
-    review = LessonReview(issues=[LessonIssue(section_type="method", problem="缺少机制解释。")])
+    review = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="缺少机制解释。")])
     call, calls = scripted([plan, draft, review, patch])
     with pytest.raises(LearningQualityError, match="只能替换"):
         run(call, chunks)
@@ -169,7 +176,7 @@ def test_patch_cannot_silently_rewrite_passed_sections():
 
 def test_review_cannot_validate_against_invented_source():
     chunks, plan, draft = materials()
-    review = LessonReview(issues=[LessonIssue(section_type="results", problem="补充数值。", source_chunk_ids=["fake"])])
+    review = LessonReview(issues=[LessonIssue(section_type="results", point_indices=[0], problem="补充数值。", source_chunk_ids=["fake"])])
     call, _ = scripted([plan, draft, review])
     with pytest.raises(LearningQualityError, match="不存在的原文"):
         run(call, chunks)
@@ -260,7 +267,7 @@ def test_failed_quality_review_preserves_report_saved_after_submission(tmp_path)
     conversation = make_conversation("保留的阅读会话")
     store.save_conversations(project.project_id, [conversation], conversation.conversation_id, keep_empty=True)
     before = {str(p.relative_to(tmp_path)): p.read_bytes() for p in tmp_path.rglob('*.json')}
-    issue = LessonReview(issues=[LessonIssue(section_type="method", problem="方法机制仍缺少解释。")])
+    issue = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="方法机制仍缺少解释。")])
     client, requests = transport_client([x.model_dump_json() for x in [plan, draft, issue, method_patch(draft), issue, method_patch(draft), issue]])
     manager = LearningJobManager(store, service_factory=lambda settings: AuditService(settings, client=client),
                                  mark_interrupted_on_start=False)
@@ -287,7 +294,7 @@ def test_failed_quality_review_preserves_report_saved_after_submission(tmp_path)
 
 def test_standalone_generation_caps_all_five_stages_including_json_repairs():
     chunks, plan, draft = materials()
-    review = LessonReview(issues=[LessonIssue(section_type="method", problem="解释不充分。")])
+    review = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="解释不充分。")])
     stages = [plan, draft, review, method_patch(draft), LessonReview(issues=[])]
     responses = [text for stage in stages for text in ["invalid json", stage.model_dump_json()]]
     client, requests = transport_client(responses)
@@ -298,20 +305,20 @@ def test_standalone_generation_caps_all_five_stages_including_json_repairs():
 
 def test_empty_repair_is_schema_retried_with_explicit_section_contract():
     chunks, plan, draft = materials()
-    review = LessonReview(issues=[LessonIssue(section_type="method", problem="补充输入输出。")])
+    review = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="补充输入输出。")])
     responses = [x.model_dump_json() for x in [plan, draft, review, LessonPatch(sections=[], coverage=[]), method_patch(draft), LessonReview(issues=[])]]
     client, requests = transport_client(responses)
     report = client.generate_learning_report("Paper", chunks)
     assert report.sections[2].points[0].explanation == "修补后的完整机制解释。"
     assert len(requests) == 6
     repair_prompt = requests[3]["messages"][1]["content"]
-    assert '"required_sections": ["method"]' in repair_prompt
+    assert '"point_updates": [{"section_type": "method", "point_index": 0}]' in repair_prompt
     assert '"minItems": 1' in repair_prompt
 
 
 def test_schema_repair_preserves_scope_and_source_when_model_returns_wrong_chapter():
     chunks, plan, draft = materials()
-    review = LessonReview(issues=[LessonIssue(section_type="method", problem="补充输入输出。")])
+    review = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="补充输入输出。")])
     wrong = LessonPatch(sections=[draft.report.sections[0]], coverage=[draft.coverage[2]],
                         one_sentence_summary="不应修改的总结")
     responses = [x.model_dump_json() for x in [plan, draft, review, wrong, method_patch(draft), LessonReview(issues=[])]]
@@ -321,10 +328,10 @@ def test_schema_repair_preserves_scope_and_source_when_model_returns_wrong_chapt
     assert report.sections[0] == draft.report.sections[0]
     assert report.sections[2].points[0].explanation == "修补后的完整机制解释。"
     correction = requests[4]["messages"][1]["content"]
-    assert '"required_sections": ["method"]' in correction
+    assert '"point_updates": [{"section_type": "method", "point_index": 0}]' in correction
     assert chunks[2].content in correction
     assert "Validation errors:" in correction
-    assert "literal_error" in correction
+    assert "Validation errors:" in correction
 
 
 def test_invalid_quote_feedback_identifies_exact_quote_and_repeats_source_for_repair():
@@ -342,7 +349,7 @@ def test_invalid_quote_feedback_identifies_exact_quote_and_repeats_source_for_re
 
 def test_patch_schema_rejects_unrelated_topic_even_when_coverage_count_matches():
     chunks, plan, draft = materials()
-    review = LessonReview(issues=[LessonIssue(section_type="method", problem="补充输入输出。")])
+    review = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="补充输入输出。")])
     wrong = method_patch(draft)
     wrong.coverage = [draft.coverage[0]]
     client, requests = transport_client([x.model_dump_json() for x in [plan, draft, review, wrong, method_patch(draft), LessonReview(issues=[])]])
@@ -383,9 +390,9 @@ def test_literal_quote_selection_can_decline_instead_of_inventing_support():
 
 def test_quote_selection_is_metered_and_followed_by_semantic_review():
     chunks, plan, draft = materials()
-    issue = LessonReview(issues=[LessonIssue(section_type="method", problem="解释不充分。")])
+    issue = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="解释不充分。")])
     patch = method_patch(draft)
-    patch.sections[0].points[0].evidence[0].quote = "Incorrect quote from model."
+    patch.point_updates[0].point.evidence[0].quote = "Incorrect quote from model."
     responses = [x.model_dump_json() for x in [plan, draft, issue, patch]] + [
         '{"quote_0": 0}', LessonReview(issues=[]).model_dump_json()]
     client, requests = transport_client(responses)
@@ -399,9 +406,9 @@ def test_quote_selection_is_metered_and_followed_by_semantic_review():
 
 def test_all_optional_stages_and_json_repairs_fit_twelve_request_ceiling():
     chunks, plan, draft = materials()
-    issue = LessonReview(issues=[LessonIssue(section_type="method", problem="解释不充分。")])
+    issue = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="解释不充分。")])
     patch = method_patch(draft)
-    patch.sections[0].points[0].evidence[0].quote = "Incorrect quote."
+    patch.point_updates[0].point.evidence[0].quote = "Incorrect quote."
     stages = [x.model_dump_json() for x in [plan, draft, issue, patch]] + [
         '{"quote_0": 0}', LessonReview(issues=[]).model_dump_json()]
     client, requests = transport_client([text for stage in stages for text in ["invalid json", stage]])
@@ -413,9 +420,9 @@ def test_all_optional_stages_and_json_repairs_fit_twelve_request_ceiling():
 
 def test_exact_quote_does_not_override_failed_semantic_review():
     chunks, plan, draft = materials()
-    issue = LessonReview(issues=[LessonIssue(section_type="method", problem="解释超出原文支持。")])
+    issue = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="解释超出原文支持。")])
     patch = method_patch(draft)
-    patch.sections[0].points[0].evidence[0].quote = "Incorrect quote."
+    patch.point_updates[0].point.evidence[0].quote = "Incorrect quote."
     client, requests = transport_client([x.model_dump_json() for x in [plan, draft, issue, patch]] + [
         '{"quote_0": 0}', issue.model_dump_json(), patch.model_dump_json(), '{"quote_0": 0}', issue.model_dump_json()])
     with pytest.raises(Hy3ResponseError, match="两轮修补上限"):
@@ -461,11 +468,11 @@ def test_required_values_allow_sentence_period_but_not_larger_decimal():
 
 def test_second_repair_targets_new_defect_without_rewriting_first_fix():
     chunks, plan, draft = materials()
-    first_issue = LessonReview(issues=[LessonIssue(section_type="method", problem="方法缺少步骤。")])
-    later_issue = LessonReview(issues=[LessonIssue(section_type="results", problem="主结果漏报。")])
+    first_issue = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="方法缺少步骤。")])
+    later_issue = LessonReview(issues=[LessonIssue(section_type="results", point_indices=[0], problem="主结果漏报。")])
     results = deepcopy(draft.report.sections[4])
     results.points[0].explanation = "补齐主结果及条件。"
-    second = LessonPatch(sections=[results], coverage=[draft.coverage[4]])
+    second = LessonPatch(point_updates=[PointUpdate(section_type="results", point_index=0, point=results.points[0])], coverage=[draft.coverage[4]])
     call, calls = scripted([plan, draft, first_issue, method_patch(draft), later_issue, second, LessonReview(issues=[])])
     report = run(call, chunks)
     assert len(calls) == 7
@@ -476,9 +483,9 @@ def test_second_repair_targets_new_defect_without_rewriting_first_fix():
 
 def test_two_repairs_with_quote_selection_and_json_repairs_use_at_most_eighteen_requests():
     chunks, plan, draft = materials()
-    issue = LessonReview(issues=[LessonIssue(section_type="method", problem="解释不充分。")])
+    issue = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[0], problem="解释不充分。")])
     patch = method_patch(draft)
-    patch.sections[0].points[0].evidence[0].quote = "Incorrect quote."
+    patch.point_updates[0].point.evidence[0].quote = "Incorrect quote."
     stages = [x.model_dump_json() for x in [plan, draft, issue, patch]] + [
         '{"quote_0": 0}', issue.model_dump_json(), patch.model_dump_json(),
         '{"quote_0": 0}', LessonReview(issues=[]).model_dump_json()]
@@ -486,3 +493,127 @@ def test_two_repairs_with_quote_selection_and_json_repairs_use_at_most_eighteen_
     report = client.generate_learning_report("Paper", chunks)
     assert report.sections[2].points[0].evidence[0].quote == chunks[2].content
     assert len(requests) == 18
+
+
+def test_point_patch_preserves_siblings_and_input_bytes_and_shared_coverage():
+    chunks, plan, draft = materials()
+    sibling = deepcopy(draft.report.sections[2].points[0])
+    sibling.title = "已经正确的第二步"
+    draft.report.sections[2].points.append(sibling)
+    other = plan.sections[2].topics[0].model_copy(update={"topic_id": "other"}, deep=True)
+    shared = other.model_copy(update={"topic_id": "shared"}, deep=True)
+    plan.sections[2].topics.extend([other, shared])
+    untouched = TopicCoverage(topic_id="other", point_indices=[1])
+    shared_mapping = TopicCoverage(topic_id="shared", point_indices=[0, 1])
+    draft.coverage.extend([untouched, shared_mapping])
+    before = draft.model_dump_json()
+    issues = [LessonIssue(section_type="method", point_indices=[0], problem="修正第一步")]
+    patch = method_patch(draft)
+    patch.coverage.append(shared_mapping)
+    result = apply_patch(draft, patch, plan, issues)
+    assert draft.model_dump_json() == before
+    assert result.report.sections[2].points[1].model_dump_json() == sibling.model_dump_json()
+    assert next(c for c in result.coverage if c.topic_id == "other") == untouched
+    assert next(c for c in result.coverage if c.topic_id == "shared").point_indices == [0, 1]
+    assert draft_issues(result, plan, {c.chunk_id: c for c in chunks}) == []
+    # Returned objects must not retain aliases to either the draft or patch.
+    result.report.sections[2].points[0].title = "later mutation"
+    result.report.sections[2].points[1].title = "another mutation"
+    assert draft.model_dump_json() == before
+    assert patch.point_updates[0].point.title != "later mutation"
+
+
+def test_append_then_second_round_repair_uses_new_index_without_shifting_old_points():
+    chunks, plan, draft = materials()
+    point = deepcopy(draft.report.sections[2].points[0])
+    point.title = "缺失的第二步"
+    append = LessonPatch(appended_points=[PointAppend(section_type="method", points=[point])],
+                         coverage=[TopicCoverage(topic_id="method", point_indices=[0, 1])])
+    issue = LessonReview(issues=[LessonIssue(section_type="method", append_points=True, problem="补充第二步")])
+    point.explanation = "第二步更正后的条件。"
+    fix = LessonPatch(point_updates=[PointUpdate(section_type="method", point_index=1, point=point)], coverage=append.coverage)
+    later = LessonReview(issues=[LessonIssue(section_type="method", point_indices=[1], problem="第二步条件有误")])
+    call, calls = scripted([plan, draft, issue, append, later, fix, LessonReview(issues=[])])
+    result = run(call, chunks)
+    assert len(calls) == 7
+    assert result.sections[2].points[0] == draft.report.sections[2].points[0]
+    assert len(result.sections[2].points) == 2
+    assert result.sections[2].points[1].explanation == "第二步更正后的条件。"
+    assert '"point_index": 1' in calls[5][0]
+
+
+def test_metadata_and_summary_repair_do_not_authorize_points_or_coverage():
+    _, plan, draft = materials()
+    issues = [LessonIssue(section_type="method", edit_metadata=True, problem="导读有误"), LessonIssue(problem="总结有误")]
+    patch = LessonPatch(metadata_updates=[SectionMetadataUpdate(section_type="method", title="方法", overview="限定后的导读")],
+                        one_sentence_summary="限定后的总结")
+    result = apply_patch(draft, patch, plan, issues)
+    assert result.report.sections[2].points == draft.report.sections[2].points
+    assert result.coverage == draft.coverage
+    assert result.report.sections[2].overview == "限定后的导读"
+    assert result.report.one_sentence_summary == "限定后的总结"
+    patch.point_updates = method_patch(draft).point_updates
+    with pytest.raises(LearningQualityError, match="只能替换"):
+        apply_patch(draft, patch, plan, issues)
+
+
+@pytest.mark.parametrize("damage", ["sibling", "duplicate", "append", "metadata", "whole_section", "summary", "coverage", "missing_point"])
+def test_patch_rejects_changes_outside_exact_point_scope(damage):
+    _, plan, draft = materials()
+    draft.report.sections[2].points.append(deepcopy(draft.report.sections[2].points[0]))
+    issues = [LessonIssue(section_type="method", point_indices=[0], problem="修正第一点")]
+    patch = method_patch(draft)
+    if damage == "sibling": patch.point_updates[0].point_index = 1
+    elif damage == "duplicate": patch.point_updates *= 2
+    elif damage == "append": patch.appended_points = [PointAppend(section_type="method", points=[draft.report.sections[2].points[0]])]
+    elif damage == "metadata": patch.metadata_updates = [SectionMetadataUpdate(section_type="method", title="篡改", overview="篡改")]
+    elif damage == "whole_section": patch.sections = [draft.report.sections[2]]
+    elif damage == "summary": patch.one_sentence_summary = "篡改"
+    elif damage == "coverage": patch.coverage = [draft.coverage[0]]
+    elif damage == "missing_point": patch.point_updates = []
+    before = draft.model_dump_json()
+    with pytest.raises(LearningQualityError, match="只能替换"):
+        apply_patch(draft, patch, plan, issues)
+    assert draft.model_dump_json() == before
+
+
+@pytest.mark.parametrize("scope", [
+    {}, {"point_indices": [-1]}, {"point_indices": [1]}, {"point_indices": [0, 0]},
+    {"topic_ids": ["results"]}, {"topic_ids": ["unknown"]},
+])
+def test_ambiguous_or_invalid_review_scope_stops_before_patch_call(scope):
+    chunks, plan, draft = materials()
+    review = LessonReview(issues=[LessonIssue(section_type="method", problem="错误范围", **scope)])
+    call, calls = scripted([plan, draft, review])
+    with pytest.raises(LearningQualityError):
+        run(call, chunks)
+    assert len(calls) == 3
+
+
+def test_mapping_only_repair_preserves_every_explanation_and_removes_unknown_ids():
+    chunks, plan, draft = materials()
+    draft.coverage.append(TopicCoverage(topic_id="unknown", point_indices=[99]))
+    issues = draft_issues(draft, plan, {c.chunk_id: c for c in chunks})
+    model, contract = repair_contract(draft, plan, issues)
+    assert contract["point_updates"] == contract["structural_sections"] == []
+    assert not contract["summary_requires_repair"]
+    patch = LessonPatch(coverage=[draft.coverage[0]])
+    result = apply_patch(draft, patch, plan, issues)
+    assert result.report.model_dump_json() == draft.report.model_dump_json()
+    assert len(result.coverage) == 7
+    assert draft_issues(result, plan, {c.chunk_id: c for c in chunks}) == []
+
+
+def test_disproven_omission_can_keep_text_without_forcing_invented_append():
+    chunks, plan, draft = materials()
+    issue = LessonReview(issues=[LessonIssue(section_type="method", append_points=True, problem="误报缺失")])
+    patch = LessonPatch(appended_points=[PointAppend(section_type="method", points=[])], coverage=[draft.coverage[2]])
+    call, calls = scripted([plan, draft, issue, patch, LessonReview(issues=[])])
+    assert run(call, chunks) == draft.report
+    assert len(calls) == 5
+
+
+def test_summary_issue_cannot_smuggle_point_permission():
+    _, plan, draft = materials()
+    with pytest.raises(LearningQualityError, match="总结问题"):
+        repair_contract(draft, plan, [LessonIssue(point_indices=[0], problem="总结有误")])

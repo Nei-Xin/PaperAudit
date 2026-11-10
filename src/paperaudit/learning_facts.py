@@ -95,7 +95,7 @@ def source_quantity(value: str) -> tuple[Decimal, bool] | None:
 
 def symbolic_expression(value: str) -> bool:
     text = value.strip()
-    return bool(re.fullmatch(r"(?:O\([A-Za-z0-9/+*^(). _-]+\)|[A-Za-z0-9/+*^(). -]+)", text)
+    return bool(re.fullmatch(r"(?:O\([A-Za-z0-9/+*^(). _√·×-]+\)|[A-Za-z0-9/+*^(). _√·×-]+)", text)
                 and re.search(r"[A-Za-z]", text) and quantity(text) is None)
 
 

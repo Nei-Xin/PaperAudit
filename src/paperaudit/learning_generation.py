@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field, create_model
 
 from .evidence import _validated_evidence_quote
 from .learning_facts import FactMention, LessonFact, check_mention, validate_fact
-from .models import LearningReport, LearningSectionType, PaperChunk, ReportSection, StrictModel
+from .models import LearningReport, LearningSectionType, ExplanationPoint, PaperChunk, ReportSection, StrictModel
 
 
 class LearningQualityError(ValueError):
@@ -66,6 +66,12 @@ class LessonDraft(StrictModel):
 
 class LessonIssue(StrictModel):
     section_type: LearningSectionType | None = None  # None means the summary.
+    # Zero-based positions in the CURRENT draft. Never authorize a whole chapter
+    # merely because the reviewer did not identify an existing point.
+    point_indices: list[int] = Field(default_factory=list)
+    topic_ids: list[str] = Field(default_factory=list)
+    append_points: bool = False
+    edit_metadata: bool = False
     problem: str = Field(min_length=1)
     source_chunk_ids: list[str] = Field(default_factory=list)
 
@@ -74,9 +80,30 @@ class LessonReview(StrictModel):
     issues: list[LessonIssue] = Field(max_length=24)
 
 
+class PointUpdate(StrictModel):
+    section_type: LearningSectionType
+    point_index: int = Field(ge=0)
+    point: ExplanationPoint
+
+
+class PointAppend(StrictModel):
+    section_type: LearningSectionType
+    points: list[ExplanationPoint]
+
+
+class SectionMetadataUpdate(StrictModel):
+    section_type: LearningSectionType
+    title: str = Field(min_length=1)
+    overview: str = Field(min_length=1)
+
+
 class LessonPatch(StrictModel):
-    sections: list[ReportSection]
-    coverage: list[TopicCoverage]
+    # Full sections are reserved for missing/duplicate chapter structure.
+    sections: list[ReportSection] = Field(default_factory=list)
+    point_updates: list[PointUpdate] = Field(default_factory=list)
+    appended_points: list[PointAppend] = Field(default_factory=list)
+    metadata_updates: list[SectionMetadataUpdate] = Field(default_factory=list)
+    coverage: list[TopicCoverage] = Field(default_factory=list)
     one_sentence_summary: str | None = None
 
 
@@ -204,6 +231,13 @@ because a reader could imagine a stronger claim that the lesson does not actuall
 Only include defects that materially change understanding, evidence support, or coverage
 of essential mechanisms/main experiments. Optional elaboration and stylistic preferences
 are not blocking issues. For a summary defect use section_type=null, not a chapter name.
+For every section issue specify the smallest precise repair scope: point_indices are
+zero-based CURRENT points needing replacement (not deletion or reordering); append_points=true
+only for genuinely missing content needing new points at the end; edit_metadata=true only
+for a defective chapter title/overview; topic_ids only for incorrect coverage mappings.
+These scopes may be combined. Never select correct sibling points just to rewrite the chapter.
+Summary issues use section_type=null and all scope fields empty/false. A missing/duplicate
+chapter may have empty scope; the application alone authorizes structural rebuilding.
 Report only concrete material deficiencies, in Chinese, with the affected section and
 source_chunk_ids when applicable. For missing content identify the actual source passages;
 for unsupported content identify the claim to remove or qualify. Return issues=[] only
@@ -252,8 +286,8 @@ def validate_plan(plan: LessonPlan, sources: dict[str, PaperChunk]) -> None:
 
 def draft_issues(draft: LessonDraft, plan: LessonPlan, sources: dict[str, PaperChunk]) -> list[LessonIssue]:
     issues: list[LessonIssue] = []
-    def add(section, problem):
-        issues.append(LessonIssue(section_type=section, problem=problem))
+    def add(section, problem, **scope):
+        issues.append(LessonIssue(section_type=section, problem=problem, **scope))
     report = draft.report
     if not report.one_sentence_summary.strip():
         add(None, "一句话总结为空。")
@@ -269,18 +303,19 @@ def draft_issues(draft: LessonDraft, plan: LessonPlan, sources: dict[str, PaperC
             continue
         section = sections[kind]
         if not section.title.strip() or not section.overview.strip():
-            add(kind, "章节标题或导读为空。")
+            add(kind, "章节标题或导读为空。", edit_metadata=True)
         if planned.topics and not section.points:
-            add(kind, "有原文支持的主题未生成解释。")
+            add(kind, "有原文支持的主题未生成解释。", append_points=True)
         for index, point in enumerate(section.points):
             if not point.title.strip() or not point.explanation.strip():
-                add(kind, f"第 {index + 1} 点缺少标题或解释。")
+                add(kind, f"第 {index + 1} 点缺少标题或解释。", point_indices=[index])
             if not point.evidence:
-                add(kind, f"第 {index + 1} 点缺少原文引用；无原文依据的范围说明应放在章节导读。")
+                add(kind, f"第 {index + 1} 点缺少原文引用；无原文依据的范围说明应放在章节导读。", point_indices=[index])
             for anchor in point.evidence:
                 source = sources.get(anchor.chunk_id)
                 if source is None or not anchor.quote or not _validated_evidence_quote(anchor.quote, source.content):
                     issues.append(LessonIssue(section_type=kind,
+                        point_indices=[index],
                         problem=f"第 {index + 1} 点的引用 {anchor.chunk_id} 不是有效的连续原文摘录。"
                                 f"待修正摘录：{json.dumps(anchor.quote, ensure_ascii=False)}；"
                                 "请从该块逐字复制连续文本，保留原文连字符，不拼接或补全句子。",
@@ -288,16 +323,16 @@ def draft_issues(draft: LessonDraft, plan: LessonPlan, sources: dict[str, PaperC
         for topic in planned.topics:
             link = coverage.get(topic.topic_id)
             if coverage_counts[topic.topic_id] != 1 or link is None:
-                add(kind, f"主题 {topic.topic_id}（{topic.title}）缺少唯一的讲解覆盖记录。")
+                add(kind, f"主题 {topic.topic_id}（{topic.title}）缺少唯一的讲解覆盖记录。", topic_ids=[topic.topic_id])
                 continue
             if any(i < 0 or i >= len(section.points) for i in link.point_indices):
-                add(kind, f"主题 {topic.topic_id} 指向不存在的讲解点。")
+                add(kind, f"主题 {topic.topic_id} 指向不存在的讲解点。", topic_ids=[topic.topic_id])
                 continue
             cited = {a.chunk_id for i in link.point_indices for a in section.points[i].evidence}
             fact_counts = Counter(m.fact_id for m in link.fact_mentions)
             mentions = {m.fact_id: m for m in link.fact_mentions}
             if set(fact_counts) - {f.fact_id for f in topic.facts}:
-                add(kind, f"主题 {topic.topic_id} 包含不属于本主题的事实覆盖。")
+                add(kind, f"主题 {topic.topic_id} 包含不属于本主题的事实覆盖。", topic_ids=[topic.topic_id])
             for fact in topic.facts:
                 mention = mentions.get(fact.fact_id)
                 messages = []
@@ -311,44 +346,121 @@ def draft_issues(draft: LessonDraft, plan: LessonPlan, sources: dict[str, PaperC
                         fact, mention, point.explanation, {a.chunk_id for a in point.evidence})]
                 for message in messages:
                     issues.append(LessonIssue(section_type=kind,
+                        point_indices=[mention.point_index] if mention and mention.point_index in link.point_indices else list(link.point_indices),
+                        topic_ids=[topic.topic_id],
                         problem=f"事实 {fact.fact_id}（{fact.finding}）：{message}",
                         source_chunk_ids=[a.chunk_id for a in fact.sources]))
             explanation = "\n".join(section.points[i].explanation for i in link.point_indices)
             for value in topic.required_values:
                 if not re.search(r"(?<![\d.])" + re.escape(value) + r"(?!\d|\.\d)", explanation):
                     issues.append(LessonIssue(section_type=kind,
+                        point_indices=list(link.point_indices), topic_ids=[topic.topic_id],
                         problem=f"主题 {topic.topic_id}（{topic.title}）缺少关键结果值 {value}，请在解释正文中补充其数据集、模型变体和指标条件；只在引用中出现不算覆盖。",
                         source_chunk_ids=topic.source_chunk_ids))
             if not cited.intersection(topic.source_chunk_ids):
-                add(kind, f"主题 {topic.topic_id} 的解释没有引用提纲中的支持来源。")
+                add(kind, f"主题 {topic.topic_id} 的解释没有引用提纲中的支持来源。",
+                    point_indices=list(link.point_indices), topic_ids=[topic.topic_id])
+    # Unknown mapping IDs have no owning chapter or content to regenerate. They
+    # are removed deterministically during merge; known mappings remain intact.
     if any(c.topic_id not in topics for c in draft.coverage):
-        # A malformed global mapping cannot be repaired without its owning section.
-        for kind in LearningSectionType:
-            add(kind, "覆盖记录含提纲之外的主题编号，请只保留本节真实主题。")
+        topic_id, (kind, _) = next(iter(topics.items()))
+        add(kind, "覆盖记录含提纲之外的主题编号，程序会移除无效记录；保留正确映射。", topic_ids=[topic_id])
     return issues
 
 
-def apply_patch(draft: LessonDraft, patch: LessonPatch, plan: LessonPlan, issues: list[LessonIssue]) -> LessonDraft:
-    affected = {i.section_type for i in issues if i.section_type is not None}
-    kinds = [s.section_type for s in patch.sections]
-    if set(kinds) != affected or len(kinds) != len(affected):
-        raise LearningQualityError("讲解修补必须且只能替换待修补章节。")
-    topic_sections = {t.topic_id: s.section_type for s in plan.sections for t in s.topics}
-    if any(topic_sections.get(c.topic_id) not in affected for c in patch.coverage):
-        raise LearningQualityError("讲解修补修改了无关章节的覆盖记录。")
-    summary_issue = any(i.section_type is None for i in issues)
-    if patch.one_sentence_summary is not None and not summary_issue:
-        raise LearningQualityError("讲解修补不应修改已通过的总结。")
+def repair_contract(draft: LessonDraft, plan: LessonPlan, issues: list[LessonIssue]):
+    """Derive exact, independently enforced edit identities from validated targets."""
+    counts = Counter(s.section_type for s in draft.report.sections)
     sections = {s.section_type: s for s in draft.report.sections}
-    sections.update({s.section_type: s for s in patch.sections})
-    report = draft.report.model_copy(update={
-        "sections": [sections[k] for k in LearningSectionType if k in sections],
-        "one_sentence_summary": patch.one_sentence_summary if patch.one_sentence_summary is not None else draft.report.one_sentence_summary,
-    })
-    return LessonDraft(report=report, coverage=[
-        c for c in draft.coverage if topic_sections.get(c.topic_id) not in affected
-        and c.topic_id in topic_sections
-    ] + list(patch.coverage))
+    topic_sections = {t.topic_id: s.section_type for s in plan.sections for t in s.topics}
+    structural, points, appends, metadata, topic_ids = set(), set(), set(), set(), set()
+    for issue in issues:
+        kind = issue.section_type
+        if kind is None:
+            if issue.point_indices or issue.topic_ids or issue.append_points or issue.edit_metadata:
+                raise LearningQualityError("总结问题不能授权修改章节。")
+            continue
+        if any(topic_sections.get(t) != kind for t in issue.topic_ids):
+            raise LearningQualityError("讲解审核的主题不属于指定章节。")
+        if counts[kind] != 1:
+            structural.add(kind)
+            continue
+        if not (issue.point_indices or issue.topic_ids or issue.append_points or issue.edit_metadata):
+            raise LearningQualityError("讲解审核未定位具体要点、缺失内容或章节导读。")
+        if len(set(issue.point_indices)) != len(issue.point_indices) or any(
+            i < 0 or i >= len(sections[kind].points) for i in issue.point_indices
+        ):
+            raise LearningQualityError("讲解审核的要点编号重复或越界。")
+        points.update((kind, i) for i in issue.point_indices)
+        topic_ids.update(issue.topic_ids)
+        if issue.append_points:
+            appends.add(kind)
+        if issue.edit_metadata:
+            metadata.add(kind)
+    for topic_id, kind in topic_sections.items():
+        if kind in structural or kind in appends or any(
+            c.topic_id == topic_id and any((kind, i) in points for i in c.point_indices)
+            for c in draft.coverage
+        ):
+            topic_ids.add(topic_id)
+    # Stable order keeps prompts, validation errors and saved trial output comparable.
+    structural = [k for k in LearningSectionType if k in structural]
+    section_order = {kind: index for index, kind in enumerate(LearningSectionType)}
+    points = sorted(points, key=lambda p: (section_order[p[0]], p[1]))
+    appends = [k for k in LearningSectionType if k in appends]
+    metadata = [k for k in LearningSectionType if k in metadata]
+    topic_ids = [t for t in topic_sections if t in topic_ids]
+    summary = any(i.section_type is None for i in issues)
+    section_models = tuple(create_model(f"Repair_{k.value}", __base__=ReportSection,
+        section_type=(Literal[k], ...)) for k in structural)
+    point_models = tuple(create_model(f"RepairPoint_{k.value}_{i}", __base__=PointUpdate,
+        section_type=(Literal[k], ...), point_index=(Literal[i], ...)) for k, i in points)
+    append_models = tuple(create_model(f"Append_{k.value}", __base__=PointAppend,
+        section_type=(Literal[k], ...)) for k in appends)
+    metadata_models = tuple(create_model(f"Metadata_{k.value}", __base__=SectionMetadataUpdate,
+        section_type=(Literal[k], ...)) for k in metadata)
+    coverage_models = tuple(create_model(f"RepairCoverage_{i}", __base__=TopicCoverage,
+        topic_id=(Literal[t], ...)) for i, t in enumerate(topic_ids))
+    model = create_model("RequiredLessonPatch", __base__=LessonPatch,
+        sections=(tuple[section_models], ...), point_updates=(tuple[point_models], ...),
+        appended_points=(tuple[append_models], ...), metadata_updates=(tuple[metadata_models], ...),
+        coverage=(tuple[coverage_models], ...),
+        one_sentence_summary=(str if summary else type(None), ...))
+    contract = {"structural_sections": [k.value for k in structural],
+        "point_updates": [{"section_type": k.value, "point_index": i} for k, i in points],
+        "append_to_sections": [k.value for k in appends],
+        "metadata_sections": [k.value for k in metadata],
+        "required_topic_ids": topic_ids, "summary_requires_repair": summary}
+    return model, contract
+
+
+def apply_patch(draft: LessonDraft, patch: LessonPatch, plan: LessonPlan, issues: list[LessonIssue]) -> LessonDraft:
+    model, _ = repair_contract(draft, plan, issues)
+    try:
+        # Enforce scope even for callers bypassing provider schema validation.
+        patch = model.model_validate(patch.model_dump(mode="json"))
+    except ValueError as exc:
+        raise LearningQualityError("讲解修补只能替换授权的要点、映射或缺失章节。") from exc
+    result = draft.model_copy(deep=True)
+    sections = {s.section_type: s for s in result.report.sections}
+    sections.update({s.section_type: s.model_copy(deep=True) for s in patch.sections})
+    for update in patch.point_updates:
+        sections[update.section_type].points[update.point_index] = update.point.model_copy(deep=True)
+    for update in patch.appended_points:
+        sections[update.section_type].points.extend(p.model_copy(deep=True) for p in update.points)
+    for update in patch.metadata_updates:
+        sections[update.section_type].title = update.title
+        sections[update.section_type].overview = update.overview
+    result.report.sections = [sections[k] for k in LearningSectionType if k in sections]
+    if patch.one_sentence_summary is not None:
+        if not patch.one_sentence_summary.strip():
+            raise LearningQualityError("讲解修补的总结不能为空。")
+        result.report.one_sentence_summary = patch.one_sentence_summary
+    replacements = {c.topic_id: c.model_copy(deep=True) for c in patch.coverage}
+    known = {t.topic_id for s in plan.sections for t in s.topics}
+    result.coverage = [c for c in result.coverage if c.topic_id in known and c.topic_id not in replacements]
+    result.coverage.extend(replacements.values())
+    return result
 
 
 T = TypeVar("T", bound=BaseModel)
@@ -436,6 +548,7 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
                       + "\n<untrusted_draft>" + value.model_dump_json() + "</untrusted_draft>", LessonReview)
         if any(cid not in sources for issue in review.issues for cid in issue.source_chunk_ids):
             raise LearningQualityError("讲解质量检查引用了不存在的原文。")
+        repair_contract(value, plan, review.issues)  # Reject ambiguous or invalid reviewer targets.
         return deterministic + review.issues
 
     progress("正在核对内容覆盖、数值与原文证据", 0.60)
@@ -443,43 +556,33 @@ def generate_lesson(call: Callable[[str, type[T]], T], title: str, chunks: list[
     for repair_round in range(2):
         if not issues:
             return draft.report
-        progress(f"正在补充与修正问题章节（第 {repair_round + 1}/2 轮）", round(0.72 + repair_round * 0.10, 2))
+        progress(f"正在补充与修正具体要点（第 {repair_round + 1}/2 轮）", round(0.72 + repair_round * 0.10, 2))
         feedback = json.dumps([i.model_dump(mode="json") for i in issues], ensure_ascii=False)
-        affected = [k for k in LearningSectionType if any(i.section_type == k for i in issues)]
-        # Encode identity, not just length: otherwise a JSON repair may merge two
-        # chapters or substitute an unrelated chapter to satisfy the item count.
-        section_models = tuple(create_model(f"Repair_{k.value}", __base__=ReportSection,
-            section_type=(Literal[k], ...)) for k in affected)
-        affected_topics = [topic for k in affected for s in plan.sections if s.section_type == k for topic in s.topics]
-        coverage_models = tuple(create_model(f"RepairCoverage_{index}", __base__=TopicCoverage,
-            topic_id=(Literal[topic.topic_id], ...)) for index, topic in enumerate(affected_topics))
-        summary_issue = any(i.section_type is None for i in issues)
-        patch_model = create_model("RequiredLessonPatch", __base__=LessonPatch,
-            sections=(tuple[section_models], ...),
-            coverage=(tuple[coverage_models], ...),
-            one_sentence_summary=(str if summary_issue else type(None), ...))
-        contract = json.dumps({"required_sections": [k.value for k in affected],
-                               "required_topic_ids": [t.topic_id for t in affected_topics],
-                               "summary_requires_repair": any(i.section_type is None for i in issues)}, ensure_ascii=False)
+        patch_model, scope = repair_contract(draft, plan, issues)
+        contract = json.dumps(scope, ensure_ascii=False)
         # Repeat implicated passages beside feedback to avoid asking the model to
         # locate a malformed quote among hundreds of source blocks again.
         repair_sources = {cid: sources[cid].content for issue in issues for cid in issue.source_chunk_ids}
         patch_rules = TEACHING_RULES.replace(
             "Use seven sections in order: research_problem, contributions, method, experiments,\nresults, limitations, key_terms.",
-            "This is a SELECTIVE PATCH, not a full report. Return ONLY the required sections in the contract.")
+            "This is a POINT PATCH. Return only the edits authorized by the contract.")
         patch = call(patch_rules + FACT_RULES + "\nThe following application repair contract is authoritative: " + contract
-                     + "\nReturn exactly those sections in full, even if you find some reviewer suggestions mistaken.\n"
-                     "Feedback is fallible: verify proposed corrections (especially formulas/numbers) against the\n"
-                     "paper; do not introduce a false statement just to satisfy a reviewer. Preserve correct text\n"
-                     "when the source disproves the proposed correction. Empty patches are not acceptable.\n"
-                     "Preserve valid content and add/correct only what the issues require. Include ALL\n"
-                     "coverage mappings for those sections; do not alter other sections. Fix the summary only if\n"
-                     "feedback names it (section_type=null). Never hide a gap by relabeling coverage.\n"
+                     + "\nReturn point_updates in contract order, each with the CURRENT zero-based index and replacement point.\n"
+                     "Do not return unchanged sibling points. Never delete or reorder existing points.\n"
+                     "For append_to_sections return appended_points containing only NEW points, added at the end.\n"
+                     "metadata_updates may change only listed chapter titles/overviews. Full sections are allowed\n"
+                     "ONLY for structural_sections (missing/duplicate chapters). Empty arrays are required elsewhere.\n"
+                     "Feedback is fallible: verify corrections against the paper and preserve correct targeted text\n"
+                     "when evidence disproves the allegation (an append may then contain no new points).\n"
+                     "Do not add false claims to appease a reviewer.\n"
+                     "Return exactly required_topic_ids coverage entries using final indices: old indices stay fixed,\n"
+                     "new indices start at the original section point count. Preserve still-valid fact_mentions.\n"
+                     "Do not hide a gap by relabeling coverage. Fix summary only when summary_requires_repair.\n"
                      + title_data + plan_data + source
                      + "\n<untrusted_draft>" + draft.model_dump_json() + "</untrusted_draft>"
                      + "\n<untrusted_feedback>" + feedback + "</untrusted_feedback>"
                      + "\n<untrusted_repair_sources>" + json.dumps(repair_sources, ensure_ascii=False) + "</untrusted_repair_sources>"
-                     + "\nReturn ONLY these sections, in this order: " + contract, patch_model)
+                     + "\nReturn ONLY these authorized edits, in this order: " + contract, patch_model)
         draft = apply_patch(draft, patch, plan, issues)
         draft = select_exact_quotes(call, draft, sources)
         progress("正在复核修补后的讲解", round(0.78 + repair_round * 0.10, 2))
