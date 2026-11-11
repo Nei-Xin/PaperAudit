@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .agents.models import CodeInvestigationTrace, InvestigationTrace
+from .agents.models import CodeInvestigationStep, CodeInvestigationTrace, InvestigationTrace
 
 
 class StrictModel(BaseModel):
@@ -690,6 +690,8 @@ class AuditRuntimeSnapshot(StrictModel):
     retrieval_top_k: int = Field(ge=1)
     judge_batch_size: int = Field(ge=1)
     deep_audit: bool = False
+    consistency_max_requests: int = Field(default=160, ge=1)
+    consistency_concurrency: int = Field(default=4, ge=1)
 
 
 class AuditJob(StrictModel):
@@ -803,7 +805,32 @@ class ConsistencyCheckpoint(StrictModel):
     topic: str
     category: ConsistencyCategory
     question: str
-    paper_anchor: EvidenceAnchor
+    # Absent only for a question the user added while reviewing the plan.
+    paper_anchor: EvidenceAnchor | None = None
+    source: Literal["planner", "user"] = "planner"
+
+
+class ConsistencyPlan(StrictModel):
+    """Proposed checkpoints, stored so a person can choose what gets checked."""
+
+    schema_version: int = 1
+    plan_id: str = ""
+    created_at: str = ""
+    strategy: str  # "agent-planner-v1" or "one-shot-v1"
+    model: str
+    checkpoints: list[ConsistencyCheckpoint]
+    proposed: int = 0
+    rejected: int = 0  # Proposals whose quotation was not in a passage the planner had read, or duplicates.
+    steps: list[CodeInvestigationStep] = Field(default_factory=list)
+    stop_reason: str = ""
+    fallback: bool = False  # The planning agent produced nothing and one model call planned instead.
+    requests: int = 0
+    tokens: int = 0
+    elapsed_seconds: float = 0
+    paper_hash: str = ""
+    code_hash: str = ""
+    target: int = Field(default=20, ge=1, le=40)
+    max_requests: int = Field(default=160, ge=1)
 
 
 class ConsistencyItemStatus(str, Enum):
@@ -843,9 +870,11 @@ class ConsistencyReport(StrictModel):
     codebase_name: str
     items: list[ConsistencyItem]
     summary: ConsistencySummary
+    plan_id: str | None = None
     planned: int            # Checkpoints the planner proposed.
     plan_rejected: int      # Proposed checkpoints dropped: quote not in the paper, or a duplicate topic.
     plan_over_limit: int = 0  # Valid proposals left out because max_checkpoints was reached.
+    plan_unselected: int = 0  # Valid proposals a person did not select.
     max_checkpoints: int
     max_requests: int
     concurrency: int
@@ -871,3 +900,11 @@ class ConsistencyJob(StrictModel):
     runtime: AuditRuntimeSnapshot
     max_checkpoints: int = Field(default=20, ge=1, le=40)
     report_id: str | None = None
+    # "audit" plans and checks in one go; "plan" stops with a stored plan for review;
+    # "execute" checks the checkpoints a person selected from that plan.
+    kind: Literal["audit", "plan", "execute"] = "audit"
+    # Older saved jobs used the autonomous planner; preserve that when retrying.
+    planning_strategy: Literal["one-shot", "agent"] = "agent"
+    plan_id: str | None = None
+    selected_ids: list[str] = Field(default_factory=list)
+    extra_questions: list[str] = Field(default_factory=list, max_length=10)

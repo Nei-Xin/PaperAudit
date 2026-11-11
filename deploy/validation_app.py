@@ -76,5 +76,18 @@ class ValidationCodeService(CodeLearningService):
             budget.requests, budget.tokens = report.requests, report.tokens
             return report
 
+    def plan_consistency(self, paper, codebase, **kwargs):
+        with meter("consistency_plan") as budget:
+            plan = super().plan_consistency(paper, codebase, **kwargs)
+            budget.requests, budget.tokens = plan.requests, plan.tokens
+            return plan
+
+    def check_consistency(self, paper, codebase, checkpoints, plan, **kwargs):
+        with meter("consistency_check") as budget:
+            report = super().check_consistency(paper, codebase, checkpoints, plan, **kwargs)
+            # The plan's own usage was recorded when it was made.
+            budget.requests, budget.tokens = report.requests - plan.requests, report.tokens - plan.tokens
+            return report
+
 
 app = create_app(service_factory=ValidationService, code_service_factory=ValidationCodeService)

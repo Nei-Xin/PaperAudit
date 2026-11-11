@@ -1,0 +1,37 @@
+{
+  "release": "planner-v2-76dda73eec51",
+  "local_date": "2026-11-12",
+  "split": "development",
+  "model": "configured-model",
+  "aggregates": {
+    "one-shot": {
+      "full_coverage_numerator": 11,
+      "coverage_denominator": 18,
+      "partial_count": 1,
+      "mean_requests": 1.0,
+      "mean_tokens": 23933.3,
+      "mean_seconds": 38.6,
+      "fallback_runs": 0
+    },
+    "agent": {
+      "full_coverage_numerator": 9,
+      "coverage_denominator": 18,
+      "partial_count": 4,
+      "mean_requests": 11.3,
+      "mean_tokens": 121731.0,
+      "mean_seconds": 63.8,
+      "fallback_runs": 0
+    }
+  },
+  "total_requests": 37,
+  "total_tokens": 436993,
+  "decision": "Use one-shot planning by default; keep autonomous planning opt-in. Earlier proposals are demonstrated, improved coverage is not.",
+  "limitations": [
+    "One known paper and six reference topics, three repetitions per strategy.",
+    "Coverage was reviewed by the implementing assistant, not an independent human assessor.",
+    "Partial coverage does not count as full; an e.g. numerical example does not establish a default value.",
+    "No significant difference or generalization claim.",
+    "Earlier v1 runs were historical and not rerun as a concurrent randomized control.",
+    "Read-only quotation validation does not establish semantic support or correct downstream findings."
+  ]
+}

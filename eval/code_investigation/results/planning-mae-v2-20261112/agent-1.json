@@ -1,0 +1,1280 @@
+{
+  "schema_version": 1,
+  "plan_id": "consistency-plan-20261111T155820Z-b898cb",
+  "created_at": "2026-11-11T15:58:20.933532+00:00",
+  "strategy": "agent-planner-v2",
+  "model": "configured-model",
+  "checkpoints": [
+    {
+      "checkpoint_id": "K01",
+      "topic": "预训练配置",
+      "category": "hyperparameter",
+      "question": "代码中的预训练批次大小是否与论文一致？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "batch size 4096",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 114.0461654663086,
+            "x1": 365.93798828125,
+            "y1": 121.01996612548828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 114.0461654663086,
+            "x1": 460.1876220703125,
+            "y1": 121.01996612548828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K02",
+      "topic": "MAE架构",
+      "category": "architecture",
+      "question": "代码的编码器是否只处理可见图像块且不包含掩码标记？",
+      "paper_anchor": {
+        "chunk_id": "p1_b6",
+        "page": 1,
+        "text": "This paper shows that masked autoencoders (MAE) are\nscalable self-supervised learners for computer vision. Our\nMAE approach is simple: we mask random patches of the\ninput image and reconstruct the missing pixels. It is based\non two core designs.\nFirst, we develop an asymmetric\nencoder-decoder architecture, with an encoder that oper-\nates only on the visible subset of patches (without mask to-\nkens), along with a lightweight decoder that reconstructs\nthe original image from the latent representation and mask\ntokens. Second, we ﬁnd that masking a high proportion\nof the input image, e.g., 75%, yields a nontrivial and\nmeaningful self-supervisory task. Coupling these two de-\nsigns enables us to train large models efﬁciently and ef-\nfectively: we accelerate training (by 3× or more) and im-\nprove accuracy. Our scalable approach allows for learning\nhigh-capacity models that generalize well: e.g., a vanilla\nViT-Huge model achieves the best accuracy (87.8%) among\nmethods that use only ImageNet-1K data.\nTransfer per-\nformance in downstream tasks outperforms supervised pre-\ntraining and shows promising scaling behavior.",
+        "quote": "an encoder that operates only on the visible subset of patches (without mask tokens)",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.066978454589844,
+            "y0": 228.78204345703125,
+            "x1": 286.3649597167969,
+            "y1": 238.74464416503906
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 240.737060546875,
+            "x1": 286.3651123046875,
+            "y1": 250.6996612548828
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 252.69207763671875,
+            "x1": 286.3650207519531,
+            "y1": 262.6546630859375
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 264.6480712890625,
+            "x1": 286.3651428222656,
+            "y1": 274.61065673828125
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 276.6030578613281,
+            "x1": 138.09169006347656,
+            "y1": 286.5656433105469
+          },
+          {
+            "x0": 147.61593627929688,
+            "y0": 276.6030578613281,
+            "x1": 286.36248779296875,
+            "y1": 286.74212646484375
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 288.55804443359375,
+            "x1": 286.36505126953125,
+            "y1": 298.5206298828125
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 300.5130310058594,
+            "x1": 286.3650207519531,
+            "y1": 310.4756164550781
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 312.468017578125,
+            "x1": 286.3650817871094,
+            "y1": 322.43060302734375
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 324.4230041503906,
+            "x1": 286.3650817871094,
+            "y1": 334.3855895996094
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 336.3789978027344,
+            "x1": 286.364990234375,
+            "y1": 346.3415832519531
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 348.333984375,
+            "x1": 286.365234375,
+            "y1": 358.4730529785156
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 360.2889709472656,
+            "x1": 286.36505126953125,
+            "y1": 370.2515563964844
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 372.24395751953125,
+            "x1": 286.36505126953125,
+            "y1": 382.20654296875
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 384.0157470703125,
+            "x1": 286.3655090332031,
+            "y1": 394.1615295410156
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 396.1539306640625,
+            "x1": 286.3650207519531,
+            "y1": 406.11651611328125
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 408.10992431640625,
+            "x1": 286.3597106933594,
+            "y1": 418.2489929199219
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 420.0649108886719,
+            "x1": 286.36505126953125,
+            "y1": 430.0274963378906
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 432.0198974609375,
+            "x1": 223.92942810058594,
+            "y1": 441.98248291015625
+          },
+          {
+            "x0": 232.13861083984375,
+            "y0": 432.0198974609375,
+            "x1": 286.36505126953125,
+            "y1": 441.98248291015625
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 443.9748840332031,
+            "x1": 286.3650817871094,
+            "y1": 453.9374694824219
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 455.92987060546875,
+            "x1": 239.37144470214844,
+            "y1": 465.8924560546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K03",
+      "topic": "ImageNet预训练默认设置",
+      "category": "hyperparameter",
+      "question": "代码的默认预训练掩码比例是否与论文一致？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "the masking ratio is 75%",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 260.8908386230469,
+            "x1": 531.3357543945312,
+            "y1": 269.85736083984375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K04",
+      "topic": "MAE随机遮挡",
+      "category": "data",
+      "question": "代码是否对图像块进行无放回、均匀的随机抽样以决定遮挡？",
+      "paper_anchor": {
+        "chunk_id": "p3_b30",
+        "page": 3,
+        "text": "Masking. Following ViT [16], we divide an image into reg-\nular non-overlapping patches. Then we sample a subset of\npatches and mask (i.e., remove) the remaining ones. Our\nsampling strategy is straightforward: we sample random\npatches without replacement, following a uniform distribu-\ntion. We simply refer to this as “random sampling”.",
+        "quote": "we sample random patches without replacement, following a uniform distribution.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 369.9433898925781,
+            "x1": 545.11328125,
+            "y1": 379.9969482421875
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 381.9903259277344,
+            "x1": 545.1150512695312,
+            "y1": 391.95294189453125
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 393.76885986328125,
+            "x1": 545.1088256835938,
+            "y1": 403.9079284667969
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 405.9002990722656,
+            "x1": 545.1149291992188,
+            "y1": 415.8629150390625
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 417.85528564453125,
+            "x1": 545.1149291992188,
+            "y1": 427.8179016113281
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 429.8102722167969,
+            "x1": 515.0877685546875,
+            "y1": 439.77288818359375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K05",
+      "topic": "MAE ViT架构",
+      "category": "architecture",
+      "question": "代码的位置嵌入是否采用正弦余弦形式？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "Our MAE adds positional embeddings [57] (the sine-cosine version) to both the encoder and decoder inputs.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 117.37352752685547,
+            "x1": 286.3623352050781,
+            "y1": 127.42709350585938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 129.4195098876953,
+            "x1": 286.36505126953125,
+            "y1": 139.38211059570312
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 141.37452697753906,
+            "x1": 286.3651123046875,
+            "y1": 151.33712768554688
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 153.3295440673828,
+            "x1": 286.3650207519531,
+            "y1": 163.29214477539062
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 165.28456115722656,
+            "x1": 286.36505126953125,
+            "y1": 175.24716186523438
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 177.2395782470703,
+            "x1": 286.3651123046875,
+            "y1": 187.20217895507812
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 189.19557189941406,
+            "x1": 286.36505126953125,
+            "y1": 199.15817260742188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 201.1505889892578,
+            "x1": 286.36505126953125,
+            "y1": 211.11318969726562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 212.92913818359375,
+            "x1": 286.35711669921875,
+            "y1": 223.06820678710938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 225.0606231689453,
+            "x1": 243.217041015625,
+            "y1": 235.02322387695312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K06",
+      "topic": "ImageNet评估协议",
+      "category": "evaluation",
+      "question": "代码的ImageNet评估是否使用单个224×224裁剪并报告验证集top-1准确率？",
+      "paper_anchor": {
+        "chunk_id": "p4_b24",
+        "page": 4,
+        "text": "We do self-supervised pre-training on the ImageNet-1K\n(IN1K) [13] training set. Then we do supervised training to\nevaluate the representations with (i) end-to-end ﬁne-tuning\nor (ii) linear probing. We report top-1 validation accuracy\nof a single 224×224 crop. Details are in Appendix A.1.",
+        "quote": "We report top-1 validation accuracy of a single 224×224 crop.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8620300292969,
+            "y0": 295.5804748535156,
+            "x1": 545.1150512695312,
+            "y1": 305.5430908203125
+          },
+          {
+            "x0": 308.8620300292969,
+            "y0": 307.1758117675781,
+            "x1": 530.8161010742188,
+            "y1": 317.4980773925781
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K07",
+      "topic": "MAE重建目标",
+      "category": "training",
+      "question": "代码是否仅在被遮挡图像块上计算像素空间MSE重建损失？",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "Our loss function computes the mean squared error (MSE) between the reconstructed and original images in the pixel space. We compute the loss only on masked patches, similar to BERT [14].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 263.58868408203125,
+            "x1": 286.36376953125,
+            "y1": 273.6422424316406
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 275.4581604003906,
+            "x1": 286.3597412109375,
+            "y1": 285.59722900390625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 287.5906066894531,
+            "x1": 286.3650817871094,
+            "y1": 297.55322265625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 299.54559326171875,
+            "x1": 286.36505126953125,
+            "y1": 309.5082092285156
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 311.5005798339844,
+            "x1": 286.3650207519531,
+            "y1": 321.46319580078125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 323.45556640625,
+            "x1": 286.3650207519531,
+            "y1": 333.4181823730469
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 335.4105529785156,
+            "x1": 286.36505126953125,
+            "y1": 345.3731689453125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 347.36553955078125,
+            "x1": 286.3650817871094,
+            "y1": 357.3281555175781
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K08",
+      "topic": "预训练优化细节",
+      "category": "training",
+      "question": "代码是否使用Xavier uniform初始化Transformer块？",
+      "paper_anchor": {
+        "chunk_id": "p11_b5",
+        "page": 11,
+        "text": "Pre-training.\nThe default setting is in Table 8.\nWe do\nnot use color jittering, drop path, or gradient clip. We use\nxavier uniform [18] to initialize all Transformer blocks, fol-\nlowing ViT’s ofﬁcial code [16]. We use the linear lr scaling\nrule [20]: lr = base lr×batchsize / 256.",
+        "quote": "We use xavier uniform [18] to initialize all Transformer blocks, following ViT’s ofﬁcial code [16].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 326.806640625,
+            "x1": 104.84651947021484,
+            "y1": 336.76922607421875
+          },
+          {
+            "x0": 112.9020004272461,
+            "y0": 326.8975830078125,
+            "x1": 251.16297912597656,
+            "y1": 336.8601989746094
+          },
+          {
+            "x0": 259.22271728515625,
+            "y0": 326.8975830078125,
+            "x1": 286.36083984375,
+            "y1": 336.8601989746094
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 338.6761169433594,
+            "x1": 286.36212158203125,
+            "y1": 348.815185546875
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 350.8074645996094,
+            "x1": 286.3652648925781,
+            "y1": 360.7701721191406
+          },
+          {
+            "x0": 50.112003326416016,
+            "y0": 362.58599853515625,
+            "x1": 286.3620300292969,
+            "y1": 372.7250671386719
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 374.3578186035156,
+            "x1": 206.7512664794922,
+            "y1": 384.6800842285156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K09",
+      "topic": "MAE预训练优化器动量",
+      "category": "hyperparameter",
+      "question": "代码的预训练AdamW β1、β2取值是否与论文一致？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "optimizer momentum β1, β2=0.9, 0.95 [6]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 105.9161605834961,
+            "x1": 398.49176025390625,
+            "y1": 112.88996124267578
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 105.75477600097656,
+            "x1": 511.08441162109375,
+            "y1": 113.28924560546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K10",
+      "topic": "MAE预训练调度",
+      "category": "hyperparameter",
+      "question": "代码的预训练学习率调度是否采用余弦衰减？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "learning rate schedule cosine decay [38]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 122.1751937866211,
+            "x1": 399.4401550292969,
+            "y1": 129.1490020751953
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 122.17513275146484,
+            "x1": 495.4262390136719,
+            "y1": 129.14894104003906
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K11",
+      "topic": "默认解码器设置",
+      "category": "architecture",
+      "question": "默认预训练解码器的层数是否符合论文设定？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "the decoder has depth 8",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 249.93185424804688,
+            "x1": 545.1109619140625,
+            "y1": 258.89825439453125
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K12",
+      "topic": "MAE预训练配置",
+      "category": "hyperparameter",
+      "question": "代码中的MAE预训练是否进行40个warmup epochs？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "warmup epochs [20] 40",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 130.30514526367188,
+            "x1": 395.49993896484375,
+            "y1": 137.27894592285156
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 130.30514526367188,
+            "x1": 453.21380615234375,
+            "y1": 137.27894592285156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K13",
+      "topic": "ImageNet端到端微调",
+      "category": "hyperparameter",
+      "question": "ViT-L/H端到端微调的训练轮数是否符合论文设定？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "training epochs 100 (B), 50 (L/H)",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 248.16018676757812,
+            "x1": 381.05023193359375,
+            "y1": 255.1339874267578
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 248.16012573242188,
+            "x1": 495.82366943359375,
+            "y1": 255.13392639160156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K14",
+      "topic": "ADE20K语义分割",
+      "category": "data",
+      "question": "代码在ADE20K语义分割设置中是否端到端微调100轮？",
+      "paper_anchor": {
+        "chunk_id": "p12_b9",
+        "page": 12,
+        "text": "We use UperNet [63] following the semantic segmenta-\ntion code of [2]. We ﬁne-tune end-to-end for 100 epochs\nwith a batch size of 16. We search for the optimal lr for\neach entry in Table 5 (including all competitors).",
+        "quote": "We ﬁne-tune end-to-end for 100 epochs with a batch size of 16.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11201477050781,
+            "y0": 542.519287109375,
+            "x1": 286.36505126953125,
+            "y1": 552.4818725585938
+          },
+          {
+            "x0": 50.11201477050781,
+            "y0": 554.2978515625,
+            "x1": 286.36236572265625,
+            "y1": 564.4368896484375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K15",
+      "topic": "MAE分类特征",
+      "category": "architecture",
+      "question": "代码在预训练编码器输入中是否追加辅助dummy token以适配分类器class token？",
+      "paper_anchor": {
+        "chunk_id": "p11_b4",
+        "page": 11,
+        "text": "We extract features from the encoder output for ﬁne-\ntuning and linear probing. As ViT has a class token [16],\nto adapt to this design, in our MAE pre-training we append\nan auxiliary dummy token to the encoder input. This token\nwill be treated as the class token for training the classiﬁer in\nlinear probing and ﬁne-tuning. Our MAE works similarly\nwell without this token (with average pooling).",
+        "quote": "in our MAE pre-training we append an auxiliary dummy token to the encoder input.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 262.25262451171875,
+            "x1": 286.36505126953125,
+            "y1": 272.2152404785156
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 274.2076110839844,
+            "x1": 286.3650207519531,
+            "y1": 284.17022705078125
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K16",
+      "topic": "MAE预训练正则化",
+      "category": "training",
+      "question": "预训练代码是否不使用color jittering、drop path或gradient clipping？",
+      "paper_anchor": {
+        "chunk_id": "p11_b5",
+        "page": 11,
+        "text": "Pre-training.\nThe default setting is in Table 8.\nWe do\nnot use color jittering, drop path, or gradient clip. We use\nxavier uniform [18] to initialize all Transformer blocks, fol-\nlowing ViT’s ofﬁcial code [16]. We use the linear lr scaling\nrule [20]: lr = base lr×batchsize / 256.",
+        "quote": "We do not use color jittering, drop path, or gradient clip.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 259.22271728515625,
+            "y0": 326.8975830078125,
+            "x1": 286.36083984375,
+            "y1": 336.8601989746094
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 338.6761169433594,
+            "x1": 286.36212158203125,
+            "y1": 348.815185546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K17",
+      "topic": "ImageNet鲁棒性评估",
+      "category": "evaluation",
+      "question": "代码是否在不同ImageNet验证集变体上直接推理，且不进行专门微调？",
+      "paper_anchor": {
+        "chunk_id": "p12_b20",
+        "page": 12,
+        "text": "In Table 13 we evaluate the robustness of our models on\ndifferent variants of ImageNet validation sets. We use the\nsame models ﬁne-tuned on original ImageNet (Table 3) and\nonly run inference on the different validation sets, without\nany specialized ﬁne-tuning. Table 13 shows that our method\nhas strong scaling behavior: increasing the model sizes has\nsigniﬁcant gains. Increasing the image size helps in all sets\nbut IN-C. Our results outperform the previous best results\n(of specialized systems) by large margins.",
+        "quote": "only run inference on the different validation sets, without any specialized ﬁne-tuning.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619689941406,
+            "y0": 576.8778076171875,
+            "x1": 544.9328002929688,
+            "y1": 587.016845703125
+          },
+          {
+            "x0": 308.8619689941406,
+            "y0": 589.01025390625,
+            "x1": 545.1150512695312,
+            "y1": 598.9728393554688
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K18",
+      "topic": "线性探测设置",
+      "category": "training",
+      "question": "代码的线性探测是否关闭mixup、cutmix、drop path和color jittering？",
+      "paper_anchor": {
+        "chunk_id": "p11_b7",
+        "page": 11,
+        "text": "Linear probing. Our linear classiﬁer training follows [9].\nSee Table 10. We observe that linear probing requires a very\ndifferent recipe than end-to-end ﬁne-tuning. In particular,\nregularization is in general harmful for linear probing. Fol-\nlowing [9], we disable many common regularization strate-\ngies: we do not use mixup [69], cutmix [68], drop path [30],\nor color jittering, and we set weight decay as zero.",
+        "quote": "we do not use mixup [69], cutmix [68], drop path [30], or color jittering, and we set weight decay as zero.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11198425292969,
+            "y0": 491.8759460449219,
+            "x1": 286.3583679199219,
+            "y1": 502.0150146484375
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 504.00738525390625,
+            "x1": 250.69894409179688,
+            "y1": 513.969970703125
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K19",
+      "topic": "线性探测分类器",
+      "category": "architecture",
+      "question": "线性探测分类器之前是否应用无仿射变换的BatchNorm？",
+      "paper_anchor": {
+        "chunk_id": "p11_b8",
+        "page": 11,
+        "text": "It is a common practice to normalize the classiﬁer input\nwhen training a classical linear classiﬁer (e.g., SVM [11]).\nSimilarly, it is beneﬁcial to normalize the pre-trained fea-\ntures when training the linear probing classiﬁer. Follow-\ning [15], we adopt an extra BatchNorm layer [31] without\nafﬁne transformation (affine=False). This layer is ap-\nplied on the pre-trained features produced by the encoder,\nand is before the linear classiﬁer. We note that the layer\ndoes not break the linear property, and it can be absorbed\ninto the linear classiﬁer after training: it is essentially a re-\nparameterized linear classiﬁer.3 Introducing this layer helps\ncalibrate the feature magnitudes across different variants in\nour ablations, so that they can use the same setting without\nfurther lr search.",
+        "quote": "we adopt an extra BatchNorm layer [31] without afﬁne transformation (affine=False).",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11198425292969,
+            "y0": 565.109375,
+            "x1": 286.36505126953125,
+            "y1": 575.0719604492188
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 577.0643920898438,
+            "x1": 286.36639404296875,
+            "y1": 587.0269775390625
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K20",
+      "topic": "预训练数据增强",
+      "category": "data",
+      "question": "代码的预训练是否仅使用裁剪增强并随机水平翻转、不使用颜色抖动？",
+      "paper_anchor": {
+        "chunk_id": "p6_b13",
+        "page": 6,
+        "text": "Our MAE works well using cropping-only augmenta-\ntion, either ﬁxed-size or random-size (both having random\nhorizontal ﬂipping). Adding color jittering degrades the re-\nsults and so we do not use it in other experiments.",
+        "quote": "Our MAE works well using cropping-only augmentation, either ﬁxed-size or random-size (both having random horizontal ﬂipping).",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.067047119140625,
+            "y0": 594.5596313476562,
+            "x1": 286.3621826171875,
+            "y1": 604.6986694335938
+          },
+          {
+            "x0": 50.11204528808594,
+            "y0": 606.692138671875,
+            "x1": 286.3651428222656,
+            "y1": 616.6547241210938
+          },
+          {
+            "x0": 50.11204528808594,
+            "y0": 618.6470947265625,
+            "x1": 286.3651123046875,
+            "y1": 628.6096801757812
+          },
+          {
+            "x0": 50.11204528808594,
+            "y0": 630.6021118164062,
+            "x1": 248.92567443847656,
+            "y1": 640.564697265625
+          }
+        ]
+      },
+      "source": "planner"
+    }
+  ],
+  "proposed": 36,
+  "rejected": 16,
+  "steps": [
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "MAE implementation details pretraining optimizer epochs batch size learning rate weight decay augmentation masking ratio decoder architecture"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "MAE model architecture encoder decoder mask tokens reconstruction target normalization training details"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "ImageNet pretraining settings fine tuning linear probing hyperparameters transfer learning MAE appendix"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练配置"
+      },
+      "outcome": "ACCEPTED as K01 (1 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练配置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练配置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练配置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练配置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE架构"
+      },
+      "outcome": "ACCEPTED as K02 (2 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE架构"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet预训练默认设置"
+      },
+      "outcome": "ACCEPTED as K03 (3 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet预训练默认设置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 3
+      },
+      "outcome": "读取第 3 页的 13 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 4
+      },
+      "outcome": "读取第 4 页的 32 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 11
+      },
+      "outcome": "读取第 11 页的 20 个片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE随机遮挡"
+      },
+      "outcome": "ACCEPTED as K04 (4 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE ViT架构"
+      },
+      "outcome": "ACCEPTED as K05 (5 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE ViT架构"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet评估协议"
+      },
+      "outcome": "ACCEPTED as K06 (6 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE重建目标"
+      },
+      "outcome": "ACCEPTED as K07 (7 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练优化细节"
+      },
+      "outcome": "ACCEPTED as K08 (8 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练优化细节"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练优化器动量"
+      },
+      "outcome": "ACCEPTED as K09 (9 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练调度"
+      },
+      "outcome": "ACCEPTED as K10 (10 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 12
+      },
+      "outcome": "读取第 12 页的 22 个片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "Appendix transfer learning fine-tuning detection COCO ADE20K settings optimizer schedule augmentation"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "Appendix MAE decoder default depth width patch target normalization ImageNet training epochs table 8 ablation"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "默认解码器设置"
+      },
+      "outcome": "ACCEPTED as K11 (11 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "默认解码器设置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet预训练默认设置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练配置"
+      },
+      "outcome": "ACCEPTED as K12 (12 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet端到端微调"
+      },
+      "outcome": "ACCEPTED as K13 (13 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet端到端微调"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ADE20K语义分割"
+      },
+      "outcome": "ACCEPTED as K14 (14 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE分类特征"
+      },
+      "outcome": "ACCEPTED as K15 (15 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 5
+      },
+      "outcome": "读取第 5 页的 24 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 6
+      },
+      "outcome": "读取第 6 页的 33 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 8
+      },
+      "outcome": "读取第 8 页的 23 个片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练配置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练配置"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练正则化"
+      },
+      "outcome": "ACCEPTED as K16 (16 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet端到端微调"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet端到端微调"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "ImageNet鲁棒性评估"
+      },
+      "outcome": "ACCEPTED as K17 (17 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "Linear probing setting Table 10 LARS learning rate batch size training epochs warmup augmentation no weight decay"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "grep_paper",
+      "arguments": {
+        "text": "affine=False"
+      },
+      "outcome": "匹配 1 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "fine tuning setting AdamW label smoothing mixup cutmix layer-wise decay ImageNet table 9"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "线性探测设置"
+      },
+      "outcome": "ACCEPTED as K18 (18 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "线性探测分类器"
+      },
+      "outcome": "ACCEPTED as K19 (19 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE分类特征"
+      },
+      "outcome": "REJECTED: a point with this topic is already in the plan.",
+      "ok": false
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练数据增强"
+      },
+      "outcome": "ACCEPTED as K20 (20 in the plan).",
+      "ok": true
+    }
+  ],
+  "stop_reason": "finished",
+  "fallback": false,
+  "requests": 12,
+  "tokens": 173166,
+  "elapsed_seconds": 73.5,
+  "paper_hash": "e3f097816f0c8d77c8e8765850d3cddb05f32f6a258eb87940ba2742c9e47803",
+  "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b",
+  "target": 20,
+  "max_requests": 160
+}

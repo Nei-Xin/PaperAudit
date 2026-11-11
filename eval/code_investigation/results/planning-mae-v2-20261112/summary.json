@@ -1,0 +1,225 @@
+[
+  {
+    "name": "one-shot-1",
+    "strategy": "one-shot",
+    "status": "ok",
+    "accepted": 52,
+    "proposed": 52,
+    "rejected": 0,
+    "requests": 1,
+    "tokens": 24494,
+    "seconds": 45.8,
+    "fallback": false,
+    "stop_reason": "finished",
+    "successful_reads": 0,
+    "reads_before_first_proposal": null,
+    "reads_before_first_accepted": null,
+    "keyword_candidates": {
+      "mae-mask": [
+        "K03",
+        "K04"
+      ],
+      "mae-betas": [
+        "K16"
+      ],
+      "mae-wd": [
+        "K15"
+      ],
+      "mae-warmup": [
+        "K17",
+        "K19",
+        "K20"
+      ],
+      "mae-linprobe": [],
+      "mae-layerdecay": [
+        "K01"
+      ]
+    }
+  },
+  {
+    "name": "agent-1",
+    "strategy": "agent",
+    "status": "ok",
+    "accepted": 20,
+    "proposed": 36,
+    "rejected": 16,
+    "requests": 12,
+    "tokens": 173166,
+    "seconds": 73.5,
+    "fallback": false,
+    "stop_reason": "finished",
+    "successful_reads": 15,
+    "reads_before_first_proposal": 3,
+    "reads_before_first_accepted": 3,
+    "keyword_candidates": {
+      "mae-mask": [
+        "K03"
+      ],
+      "mae-betas": [
+        "K09"
+      ],
+      "mae-wd": [
+        "K18"
+      ],
+      "mae-warmup": [
+        "K01",
+        "K12",
+        "K14"
+      ],
+      "mae-linprobe": [
+        "K18",
+        "K19"
+      ],
+      "mae-layerdecay": [
+        "K19"
+      ]
+    }
+  },
+  {
+    "name": "agent-2",
+    "strategy": "agent",
+    "status": "ok",
+    "accepted": 27,
+    "proposed": 27,
+    "rejected": 0,
+    "requests": 11,
+    "tokens": 62686,
+    "seconds": 56.5,
+    "fallback": false,
+    "stop_reason": "finished",
+    "successful_reads": 5,
+    "reads_before_first_proposal": 1,
+    "reads_before_first_accepted": 1,
+    "keyword_candidates": {
+      "mae-mask": [
+        "K02",
+        "K20"
+      ],
+      "mae-betas": [
+        "K06"
+      ],
+      "mae-wd": [
+        "K05"
+      ],
+      "mae-warmup": [
+        "K07",
+        "K09"
+      ],
+      "mae-linprobe": [],
+      "mae-layerdecay": [
+        "K11",
+        "K20"
+      ]
+    }
+  },
+  {
+    "name": "one-shot-2",
+    "strategy": "one-shot",
+    "status": "ok",
+    "accepted": 41,
+    "proposed": 41,
+    "rejected": 0,
+    "requests": 1,
+    "tokens": 23695,
+    "seconds": 35.9,
+    "fallback": false,
+    "stop_reason": "finished",
+    "successful_reads": 0,
+    "reads_before_first_proposal": null,
+    "reads_before_first_accepted": null,
+    "keyword_candidates": {
+      "mae-mask": [
+        "K03",
+        "K08",
+        "K09",
+        "K19"
+      ],
+      "mae-betas": [
+        "K14"
+      ],
+      "mae-wd": [
+        "K13"
+      ],
+      "mae-warmup": [
+        "K15",
+        "K17"
+      ],
+      "mae-linprobe": [],
+      "mae-layerdecay": []
+    }
+  },
+  {
+    "name": "one-shot-3",
+    "strategy": "one-shot",
+    "status": "ok",
+    "accepted": 43,
+    "proposed": 44,
+    "rejected": 1,
+    "requests": 1,
+    "tokens": 23611,
+    "seconds": 34.2,
+    "fallback": false,
+    "stop_reason": "finished",
+    "successful_reads": 0,
+    "reads_before_first_proposal": null,
+    "reads_before_first_accepted": null,
+    "keyword_candidates": {
+      "mae-mask": [
+        "K01",
+        "K03",
+        "K06",
+        "K08"
+      ],
+      "mae-betas": [
+        "K12"
+      ],
+      "mae-wd": [
+        "K11"
+      ],
+      "mae-warmup": [
+        "K13",
+        "K15"
+      ],
+      "mae-linprobe": [],
+      "mae-layerdecay": [
+        "K19"
+      ]
+    }
+  },
+  {
+    "name": "agent-3",
+    "strategy": "agent",
+    "status": "ok",
+    "accepted": 20,
+    "proposed": 25,
+    "rejected": 5,
+    "requests": 11,
+    "tokens": 129341,
+    "seconds": 61.3,
+    "fallback": false,
+    "stop_reason": "finished",
+    "successful_reads": 11,
+    "reads_before_first_proposal": 3,
+    "reads_before_first_accepted": 3,
+    "keyword_candidates": {
+      "mae-mask": [
+        "K02"
+      ],
+      "mae-betas": [],
+      "mae-wd": [
+        "K05"
+      ],
+      "mae-warmup": [
+        "K06",
+        "K14",
+        "K19"
+      ],
+      "mae-linprobe": [
+        "K09"
+      ],
+      "mae-layerdecay": [
+        "K09"
+      ]
+    }
+  }
+]

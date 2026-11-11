@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-11",
+  "release": "step2-3716ebf461d0",
+  "split": "development",
+  "scope": "One MAE paper and repository; three planning runs per strategy; one execution smoke test.",
+  "model": "configured-model",
+  "planning_aggregates": {
+    "one-shot": {
+      "runs": 3,
+      "mean_requests": 1.0,
+      "mean_tokens": 23695.7,
+      "mean_seconds": 36.1,
+      "fallback_runs": 0
+    },
+    "agent": {
+      "runs": 3,
+      "mean_requests": 11.7,
+      "mean_tokens": 135040.0,
+      "mean_seconds": 89.9,
+      "fallback_runs": 1
+    }
+  },
+  "execution": {
+    "source_plan": "agent-1",
+    "source_plan_used_fallback": true,
+    "selected_ids": [
+      "K01",
+      "K02",
+      "K03",
+      "K04",
+      "K05"
+    ],
+    "custom_ids": [
+      "U01"
+    ],
+    "item_statuses": {
+      "K01": "failed",
+      "K02": "checked",
+      "K03": "checked",
+      "K04": "checked",
+      "K05": "checked",
+      "U01": "checked"
+    },
+    "failed_item_reason": "K01: provider_error",
+    "requests_including_planning": 42,
+    "tokens_including_planning": 204298,
+    "seconds_including_planning": 319.7,
+    "requests_execution_only": 31,
+    "tokens_execution_only": 101764,
+    "seconds_execution_only": 133.1,
+    "workflow_checks": [
+      "persisted plan recovered after fresh application lifespan",
+      "only selected checkpoints and custom question executed",
+      "duplicate execution submission reused existing job",
+      "partial investigation failure preserved in completed report",
+      "combined requests stayed below 160"
+    ]
+  },
+  "whole_experiment": {
+    "requests": 69,
+    "tokens": 577971
+  },
+  "limitations": [
+    "No independent holdout and no statistical significance claim.",
+    "Keyword candidates are not semantic coverage scores; no independently annotated coverage result is reported.",
+    "Agent-1 accepted points came from one-shot fallback; they do not demonstrate autonomous planning quality.",
+    "Execution validates the workflow, not correctness of every generated finding.",
+    "Agent read repeatedly and proposed late; these runs do not demonstrate an improvement over one-shot planning."
+  ]
+}

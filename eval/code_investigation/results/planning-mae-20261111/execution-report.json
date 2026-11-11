@@ -1,0 +1,1278 @@
+{
+  "schema_version": 1,
+  "report_id": "consistency-20261111T152128Z-cf970c",
+  "created_at": "2026-11-11T15:21:28.116770+00:00",
+  "strategy_version": "consistency-orchestrator-v1",
+  "model": "configured-model",
+  "paper_title": "Masked Autoencoders Are Scalable Vision Learners",
+  "codebase_name": "mae",
+  "items": [
+    {
+      "checkpoint": {
+        "checkpoint_id": "K01",
+        "topic": "预训练掩蔽比例",
+        "category": "hyperparameter",
+        "question": "主预训练设置的掩蔽比例是否与论文一致？",
+        "paper_anchor": {
+          "chunk_id": "p5_b13",
+          "page": 5,
+          "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+          "quote": "If not specified, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation is random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs.",
+          "locator": null,
+          "context_text": null,
+          "rects": [
+            {
+              "x0": 50.11199951171875,
+              "y0": 238.89100646972656,
+              "x1": 545.1162109375,
+              "y1": 247.93927001953125
+            },
+            {
+              "x0": 50.11199951171875,
+              "y0": 249.93185424804688,
+              "x1": 545.1109619140625,
+              "y1": 258.89825439453125
+            },
+            {
+              "x0": 50.11199951171875,
+              "y0": 260.8908386230469,
+              "x1": 531.3357543945312,
+              "y1": 269.85736083984375
+            }
+          ]
+        },
+        "source": "planner"
+      },
+      "status": "failed",
+      "note": "模型服务请求失败，未得出结论。",
+      "answer": null
+    },
+    {
+      "checkpoint": {
+        "checkpoint_id": "K02",
+        "topic": "编码器仅处理可见块",
+        "category": "architecture",
+        "question": "主 MAE 编码器是否只接收可见图像块且不使用掩蔽标记？",
+        "paper_anchor": {
+          "chunk_id": "p3_b32",
+          "page": 3,
+          "text": "MAE encoder. Our encoder is a ViT [16] but applied only\non visible, unmasked patches. Just as in a standard ViT, our\nencoder embeds patches by a linear projection with added\npositional embeddings, and then processes the resulting set\nvia a series of Transformer blocks. However, our encoder\nonly operates on a small subset (e.g., 25%) of the full set.\nMasked patches are removed; no mask tokens are used.\nThis allows us to train very large encoders with only a frac-\ntion of compute and memory. The full set is handled by a\nlightweight decoder, described next.",
+          "quote": "Masked patches are removed; no mask tokens are used.",
+          "locator": null,
+          "context_text": null,
+          "rects": [
+            {
+              "x0": 308.8619384765625,
+              "y0": 615.0371704101562,
+              "x1": 545.1150512695312,
+              "y1": 624.999755859375
+            }
+          ]
+        },
+        "source": "planner"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "主 MAE 编码器是否只接收可见图像块且不使用掩蔽标记？",
+        "answer": "结论：一致。论文说明 MAE 主编码器只处理可见块，被掩蔽块会移除且不使用掩蔽标记；代码在编码器 Transformer 前调用 `random_masking` 并只保留筛选后的块。掩蔽标记是在解码器中追加。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p3_b32",
+            "page": 3,
+            "text": "MAE encoder. Our encoder is a ViT [16] but applied only\non visible, unmasked patches. Just as in a standard ViT, our\nencoder embeds patches by a linear projection with added\npositional embeddings, and then processes the resulting set\nvia a series of Transformer blocks. However, our encoder\nonly operates on a small subset (e.g., 25%) of the full set.\nMasked patches are removed; no mask tokens are used.\nThis allows us to train very large encoders with only a frac-\ntion of compute and memory. The full set is handled by a\nlightweight decoder, described next.",
+            "quote": "Masked patches are removed; no mask tokens are used.",
+            "locator": null,
+            "context_text": null,
+            "rects": [
+              {
+                "x0": 308.8619384765625,
+                "y0": 615.0371704101562,
+                "x1": 545.1150512695312,
+                "y1": 624.999755859375
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00050:L157-167",
+            "path": "models_mae.py",
+            "start_line": 157,
+            "end_line": 167,
+            "symbol": "MaskedAutoencoderViT.forward_encoder",
+            "text": "        # masking: length -> length * mask_ratio\n        x, mask, ids_restore = self.random_masking(x, mask_ratio)\n\n        # append cls token\n        cls_token = self.cls_token + self.pos_embed[:, :1, :]\n        cls_tokens = cls_token.expand(x.shape[0], -1, -1)\n        x = torch.cat((cls_tokens, x), dim=1)\n\n        # apply Transformer blocks\n        for blk in self.blocks:\n            x = blk(x)"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "主编码器只接收可见图像块且不使用掩蔽标记：论文与代码一致；代码仅将 `random_masking` 返回的可见块送入编码器 Transformer。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p3_b32",
+                "page": 3,
+                "text": "MAE encoder. Our encoder is a ViT [16] but applied only\non visible, unmasked patches. Just as in a standard ViT, our\nencoder embeds patches by a linear projection with added\npositional embeddings, and then processes the resulting set\nvia a series of Transformer blocks. However, our encoder\nonly operates on a small subset (e.g., 25%) of the full set.\nMasked patches are removed; no mask tokens are used.\nThis allows us to train very large encoders with only a frac-\ntion of compute and memory. The full set is handled by a\nlightweight decoder, described next.",
+                "quote": "Masked patches are removed; no mask tokens are used.",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 615.0371704101562,
+                    "x1": 545.1150512695312,
+                    "y1": 624.999755859375
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00050:L157-167",
+                "path": "models_mae.py",
+                "start_line": 157,
+                "end_line": 167,
+                "symbol": "MaskedAutoencoderViT.forward_encoder",
+                "text": "        # masking: length -> length * mask_ratio\n        x, mask, ids_restore = self.random_masking(x, mask_ratio)\n\n        # append cls token\n        cls_token = self.cls_token + self.pos_embed[:, :1, :]\n        cls_tokens = cls_token.expand(x.shape[0], -1, -1)\n        x = torch.cat((cls_tokens, x), dim=1)\n\n        # apply Transformer blocks\n        for blk in self.blocks:\n            x = blk(x)"
+              }
+            ]
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v1",
+          "model": "configured-model",
+          "max_requests": 11,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "list_dir",
+              "arguments": {
+                "path": ""
+              },
+              "outcome": "列出 16 项",
+              "ok": true
+            },
+            {
+              "tool": "search_code",
+              "arguments": {
+                "query": "MAE encoder masking visible patches remove mask tokens encoder forward random masking"
+              },
+              "outcome": "返回 6 个代码片段",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "models_mae.py",
+                "start_line": 123,
+                "end_line": 180
+              },
+              "outcome": "读取 models_mae.py L123–180",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "Masked patches are removed"
+              },
+              "outcome": "匹配 1 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "1 项未通过校验，已要求修正一次。",
+              "ok": false
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [
+            "a paper-code comparison with status ANSWERED needs at least one finding whose citations pass"
+          ],
+          "rejected_citations": [],
+          "requests": 5,
+          "tokens": 18170,
+          "elapsed_seconds": 19.756,
+          "fallback": false
+        }
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_id": "K03",
+        "topic": "掩蔽采样方式",
+        "category": "data",
+        "question": "主预训练设置是否以均匀分布、不放回地随机抽取图像块？",
+        "paper_anchor": {
+          "chunk_id": "p3_b30",
+          "page": 3,
+          "text": "Masking. Following ViT [16], we divide an image into reg-\nular non-overlapping patches. Then we sample a subset of\npatches and mask (i.e., remove) the remaining ones. Our\nsampling strategy is straightforward: we sample random\npatches without replacement, following a uniform distribu-\ntion. We simply refer to this as “random sampling”.",
+          "quote": "Our sampling strategy is straightforward: we sample random patches without replacement, following a uniform distribution.",
+          "locator": null,
+          "context_text": null,
+          "rects": [
+            {
+              "x0": 308.8619384765625,
+              "y0": 369.9433898925781,
+              "x1": 545.11328125,
+              "y1": 379.9969482421875
+            },
+            {
+              "x0": 308.8619384765625,
+              "y0": 381.9903259277344,
+              "x1": 545.1150512695312,
+              "y1": 391.95294189453125
+            },
+            {
+              "x0": 308.8619384765625,
+              "y0": 393.76885986328125,
+              "x1": 545.1088256835938,
+              "y1": 403.9079284667969
+            },
+            {
+              "x0": 308.8619384765625,
+              "y0": 405.9002990722656,
+              "x1": 545.1149291992188,
+              "y1": 415.8629150390625
+            },
+            {
+              "x0": 308.8619384765625,
+              "y0": 417.85528564453125,
+              "x1": 545.1149291992188,
+              "y1": 427.8179016113281
+            },
+            {
+              "x0": 308.8619384765625,
+              "y0": 429.8102722167969,
+              "x1": 515.0877685546875,
+              "y1": 439.77288818359375
+            }
+          ]
+        },
+        "source": "planner"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "主预训练设置是否以均匀分布、不放回地随机抽取图像块？",
+        "answer": "结论：一致。主预训练代码按样本生成随机噪声并排序，从中选取固定数量的图像块；这对应均匀随机、不放回抽样。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p3_b30",
+            "page": 3,
+            "text": "Masking. Following ViT [16], we divide an image into reg-\nular non-overlapping patches. Then we sample a subset of\npatches and mask (i.e., remove) the remaining ones. Our\nsampling strategy is straightforward: we sample random\npatches without replacement, following a uniform distribu-\ntion. We simply refer to this as “random sampling”.",
+            "quote": "Our sampling strategy is straightforward: we sample random patches without replacement, following a uniform distribution.",
+            "locator": null,
+            "context_text": null,
+            "rects": [
+              {
+                "x0": 308.8619384765625,
+                "y0": 369.9433898925781,
+                "x1": 545.11328125,
+                "y1": 379.9969482421875
+              },
+              {
+                "x0": 308.8619384765625,
+                "y0": 381.9903259277344,
+                "x1": 545.1150512695312,
+                "y1": 391.95294189453125
+              },
+              {
+                "x0": 308.8619384765625,
+                "y0": 393.76885986328125,
+                "x1": 545.1088256835938,
+                "y1": 403.9079284667969
+              },
+              {
+                "x0": 308.8619384765625,
+                "y0": 405.9002990722656,
+                "x1": 545.1149291992188,
+                "y1": 415.8629150390625
+              },
+              {
+                "x0": 308.8619384765625,
+                "y0": 417.85528564453125,
+                "x1": 545.1149291992188,
+                "y1": 427.8179016113281
+              },
+              {
+                "x0": 308.8619384765625,
+                "y0": 429.8102722167969,
+                "x1": 515.0877685546875,
+                "y1": 439.77288818359375
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00049:L132-140",
+            "path": "models_mae.py",
+            "start_line": 132,
+            "end_line": 140,
+            "symbol": "MaskedAutoencoderViT.random_masking",
+            "text": "        noise = torch.rand(N, L, device=x.device)  # noise in [0, 1]\n        \n        # sort noise for each sample\n        ids_shuffle = torch.argsort(noise, dim=1)  # ascend: small is keep, large is remove\n        ids_restore = torch.argsort(ids_shuffle, dim=1)\n\n        # keep the first subset\n        ids_keep = ids_shuffle[:, :len_keep]\n        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))"
+          },
+          {
+            "chunk_id": "c00049:L138-140",
+            "path": "models_mae.py",
+            "start_line": 138,
+            "end_line": 140,
+            "symbol": "MaskedAutoencoderViT.random_masking",
+            "text": "        # keep the first subset\n        ids_keep = ids_shuffle[:, :len_keep]\n        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "抽取方式：论文称图像块按均匀分布随机抽样且不放回；代码用独立随机噪声排序并截取索引，形成无重复的随机子集。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p3_b30",
+                "page": 3,
+                "text": "Masking. Following ViT [16], we divide an image into reg-\nular non-overlapping patches. Then we sample a subset of\npatches and mask (i.e., remove) the remaining ones. Our\nsampling strategy is straightforward: we sample random\npatches without replacement, following a uniform distribu-\ntion. We simply refer to this as “random sampling”.",
+                "quote": "Our sampling strategy is straightforward: we sample random patches without replacement, following a uniform distribution.",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 369.9433898925781,
+                    "x1": 545.11328125,
+                    "y1": 379.9969482421875
+                  },
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 381.9903259277344,
+                    "x1": 545.1150512695312,
+                    "y1": 391.95294189453125
+                  },
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 393.76885986328125,
+                    "x1": 545.1088256835938,
+                    "y1": 403.9079284667969
+                  },
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 405.9002990722656,
+                    "x1": 545.1149291992188,
+                    "y1": 415.8629150390625
+                  },
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 417.85528564453125,
+                    "x1": 545.1149291992188,
+                    "y1": 427.8179016113281
+                  },
+                  {
+                    "x0": 308.8619384765625,
+                    "y0": 429.8102722167969,
+                    "x1": 515.0877685546875,
+                    "y1": 439.77288818359375
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00049:L132-140",
+                "path": "models_mae.py",
+                "start_line": 132,
+                "end_line": 140,
+                "symbol": "MaskedAutoencoderViT.random_masking",
+                "text": "        noise = torch.rand(N, L, device=x.device)  # noise in [0, 1]\n        \n        # sort noise for each sample\n        ids_shuffle = torch.argsort(noise, dim=1)  # ascend: small is keep, large is remove\n        ids_restore = torch.argsort(ids_shuffle, dim=1)\n\n        # keep the first subset\n        ids_keep = ids_shuffle[:, :len_keep]\n        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))"
+              },
+              {
+                "chunk_id": "c00049:L138-140",
+                "path": "models_mae.py",
+                "start_line": 138,
+                "end_line": 140,
+                "symbol": "MaskedAutoencoderViT.random_masking",
+                "text": "        # keep the first subset\n        ids_keep = ids_shuffle[:, :len_keep]\n        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))"
+              }
+            ]
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v1",
+          "model": "configured-model",
+          "max_requests": 11,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "search_code",
+              "arguments": {
+                "query": "masking random permutation patch sampling without replacement uniform distribution pretraining"
+              },
+              "outcome": "返回 6 个代码片段",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "random patch sampling without replacement uniform distribution main pre-training setup"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "models_mae.py",
+                "start_line": 123,
+                "end_line": 147
+              },
+              "outcome": "读取 models_mae.py L123–147",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 4,
+          "tokens": 15154,
+          "elapsed_seconds": 13.512,
+          "fallback": false
+        }
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_id": "K04",
+        "topic": "重建损失范围",
+        "category": "training",
+        "question": "主预训练设置是否仅在被掩蔽的图像块上计算重建损失？",
+        "paper_anchor": {
+          "chunk_id": "p4_b3",
+          "page": 4,
+          "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+          "quote": "We compute the loss only on masked patches, similar to BERT [14].",
+          "locator": null,
+          "context_text": null,
+          "rects": [
+            {
+              "x0": 50.11199188232422,
+              "y0": 359.321533203125,
+              "x1": 286.3650817871094,
+              "y1": 369.2841491699219
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 369.9272155761719,
+              "x1": 273.451904296875,
+              "y1": 381.2391357421875
+            }
+          ]
+        },
+        "source": "planner"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "主预训练设置是否仅在被掩蔽的图像块上计算重建损失？",
+        "answer": "主预训练设置中，论文与代码一致：重建损失仅对被掩蔽的图像块计算。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p4_b3",
+            "page": 4,
+            "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+            "quote": "We compute the loss only on masked patches, similar to BERT [14].",
+            "locator": null,
+            "context_text": null,
+            "rects": [
+              {
+                "x0": 50.11199188232422,
+                "y0": 359.321533203125,
+                "x1": 286.3650817871094,
+                "y1": 369.2841491699219
+              },
+              {
+                "x0": 50.11199188232422,
+                "y0": 369.9272155761719,
+                "x1": 273.451904296875,
+                "y1": 381.2391357421875
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00052:L210-214",
+            "path": "models_mae.py",
+            "start_line": 210,
+            "end_line": 214,
+            "symbol": "MaskedAutoencoderViT.forward_loss",
+            "text": "        loss = (pred - target) ** 2\n        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch\n\n        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches\n        return loss"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "重建损失是否仅作用于被掩蔽图像块：论文明确说只计算 masked patches；代码将每块损失乘以 mask，再按 mask 总和归一化，因而只聚合被移除的块。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p4_b3",
+                "page": 4,
+                "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+                "quote": "We compute the loss only on masked patches, similar to BERT [14].",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 359.321533203125,
+                    "x1": 286.3650817871094,
+                    "y1": 369.2841491699219
+                  },
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 369.9272155761719,
+                    "x1": 273.451904296875,
+                    "y1": 381.2391357421875
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00052:L210-214",
+                "path": "models_mae.py",
+                "start_line": 210,
+                "end_line": 214,
+                "symbol": "MaskedAutoencoderViT.forward_loss",
+                "text": "        loss = (pred - target) ** 2\n        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch\n\n        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches\n        return loss"
+              }
+            ]
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v1",
+          "model": "configured-model",
+          "max_requests": 11,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "list_dir",
+              "arguments": {
+                "path": ""
+              },
+              "outcome": "列出 16 项",
+              "ok": true
+            },
+            {
+              "tool": "find_symbol",
+              "arguments": {
+                "name": "train_one_epoch"
+              },
+              "outcome": "找到 2 处定义",
+              "ok": true
+            },
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "loss ="
+              },
+              "outcome": "匹配 7 行",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "models_mae.py",
+                "start_line": 190,
+                "end_line": 225
+              },
+              "outcome": "读取 models_mae.py L190–225",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "loss computed only masked patches mean squared error pixel reconstruction MAE training setting"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "only on masked patches"
+              },
+              "outcome": "匹配 2 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 7,
+          "tokens": 18587,
+          "elapsed_seconds": 20.719,
+          "fallback": false
+        }
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_id": "K05",
+        "topic": "重建损失函数",
+        "category": "training",
+        "question": "主预训练设置是否使用像素空间的均方误差作为重建损失？",
+        "paper_anchor": {
+          "chunk_id": "p4_b3",
+          "page": 4,
+          "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+          "quote": "Our loss function computes the mean squared error (MSE) between the reconstructed and original images in the pixel space.",
+          "locator": null,
+          "context_text": null,
+          "rects": [
+            {
+              "x0": 50.11199951171875,
+              "y0": 263.58868408203125,
+              "x1": 286.36376953125,
+              "y1": 273.6422424316406
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 275.4581604003906,
+              "x1": 286.3597412109375,
+              "y1": 285.59722900390625
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 287.5906066894531,
+              "x1": 286.3650817871094,
+              "y1": 297.55322265625
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 299.54559326171875,
+              "x1": 286.36505126953125,
+              "y1": 309.5082092285156
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 311.5005798339844,
+              "x1": 286.3650207519531,
+              "y1": 321.46319580078125
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 323.45556640625,
+              "x1": 286.3650207519531,
+              "y1": 333.4181823730469
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 335.4105529785156,
+              "x1": 286.36505126953125,
+              "y1": 345.3731689453125
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 347.36553955078125,
+              "x1": 286.3650817871094,
+              "y1": 357.3281555175781
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 359.321533203125,
+              "x1": 286.3650817871094,
+              "y1": 369.2841491699219
+            },
+            {
+              "x0": 50.11199188232422,
+              "y0": 369.9272155761719,
+              "x1": 273.451904296875,
+              "y1": 381.2391357421875
+            }
+          ]
+        },
+        "source": "planner"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "主预训练设置是否使用像素空间的均方误差作为重建损失？",
+        "answer": "- **像素空间 MSE：一致。** 论文称重建损失是在像素空间计算重建图像与原图的均方误差；代码对预测与目标逐元素平方差后取均值，并只对被遮挡 patch 求平均。\n- **主预训练目标的像素归一化：有条件差异。** 仓库预训练说明的推荐命令启用了 `--norm_pix_loss`，因此其主预训练设置先按 patch 归一化目标像素再计算 MSE；代码默认则关闭该选项。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p4_b3",
+            "page": 4,
+            "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+            "quote": "Our loss function computes the mean squared error (MSE) between the recon- structed and original images in the pixel space. We compute the loss only on masked patches, similar to BERT [14].",
+            "locator": null,
+            "context_text": null,
+            "rects": [
+              {
+                "x0": 50.11199188232422,
+                "y0": 335.4105529785156,
+                "x1": 286.36505126953125,
+                "y1": 345.3731689453125
+              },
+              {
+                "x0": 50.11199188232422,
+                "y0": 347.36553955078125,
+                "x1": 286.3650817871094,
+                "y1": 357.3281555175781
+              },
+              {
+                "x0": 50.11199188232422,
+                "y0": 359.321533203125,
+                "x1": 286.3650817871094,
+                "y1": 369.2841491699219
+              },
+              {
+                "x0": 50.11199188232422,
+                "y0": 369.9272155761719,
+                "x1": 273.451904296875,
+                "y1": 381.2391357421875
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00052:L210-213",
+            "path": "models_mae.py",
+            "start_line": 210,
+            "end_line": 213,
+            "symbol": "MaskedAutoencoderViT.forward_loss",
+            "text": "        loss = (pred - target) ** 2\n        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch\n\n        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches"
+          },
+          {
+            "chunk_id": "c00018:L5-12",
+            "path": "PRETRAIN.md",
+            "start_line": 5,
+            "end_line": 12,
+            "symbol": "Pre-training MAE",
+            "text": "python submitit_pretrain.py \\\n    --job_dir ${JOB_DIR} \\\n    --nodes 8 \\\n    --use_volta32 \\\n    --batch_size 64 \\\n    --model mae_vit_large_patch16 \\\n    --norm_pix_loss \\\n    --mask_ratio 0.75 \\"
+          },
+          {
+            "chunk_id": "c00052:L204-208",
+            "path": "models_mae.py",
+            "start_line": 204,
+            "end_line": 208,
+            "symbol": "MaskedAutoencoderViT.forward_loss",
+            "text": "        target = self.patchify(imgs)\n        if self.norm_pix_loss:\n            mean = target.mean(dim=-1, keepdim=True)\n            var = target.var(dim=-1, keepdim=True)\n            target = (target - mean) / (var + 1.e-6)**.5"
+          },
+          {
+            "chunk_id": "c00039:L56-58",
+            "path": "main_pretrain.py",
+            "start_line": 56,
+            "end_line": 58,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--norm_pix_loss', action='store_true',\n                        help='Use (per-patch) normalized pixels as targets for computing loss')\n    parser.set_defaults(norm_pix_loss=False)"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "重建损失使用像素空间 MSE，并仅在被遮挡的 patch 上计算；实现与论文一致。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p4_b3",
+                "page": 4,
+                "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+                "quote": "Our loss function computes the mean squared error (MSE) between the recon- structed and original images in the pixel space. We compute the loss only on masked patches, similar to BERT [14].",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 335.4105529785156,
+                    "x1": 286.36505126953125,
+                    "y1": 345.3731689453125
+                  },
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 347.36553955078125,
+                    "x1": 286.3650817871094,
+                    "y1": 357.3281555175781
+                  },
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 359.321533203125,
+                    "x1": 286.3650817871094,
+                    "y1": 369.2841491699219
+                  },
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 369.9272155761719,
+                    "x1": 273.451904296875,
+                    "y1": 381.2391357421875
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00052:L210-213",
+                "path": "models_mae.py",
+                "start_line": 210,
+                "end_line": 213,
+                "symbol": "MaskedAutoencoderViT.forward_loss",
+                "text": "        loss = (pred - target) ** 2\n        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch\n\n        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches"
+              }
+            ]
+          },
+          {
+            "text": "推荐的主预训练命令启用按 patch 归一化像素作为损失目标；实现仅在 `norm_pix_loss` 为真时归一化，而该选项默认关闭。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p4_b3",
+                "page": 4,
+                "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+                "quote": "Our loss function computes the mean squared error (MSE) between the recon- structed and original images in the pixel space.",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 335.4105529785156,
+                    "x1": 286.36505126953125,
+                    "y1": 345.3731689453125
+                  },
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 347.36553955078125,
+                    "x1": 286.3650817871094,
+                    "y1": 357.3281555175781
+                  },
+                  {
+                    "x0": 50.11199188232422,
+                    "y0": 359.321533203125,
+                    "x1": 286.3650817871094,
+                    "y1": 369.2841491699219
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00018:L5-12",
+                "path": "PRETRAIN.md",
+                "start_line": 5,
+                "end_line": 12,
+                "symbol": "Pre-training MAE",
+                "text": "python submitit_pretrain.py \\\n    --job_dir ${JOB_DIR} \\\n    --nodes 8 \\\n    --use_volta32 \\\n    --batch_size 64 \\\n    --model mae_vit_large_patch16 \\\n    --norm_pix_loss \\\n    --mask_ratio 0.75 \\"
+              },
+              {
+                "chunk_id": "c00052:L204-208",
+                "path": "models_mae.py",
+                "start_line": 204,
+                "end_line": 208,
+                "symbol": "MaskedAutoencoderViT.forward_loss",
+                "text": "        target = self.patchify(imgs)\n        if self.norm_pix_loss:\n            mean = target.mean(dim=-1, keepdim=True)\n            var = target.var(dim=-1, keepdim=True)\n            target = (target - mean) / (var + 1.e-6)**.5"
+              },
+              {
+                "chunk_id": "c00039:L56-58",
+                "path": "main_pretrain.py",
+                "start_line": 56,
+                "end_line": 58,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--norm_pix_loss', action='store_true',\n                        help='Use (per-patch) normalized pixels as targets for computing loss')\n    parser.set_defaults(norm_pix_loss=False)"
+              }
+            ]
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v1",
+          "model": "configured-model",
+          "max_requests": 11,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "search_code",
+              "arguments": {
+                "query": "MAE pretraining reconstruction loss pixel mean squared error masked patches loss function"
+              },
+              "outcome": "返回 6 个代码片段",
+              "ok": true
+            },
+            {
+              "tool": "find_symbol",
+              "arguments": {
+                "name": "norm_pix_loss"
+              },
+              "outcome": "未找到定义",
+              "ok": true
+            },
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "norm_pix_loss"
+              },
+              "outcome": "匹配 9 行",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "mean squared error"
+              },
+              "outcome": "匹配 1 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "PRETRAIN.md",
+                "start_line": 3,
+                "end_line": 21
+              },
+              "outcome": "读取 PRETRAIN.md L3–21",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_pretrain.py",
+                "start_line": 48,
+                "end_line": 62
+              },
+              "outcome": "读取 main_pretrain.py L48–62",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "models_mae.py",
+                "start_line": 198,
+                "end_line": 214
+              },
+              "outcome": "读取 models_mae.py L198–214",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 4,
+          "tokens": 15657,
+          "elapsed_seconds": 18.991,
+          "fallback": false
+        }
+      }
+    },
+    {
+      "checkpoint": {
+        "checkpoint_id": "U01",
+        "topic": "预训练代码采用了什么学习率调度，与论文是否对应？",
+        "category": "other",
+        "question": "预训练代码采用了什么学习率调度，与论文是否对应？",
+        "paper_anchor": null,
+        "source": "user"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "预训练代码采用了什么学习率调度，与论文是否对应？",
+        "answer": "预训练代码采用逐迭代线性 warmup 后接半周期余弦衰减（最低到 `min_lr`）；论文所列预训练设置为 cosine decay、warmup 40 epochs。调度方式及预热时长对应。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p11_b10",
+            "page": 11,
+            "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+            "quote": "learning rate schedule cosine decay [38] warmup epochs [20] 40",
+            "locator": null,
+            "context_text": null,
+            "rects": [
+              {
+                "x0": 338.2449951171875,
+                "y0": 122.1751937866211,
+                "x1": 399.4401550292969,
+                "y1": 129.1490020751953
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 122.17513275146484,
+                "x1": 495.4262390136719,
+                "y1": 129.14894104003906
+              },
+              {
+                "x0": 338.2449951171875,
+                "y0": 130.30514526367188,
+                "x1": 395.49993896484375,
+                "y1": 137.27894592285156
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 130.30514526367188,
+                "x1": 453.21380615234375,
+                "y1": 137.27894592285156
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00112:L9-15",
+            "path": "util/lr_sched.py",
+            "start_line": 9,
+            "end_line": 15,
+            "symbol": "adjust_learning_rate",
+            "text": "def adjust_learning_rate(optimizer, epoch, args):\n    \"\"\"Decay the learning rate with half-cycle cosine after warmup\"\"\"\n    if epoch < args.warmup_epochs:\n        lr = args.lr * epoch / args.warmup_epochs \n    else:\n        lr = args.min_lr + (args.lr - args.min_lr) * 0.5 * \\\n            (1. + math.cos(math.pi * (epoch - args.warmup_epochs) / (args.epochs - args.warmup_epochs)))"
+          },
+          {
+            "chunk_id": "c00039:L71-72",
+            "path": "main_pretrain.py",
+            "start_line": 71,
+            "end_line": 72,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+          },
+          {
+            "chunk_id": "c00029:L41-43",
+            "path": "engine_pretrain.py",
+            "start_line": 41,
+            "end_line": 43,
+            "symbol": "train_one_epoch",
+            "text": "        # we use a per iteration (instead of per epoch) lr scheduler\n        if data_iter_step % accum_iter == 0:\n            lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "预训练学习率调度：论文列出 cosine decay 且 warmup 40 epochs；代码逐迭代先线性升至基础学习率，再按半周期余弦衰减，预训练默认 `warmup_epochs=40`，两者对应。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p11_b10",
+                "page": 11,
+                "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+                "quote": "learning rate schedule cosine decay [38] warmup epochs [20] 40",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 122.1751937866211,
+                    "x1": 399.4401550292969,
+                    "y1": 129.1490020751953
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 122.17513275146484,
+                    "x1": 495.4262390136719,
+                    "y1": 129.14894104003906
+                  },
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 130.30514526367188,
+                    "x1": 395.49993896484375,
+                    "y1": 137.27894592285156
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 130.30514526367188,
+                    "x1": 453.21380615234375,
+                    "y1": 137.27894592285156
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00112:L9-15",
+                "path": "util/lr_sched.py",
+                "start_line": 9,
+                "end_line": 15,
+                "symbol": "adjust_learning_rate",
+                "text": "def adjust_learning_rate(optimizer, epoch, args):\n    \"\"\"Decay the learning rate with half-cycle cosine after warmup\"\"\"\n    if epoch < args.warmup_epochs:\n        lr = args.lr * epoch / args.warmup_epochs \n    else:\n        lr = args.min_lr + (args.lr - args.min_lr) * 0.5 * \\\n            (1. + math.cos(math.pi * (epoch - args.warmup_epochs) / (args.epochs - args.warmup_epochs)))"
+              },
+              {
+                "chunk_id": "c00039:L71-72",
+                "path": "main_pretrain.py",
+                "start_line": 71,
+                "end_line": 72,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+              },
+              {
+                "chunk_id": "c00029:L41-43",
+                "path": "engine_pretrain.py",
+                "start_line": 41,
+                "end_line": 43,
+                "symbol": "train_one_epoch",
+                "text": "        # we use a per iteration (instead of per epoch) lr scheduler\n        if data_iter_step % accum_iter == 0:\n            lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)"
+              }
+            ]
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v1",
+          "model": "configured-model",
+          "max_requests": 11,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "list_dir",
+              "arguments": {
+                "path": ""
+              },
+              "outcome": "列出 16 项",
+              "ok": true
+            },
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "lr_scheduler"
+              },
+              "outcome": "无匹配",
+              "ok": true
+            },
+            {
+              "tool": "search_code",
+              "arguments": {
+                "query": "pretraining learning rate schedule cosine annealing warmup optimizer"
+              },
+              "outcome": "返回 6 个代码片段",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "pre-training learning rate schedule cosine decay warmup learning rate"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "util/lr_sched.py",
+                "start_line": 1,
+                "end_line": 30
+              },
+              "outcome": "读取 util/lr_sched.py L1–21",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_pretrain.py",
+                "start_line": 56,
+                "end_line": 110
+              },
+              "outcome": "读取 main_pretrain.py L56–110",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "engine_pretrain.py",
+                "start_line": 25,
+                "end_line": 72
+              },
+              "outcome": "读取 engine_pretrain.py L25–72",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "learning rate schedule"
+              },
+              "outcome": "匹配 4 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "warmup epochs"
+              },
+              "outcome": "匹配 4 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 5,
+          "tokens": 22192,
+          "elapsed_seconds": 15.971,
+          "fallback": false
+        }
+      }
+    }
+  ],
+  "summary": {
+    "checkpoints": 6,
+    "checked": 5,
+    "not_checked": 0,
+    "failed": 1,
+    "unresolved": 0,
+    "consistent": 6,
+    "inconsistent": 0,
+    "partial": 0,
+    "not_located": 0
+  },
+  "plan_id": "consistency-plan-20261111T151634Z-d5a809",
+  "planned": 51,
+  "plan_rejected": 1,
+  "plan_over_limit": 0,
+  "plan_unselected": 45,
+  "max_checkpoints": 6,
+  "max_requests": 160,
+  "concurrency": 4,
+  "plan_requests": 11,
+  "requests": 42,
+  "tokens": 204298,
+  "elapsed_seconds": 319.7
+}

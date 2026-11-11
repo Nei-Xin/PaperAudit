@@ -73,6 +73,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{pid}/consistency-plans/{plan_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consistency Plan */
+        get: operations["consistency_plan_api_projects__pid__consistency_plans__plan_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/consistency-plans/{plan_id}/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute Plan
+         * @description A person approves a stored plan: check the selected checkpoints and any questions they added.
+         */
+        post: operations["execute_plan_api_projects__pid__consistency_plans__plan_id__execute_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{pid}/consistency-jobs/{job_id}/retry": {
         parameters: {
             query?: never;
@@ -843,6 +880,16 @@ export interface components {
              * @default false
              */
             deep_audit: boolean;
+            /**
+             * Consistency Max Requests
+             * @default 160
+             */
+            consistency_max_requests: number;
+            /**
+             * Consistency Concurrency
+             * @default 4
+             */
+            consistency_concurrency: number;
         };
         /** AuditSummary */
         AuditSummary: {
@@ -1202,7 +1249,13 @@ export interface components {
             category: components["schemas"]["ConsistencyCategory"];
             /** Question */
             question: string;
-            paper_anchor: components["schemas"]["EvidenceAnchor"];
+            paper_anchor: components["schemas"]["EvidenceAnchor"] | null;
+            /**
+             * Source
+             * @default planner
+             * @enum {string}
+             */
+            source: "planner" | "user";
         };
         /** ConsistencyItem */
         ConsistencyItem: {
@@ -1259,6 +1312,108 @@ export interface components {
             max_checkpoints: number;
             /** Report Id */
             report_id: string | null;
+            /**
+             * Kind
+             * @default audit
+             * @enum {string}
+             */
+            kind: "audit" | "plan" | "execute";
+            /**
+             * Planning Strategy
+             * @default agent
+             * @enum {string}
+             */
+            planning_strategy: "one-shot" | "agent";
+            /** Plan Id */
+            plan_id: string | null;
+            /** Selected Ids */
+            selected_ids: string[];
+            /** Extra Questions */
+            extra_questions: string[];
+        };
+        /**
+         * ConsistencyPlan
+         * @description Proposed checkpoints, stored so a person can choose what gets checked.
+         */
+        ConsistencyPlan: {
+            /**
+             * Schema Version
+             * @default 1
+             */
+            schema_version: number;
+            /**
+             * Plan Id
+             * @default
+             */
+            plan_id: string;
+            /**
+             * Created At
+             * @default
+             */
+            created_at: string;
+            /** Strategy */
+            strategy: string;
+            /** Model */
+            model: string;
+            /** Checkpoints */
+            checkpoints: components["schemas"]["ConsistencyCheckpoint"][];
+            /**
+             * Proposed
+             * @default 0
+             */
+            proposed: number;
+            /**
+             * Rejected
+             * @default 0
+             */
+            rejected: number;
+            /** Steps */
+            steps: components["schemas"]["CodeInvestigationStep"][];
+            /**
+             * Stop Reason
+             * @default
+             */
+            stop_reason: string;
+            /**
+             * Fallback
+             * @default false
+             */
+            fallback: boolean;
+            /**
+             * Requests
+             * @default 0
+             */
+            requests: number;
+            /**
+             * Tokens
+             * @default 0
+             */
+            tokens: number;
+            /**
+             * Elapsed Seconds
+             * @default 0
+             */
+            elapsed_seconds: number;
+            /**
+             * Paper Hash
+             * @default
+             */
+            paper_hash: string;
+            /**
+             * Code Hash
+             * @default
+             */
+            code_hash: string;
+            /**
+             * Target
+             * @default 20
+             */
+            target: number;
+            /**
+             * Max Requests
+             * @default 160
+             */
+            max_requests: number;
         };
         /**
          * ConsistencyReport
@@ -1294,6 +1449,8 @@ export interface components {
             /** Items */
             items: components["schemas"]["ConsistencyItem"][];
             summary: components["schemas"]["ConsistencySummary"];
+            /** Plan Id */
+            plan_id: string | null;
             /** Planned */
             planned: number;
             /** Plan Rejected */
@@ -1303,6 +1460,11 @@ export interface components {
              * @default 0
              */
             plan_over_limit: number;
+            /**
+             * Plan Unselected
+             * @default 0
+             */
+            plan_unselected: number;
             /** Max Checkpoints */
             max_checkpoints: number;
             /** Max Requests */
@@ -1342,6 +1504,18 @@ export interface components {
              * @default 20
              */
             max_checkpoints: number;
+            /**
+             * Mode
+             * @default audit
+             * @enum {string}
+             */
+            mode: "plan" | "audit";
+            /**
+             * Planning Strategy
+             * @default one-shot
+             * @enum {string}
+             */
+            planning_strategy: "one-shot" | "agent";
         };
         /** ConsistencySummary */
         ConsistencySummary: {
@@ -1481,6 +1655,18 @@ export interface components {
          * @enum {string}
          */
         EvidenceErrorType: "evidence_mismatch" | "fabricated_evidence";
+        /** ExecuteRequest */
+        ExecuteRequest: {
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
+            /** Selected Ids */
+            selected_ids?: string[];
+            /** Extra Questions */
+            extra_questions?: string[];
+        };
         /** ExplanationPoint */
         ExplanationPoint: {
             /** Title */
@@ -2680,6 +2866,74 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ConsistencyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsistencyJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consistency_plan_api_projects__pid__consistency_plans__plan_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsistencyPlan"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_plan_api_projects__pid__consistency_plans__plan_id__execute_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExecuteRequest"];
             };
         };
         responses: {

@@ -15,13 +15,17 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Condition
 from time import monotonic
 
-from paperaudit.hy3_client import Hy3Client
+from openai import APIError
+
+from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
+from paperaudit.consistency_inputs import input_hashes, validate_plan_inputs
 from paperaudit.models import (
     AnswerScope,
     AnswerStatus,
     ConsistencyCheckpoint,
     ConsistencyItem,
     ConsistencyItemStatus,
+    ConsistencyPlan,
     ConsistencyReport,
     ConsistencySummary,
     EvidenceAnchor,
@@ -30,9 +34,10 @@ from paperaudit.models import (
     ParsedPaper,
 )
 from paperaudit.evidence import _quote_rects
-from paperaudit.request_budget import RequestBudget, use_request_budget
+from paperaudit.request_budget import BudgetExceeded, RequestBudget, use_request_budget
 
 from .code_investigator import CodeInvestigator, _appears_in_order, _collapse, _fragments, _typeset
+from .consistency_planner import ConsistencyPlanner
 
 Progress = Callable[[str, float], None]
 
@@ -51,49 +56,97 @@ class ConsistencyOrchestrator:
     def __init__(self, client: Hy3Client, model: str, *, max_checkpoints: int = 20,
                  max_requests: int = 160, concurrency: int = 4):
         self.client, self.model = client, model
-        self.max_checkpoints, self.max_requests = max_checkpoints, max_requests
+        self.max_checkpoints, self.max_requests = max_checkpoints, max(1, max_requests)
         self.concurrency = max(1, concurrency)
 
     def run(self, paper: ParsedPaper, codebase: ParsedCodebase,
-            progress: Progress | None = None) -> ConsistencyReport:
+            progress: Progress | None = None, *, strategy: str = "one-shot") -> ConsistencyReport:
+        """Plan and check in one go, taking the planner's first max_checkpoints points."""
+        plan = self.plan(paper, codebase, progress, strategy=strategy)
+        return self.execute(paper, codebase, plan.checkpoints[:self.max_checkpoints], plan, progress, reviewed=False)
+
+    def plan(self, paper: ParsedPaper, codebase: ParsedCodebase, progress: Progress | None = None,
+             *, strategy: str = "one-shot") -> ConsistencyPlan:
+        """Propose checkpoints. Nothing is checked yet, so a person can review the plan first."""
+        (progress or (lambda stage, value: None))("正在阅读论文并规划要核对的要点", 0.05)
+        if strategy not in {"one-shot", "agent"}:
+            raise ValueError("Unknown consistency planning strategy")
+        if strategy == "agent":
+            plan = ConsistencyPlanner(
+                self.client, self.model, target=self.max_checkpoints,
+                budget=RequestBudget(max_requests=min(12, self.max_requests), max_seconds=240),
+            ).run(paper, codebase)
+            if not plan.checkpoints and plan.requests < self.max_requests:
+                fallback = self._plan_in_one_call(paper, self.max_requests - plan.requests)
+                plan = fallback.model_copy(update={
+                    "fallback": True, "steps": plan.steps, "stop_reason": plan.stop_reason,
+                    "requests": plan.requests + fallback.requests, "tokens": plan.tokens + fallback.tokens,
+                    "proposed": plan.proposed + fallback.proposed,
+                    "rejected": plan.rejected + fallback.rejected,
+                    "elapsed_seconds": round(plan.elapsed_seconds + fallback.elapsed_seconds, 1),
+                })
+        else:
+            plan = self._plan_in_one_call(paper, self.max_requests)
+        return plan.model_copy(update={**input_hashes(paper, codebase),
+                                       "target": self.max_checkpoints, "max_requests": self.max_requests})
+
+    def _plan_in_one_call(self, paper: ParsedPaper, remaining: int) -> ConsistencyPlan:
+        started = monotonic()
+        budget = RequestBudget(max_requests=min(self.PLAN_REQUESTS, remaining), max_seconds=300)
+        drafts, stop = [], "finished"
+        with use_request_budget(budget):
+            try:
+                drafts = self.client.plan_consistency(paper.title, paper.chunks, self.max_checkpoints).checkpoints
+            except BudgetExceeded as exc:
+                stop = exc.reason
+            except Hy3ResponseError:
+                stop = "invalid_model_response"
+            except APIError:
+                stop = "provider_error"
+        valid = self._accept(paper, drafts)
+        return ConsistencyPlan(
+            strategy="one-shot-v1", model=self.model, checkpoints=valid, proposed=len(drafts),
+            rejected=len(drafts) - len(valid), stop_reason=stop,
+            requests=budget.requests, tokens=budget.tokens, elapsed_seconds=round(monotonic() - started, 1),
+        )
+
+    def execute(self, paper: ParsedPaper, codebase: ParsedCodebase, checkpoints: list[ConsistencyCheckpoint],
+                plan: ConsistencyPlan, progress: Progress | None = None, *, reviewed: bool = True) -> ConsistencyReport:
+        """Investigate the chosen checkpoints in parallel under one request ceiling."""
+        validate_plan_inputs(plan, paper, codebase)
+        ceiling = min(self.max_requests, plan.max_requests)
         started = monotonic()
         notify = progress or (lambda stage, value: None)
-        notify("正在梳理论文中可核对的要点", 0.05)
-        plan_budget = RequestBudget(max_requests=self.PLAN_REQUESTS, max_seconds=300)
-        with use_request_budget(plan_budget):
-            draft = self.client.plan_consistency(paper.title, paper.chunks, self.max_checkpoints)
-        valid = self._accept(paper, draft.checkpoints)
-        checkpoints = valid[:self.max_checkpoints]
 
         state = Condition()
-        spent, tokens, running, done = plan_budget.requests, plan_budget.tokens, 0, 0
+        spent, tokens, running, done = plan.requests, plan.tokens, 0, 0
         results: list[ConsistencyItem | None] = [None] * len(checkpoints)
 
         def work(index: int) -> None:
             nonlocal spent, tokens, running, done
             checkpoint = checkpoints[index]
+            anchor = checkpoint.paper_anchor
             with state:
                 # Start only when the ceiling holds even if every running investigation
                 # uses its full budget. Wait for others to report what they really used
                 # before giving up on this item.
-                while spent + (running + 1) * self.PER_ITEM_REQUESTS > self.max_requests and running:
+                while spent + (running + 1) * self.PER_ITEM_REQUESTS > ceiling and running:
                     state.wait()
-                if spent + (running + 1) * self.PER_ITEM_REQUESTS > self.max_requests:
+                if spent + (running + 1) * self.PER_ITEM_REQUESTS > ceiling:
                     results[index] = ConsistencyItem(
                         checkpoint=checkpoint, status=ConsistencyItemStatus.NOT_CHECKED,
                         note="达到本次审计的模型请求上限，未核对该项。")
                     done += 1
                     return
                 running += 1
-            used_requests = used_tokens = 0
+            budget = RequestBudget(max_requests=self.PER_ITEM_REQUESTS, max_seconds=180)
             try:
                 answer, trace = CodeInvestigator(
                     self.client, paper, codebase, self.model,
-                    budget=RequestBudget(max_requests=self.PER_ITEM_REQUESTS, max_seconds=180),
+                    budget=budget,
                 ).run(checkpoint.question, AnswerScope.JOINT,
-                      selected_paper_chunk_ids=[checkpoint.paper_anchor.chunk_id],
-                      selected_paper_text=checkpoint.paper_anchor.quote)
-                used_requests, used_tokens = trace.requests, trace.tokens
+                      selected_paper_chunk_ids=[anchor.chunk_id] if anchor else [],
+                      selected_paper_text=anchor.quote if anchor else None)
                 item = (ConsistencyItem(checkpoint=checkpoint, status=ConsistencyItemStatus.CHECKED, answer=answer)
                         if answer is not None else
                         ConsistencyItem(checkpoint=checkpoint, status=ConsistencyItemStatus.FAILED,
@@ -103,12 +156,12 @@ class ConsistencyOrchestrator:
                                        note=f"调查出错（{type(exc).__name__}），未得出结论。")
             with state:
                 results[index] = item
-                spent += used_requests
-                tokens += used_tokens
+                spent += budget.requests
+                tokens += budget.tokens
                 running -= 1
                 done += 1
-                notify(f"正在逐项核对（{done}/{len(checkpoints)}）", 0.15 + 0.8 * done / len(checkpoints))
                 state.notify_all()
+                notify(f"正在逐项核对（{done}/{len(checkpoints)}）", 0.15 + 0.8 * done / len(checkpoints))
 
         if checkpoints:
             notify(f"正在逐项核对（0/{len(checkpoints)}）", 0.15)
@@ -119,11 +172,14 @@ class ConsistencyOrchestrator:
         items = [item for item in results if item is not None]
         return ConsistencyReport(
             model=self.model, paper_title=paper.title, codebase_name=codebase.name,
-            items=items, summary=summarize(items), planned=len(draft.checkpoints),
-            plan_rejected=len(draft.checkpoints) - len(valid), plan_over_limit=len(valid) - len(checkpoints),
-            max_checkpoints=self.max_checkpoints, max_requests=self.max_requests,
-            concurrency=self.concurrency, plan_requests=plan_budget.requests,
-            requests=spent, tokens=tokens, elapsed_seconds=round(monotonic() - started, 1),
+            items=items, summary=summarize(items), plan_id=plan.plan_id or None, planned=plan.proposed,
+            plan_rejected=plan.rejected,
+            plan_over_limit=0 if reviewed else max(0, len(plan.checkpoints) - len(checkpoints)),
+            plan_unselected=max(0, len(plan.checkpoints) - sum(c.source == "planner" for c in checkpoints)) if reviewed else 0,
+            max_checkpoints=self.max_checkpoints, max_requests=ceiling,
+            concurrency=self.concurrency, plan_requests=plan.requests,
+            requests=spent, tokens=tokens,
+            elapsed_seconds=round(plan.elapsed_seconds + monotonic() - started, 1),
         )
 
     def _accept(self, paper: ParsedPaper, drafts) -> list[ConsistencyCheckpoint]:

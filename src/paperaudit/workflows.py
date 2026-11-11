@@ -104,7 +104,9 @@ def submit_audit(store, manager, settings, project_id, report_text, source_type,
 def runtime_snapshot(settings):
     return AuditRuntimeSnapshot(model=settings.model, reasoning_effort=settings.reasoning_effort,
                                 retrieval_top_k=settings.retrieval_top_k,
-                                judge_batch_size=settings.judge_batch_size, deep_audit=settings.deep_audit)
+                                judge_batch_size=settings.judge_batch_size, deep_audit=settings.deep_audit,
+                                consistency_max_requests=settings.consistency_max_requests,
+                                consistency_concurrency=settings.consistency_concurrency)
 
 
 def submit_peer_review(store, manager, settings, project_id, venue, rubric_weights=None, *, runtime=None):
@@ -144,10 +146,12 @@ def compare_related_work(store, service, project_id, references, *, report=None)
     return comparison
 
 
-def submit_consistency(store, manager, settings, project_id, max_checkpoints=20, *, runtime=None):
+def submit_consistency(store, manager, settings, project_id, max_checkpoints=20, *, runtime=None,
+                       kind="audit", plan_id=None, selected_ids=(), extra_questions=(), planning_strategy="one-shot"):
     require_model(settings)
     job = store.create_consistency_job(project_id, runtime=runtime or runtime_snapshot(settings),
-                                       max_checkpoints=max_checkpoints)
+                                       max_checkpoints=max_checkpoints, kind=kind, plan_id=plan_id,
+                                       planning_strategy=planning_strategy,
+                                       selected_ids=selected_ids, extra_questions=extra_questions)
     manager.submit(project_id, job.job_id, settings)
     return job
-

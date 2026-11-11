@@ -22,6 +22,8 @@ const TOOL_LABELS: Record<string, string> = {
   grep_paper: "查找论文原文",
   read_page: "读取论文页",
   submit_answer: "提交结论",
+  propose_checkpoint: "提出核对要点",
+  finish_plan: "完成规划",
 };
 
 const STOP_LABELS: Record<string, string> = {
@@ -47,7 +49,16 @@ export function InvestigationTrace({
         {STOP_LABELS[trace.stop_reason] ?? trace.stop_reason}
         {trace.fallback && "（已改用单次检索回答）"}
       </summary>
-      <ol className="mt-2 flex flex-col gap-1">
+      <AgentSteps steps={steps} />
+      {rejected.length > 0 && (
+        <p className="mt-2">已剔除 {rejected.length} 条未通过校验的引用。</p>
+      )}
+    </details>
+  );
+}
+
+export function AgentSteps({ steps }: { steps: NonNullable<NonNullable<JointAnswer["investigation"]>["steps"]> }) {
+  return <ol className="mt-2 flex flex-col gap-1">
         {steps.map((step, i) => (
           <li key={i} className="break-all">
             <span className={step.ok ? "text-ink-2" : "text-warn-text"}>
@@ -61,12 +72,5 @@ export function InvestigationTrace({
             <span> — {step.outcome}</span>
           </li>
         ))}
-      </ol>
-      {rejected.length > 0 && (
-        <p className="mt-2">
-          已剔除 {rejected.length} 条未通过校验的引用。
-        </p>
-      )}
-    </details>
-  );
+      </ol>;
 }

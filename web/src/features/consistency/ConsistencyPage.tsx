@@ -4,6 +4,7 @@ import { READ_ONLY } from "@/api/client";
 import { TopBar } from "@/app/ProjectLayout";
 import {
   useConsistencyJobs,
+  useConsistencyPlan,
   useConsistencyReport,
   useProject,
   useStartConsistency,
@@ -22,14 +23,7 @@ import {
 } from "@/components/States";
 import { InvestigationTrace, VERDICTS } from "@/features/reader/investigation";
 
-const CATEGORY: Record<ConsistencyItem["checkpoint"]["category"], string> = {
-  hyperparameter: "超参数",
-  architecture: "结构",
-  training: "训练",
-  data: "数据",
-  evaluation: "评估",
-  other: "其他",
-};
+import { CATEGORY, ConsistencyPlanReview } from "./ConsistencyPlanReview";
 
 type Group =
   | "INCONSISTENT"
@@ -73,21 +67,31 @@ function groupOf(item: ConsistencyItem): Group {
 
 export function ConsistencyPage() {
   const { projectId = "" } = useParams();
+  return <ConsistencyWorkspace key={projectId} projectId={projectId} />;
+}
+
+function ConsistencyWorkspace({ projectId }: { projectId: string }) {
   const project = useProject(projectId);
   const hasCode = project.data?.has_code ?? false;
   const jobs = useConsistencyJobs(projectId, hasCode);
   const start = useStartConsistency(projectId);
   const [ack, setAck] = useState(false);
   const [limit, setLimit] = useState(20);
+  const [strategy, setStrategy] = useState<"one-shot" | "agent">("one-shot");
   const active = jobs.data?.find(
     (job) => job.status === "QUEUED" || job.status === "RUNNING",
   );
   const latest = jobs.data?.[0];
+  const plans = jobs.data?.filter(job => job.kind === "plan" && job.status === "SUCCEEDED" && job.plan_id) ?? [];
+  const [chosenPlan, setChosenPlan] = useState<string>();
+  const planId = chosenPlan ?? plans[0]?.plan_id;
+  const plan = useConsistencyPlan(projectId, planId);
   const finished = jobs.data?.filter((job) => job.report_id) ?? [];
   const [chosen, setChosen] = useState<string>();
   const reportId = chosen ?? finished[0]?.report_id;
   const report = useConsistencyReport(projectId, reportId);
 
+  if (project.error) return <ErrorState error={project.error} />;
   if (!project.data) return <Loading />;
   if (!hasCode)
     return (
@@ -111,7 +115,7 @@ export function ConsistencyPage() {
           <section className="rounded-card bg-card p-4 shadow-card">
             <h2 className="text-[15px] font-semibold">论文与代码一致性审计</h2>
             <p className="mt-1 text-sm leading-6 text-ink-3">
-              先从论文中列出可以通过阅读代码核对的要点，再为每个要点单独启动一次调查并行核对。每条结论都附带论文与代码的原文引用。
+              先阅读论文并提出核对要点，由你审阅和选择，再逐项调查代码实现。结果附带可定位的论文与代码引用。
             </p>
             {active ? (
               <div className="mt-3">
@@ -123,11 +127,19 @@ export function ConsistencyPage() {
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!READ_ONLY && ack && !start.isPending)
-                    start.mutate({ privacy_ack: true, max_checkpoints: limit });
+                    start.mutate({ privacy_ack: true, max_checkpoints: limit, mode: "plan", planning_strategy: strategy }, { onSuccess: () => setChosenPlan(undefined) });
                 }}
               >
                 <label className="flex items-center gap-2 text-ink-3">
-                  最多核对
+                  规划方式
+                  <select className="rounded bg-page p-1" value={strategy}
+                    onChange={e => setStrategy(e.target.value as "one-shot" | "agent")}>
+                    <option value="one-shot">单次规划（默认）</option>
+                    <option value="agent">自主阅读规划（实验）</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-ink-3">
+                  目标要点数
                   <select
                     className="rounded bg-page p-1"
                     value={limit}
@@ -153,11 +165,11 @@ export function ConsistencyPage() {
                   className="btn-primary"
                   disabled={READ_ONLY || !ack || start.isPending}
                 >
-                  {finished.length ? "重新审计" : "开始审计"}
+                  {plans.length ? "重新生成规划" : "1. 生成核对规划"}
                 </button>
                 <span className="basis-full text-xs text-ink-4">
-                  每个要点约需 4–8
-                  次模型请求；整份审计有总请求上限，超出后剩余要点会标为未完成。
+                  规划完成后等待你确认，可取消部分要点或补充问题。
+                  {strategy === "agent" && " 自主阅读会多次调用模型，成本较高，目前尚未证明覆盖更好。"}
                 </span>
                 <MockNote />
               </form>
@@ -202,6 +214,16 @@ export function ConsistencyPage() {
           </section>
 
           {jobs.error && <ErrorState error={jobs.error} />}
+          {plans.length > 1 && <label className="flex items-center gap-2 text-sm">查看历史规划
+            <select className="min-w-0 rounded bg-card p-2" value={planId ?? ""} onChange={e => setChosenPlan(e.target.value)}>
+              {plans.map(job => <option key={job.job_id} value={job.plan_id ?? ""}>{new Date(job.created_at).toLocaleString("zh-CN")}</option>)}
+            </select>
+          </label>}
+          {plan.error && <ErrorState error={plan.error} />}
+          {planId && plan.isLoading && <Loading />}
+          {plan.data && <ConsistencyPlanReview key={`${projectId}:${planId}`} projectId={projectId} plan={plan.data}
+            busy={Boolean(active) || start.isPending} onExecute={() => setChosen(undefined)} />}
+          {reportId && <h3 className="px-1 text-[15px] font-semibold">3. 核对报告</h3>}
           {report.error && <ErrorState error={report.error} />}
           {reportId && report.isLoading && <Loading />}
           {report.data && <Report projectId={projectId} report={report.data} />}
@@ -259,7 +281,7 @@ function Report({
           不一致 {s.inconsistent} · 部分对应 {s.partial} · 未定位{" "}
           {s.not_located}）。规划提出 {report.planned} 个，剔除{" "}
           {report.plan_rejected} 个（引文不在论文中或重复），另有{" "}
-          {report.plan_over_limit ?? 0} 个因超出上限未核对。用了{" "}
+          {report.plan_over_limit ?? 0} 个因数量上限未选入，{report.plan_unselected ?? 0} 个未选择。已选项中 {s.not_checked} 个因请求预算不足未执行。用了{" "}
           {report.requests} 次模型请求（上限 {report.max_requests}），耗时{" "}
           {Math.round(report.elapsed_seconds)} 秒。
         </p>
@@ -319,10 +341,10 @@ function Item({
         </span>
         <span className="text-xs text-ink-4">{checkpoint.checkpoint_id}</span>
       </header>
-      <blockquote className="mt-2 border-l-2 border-line pl-3 text-sm leading-6 text-ink-2">
+      {anchor ? <blockquote className="mt-2 border-l-2 border-line pl-3 text-sm leading-6 text-ink-2">
         {anchor.quote}
         <span className="ml-2 text-xs text-ink-4">论文第 {anchor.page} 页</span>
-      </blockquote>
+      </blockquote> : <p className="mt-2 text-sm text-ink-3">补充问题：{checkpoint.question}</p>}
       {item.note && <p className="mt-2 text-sm text-ink-3">{item.note}</p>}
       {answer && findings.length === 0 && (
         <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink-3">

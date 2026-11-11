@@ -12,6 +12,8 @@ from .models import (
     CodeCandidate,
     CodeCitation,
     CodeSelection,
+    ConsistencyCheckpoint,
+    ConsistencyPlan,
     ConsistencyReport,
     EvidenceAnchor,
     EvidenceCandidate,
@@ -171,16 +173,30 @@ class CodeLearningService:
     def parse(self, zip_bytes: bytes, filename: str) -> ParsedCodebase:
         return parse_code_zip(zip_bytes, filename)
 
-    def audit_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase, *, max_checkpoints: int = 20,
-                          progress=None) -> ConsistencyReport:
-        """Plan the paper's checkable points and investigate each against the code."""
+    def _orchestrator(self, max_checkpoints: int):
         from .agents.consistency import ConsistencyOrchestrator
 
         return ConsistencyOrchestrator(
             self.client, self.settings.model, max_checkpoints=max_checkpoints,
             max_requests=self.settings.consistency_max_requests,
             concurrency=self.settings.consistency_concurrency,
-        ).run(paper, codebase, progress)
+        )
+
+    def audit_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase, *, max_checkpoints: int = 20,
+                          progress=None, strategy: str = "one-shot") -> ConsistencyReport:
+        """Plan the paper's checkable points and investigate each against the code."""
+        return self._orchestrator(max_checkpoints).run(paper, codebase, progress, strategy=strategy)
+
+    def plan_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase, *, max_checkpoints: int = 20,
+                         progress=None, strategy: str = "one-shot") -> ConsistencyPlan:
+        """Only propose the points to check, for a person to review."""
+        return self._orchestrator(max_checkpoints).plan(paper, codebase, progress, strategy=strategy)
+
+    def check_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase,
+                          checkpoints: list[ConsistencyCheckpoint], plan: ConsistencyPlan, *,
+                          progress=None) -> ConsistencyReport:
+        """Investigate the checkpoints chosen from a stored plan."""
+        return self._orchestrator(max(1, len(checkpoints))).execute(paper, codebase, checkpoints, plan, progress)
 
     def _retrieve_code(
         self,

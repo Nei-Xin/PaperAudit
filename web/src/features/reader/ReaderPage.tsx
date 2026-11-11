@@ -300,6 +300,12 @@ function Reader({ projectId }: { projectId: string }) {
     string | undefined
   >();
   const [page, setPage] = useState(1);
+  const requestedPage = Number(params.get("pdfPage"));
+  const pageCount = project.data?.page_count;
+  useEffect(() => {
+    if (pageCount && Number.isInteger(requestedPage) && requestedPage >= 1)
+      setPage(Math.min(requestedPage, pageCount));
+  }, [requestedPage, pageCount]);
   const [anchor, setAnchor] = useState<EvidenceAnchor>();
   const [selection, setSelection] = useState<PaperSelection>();
   const [selectedCode, setSelectedCode] = useState<CodeSelection>();

@@ -1,0 +1,1486 @@
+{
+  "schema_version": 1,
+  "plan_id": "",
+  "created_at": "",
+  "strategy": "one-shot-v1",
+  "model": "configured-model",
+  "checkpoints": [
+    {
+      "checkpoint_id": "K01",
+      "topic": "MAE 编码器与解码器设计",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否只将可见且未遮挡的图像块输入编码器？",
+      "paper_anchor": {
+        "chunk_id": "p3_b32",
+        "page": 3,
+        "text": "MAE encoder. Our encoder is a ViT [16] but applied only\non visible, unmasked patches. Just as in a standard ViT, our\nencoder embeds patches by a linear projection with added\npositional embeddings, and then processes the resulting set\nvia a series of Transformer blocks. However, our encoder\nonly operates on a small subset (e.g., 25%) of the full set.\nMasked patches are removed; no mask tokens are used.\nThis allows us to train very large encoders with only a frac-\ntion of compute and memory. The full set is handled by a\nlightweight decoder, described next.",
+        "quote": "Our encoder is a ViT [16] but applied only on visible, unmasked patches.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 543.2152099609375,
+            "x1": 545.11376953125,
+            "y1": 553.2687377929688
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 555.084716796875,
+            "x1": 545.1166381835938,
+            "y1": 565.2237548828125
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K02",
+      "topic": "随机遮挡采样",
+      "category": "data",
+      "question": "代码中的 MAE 主预训练设置是否按均匀分布、不放回地随机采样图像块？",
+      "paper_anchor": {
+        "chunk_id": "p3_b30",
+        "page": 3,
+        "text": "Masking. Following ViT [16], we divide an image into reg-\nular non-overlapping patches. Then we sample a subset of\npatches and mask (i.e., remove) the remaining ones. Our\nsampling strategy is straightforward: we sample random\npatches without replacement, following a uniform distribu-\ntion. We simply refer to this as “random sampling”.",
+        "quote": "Our sampling strategy is straightforward: we sample random patches without replacement, following a uniform distribution.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 369.9433898925781,
+            "x1": 545.11328125,
+            "y1": 379.9969482421875
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 381.9903259277344,
+            "x1": 545.1150512695312,
+            "y1": 391.95294189453125
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 393.76885986328125,
+            "x1": 545.1088256835938,
+            "y1": 403.9079284667969
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 405.9002990722656,
+            "x1": 545.1149291992188,
+            "y1": 415.8629150390625
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 417.85528564453125,
+            "x1": 545.1149291992188,
+            "y1": 427.8179016113281
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 429.8102722167969,
+            "x1": 515.0877685546875,
+            "y1": 439.77288818359375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K03",
+      "topic": "默认遮挡比例",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否采用论文所述的默认遮挡比例？",
+      "paper_anchor": {
+        "chunk_id": "p1_b26",
+        "page": 1,
+        "text": "Figure 1. Our MAE architecture. During pre-training, a large\nrandom subset of image patches (e.g., 75%) is masked out. The\nencoder is applied to the small subset of visible patches. Mask\ntokens are introduced after the encoder, and the full set of en-\ncoded patches and mask tokens is processed by a small decoder\nthat reconstructs the original image in pixels. After pre-training,\nthe decoder is discarded and the encoder is applied to uncorrupted\nimages (full sets of patches) for recognition tasks.",
+        "quote": "During pre-training, a large random subset of image patches (e.g., 75%) is masked out.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.86199951171875,
+            "y0": 341.4111022949219,
+            "x1": 545.1126098632812,
+            "y1": 350.4593811035156
+          },
+          {
+            "x0": 308.86199951171875,
+            "y0": 352.2931823730469,
+            "x1": 545.1155395507812,
+            "y1": 361.41839599609375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K04",
+      "topic": "编码器不使用 mask token",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否在编码器中移除遮挡块且不使用 mask token？",
+      "paper_anchor": {
+        "chunk_id": "p3_b32",
+        "page": 3,
+        "text": "MAE encoder. Our encoder is a ViT [16] but applied only\non visible, unmasked patches. Just as in a standard ViT, our\nencoder embeds patches by a linear projection with added\npositional embeddings, and then processes the resulting set\nvia a series of Transformer blocks. However, our encoder\nonly operates on a small subset (e.g., 25%) of the full set.\nMasked patches are removed; no mask tokens are used.\nThis allows us to train very large encoders with only a frac-\ntion of compute and memory. The full set is handled by a\nlightweight decoder, described next.",
+        "quote": "Masked patches are removed; no mask tokens are used.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 615.0371704101562,
+            "x1": 545.1150512695312,
+            "y1": 624.999755859375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K05",
+      "topic": "解码器输入与位置编码",
+      "category": "architecture",
+      "question": "代码中的 MAE 解码器是否对完整 token 集合添加位置嵌入？",
+      "paper_anchor": {
+        "chunk_id": "p4_b1",
+        "page": 4,
+        "text": "ing patch to be predicted. We add positional embeddings to\nall tokens in this full set; without this, mask tokens would\nhave no information about their location in the image. The\ndecoder has another series of Transformer blocks.",
+        "quote": "We add positional embeddings to all tokens in this full set; without this, mask tokens would have no information about their location in the image.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 74.40748596191406,
+            "x1": 286.36505126953125,
+            "y1": 84.37008666992188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 86.36250305175781,
+            "x1": 286.36505126953125,
+            "y1": 96.32510375976562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 98.31752014160156,
+            "x1": 286.3651428222656,
+            "y1": 108.28012084960938
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K06",
+      "topic": "重建目标与损失",
+      "category": "training",
+      "question": "代码中的 MAE 主预训练设置是否在像素空间使用重建图像与原图之间的均方误差损失？",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "Our loss function computes the mean squared error (MSE) between the reconstructed and original images in the pixel space.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 263.58868408203125,
+            "x1": 286.36376953125,
+            "y1": 273.6422424316406
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 275.4581604003906,
+            "x1": 286.3597412109375,
+            "y1": 285.59722900390625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 287.5906066894531,
+            "x1": 286.3650817871094,
+            "y1": 297.55322265625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 299.54559326171875,
+            "x1": 286.36505126953125,
+            "y1": 309.5082092285156
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 311.5005798339844,
+            "x1": 286.3650207519531,
+            "y1": 321.46319580078125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 323.45556640625,
+            "x1": 286.3650207519531,
+            "y1": 333.4181823730469
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 335.4105529785156,
+            "x1": 286.36505126953125,
+            "y1": 345.3731689453125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 347.36553955078125,
+            "x1": 286.3650817871094,
+            "y1": 357.3281555175781
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K07",
+      "topic": "损失仅计算遮挡块",
+      "category": "training",
+      "question": "代码中的 MAE 主预训练设置是否只在被遮挡的图像块上计算重建损失？",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "We compute the loss only on masked patches, similar to BERT [14].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K08",
+      "topic": "默认解码器深度",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否使用默认的 8 层解码器？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "If not specified, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation is random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 238.89100646972656,
+            "x1": 545.1162109375,
+            "y1": 247.93927001953125
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 249.93185424804688,
+            "x1": 545.1109619140625,
+            "y1": 258.89825439453125
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 260.8908386230469,
+            "x1": 531.3357543945312,
+            "y1": 269.85736083984375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K09",
+      "topic": "默认解码器宽度",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否使用默认的 512 维解码器？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "If not specified, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation is random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 238.89100646972656,
+            "x1": 545.1162109375,
+            "y1": 247.93927001953125
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 249.93185424804688,
+            "x1": 545.1109619140625,
+            "y1": 258.89825439453125
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 260.8908386230469,
+            "x1": 531.3357543945312,
+            "y1": 269.85736083984375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K10",
+      "topic": "预训练图像尺寸与 patch",
+      "category": "architecture",
+      "question": "代码中的 ImageNet 主预训练设置是否按论文所述的模型配置使用对应的 patch 尺寸？",
+      "paper_anchor": {
+        "chunk_id": "p7_b2",
+        "page": 7,
+        "text": "Table 3.\nComparisons with previous results on ImageNet-\n1K. The pre-training data is the ImageNet-1K training set (ex-\ncept the tokenizer in BEiT was pre-trained on 250M DALLE data\n[50]). All self-supervised methods are evaluated by end-to-end\nﬁne-tuning. The ViT models are B/16, L/16, H/14 [16]. The best\nfor each column is underlined. All results are on an image size of\n224, except for ViT-H with an extra result on 448. Here our MAE\nreconstructs normalized pixels and is pre-trained for 1600 epochs.",
+        "quote": "The ViT models are B/16, L/16, H/14 [16].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11198425292969,
+            "y0": 180.16891479492188,
+            "x1": 286.3586730957031,
+            "y1": 189.13531494140625
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K11",
+      "topic": "预训练优化器",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否使用论文指定的优化器？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "optimizer AdamW [39]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 81.5271224975586,
+            "x1": 364.9756164550781,
+            "y1": 88.50092315673828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 81.5271224975586,
+            "x1": 483.22906494140625,
+            "y1": 88.50092315673828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K12",
+      "topic": "预训练基础学习率",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否采用论文指定的基础学习率？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "base learning rate 1.5e-4",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 89.6571273803711,
+            "x1": 387.4312438964844,
+            "y1": 96.63092803955078
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 89.6571273803711,
+            "x1": 463.86279296875,
+            "y1": 96.63092803955078
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K13",
+      "topic": "预训练权重衰减",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否采用论文指定的权重衰减？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "weight decay 0.05",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 97.7871322631836,
+            "x1": 375.2341003417969,
+            "y1": 104.76093292236328
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 97.7871322631836,
+            "x1": 458.44415283203125,
+            "y1": 104.76093292236328
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K14",
+      "topic": "预训练 AdamW 动量参数",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否采用论文指定的 AdamW 动量参数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "optimizer momentum β1, β2=0.9, 0.95 [6]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 105.9161605834961,
+            "x1": 398.49176025390625,
+            "y1": 112.88996124267578
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 105.75477600097656,
+            "x1": 511.08441162109375,
+            "y1": 113.28924560546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K15",
+      "topic": "预训练批量大小",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否采用论文指定的批量大小？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "batch size 4096",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 114.0461654663086,
+            "x1": 365.93798828125,
+            "y1": 121.01996612548828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 114.0461654663086,
+            "x1": 460.1876220703125,
+            "y1": 121.01996612548828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K16",
+      "topic": "预训练学习率调度",
+      "category": "training",
+      "question": "代码中的 MAE 主预训练设置是否使用余弦衰减学习率调度？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "learning rate schedule cosine decay [38]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 122.1751937866211,
+            "x1": 399.4401550292969,
+            "y1": 129.1490020751953
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 122.17513275146484,
+            "x1": 495.4262390136719,
+            "y1": 129.14894104003906
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K17",
+      "topic": "预训练学习率预热",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否使用论文指定的学习率预热周期数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "warmup epochs [20] 40",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 130.30514526367188,
+            "x1": 395.49993896484375,
+            "y1": 137.27894592285156
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 130.30514526367188,
+            "x1": 453.21380615234375,
+            "y1": 137.27894592285156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K18",
+      "topic": "预训练数据增强",
+      "category": "data",
+      "question": "代码中的 ImageNet MAE 主预训练设置是否使用随机尺寸裁剪作为数据增强？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "augmentation RandomResizedCrop",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 138.43417358398438,
+            "x1": 376.21044921875,
+            "y1": 145.40797424316406
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 138.43417358398438,
+            "x1": 505.9009094238281,
+            "y1": 145.40797424316406
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K19",
+      "topic": "预训练周期数",
+      "category": "hyperparameter",
+      "question": "代码中的 MAE 主预训练设置是否默认训练 800 个 epoch？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "If not specified, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation is random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 238.89100646972656,
+            "x1": 545.1162109375,
+            "y1": 247.93927001953125
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 249.93185424804688,
+            "x1": 545.1109619140625,
+            "y1": 258.89825439453125
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 260.8908386230469,
+            "x1": 531.3357543945312,
+            "y1": 269.85736083984375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K20",
+      "topic": "预训练初始化",
+      "category": "training",
+      "question": "代码中的 MAE 主预训练设置是否使用 Xavier uniform 初始化 Transformer blocks？",
+      "paper_anchor": {
+        "chunk_id": "p11_b5",
+        "page": 11,
+        "text": "Pre-training.\nThe default setting is in Table 8.\nWe do\nnot use color jittering, drop path, or gradient clip. We use\nxavier uniform [18] to initialize all Transformer blocks, fol-\nlowing ViT’s ofﬁcial code [16]. We use the linear lr scaling\nrule [20]: lr = base lr×batchsize / 256.",
+        "quote": "We use xavier uniform [18] to initialize all Transformer blocks, following ViT’s official code [16].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 326.806640625,
+            "x1": 104.84651947021484,
+            "y1": 336.76922607421875
+          },
+          {
+            "x0": 112.9020004272461,
+            "y0": 326.8975830078125,
+            "x1": 251.16297912597656,
+            "y1": 336.8601989746094
+          },
+          {
+            "x0": 259.22271728515625,
+            "y0": 326.8975830078125,
+            "x1": 286.36083984375,
+            "y1": 336.8601989746094
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 338.6761169433594,
+            "x1": 286.36212158203125,
+            "y1": 348.815185546875
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 350.8074645996094,
+            "x1": 286.3652648925781,
+            "y1": 360.7701721191406
+          },
+          {
+            "x0": 50.112003326416016,
+            "y0": 362.58599853515625,
+            "x1": 286.3620300292969,
+            "y1": 372.7250671386719
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 374.3578186035156,
+            "x1": 206.7512664794922,
+            "y1": 384.6800842285156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K21",
+      "topic": "预训练学习率线性缩放",
+      "category": "training",
+      "question": "代码中的 MAE 主预训练设置是否按批量大小相对于 256 对基础学习率进行线性缩放？",
+      "paper_anchor": {
+        "chunk_id": "p11_b5",
+        "page": 11,
+        "text": "Pre-training.\nThe default setting is in Table 8.\nWe do\nnot use color jittering, drop path, or gradient clip. We use\nxavier uniform [18] to initialize all Transformer blocks, fol-\nlowing ViT’s ofﬁcial code [16]. We use the linear lr scaling\nrule [20]: lr = base lr×batchsize / 256.",
+        "quote": "We use the linear lr scaling rule [20]: lr = base lr×batchsize / 256.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.112003326416016,
+            "y0": 362.58599853515625,
+            "x1": 286.3620300292969,
+            "y1": 372.7250671386719
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 374.3578186035156,
+            "x1": 206.7512664794922,
+            "y1": 384.6800842285156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K22",
+      "topic": "不使用颜色抖动",
+      "category": "data",
+      "question": "代码中的 MAE 主预训练设置是否关闭颜色抖动？",
+      "paper_anchor": {
+        "chunk_id": "p11_b5",
+        "page": 11,
+        "text": "Pre-training.\nThe default setting is in Table 8.\nWe do\nnot use color jittering, drop path, or gradient clip. We use\nxavier uniform [18] to initialize all Transformer blocks, fol-\nlowing ViT’s ofﬁcial code [16]. We use the linear lr scaling\nrule [20]: lr = base lr×batchsize / 256.",
+        "quote": "We do not use color jittering, drop path, or gradient clip.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 259.22271728515625,
+            "y0": 326.8975830078125,
+            "x1": 286.36083984375,
+            "y1": 336.8601989746094
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 338.6761169433594,
+            "x1": 286.36212158203125,
+            "y1": 348.815185546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K23",
+      "topic": "ViT 编码器位置嵌入",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否对编码器和解码器输入使用正弦余弦位置嵌入？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "Our MAE adds positional embeddings [57] (the sine-cosine version) to both the encoder and decoder inputs.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 117.37352752685547,
+            "x1": 286.3623352050781,
+            "y1": 127.42709350585938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 129.4195098876953,
+            "x1": 286.36505126953125,
+            "y1": 139.38211059570312
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 141.37452697753906,
+            "x1": 286.3651123046875,
+            "y1": 151.33712768554688
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 153.3295440673828,
+            "x1": 286.3650207519531,
+            "y1": 163.29214477539062
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 165.28456115722656,
+            "x1": 286.36505126953125,
+            "y1": 175.24716186523438
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 177.2395782470703,
+            "x1": 286.3651123046875,
+            "y1": 187.20217895507812
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 189.19557189941406,
+            "x1": 286.36505126953125,
+            "y1": 199.15817260742188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 201.1505889892578,
+            "x1": 286.36505126953125,
+            "y1": 211.11318969726562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 212.92913818359375,
+            "x1": 286.35711669921875,
+            "y1": 223.06820678710938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 225.0606231689453,
+            "x1": 243.217041015625,
+            "y1": 235.02322387695312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K24",
+      "topic": "不使用相对位置或层缩放",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否不使用相对位置编码？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "Our MAE does not use relative position or layer scaling (which are used in the code of [2]).",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 212.92913818359375,
+            "x1": 286.35711669921875,
+            "y1": 223.06820678710938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 225.0606231689453,
+            "x1": 243.217041015625,
+            "y1": 235.02322387695312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K25",
+      "topic": "编码器与解码器维度投影",
+      "category": "architecture",
+      "question": "代码中的 MAE 主预训练设置是否在编码器输出后使用线性投影以匹配解码器宽度？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "As the MAE encoder and decoder have different width, we adopt a linear projection layer after the encoder to match it.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 117.37352752685547,
+            "x1": 286.3623352050781,
+            "y1": 127.42709350585938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 129.4195098876953,
+            "x1": 286.36505126953125,
+            "y1": 139.38211059570312
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 141.37452697753906,
+            "x1": 286.3651123046875,
+            "y1": 151.33712768554688
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 153.3295440673828,
+            "x1": 286.3650207519531,
+            "y1": 163.29214477539062
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 165.28456115722656,
+            "x1": 286.36505126953125,
+            "y1": 175.24716186523438
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 177.2395782470703,
+            "x1": 286.3651123046875,
+            "y1": 187.20217895507812
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 189.19557189941406,
+            "x1": 286.36505126953125,
+            "y1": 199.15817260742188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 201.1505889892578,
+            "x1": 286.36505126953125,
+            "y1": 211.11318969726562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 212.92913818359375,
+            "x1": 286.35711669921875,
+            "y1": 223.06820678710938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 225.0606231689453,
+            "x1": 243.217041015625,
+            "y1": 235.02322387695312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K26",
+      "topic": "线性探测特征归一化",
+      "category": "architecture",
+      "question": "代码中的 ImageNet 线性探测设置是否在分类器前对编码器特征使用无仿射变换的 BatchNorm？",
+      "paper_anchor": {
+        "chunk_id": "p11_b8",
+        "page": 11,
+        "text": "It is a common practice to normalize the classiﬁer input\nwhen training a classical linear classiﬁer (e.g., SVM [11]).\nSimilarly, it is beneﬁcial to normalize the pre-trained fea-\ntures when training the linear probing classiﬁer. Follow-\ning [15], we adopt an extra BatchNorm layer [31] without\nafﬁne transformation (affine=False). This layer is ap-\nplied on the pre-trained features produced by the encoder,\nand is before the linear classiﬁer. We note that the layer\ndoes not break the linear property, and it can be absorbed\ninto the linear classiﬁer after training: it is essentially a re-\nparameterized linear classiﬁer.3 Introducing this layer helps\ncalibrate the feature magnitudes across different variants in\nour ablations, so that they can use the same setting without\nfurther lr search.",
+        "quote": "Following [15], we adopt an extra BatchNorm layer [31] without affine transformation (affine=False).",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.066978454589844,
+            "y0": 517.2883911132812,
+            "x1": 286.3649597167969,
+            "y1": 527.2509765625
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 529.0679321289062,
+            "x1": 286.36187744140625,
+            "y1": 539.2069702148438
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 541.1994018554688,
+            "x1": 286.3651123046875,
+            "y1": 551.1619873046875
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 553.1544189453125,
+            "x1": 286.36505126953125,
+            "y1": 563.1170043945312
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 565.109375,
+            "x1": 286.36505126953125,
+            "y1": 575.0719604492188
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 577.0643920898438,
+            "x1": 286.36639404296875,
+            "y1": 587.0269775390625
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 589.0194091796875,
+            "x1": 286.36505126953125,
+            "y1": 598.9819946289062
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 600.9754028320312,
+            "x1": 286.3651123046875,
+            "y1": 610.93798828125
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 612.7539672851562,
+            "x1": 286.363037109375,
+            "y1": 622.8930053710938
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 624.8853759765625,
+            "x1": 286.3651123046875,
+            "y1": 634.8479614257812
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 633.2254028320312,
+            "x1": 286.36346435546875,
+            "y1": 646.802978515625
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 648.79541015625,
+            "x1": 286.36505126953125,
+            "y1": 658.7579956054688
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 660.7514038085938,
+            "x1": 286.3650207519531,
+            "y1": 670.7139892578125
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 672.5299682617188,
+            "x1": 117.01010131835938,
+            "y1": 682.6690063476562
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K27",
+      "topic": "微调优化器",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否使用论文指定的优化器？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "optimizer AdamW",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 183.12417602539062,
+            "x1": 364.9756164550781,
+            "y1": 190.0979766845703
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 183.12417602539062,
+            "x1": 469.8672790527344,
+            "y1": 190.0979766845703
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K28",
+      "topic": "微调基础学习率",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否采用论文指定的基础学习率？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "base learning rate 1e-3",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 191.25418090820312,
+            "x1": 387.4312438964844,
+            "y1": 198.2279815673828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 191.25418090820312,
+            "x1": 458.6324462890625,
+            "y1": 198.2279815673828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K29",
+      "topic": "微调权重衰减",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否采用论文指定的权重衰减？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "weight decay 0.05",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 199.38320922851562,
+            "x1": 375.2341003417969,
+            "y1": 206.3570098876953
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 199.38314819335938,
+            "x1": 458.44415283203125,
+            "y1": 206.35694885253906
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K30",
+      "topic": "微调批量大小",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否采用论文指定的批量大小？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "batch size 1024",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 223.77218627929688,
+            "x1": 365.93798828125,
+            "y1": 230.74598693847656
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 223.77212524414062,
+            "x1": 460.1876220703125,
+            "y1": 230.7459259033203
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K31",
+      "topic": "微调余弦学习率调度",
+      "category": "training",
+      "question": "代码中的端到端微调设置是否使用余弦衰减学习率调度？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "learning rate schedule cosine decay",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 231.90115356445312,
+            "x1": 399.4401550292969,
+            "y1": 238.8749542236328
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 231.90115356445312,
+            "x1": 482.064453125,
+            "y1": 238.8749542236328
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K32",
+      "topic": "微调预热周期",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否采用论文指定的学习率预热周期数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "warmup epochs 5",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 240.03115844726562,
+            "x1": 382.1381530761719,
+            "y1": 247.0049591064453
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 240.03115844726562,
+            "x1": 449.7268981933594,
+            "y1": 247.0049591064453
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K33",
+      "topic": "微调训练周期",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否按模型规模使用论文指定的训练周期数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "training epochs 100 (B), 50 (L/H)",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 248.16018676757812,
+            "x1": 381.05023193359375,
+            "y1": 255.1339874267578
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 248.16012573242188,
+            "x1": 495.82366943359375,
+            "y1": 255.13392639160156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K34",
+      "topic": "微调分层学习率衰减",
+      "category": "training",
+      "question": "代码中的端到端微调设置是否使用分层学习率衰减？",
+      "paper_anchor": {
+        "chunk_id": "p11_b6",
+        "page": 11,
+        "text": "End-to-end ﬁne-tuning. Our ﬁne-tuning follows common\npractice of supervised ViT training. The default setting is in\nTable 9. We use layer-wise lr decay [10] following [2].",
+        "quote": "We use layer-wise lr decay [10] following [2].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.111976623535156,
+            "y0": 415.2760009765625,
+            "x1": 269.39788818359375,
+            "y1": 425.4150695800781
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K35",
+      "topic": "微调层级学习率衰减系数",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否采用论文指定的分层学习率衰减系数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "layer-wise lr decay [10, 2] 0.75",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449645996094,
+            "y0": 215.64218139648438,
+            "x1": 411.4977722167969,
+            "y1": 222.61598205566406
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 215.64218139648438,
+            "x1": 458.44415283203125,
+            "y1": 222.61598205566406
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K36",
+      "topic": "微调数据增强",
+      "category": "data",
+      "question": "代码中的端到端微调设置是否使用论文指定参数的 RandAug？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "augmentation RandAug (9, 0.5) [12]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 256.2901306152344,
+            "x1": 376.21044921875,
+            "y1": 263.263916015625
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 256.2901306152344,
+            "x1": 508.4114074707031,
+            "y1": 263.263916015625
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K37",
+      "topic": "微调标签平滑",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否使用论文指定的标签平滑系数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "label smoothing [52] 0.1",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 264.4191589355469,
+            "x1": 396.35772705078125,
+            "y1": 271.3929443359375
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 264.4191589355469,
+            "x1": 454.9572448730469,
+            "y1": 271.3929443359375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K38",
+      "topic": "微调 mixup",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否使用论文指定的 mixup 参数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "mixup [69] 0.8",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 272.5491638183594,
+            "x1": 369.4318542480469,
+            "y1": 279.52294921875
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 272.5491638183594,
+            "x1": 454.9572448730469,
+            "y1": 279.52294921875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K39",
+      "topic": "微调 cutmix",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否使用论文指定的 cutmix 参数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "cutmix [68] 1.0",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 280.67816162109375,
+            "x1": 370.98004150390625,
+            "y1": 287.6519470214844
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 280.67816162109375,
+            "x1": 454.9572448730469,
+            "y1": 287.6519470214844
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K40",
+      "topic": "微调 stochastic depth",
+      "category": "hyperparameter",
+      "question": "代码中的端到端微调设置是否按模型规模采用论文指定的 drop path 参数？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "drop path [30] 0.1 (B/L) 0.2 (H)",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 288.80816650390625,
+            "x1": 378.1421203613281,
+            "y1": 295.7819519042969
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 288.8081359863281,
+            "x1": 494.0802001953125,
+            "y1": 295.78192138671875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K41",
+      "topic": "ImageNet 评估协议",
+      "category": "evaluation",
+      "question": "代码中的 ImageNet 评估是否按单个 224×224 裁剪报告验证集 top-1 准确率？",
+      "paper_anchor": {
+        "chunk_id": "p4_b24",
+        "page": 4,
+        "text": "We do self-supervised pre-training on the ImageNet-1K\n(IN1K) [13] training set. Then we do supervised training to\nevaluate the representations with (i) end-to-end ﬁne-tuning\nor (ii) linear probing. We report top-1 validation accuracy\nof a single 224×224 crop. Details are in Appendix A.1.",
+        "quote": "We report top-1 validation accuracy of a single 224×224 crop.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8620300292969,
+            "y0": 295.5804748535156,
+            "x1": 545.1150512695312,
+            "y1": 305.5430908203125
+          },
+          {
+            "x0": 308.8620300292969,
+            "y0": 307.1758117675781,
+            "x1": 530.8161010742188,
+            "y1": 317.4980773925781
+          }
+        ]
+      },
+      "source": "planner"
+    }
+  ],
+  "proposed": 41,
+  "rejected": 0,
+  "steps": [],
+  "stop_reason": "finished",
+  "fallback": false,
+  "requests": 1,
+  "tokens": 23695,
+  "elapsed_seconds": 35.9,
+  "paper_hash": "e3f097816f0c8d77c8e8765850d3cddb05f32f6a258eb87940ba2742c9e47803",
+  "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b",
+  "target": 20,
+  "max_requests": 160
+}

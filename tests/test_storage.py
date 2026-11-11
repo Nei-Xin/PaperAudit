@@ -226,7 +226,8 @@ def test_loading_legacy_code_index_upgrades_once_without_losing_history(
     restored_again = store.load_learning_project(metadata.project_id)
 
     assert restored.codebase is not None
-    assert restored.codebase.index_version == 2
+    from paperaudit.code_parser import CURRENT_CODE_INDEX_VERSION
+    assert restored.codebase.index_version == CURRENT_CODE_INDEX_VERSION
     assert [chunk.symbol for chunk in restored.codebase.chunks] == ["Demo", "Demo.run"]
     assert restored.joint_history[0].question == "旧问题"
     assert restored_again.joint_history == restored.joint_history

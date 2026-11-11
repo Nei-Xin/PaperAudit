@@ -57,6 +57,7 @@ export type RelatedWorkComparison = Schema["RelatedWorkComparison"];
 export type RevisionUpdate = Schema["RevisionUpdate"];
 export type ConversationUpdate = Schema["ConversationUpdate"];
 export type ConsistencyJob = Schema["ConsistencyJob"];
+export type ConsistencyPlan = Schema["ConsistencyPlan"];
 export type ConsistencyReport = Schema["ConsistencyReport"];
 export type ConsistencyItem = Schema["ConsistencyItem"];
 export type PaperCodeFinding = Schema["PaperCodeFinding"];

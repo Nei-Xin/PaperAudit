@@ -16,10 +16,12 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Sequence
 
 from paperaudit.code_parser import CURRENT_CODE_INDEX_VERSION, rebuild_code_index
+from paperaudit.consistency_inputs import validate_plan_inputs
 
 from paperaudit.models import (
     AuditJob,
     ConsistencyJob,
+    ConsistencyPlan,
     ConsistencyReport,
     AuditJobStatus,
     AuditRun,
@@ -1396,9 +1398,27 @@ class ProjectStore:
 
     @_serialized_write
     def create_consistency_job(self, project_id: str, *, runtime: AuditRuntimeSnapshot | dict[str, Any],
-                               max_checkpoints: int = 20) -> ConsistencyJob:
-        if self.load_learning_project(project_id).codebase is None:
+                               max_checkpoints: int = 20, kind: str = "audit", plan_id: str | None = None,
+                               selected_ids: Sequence[str] = (), extra_questions: Sequence[str] = (),
+                               planning_strategy: str = "one-shot") -> ConsistencyJob:
+        saved = self.load_learning_project(project_id)
+        if saved.codebase is None:
             raise StorageError("请先上传代码 ZIP。")
+        questions = [" ".join(q.split()) for q in extra_questions if q.strip()]
+        if kind == "execute":
+            plan = self.load_consistency_plan(project_id, plan_id or "")
+            try:
+                validate_plan_inputs(plan, saved.paper, saved.codebase)
+            except ValueError as exc:
+                raise StorageError(str(exc)) from exc
+            selected_ids = list(dict.fromkeys(selected_ids))
+            known = {checkpoint.checkpoint_id for checkpoint in plan.checkpoints}
+            if not set(selected_ids) <= known:
+                raise StorageError("所选要点不在该规划中。")
+            if not selected_ids and not questions:
+                raise StorageError("请至少选择一个要点。")
+            if len(selected_ids) + len(questions) > 40 or len(questions) > 10 or any(len(q) > 300 for q in questions):
+                raise StorageError("一次最多核对 40 个要点，自定义问题不超过 300 字。")
         if any(job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
                for job in self.list_consistency_jobs(project_id)):
             raise StorageError("当前项目已有一致性审计正在执行。")
@@ -1406,6 +1426,9 @@ class ProjectStore:
             job_id=_record_id("consistency-job"), project_id=project_id,
             created_at=datetime.now(timezone.utc).isoformat(),
             runtime=AuditRuntimeSnapshot.model_validate(runtime), max_checkpoints=max_checkpoints,
+            kind=kind, planning_strategy=planning_strategy, plan_id=plan_id if kind == "execute" else None,
+            selected_ids=list(dict.fromkeys(selected_ids)) if kind == "execute" else [],
+            extra_questions=questions if kind == "execute" else [],
         )
         jobs_dir = self._project_dir(project_id) / "consistency-jobs"
         jobs_dir.mkdir(parents=True, exist_ok=True)
@@ -1455,6 +1478,28 @@ class ProjectStore:
                     }))
                     interrupted += 1
         return interrupted
+
+    @_serialized_write
+    def save_consistency_plan(self, project_id: str, plan: ConsistencyPlan) -> ConsistencyPlan:
+        saved = plan.model_copy(update={
+            "plan_id": _record_id("consistency-plan"), "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        plans_dir = self._require_project_dir(project_id) / "consistency-plans"
+        plans_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write(plans_dir / f"{saved.plan_id}.json", saved.model_dump_json(indent=2).encode("utf-8"))
+        return saved
+
+    def load_consistency_plan(self, project_id: str, plan_id: str) -> ConsistencyPlan:
+        project_dir = self._require_project_dir(project_id)
+        _validate_record_id(plan_id, "consistency-plan", "一致性审计规划")
+        try:
+            plan = ConsistencyPlan.model_validate_json(
+                (project_dir / "consistency-plans" / f"{plan_id}.json").read_text(encoding="utf-8"))
+            if plan.plan_id != plan_id:
+                raise ValueError("consistency plan identity mismatch")
+        except (OSError, TypeError, ValueError) as exc:
+            raise StorageError("一致性审计规划不存在、已损坏或版本不受支持。") from exc
+        return plan
 
     @_serialized_write
     def save_consistency_report(self, project_id: str, report: ConsistencyReport) -> ConsistencyReport:

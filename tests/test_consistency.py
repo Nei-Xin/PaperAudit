@@ -43,6 +43,14 @@ class PlannedClient:
 
     def tool_turn(self, messages, tools, *, force_tool=None) -> ToolTurn:
         active_budget.get().reserve()
+        if any(t["function"]["name"] == "propose_checkpoint" for t in tools):
+            turns = sum(m["role"] == "assistant" for m in messages)
+            calls = ([call("read_page", page=int(d.chunk_id.split("_")[0][1:])) for d in self.drafts]
+                     if turns == 0 and self.drafts else
+                     [*[call("propose_checkpoint", **d.model_dump()) for d in self.drafts], call("finish_plan")])
+            return ToolTurn(message={"role": "assistant", "content": None, "tool_calls": [
+                {"id": c.id, "type": "function", "function": {"name": c.name, "arguments": c.arguments}}
+                for c in calls]}, tool_calls=tuple(calls), content="")
         question = messages[1]["content"].split("<untrusted_question>\n")[1].split("\n</untrusted_question>")[0]
         with self.lock:
             self.requests += 1
@@ -72,7 +80,7 @@ class PlannedClient:
 
 
 def run(client, **options) -> ConsistencyReport:
-    return ConsistencyOrchestrator(client, "hy3", **options).run(paper(), codebase())
+    return ConsistencyOrchestrator(client, "hy3", **options).run(paper(), codebase(), strategy="one-shot")
 
 
 def test_each_checkpoint_gets_its_own_investigation_seeded_with_the_paper_passage():

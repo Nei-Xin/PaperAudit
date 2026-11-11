@@ -1,0 +1,280 @@
+{
+  "assessor": "Codex assistant; no independent human annotation or blind assessment",
+  "rule": {
+    "scope": "Compare only the first target accepted checkpoints; empty or failed plans score zero.",
+    "full": "The topic/question explicitly targets the reference parameter or method in the same experimental setting, and the quoted evidence states the required value or method. A multi-part reference requires all parts, possibly across multiple checkpoints.",
+    "partial": "Some required parts are missing, or the question targets the parameter but its quote does not state the value/method. Record partial separately; do not count as full.",
+    "miss": "Incidental keywords in a quotation for a different question do not count.",
+    "review": "Inspect every checkpoint, not only keyword candidates. Record checkpoint IDs and reasons per reference; disclose assessor and absence of independent annotation."
+  },
+  "limit": 20,
+  "reference_count": 6,
+  "runs": {
+    "one-shot-1": {
+      "full": 4,
+      "partial": 0,
+      "items": {
+        "mae-mask": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K04"
+          ],
+          "reason": "明确核对默认掩码比例，引文给出 75%。"
+        },
+        "mae-betas": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K16"
+          ],
+          "reason": "预训练 AdamW 动量参数，引文给出 β1=0.9、β2=0.95。"
+        },
+        "mae-wd": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K15"
+          ],
+          "reason": "预训练 weight decay 引文给出 0.05。"
+        },
+        "mae-warmup": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K19"
+          ],
+          "reason": "预训练预热轮数，引文为 warmup epochs [20] 40。"
+        },
+        "mae-linprobe": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有线性探测优化器及额外归一化层的核对问题。"
+        },
+        "mae-layerdecay": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有微调 layer-wise lr decay 取值的核对问题。"
+        }
+      }
+    },
+    "agent-1": {
+      "full": 3,
+      "partial": 1,
+      "items": {
+        "mae-mask": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K03"
+          ],
+          "reason": "明确核对预训练默认掩码比例，引文给出 75%。"
+        },
+        "mae-betas": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K09"
+          ],
+          "reason": "明确核对预训练 AdamW β1、β2，引文给出 0.9、0.95。"
+        },
+        "mae-wd": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "有效要点中没有预训练 weight decay；K18 的 weight decay 是线性探测设置，不能替代。"
+        },
+        "mae-warmup": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K12"
+          ],
+          "reason": "明确核对预训练 warmup，引文为 warmup epochs [20] 40。"
+        },
+        "mae-linprobe": {
+          "status": "partial",
+          "checkpoint_ids": [
+            "K19"
+          ],
+          "reason": "覆盖分类器前无仿射 BatchNorm，但缺少线性探测优化器。K18 只核对正则化。"
+        },
+        "mae-layerdecay": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "K13 核对微调训练轮数，没有核对 layer-wise lr decay。"
+        }
+      }
+    },
+    "agent-2": {
+      "full": 4,
+      "partial": 1,
+      "items": {
+        "mae-mask": {
+          "status": "partial",
+          "checkpoint_ids": [
+            "K02"
+          ],
+          "reason": "问题核对主预训练掩码比例，但引文仅为 e.g., 75% 的示例陈述，未明确这是默认设置。"
+        },
+        "mae-betas": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K06"
+          ],
+          "reason": "主预训练 AdamW β1、β2，引文给出 0.9、0.95。"
+        },
+        "mae-wd": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K05"
+          ],
+          "reason": "主预训练 weight decay 引文给出 0.05。"
+        },
+        "mae-warmup": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K09"
+          ],
+          "reason": "主预训练 warmup 引文给出 40（[20] 是参考文献编号）。"
+        },
+        "mae-linprobe": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有线性探测优化器及额外归一化层的核对问题。"
+        },
+        "mae-layerdecay": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K20"
+          ],
+          "reason": "主微调 layer-wise lr decay，引文给出 0.75。"
+        }
+      }
+    },
+    "one-shot-2": {
+      "full": 3,
+      "partial": 1,
+      "items": {
+        "mae-mask": {
+          "status": "partial",
+          "checkpoint_ids": [
+            "K03"
+          ],
+          "reason": "问题核对默认掩码比例，但引文只给出 e.g., 75% 的示例。K08/K09/K19 虽含默认 75%，对应的问题是解码器或训练轮数，不能借用计为覆盖。"
+        },
+        "mae-betas": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K14"
+          ],
+          "reason": "预训练 AdamW 动量参数，引文给出 β1=0.9、β2=0.95。"
+        },
+        "mae-wd": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K13"
+          ],
+          "reason": "预训练 weight decay 引文给出 0.05。"
+        },
+        "mae-warmup": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K17"
+          ],
+          "reason": "预训练预热轮数，引文为 warmup epochs [20] 40。"
+        },
+        "mae-linprobe": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有线性探测优化器及额外归一化层的核对问题。"
+        },
+        "mae-layerdecay": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有微调 layer-wise lr decay 取值的核对问题。"
+        }
+      }
+    },
+    "one-shot-3": {
+      "full": 4,
+      "partial": 0,
+      "items": {
+        "mae-mask": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K01"
+          ],
+          "reason": "明确核对默认掩码比例，引文给出 75%。"
+        },
+        "mae-betas": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K12"
+          ],
+          "reason": "预训练 AdamW 动量参数，引文给出 β1=0.9、β2=0.95。"
+        },
+        "mae-wd": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K11"
+          ],
+          "reason": "预训练 weight decay 引文给出 0.05。"
+        },
+        "mae-warmup": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K15"
+          ],
+          "reason": "预训练预热轮数，引文为 warmup epochs [20] 40。"
+        },
+        "mae-linprobe": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有线性探测优化器及额外归一化层的核对问题。"
+        },
+        "mae-layerdecay": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "前 20 项没有微调 layer-wise lr decay 取值的核对问题。"
+        }
+      }
+    },
+    "agent-3": {
+      "full": 2,
+      "partial": 2,
+      "items": {
+        "mae-mask": {
+          "status": "partial",
+          "checkpoint_ids": [
+            "K02"
+          ],
+          "reason": "主题提到预训练遮罩比例，但问题只问是否随机遮罩，引文只给出 e.g., 75% 示例，没有明确默认比例。"
+        },
+        "mae-betas": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "没有核对预训练 AdamW β1、β2；K03 仅核对优化器名称。"
+        },
+        "mae-wd": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K05"
+          ],
+          "reason": "预训练 weight decay，引文给出 0.05。"
+        },
+        "mae-warmup": {
+          "status": "full",
+          "checkpoint_ids": [
+            "K19"
+          ],
+          "reason": "预训练 warmup，引文为 warmup epochs [20] 40。"
+        },
+        "mae-linprobe": {
+          "status": "partial",
+          "checkpoint_ids": [
+            "K09"
+          ],
+          "reason": "明确核对分类器前无仿射 BatchNorm，但没有线性探测优化器。"
+        },
+        "mae-layerdecay": {
+          "status": "miss",
+          "checkpoint_ids": [],
+          "reason": "没有微调 layer-wise lr decay 取值的核对问题。"
+        }
+      }
+    }
+  }
+}

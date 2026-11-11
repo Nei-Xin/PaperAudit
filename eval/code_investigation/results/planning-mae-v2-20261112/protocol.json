@@ -1,0 +1,149 @@
+{
+  "split": "development",
+  "paper": "mae",
+  "target": 20,
+  "repeats": 3,
+  "strategies": [
+    "one-shot",
+    "agent"
+  ],
+  "model": "configured-model",
+  "temperature": 0.2,
+  "reasoning_effort": "",
+  "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+  "zip_sha256": "ae81c72ec3c22a6b17e4faf808f610a02aacc6a93f0bc3b26cccf8d7126424a0",
+  "sources": {
+    "src/paperaudit/workflows.py": "c97fcbead84f3b61ec533ef8273bc8582678b1601d8c8174886d649716863a3d",
+    "src/paperaudit/consistency_inputs.py": "1416ae526e9b758ae901bcd0cbcbc22d204fad8e3fc0364453dee76ce0845360",
+    "src/paperaudit/consistency_jobs.py": "5423a701ab7b52082372bdb49748cbd84fa6c608a1507d14d132042ba640036f",
+    "src/paperaudit/peer_review_revision.py": "28c243003a13db0a3a6bab2448ed3cf39a26bc44a145f239a114faa348da0a99",
+    "src/paperaudit/audit_view.py": "1c125d6584b2d5baf75876079062a85b91090f984e6ae564a3acffe23c4bf8ee",
+    "src/paperaudit/review_reporting.py": "7d454f7e39a7499b60ce14ee6c15c8129af5c55986e092bc3d328dac1a332d98",
+    "src/paperaudit/scoring.py": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "src/paperaudit/claim_extraction.py": "af8ebc15593749a3af504b5188628ee1f1783f28c4c9acde7cd7a990bf9a04d7",
+    "src/paperaudit/storage.py": "8bedf64792cbb057c1c65b6160f4ac43dcea00d7084751656af944d78b9dc9d6",
+    "src/paperaudit/evidence_gap.py": "1ba0e7bbc88600aba00d7d2ea6fc1f094989a04dd17ec171a137a67bb00fa851",
+    "src/paperaudit/report_input.py": "aab2816c84563ae3e2b4467488e7c176fd3a9c7ac922ce148f94fdb880618539",
+    "src/paperaudit/learning_facts.py": "6dffed069a20d93bef06d756ec18b79d8e42c01b97e2b2e84c765b240c614b17",
+    "src/paperaudit/job_runner.py": "4749417922053677a9ae5ba4402302a52a0cfa9fc19e94508c0966c3ea74ada7",
+    "src/paperaudit/pdf_parser.py": "fdcc365c46dc7b9356db4d52108d79094c28aebd7f2664c5d4f53303972c3190",
+    "src/paperaudit/hy3_client.py": "2938c4636b275576a10b66b435c62b1b9ae885be6c205774d85b12a1fbeff8cc",
+    "src/paperaudit/evidence.py": "7a4f041e783c3b152dc35a0b2ea139a945a9842a6ebf7e2422eb6cc420c05bd3",
+    "src/paperaudit/learning_generation.py": "70cd6fcc9aab42dfe7d2adac0a4fcfecb1caf7168187a724d0e68c53bccd9a85",
+    "src/paperaudit/request_budget.py": "b86806ab554005a5b33878067fda710f3d87dd2f9c0580716a65de69800b7832",
+    "src/paperaudit/peer_review_service.py": "911ddb54094102a194124cb622a1c2bcef793260dd5f387254d629d123f223d8",
+    "src/paperaudit/config.py": "adc74c84bc22d170215891678df63ac2d63afb7206e1f071e0ba49af8ceb4824",
+    "src/paperaudit/models.py": "0452ee36191cc83a9400a60d0b556cf371e7f3b979d92309269995eb151042fc",
+    "src/paperaudit/citation_review.py": "51592c36bd714dd58ca37d383ec3ac01060c8d0278fd4c191b8415c917bc8e2b",
+    "src/paperaudit/code_service.py": "5b8e9658dbdefd66d9b4938bdb61c4be2e198c0aa6f908c3f7802c81be8fcbc0",
+    "src/paperaudit/review_progress.py": "01d853d1b42743304b07cb45ea2c0de52498c76e14e686802cf84cd8c4bc8aac",
+    "src/paperaudit/learning_jobs.py": "6fa66fc99639cebd2e4913d89c162bfc6325f584eac376bef6022cc280617ab9",
+    "src/paperaudit/retrieval.py": "c32dce8112329952cd7e41bb7ea3c05706f1f5a939a66cd1476bf6e79c7e6663",
+    "src/paperaudit/__init__.py": "8df01b7e92930dd8d5376d9f1b462cc914e33c5eed77546f52706441949d8e5c",
+    "src/paperaudit/display.py": "5b44bd27bfdbda32f0415cb8c2d717ed5a74dbd13461b92f0083fbde63275da5",
+    "src/paperaudit/code_retrieval.py": "ece1873c5025902b4342b76ef2c0644a5baca038184f6d60c14f50be3c9e462a",
+    "src/paperaudit/code_parser.py": "013cedfed39b7bba29c66b306cc49882ba3d03cffb5217e69b7509a85214bbea",
+    "src/paperaudit/reporting.py": "b1f0259e4d7279e61c74cbfbd01eeac71b421b639a2dbcb86d0fe13042966658",
+    "src/paperaudit/audit_rules.py": "548d5cff82356395e373d3260fb81138bce751eb5719ce72bc37f3bc55f4908b",
+    "src/paperaudit/peer_review_rules.py": "f66ae403b5a47eaac4f69f8da434594f21a8b16a12ea04eccfc206d256975832",
+    "src/paperaudit/peer_review_jobs.py": "de7898f5a6d85b0682f076a5cc8040d3654d209abf87a083d481a72e1bd5d20f",
+    "src/paperaudit/audit_jobs.py": "bc92fe252ef4fbb9bd4e3875dc23a8b7fca8f4842c9921003983e71f608b6548",
+    "src/paperaudit/service.py": "b48b69992e47986e5bbab7e1150f21a7110ff324176cdb87660d0c680bc1cbab",
+    "src/paperaudit/api/schemas.py": "69583bd5b8ccc49ce7f6614561d11506f4c1c37da6ed96f4771e937d4c438cdc",
+    "src/paperaudit/api/views.py": "2d5f9388560b54c144f2e6f6ce7ac1d00adc35abf3acaf87635e3ea661ef2449",
+    "src/paperaudit/api/main.py": "08a47e1f19122760839ed2abc59940c29fedc91107ec34717436904f6c9c8cca",
+    "src/paperaudit/api/project_routes.py": "43c6282b58eb0878fdd02f7512648d4dc0717319f1d6d3755efbe43549fc6cc7",
+    "src/paperaudit/api/review_routes.py": "7a1126322c815c5f1655be37718dcca85be362217cda618bb72e13ad0ac6f597",
+    "src/paperaudit/api/audit_routes.py": "55c23c1b430b35f966cea8ada9bd1c4a0890fc65e4bb445d3852e8dec64c6ec7",
+    "src/paperaudit/api/consistency_routes.py": "5c4b4371d69594c8502f548d76b45aa184707a76ece70b36e168ba565f376f79",
+    "src/paperaudit/api/__init__.py": "3f60176b76a3be98402a9ce7b216fa0d2900fb9be4321d0ddebbec911b73cf75",
+    "src/paperaudit/agents/consistency.py": "ac99ae5f1b8c794a61b661556911796161cce386f9050594972f6e01b5452e6e",
+    "src/paperaudit/agents/code_tools.py": "9bd78cff68e977d3002631f1e2b312a13f2688c1312d5fc51271d7f9e349dfe5",
+    "src/paperaudit/agents/tools.py": "fabe94b6973d60633b406d228945f01cea1e6f83f9e4efdd9bdb6541e71dff46",
+    "src/paperaudit/agents/code_investigator.py": "157e54558f7742ab0b434c180b10de4405aff8101a5c3c1c0d1245588dea6364",
+    "src/paperaudit/agents/consistency_planner.py": "2a043ca709c15595b8c587e0e20cbf58b43758106de57f651d8aaf82e945c62c",
+    "src/paperaudit/agents/models.py": "71a9d180e12cdf284d28536554836e3b8a0951879dd1a3eaae848a7d32f80d1f",
+    "src/paperaudit/agents/investigator.py": "a1eb1c5d222ed42a944baa2e1cef7bbe46fc6058133b0a7a8937dbc84f654044",
+    "src/paperaudit/agents/__init__.py": "22d53f9baaada4484ad044981e661cc795c445208fa30dfa503a6e07f521658c",
+    "eval/code_investigation/planning.py": "097134bda578461c54a0e610202aba66d2e6cd6833c8e1c5f3449e8cc42c2bd0"
+  },
+  "coverage_rule": {
+    "scope": "Compare only the first target accepted checkpoints; empty or failed plans score zero.",
+    "full": "The topic/question explicitly targets the reference parameter or method in the same experimental setting, and the quoted evidence states the required value or method. A multi-part reference requires all parts, possibly across multiple checkpoints.",
+    "partial": "Some required parts are missing, or the question targets the parameter but its quote does not state the value/method. Record partial separately; do not count as full.",
+    "miss": "Incidental keywords in a quotation for a different question do not count.",
+    "review": "Inspect every checkpoint, not only keyword candidates. Record checkpoint IDs and reasons per reference; disclose assessor and absence of independent annotation."
+  },
+  "reference_items": [
+    {
+      "id": "mae-mask",
+      "question": "论文默认的掩码比例和预训练代码的默认值一致吗？",
+      "keywords": [
+        "75",
+        "0.75",
+        "0.6",
+        "掩码"
+      ]
+    },
+    {
+      "id": "mae-betas",
+      "question": "论文预训练设置中 AdamW 的 β1、β2 和预训练代码一致吗？",
+      "keywords": [
+        "0.95",
+        "0.999",
+        "β",
+        "beta"
+      ]
+    },
+    {
+      "id": "mae-wd",
+      "question": "论文预训练使用的 weight decay 和预训练代码的默认值一致吗？",
+      "keywords": [
+        "0.05",
+        "0.5",
+        "weight decay",
+        "权重衰减"
+      ]
+    },
+    {
+      "id": "mae-warmup",
+      "question": "论文预训练的 warmup epoch 数和预训练代码的默认值一致吗？",
+      "keywords": [
+        "40",
+        "20",
+        "warmup"
+      ]
+    },
+    {
+      "id": "mae-linprobe",
+      "question": "论文线性探测（linear probing）设置中的优化器，以及分类器前额外加的归一化层，在代码里实现了吗？",
+      "keywords": [
+        "LARS",
+        "BatchNorm",
+        "线性"
+      ]
+    },
+    {
+      "id": "mae-layerdecay",
+      "question": "论文微调设置中的 layer-wise lr decay 取值和微调代码的默认值一致吗？",
+      "keywords": [
+        "0.75",
+        "layer"
+      ]
+    }
+  ],
+  "execute_selection": "first 5 accepted points of first nonempty agent plan, plus one learning-rate question",
+  "max_requests": 160,
+  "max_planning_requests_per_strategy": {
+    "one-shot": 3,
+    "agent_with_fallback": 15
+  },
+  "planner_limits": {
+    "requests": 12,
+    "seconds": 240,
+    "read_calls": 24,
+    "reads_per_turn": 3,
+    "closing_requests": 3
+  },
+  "comparison_note": "These are fixed per-strategy ceilings, not equal request consumption. Include fallback and failure costs; do not tune or replay after inspecting results."
+}

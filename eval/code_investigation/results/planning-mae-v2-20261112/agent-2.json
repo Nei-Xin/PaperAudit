@@ -1,0 +1,1409 @@
+{
+  "schema_version": 1,
+  "plan_id": "consistency-plan-20261111T155918Z-7ebf84",
+  "created_at": "2026-11-11T15:59:18.153633+00:00",
+  "strategy": "agent-planner-v2",
+  "model": "configured-model",
+  "checkpoints": [
+    {
+      "checkpoint_id": "K01",
+      "topic": "预训练架构",
+      "category": "architecture",
+      "question": "代码中的预训练模型是否仅将可见图像块输入编码器，并在解码器中加入掩码标记？",
+      "paper_anchor": {
+        "chunk_id": "p1_b6",
+        "page": 1,
+        "text": "This paper shows that masked autoencoders (MAE) are\nscalable self-supervised learners for computer vision. Our\nMAE approach is simple: we mask random patches of the\ninput image and reconstruct the missing pixels. It is based\non two core designs.\nFirst, we develop an asymmetric\nencoder-decoder architecture, with an encoder that oper-\nates only on the visible subset of patches (without mask to-\nkens), along with a lightweight decoder that reconstructs\nthe original image from the latent representation and mask\ntokens. Second, we ﬁnd that masking a high proportion\nof the input image, e.g., 75%, yields a nontrivial and\nmeaningful self-supervisory task. Coupling these two de-\nsigns enables us to train large models efﬁciently and ef-\nfectively: we accelerate training (by 3× or more) and im-\nprove accuracy. Our scalable approach allows for learning\nhigh-capacity models that generalize well: e.g., a vanilla\nViT-Huge model achieves the best accuracy (87.8%) among\nmethods that use only ImageNet-1K data.\nTransfer per-\nformance in downstream tasks outperforms supervised pre-\ntraining and shows promising scaling behavior.",
+        "quote": "an encoder that operates only on the visible subset of patches (without mask tokens), along with a lightweight decoder that reconstructs the original image from the latent representation and mask tokens.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.066978454589844,
+            "y0": 228.78204345703125,
+            "x1": 286.3649597167969,
+            "y1": 238.74464416503906
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 240.737060546875,
+            "x1": 286.3651123046875,
+            "y1": 250.6996612548828
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 252.69207763671875,
+            "x1": 286.3650207519531,
+            "y1": 262.6546630859375
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 264.6480712890625,
+            "x1": 286.3651428222656,
+            "y1": 274.61065673828125
+          },
+          {
+            "x0": 50.111976623535156,
+            "y0": 276.6030578613281,
+            "x1": 138.09169006347656,
+            "y1": 286.5656433105469
+          },
+          {
+            "x0": 147.61593627929688,
+            "y0": 276.6030578613281,
+            "x1": 286.36248779296875,
+            "y1": 286.74212646484375
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 288.55804443359375,
+            "x1": 286.36505126953125,
+            "y1": 298.5206298828125
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 300.5130310058594,
+            "x1": 286.3650207519531,
+            "y1": 310.4756164550781
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 312.468017578125,
+            "x1": 286.3650817871094,
+            "y1": 322.43060302734375
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 324.4230041503906,
+            "x1": 286.3650817871094,
+            "y1": 334.3855895996094
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 336.3789978027344,
+            "x1": 286.364990234375,
+            "y1": 346.3415832519531
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 348.333984375,
+            "x1": 286.365234375,
+            "y1": 358.4730529785156
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 360.2889709472656,
+            "x1": 286.36505126953125,
+            "y1": 370.2515563964844
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 372.24395751953125,
+            "x1": 286.36505126953125,
+            "y1": 382.20654296875
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 384.0157470703125,
+            "x1": 286.3655090332031,
+            "y1": 394.1615295410156
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 396.1539306640625,
+            "x1": 286.3650207519531,
+            "y1": 406.11651611328125
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 408.10992431640625,
+            "x1": 286.3597106933594,
+            "y1": 418.2489929199219
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 420.0649108886719,
+            "x1": 286.36505126953125,
+            "y1": 430.0274963378906
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 432.0198974609375,
+            "x1": 223.92942810058594,
+            "y1": 441.98248291015625
+          },
+          {
+            "x0": 232.13861083984375,
+            "y0": 432.0198974609375,
+            "x1": 286.36505126953125,
+            "y1": 441.98248291015625
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 443.9748840332031,
+            "x1": 286.3650817871094,
+            "y1": 453.9374694824219
+          },
+          {
+            "x0": 50.111968994140625,
+            "y0": 455.92987060546875,
+            "x1": 239.37144470214844,
+            "y1": 465.8924560546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K02",
+      "topic": "主预训练遮蔽率",
+      "category": "hyperparameter",
+      "question": "代码的主预训练设置是否随机遮蔽四分之三的图像块？",
+      "paper_anchor": {
+        "chunk_id": "p1_b6",
+        "page": 1,
+        "text": "This paper shows that masked autoencoders (MAE) are\nscalable self-supervised learners for computer vision. Our\nMAE approach is simple: we mask random patches of the\ninput image and reconstruct the missing pixels. It is based\non two core designs.\nFirst, we develop an asymmetric\nencoder-decoder architecture, with an encoder that oper-\nates only on the visible subset of patches (without mask to-\nkens), along with a lightweight decoder that reconstructs\nthe original image from the latent representation and mask\ntokens. Second, we ﬁnd that masking a high proportion\nof the input image, e.g., 75%, yields a nontrivial and\nmeaningful self-supervisory task. Coupling these two de-\nsigns enables us to train large models efﬁciently and ef-\nfectively: we accelerate training (by 3× or more) and im-\nprove accuracy. Our scalable approach allows for learning\nhigh-capacity models that generalize well: e.g., a vanilla\nViT-Huge model achieves the best accuracy (87.8%) among\nmethods that use only ImageNet-1K data.\nTransfer per-\nformance in downstream tasks outperforms supervised pre-\ntraining and shows promising scaling behavior.",
+        "quote": "masking a high proportion of the input image, e.g., 75%",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11198425292969,
+            "y0": 336.3789978027344,
+            "x1": 286.364990234375,
+            "y1": 346.3415832519531
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 348.333984375,
+            "x1": 286.365234375,
+            "y1": 358.4730529785156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K03",
+      "topic": "主预训练优化器",
+      "category": "hyperparameter",
+      "question": "代码的主预训练设置是否使用 AdamW 优化器？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "optimizer AdamW [39]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 81.5271224975586,
+            "x1": 364.9756164550781,
+            "y1": 88.50092315673828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 81.5271224975586,
+            "x1": 483.22906494140625,
+            "y1": 88.50092315673828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K04",
+      "topic": "主预训练学习率",
+      "category": "hyperparameter",
+      "question": "代码的主预训练设置是否采用 1.5e-4 的基础学习率？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "base learning rate 1.5e-4",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 89.6571273803711,
+            "x1": 387.4312438964844,
+            "y1": 96.63092803955078
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 89.6571273803711,
+            "x1": 463.86279296875,
+            "y1": 96.63092803955078
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K05",
+      "topic": "主预训练权重衰减",
+      "category": "hyperparameter",
+      "question": "代码的主预训练设置是否采用 0.05 的权重衰减？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "weight decay 0.05",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 97.7871322631836,
+            "x1": 375.2341003417969,
+            "y1": 104.76093292236328
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 97.7871322631836,
+            "x1": 458.44415283203125,
+            "y1": 104.76093292236328
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K06",
+      "topic": "主预训练优化器动量",
+      "category": "hyperparameter",
+      "question": "代码的主预训练设置中 AdamW 动量参数是否为 β1=0.9、β2=0.95？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "optimizer momentum β1, β2=0.9, 0.95 [6]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 105.9161605834961,
+            "x1": 398.49176025390625,
+            "y1": 112.88996124267578
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 105.75477600097656,
+            "x1": 511.08441162109375,
+            "y1": 113.28924560546875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K07",
+      "topic": "主预训练批量大小",
+      "category": "hyperparameter",
+      "question": "代码的主预训练设置是否使用 4096 的批量大小？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "batch size 4096",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 114.0461654663086,
+            "x1": 365.93798828125,
+            "y1": 121.01996612548828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 114.0461654663086,
+            "x1": 460.1876220703125,
+            "y1": 121.01996612548828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K08",
+      "topic": "主预训练学习率计划",
+      "category": "training",
+      "question": "代码的主预训练学习率是否采用余弦衰减计划？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "learning rate schedule cosine decay [38]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 122.1751937866211,
+            "x1": 399.4401550292969,
+            "y1": 129.1490020751953
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 122.17513275146484,
+            "x1": 495.4262390136719,
+            "y1": 129.14894104003906
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K09",
+      "topic": "主预训练预热",
+      "category": "training",
+      "question": "代码的主预训练设置是否进行 40 个 epoch 的学习率预热？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "warmup epochs [20] 40",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 130.30514526367188,
+            "x1": 395.49993896484375,
+            "y1": 137.27894592285156
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 130.30514526367188,
+            "x1": 453.21380615234375,
+            "y1": 137.27894592285156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K10",
+      "topic": "主预训练增强",
+      "category": "data",
+      "question": "代码的主预训练数据增强是否使用 RandomResizedCrop？",
+      "paper_anchor": {
+        "chunk_id": "p11_b10",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+        "quote": "augmentation RandomResizedCrop",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 138.43417358398438,
+            "x1": 376.21044921875,
+            "y1": 145.40797424316406
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 138.43417358398438,
+            "x1": 505.9009094238281,
+            "y1": 145.40797424316406
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K11",
+      "topic": "解码器输出",
+      "category": "architecture",
+      "question": "代码的解码器输出层是否为线性投影，输出通道数等于每个图像块的像素值数量？",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "The last layer of the decoder is a linear projection whose number of output channels equals the number of pixel values in a patch.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 263.58868408203125,
+            "x1": 286.36376953125,
+            "y1": 273.6422424316406
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 275.4581604003906,
+            "x1": 286.3597412109375,
+            "y1": 285.59722900390625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 287.5906066894531,
+            "x1": 286.3650817871094,
+            "y1": 297.55322265625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 299.54559326171875,
+            "x1": 286.36505126953125,
+            "y1": 309.5082092285156
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 311.5005798339844,
+            "x1": 286.3650207519531,
+            "y1": 321.46319580078125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 323.45556640625,
+            "x1": 286.3650207519531,
+            "y1": 333.4181823730469
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 335.4105529785156,
+            "x1": 286.36505126953125,
+            "y1": 345.3731689453125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 347.36553955078125,
+            "x1": 286.3650817871094,
+            "y1": 357.3281555175781
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K12",
+      "topic": "预训练损失范围",
+      "category": "evaluation",
+      "question": "代码的 MAE 重建损失是否仅在被遮蔽的图像块上计算？",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "We compute the loss only on masked patches, similar to BERT [14].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K13",
+      "topic": "预训练重建损失",
+      "category": "training",
+      "question": "代码的 MAE 重建目标是否使用像素空间的均方误差？",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "Our loss function computes the mean squared error (MSE) between the reconstructed and original images in the pixel space.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 263.58868408203125,
+            "x1": 286.36376953125,
+            "y1": 273.6422424316406
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 275.4581604003906,
+            "x1": 286.3597412109375,
+            "y1": 285.59722900390625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 287.5906066894531,
+            "x1": 286.3650817871094,
+            "y1": 297.55322265625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 299.54559326171875,
+            "x1": 286.36505126953125,
+            "y1": 309.5082092285156
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 311.5005798339844,
+            "x1": 286.3650207519531,
+            "y1": 321.46319580078125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 323.45556640625,
+            "x1": 286.3650207519531,
+            "y1": 333.4181823730469
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 335.4105529785156,
+            "x1": 286.36505126953125,
+            "y1": 345.3731689453125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 347.36553955078125,
+            "x1": 286.3650817871094,
+            "y1": 357.3281555175781
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K14",
+      "topic": "默认预训练解码器深度",
+      "category": "architecture",
+      "question": "代码的默认 MAE 解码器深度是否为 8 层？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "the decoder has depth 8 and width 512",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 249.93185424804688,
+            "x1": 545.1109619140625,
+            "y1": 258.89825439453125
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K15",
+      "topic": "默认预训练解码器宽度",
+      "category": "architecture",
+      "question": "代码的默认 MAE 解码器宽度是否为 512？",
+      "paper_anchor": {
+        "chunk_id": "p5_b13",
+        "page": 5,
+        "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+        "quote": "the decoder has depth 8 and width 512",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 249.93185424804688,
+            "x1": 545.1109619140625,
+            "y1": 258.89825439453125
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K16",
+      "topic": "预训练随机遮蔽实现",
+      "category": "data",
+      "question": "代码生成编码器输入时是否随机打乱图像块 token，并按遮蔽率移除列表末尾部分？",
+      "paper_anchor": {
+        "chunk_id": "p4_b5",
+        "page": 4,
+        "text": "Simple implementation. Our MAE pre-training can be im-\nplemented efﬁciently, and importantly, does not require any\nspecialized sparse operations. First we generate a token for\nevery input patch (by linear projection with an added po-\nsitional embedding). Next we randomly shufﬂe the list of\ntokens and remove the last portion of the list, based on the\nmasking ratio. This process produces a small subset of to-\nkens for the encoder and is equivalent to sampling patches\nwithout replacement. After encoding, we append a list of\nmask tokens to the list of encoded patches, and unshufﬂe\nthis full list (inverting the random shufﬂe operation) to align\nall tokens with their targets. The decoder is applied to this\nfull list (with positional embeddings added). As noted, no\nsparse operations are needed. This simple implementation\nintroduces negligible overhead as the shufﬂing and unshuf-\nﬂing operations are fast.",
+        "quote": "Next we randomly shuffle the list of tokens and remove the last portion of the list, based on the masking ratio.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 512.5519409179688,
+            "x1": 286.3669128417969,
+            "y1": 522.6909790039062
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 524.5069580078125,
+            "x1": 286.36669921875,
+            "y1": 534.64599609375
+          },
+          {
+            "x0": 50.11200714111328,
+            "y0": 536.638427734375,
+            "x1": 286.36505126953125,
+            "y1": 546.6010131835938
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K17",
+      "topic": "解码器 token 排列",
+      "category": "architecture",
+      "question": "代码是否在编码后追加 mask tokens，并通过逆随机打乱恢复完整 token 顺序后输入解码器？",
+      "paper_anchor": {
+        "chunk_id": "p4_b5",
+        "page": 4,
+        "text": "Simple implementation. Our MAE pre-training can be im-\nplemented efﬁciently, and importantly, does not require any\nspecialized sparse operations. First we generate a token for\nevery input patch (by linear projection with an added po-\nsitional embedding). Next we randomly shufﬂe the list of\ntokens and remove the last portion of the list, based on the\nmasking ratio. This process produces a small subset of to-\nkens for the encoder and is equivalent to sampling patches\nwithout replacement. After encoding, we append a list of\nmask tokens to the list of encoded patches, and unshufﬂe\nthis full list (inverting the random shufﬂe operation) to align\nall tokens with their targets. The decoder is applied to this\nfull list (with positional embeddings added). As noted, no\nsparse operations are needed. This simple implementation\nintroduces negligible overhead as the shufﬂing and unshuf-\nﬂing operations are fast.",
+        "quote": "After encoding, we append a list of mask tokens to the list of encoded patches, and unshuffle this full list (inverting the random shuffle operation) to align all tokens with their targets.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11200714111328,
+            "y0": 560.5484008789062,
+            "x1": 286.3650207519531,
+            "y1": 570.510986328125
+          },
+          {
+            "x0": 50.11200714111328,
+            "y0": 572.3279418945312,
+            "x1": 286.3616027832031,
+            "y1": 582.4669799804688
+          },
+          {
+            "x0": 50.11201477050781,
+            "y0": 584.4594116210938,
+            "x1": 286.3650207519531,
+            "y1": 594.4219970703125
+          },
+          {
+            "x0": 50.11201477050781,
+            "y0": 596.4144287109375,
+            "x1": 286.3650817871094,
+            "y1": 606.3770141601562
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K18",
+      "topic": "主微调优化器",
+      "category": "hyperparameter",
+      "question": "代码的主 ImageNet 微调设置是否使用 AdamW 优化器？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "optimizer AdamW",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 183.12417602539062,
+            "x1": 364.9756164550781,
+            "y1": 190.0979766845703
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 183.12417602539062,
+            "x1": 469.8672790527344,
+            "y1": 190.0979766845703
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K19",
+      "topic": "主微调学习率",
+      "category": "hyperparameter",
+      "question": "代码的主 ImageNet 微调设置是否采用 1e-3 的基础学习率？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "base learning rate 1e-3",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 191.25418090820312,
+            "x1": 387.4312438964844,
+            "y1": 198.2279815673828
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 191.25418090820312,
+            "x1": 458.6324462890625,
+            "y1": 198.2279815673828
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K20",
+      "topic": "主微调层级学习率衰减",
+      "category": "training",
+      "question": "代码的主 ImageNet 微调设置是否采用 0.75 的 layer-wise learning-rate decay？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "layer-wise lr decay [10, 2] 0.75",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449645996094,
+            "y0": 215.64218139648438,
+            "x1": 411.4977722167969,
+            "y1": 222.61598205566406
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 215.64218139648438,
+            "x1": 458.44415283203125,
+            "y1": 222.61598205566406
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K21",
+      "topic": "主微调增强",
+      "category": "data",
+      "question": "代码的主 ImageNet 微调设置是否使用 RandAug (9, 0.5)？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "augmentation RandAug (9, 0.5) [12]",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 256.2901306152344,
+            "x1": 376.21044921875,
+            "y1": 263.263916015625
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 256.2901306152344,
+            "x1": 508.4114074707031,
+            "y1": 263.263916015625
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K22",
+      "topic": "主微调 mixup",
+      "category": "training",
+      "question": "代码的主 ImageNet 微调设置是否使用 0.8 的 mixup？",
+      "paper_anchor": {
+        "chunk_id": "p11_b12",
+        "page": 11,
+        "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+        "quote": "mixup [69] 0.8",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 338.2449951171875,
+            "y0": 272.5491638183594,
+            "x1": 369.4318542480469,
+            "y1": 279.52294921875
+          },
+          {
+            "x0": 446.239990234375,
+            "y0": 272.5491638183594,
+            "x1": 454.9572448730469,
+            "y1": 279.52294921875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K23",
+      "topic": "归一化像素重建目标",
+      "category": "data",
+      "question": "代码若采用论文改进的重建目标，是否按每个图像块自身像素的均值和标准差进行归一化？",
+      "paper_anchor": {
+        "chunk_id": "p4_b4",
+        "page": 4,
+        "text": "We also study a variant whose reconstruction target is\nthe normalized pixel values of each masked patch. Specif-\nically, we compute the mean and standard deviation of all\npixels in a patch and use them to normalize this patch. Us-\ning normalized pixels as the reconstruction target improves\nrepresentation quality in our experiments.",
+        "quote": "Specifically, we compute the mean and standard deviation of all pixels in a patch and use them to normalize this patch.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.06700134277344,
+            "y0": 386.4325256347656,
+            "x1": 286.3649597167969,
+            "y1": 396.3951416015625
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 398.38751220703125,
+            "x1": 286.3651123046875,
+            "y1": 408.3501281738281
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 410.3424987792969,
+            "x1": 286.36505126953125,
+            "y1": 420.30511474609375
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 422.2974853515625,
+            "x1": 286.3650817871094,
+            "y1": 432.2601013183594
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 434.25347900390625,
+            "x1": 286.3651123046875,
+            "y1": 444.2160949707031
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 446.2084655761719,
+            "x1": 216.25823974609375,
+            "y1": 456.17108154296875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K24",
+      "topic": "位置嵌入",
+      "category": "architecture",
+      "question": "代码中的主 MAE 编码器和解码器输入是否使用正弦余弦位置嵌入？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "Our MAE adds positional embeddings [57] (the sine-cosine version) to both the encoder and decoder inputs.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 117.37352752685547,
+            "x1": 286.3623352050781,
+            "y1": 127.42709350585938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 129.4195098876953,
+            "x1": 286.36505126953125,
+            "y1": 139.38211059570312
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 141.37452697753906,
+            "x1": 286.3651123046875,
+            "y1": 151.33712768554688
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 153.3295440673828,
+            "x1": 286.3650207519531,
+            "y1": 163.29214477539062
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 165.28456115722656,
+            "x1": 286.36505126953125,
+            "y1": 175.24716186523438
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 177.2395782470703,
+            "x1": 286.3651123046875,
+            "y1": 187.20217895507812
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 189.19557189941406,
+            "x1": 286.36505126953125,
+            "y1": 199.15817260742188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 201.1505889892578,
+            "x1": 286.36505126953125,
+            "y1": 211.11318969726562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 212.92913818359375,
+            "x1": 286.35711669921875,
+            "y1": 223.06820678710938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 225.0606231689453,
+            "x1": 243.217041015625,
+            "y1": 235.02322387695312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K25",
+      "topic": "编码器到解码器投影",
+      "category": "architecture",
+      "question": "代码是否在 MAE 编码器输出后使用线性投影以匹配解码器宽度？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "As the MAE encoder and decoder have different width, we adopt a linear projection layer after the encoder to match it.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 117.37352752685547,
+            "x1": 286.3623352050781,
+            "y1": 127.42709350585938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 129.4195098876953,
+            "x1": 286.36505126953125,
+            "y1": 139.38211059570312
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 141.37452697753906,
+            "x1": 286.3651123046875,
+            "y1": 151.33712768554688
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 153.3295440673828,
+            "x1": 286.3650207519531,
+            "y1": 163.29214477539062
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 165.28456115722656,
+            "x1": 286.36505126953125,
+            "y1": 175.24716186523438
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 177.2395782470703,
+            "x1": 286.3651123046875,
+            "y1": 187.20217895507812
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 189.19557189941406,
+            "x1": 286.36505126953125,
+            "y1": 199.15817260742188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 201.1505889892578,
+            "x1": 286.36505126953125,
+            "y1": 211.11318969726562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 212.92913818359375,
+            "x1": 286.35711669921875,
+            "y1": 223.06820678710938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 225.0606231689453,
+            "x1": 243.217041015625,
+            "y1": 235.02322387695312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K26",
+      "topic": "Transformer 块结构",
+      "category": "architecture",
+      "question": "代码的 Transformer block 是否由多头自注意力和 MLP 组成，且两者均有 LayerNorm？",
+      "paper_anchor": {
+        "chunk_id": "p11_b3",
+        "page": 11,
+        "text": "ViT architecture. We follow the standard ViT architecture\n[16]. It has a stack of Transformer blocks [57], and each\nblock consists of a multi-head self-attention block and an\nMLP block, both having LayerNorm (LN) [1]. The encoder\nends with LN. As the MAE encoder and decoder have dif-\nferent width, we adopt a linear projection layer after the\nencoder to match it. Our MAE adds positional embeddings\n[57] (the sine-cosine version) to both the encoder and de-\ncoder inputs. Our MAE does not use relative position or\nlayer scaling (which are used in the code of [2]).",
+        "quote": "each block consists of a multi-head self-attention block and an MLP block, both having LayerNorm (LN) [1].",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 129.4195098876953,
+            "x1": 286.36505126953125,
+            "y1": 139.38211059570312
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 141.37452697753906,
+            "x1": 286.3651123046875,
+            "y1": 151.33712768554688
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 153.3295440673828,
+            "x1": 286.3650207519531,
+            "y1": 163.29214477539062
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K27",
+      "topic": "预训练辅助 token",
+      "category": "architecture",
+      "question": "代码的预训练编码器输入是否附加一个辅助 dummy token？",
+      "paper_anchor": {
+        "chunk_id": "p11_b4",
+        "page": 11,
+        "text": "We extract features from the encoder output for ﬁne-\ntuning and linear probing. As ViT has a class token [16],\nto adapt to this design, in our MAE pre-training we append\nan auxiliary dummy token to the encoder input. This token\nwill be treated as the class token for training the classiﬁer in\nlinear probing and ﬁne-tuning. Our MAE works similarly\nwell without this token (with average pooling).",
+        "quote": "in our MAE pre-training we append an auxiliary dummy token to the encoder input.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 262.25262451171875,
+            "x1": 286.36505126953125,
+            "y1": 272.2152404785156
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 274.2076110839844,
+            "x1": 286.3650207519531,
+            "y1": 284.17022705078125
+          }
+        ]
+      },
+      "source": "planner"
+    }
+  ],
+  "proposed": 27,
+  "rejected": 0,
+  "steps": [
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "MAE pre-training implementation settings optimizer AdamW learning rate batch size epochs weight decay warmup masking ratio decoder architecture pixel normalized loss"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练架构"
+      },
+      "outcome": "ACCEPTED as K01 (1 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练遮蔽率"
+      },
+      "outcome": "ACCEPTED as K02 (2 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练优化器"
+      },
+      "outcome": "ACCEPTED as K03 (3 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练学习率"
+      },
+      "outcome": "ACCEPTED as K04 (4 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练权重衰减"
+      },
+      "outcome": "ACCEPTED as K05 (5 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练优化器动量"
+      },
+      "outcome": "ACCEPTED as K06 (6 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练批量大小"
+      },
+      "outcome": "ACCEPTED as K07 (7 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练学习率计划"
+      },
+      "outcome": "ACCEPTED as K08 (8 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练预热"
+      },
+      "outcome": "ACCEPTED as K09 (9 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主预训练增强"
+      },
+      "outcome": "ACCEPTED as K10 (10 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "Approach masked autoencoder decoder dimension depth patch reconstruction loss normalized pixels patch normalization masking random shuffle sampling"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "解码器输出"
+      },
+      "outcome": "ACCEPTED as K11 (11 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练损失范围"
+      },
+      "outcome": "ACCEPTED as K12 (12 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练重建损失"
+      },
+      "outcome": "ACCEPTED as K13 (13 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "默认预训练解码器深度"
+      },
+      "outcome": "ACCEPTED as K14 (14 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "默认预训练解码器宽度"
+      },
+      "outcome": "ACCEPTED as K15 (15 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练随机遮蔽实现"
+      },
+      "outcome": "ACCEPTED as K16 (16 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "解码器 token 排列"
+      },
+      "outcome": "ACCEPTED as K17 (17 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "fine-tuning ImageNet training settings Table 9 epochs learning rate batch size optimizer weight decay augmentation transfer fine-tuning AdamW"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主微调优化器"
+      },
+      "outcome": "ACCEPTED as K18 (18 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主微调学习率"
+      },
+      "outcome": "ACCEPTED as K19 (19 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主微调层级学习率衰减"
+      },
+      "outcome": "ACCEPTED as K20 (20 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主微调增强"
+      },
+      "outcome": "ACCEPTED as K21 (21 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主微调 mixup"
+      },
+      "outcome": "ACCEPTED as K22 (22 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "patch normalization reconstruction target normalized pixels per-patch mean variance decoder loss normalized pixels MAE"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "归一化像素重建目标"
+      },
+      "outcome": "ACCEPTED as K23 (23 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "ViT encoder architecture base large huge patch size 16 input resolution 224 decoder width depth position embedding fixed sin cos class token initialization pretraining"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "位置嵌入"
+      },
+      "outcome": "ACCEPTED as K24 (24 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "编码器到解码器投影"
+      },
+      "outcome": "ACCEPTED as K25 (25 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "Transformer 块结构"
+      },
+      "outcome": "ACCEPTED as K26 (26 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "预训练辅助 token"
+      },
+      "outcome": "ACCEPTED as K27 (27 in the plan).",
+      "ok": true
+    }
+  ],
+  "stop_reason": "finished",
+  "fallback": false,
+  "requests": 11,
+  "tokens": 62686,
+  "elapsed_seconds": 56.5,
+  "paper_hash": "e3f097816f0c8d77c8e8765850d3cddb05f32f6a258eb87940ba2742c9e47803",
+  "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b",
+  "target": 20,
+  "max_requests": 160
+}

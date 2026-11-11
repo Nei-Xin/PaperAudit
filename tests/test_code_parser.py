@@ -154,3 +154,19 @@ def test_oversized_source_file_is_skipped_with_warning() -> None:
 
     assert [file.path for file in codebase.files] == ["main.py"]
     assert any("generated.py" in warning for warning in codebase.warnings)
+
+
+def test_python_index_preserves_configuration_and_entrypoint_between_symbols():
+    from paperaudit.code_retrieval import CodeRetriever
+    source = ('def build():\n    return 1\n\nLEARNING_RATE = 0.007\n'
+              'class Model:\n    def run(self):\n        pass\n    WIDTH = 256\n'
+              '    def train(self):\n        pass\n    DEPTH = 12\n'
+              'if __name__ == "__main__":\n    build()\n')
+    parsed = parse_code_zip(make_zip({"train.py": source}))
+    covered = {n for c in parsed.chunks for n in range(c.start_line, c.end_line + 1)}
+    assert all(n in covered for n, line in enumerate(source.splitlines(), 1) if line.strip())
+    with CodeRetriever(parsed.chunks) as retriever:
+        for query in ("LEARNING_RATE", "WIDTH", "DEPTH", "__main__"):
+            assert retriever.search(query), query
+    legacy = parsed.model_copy(update={"index_version": 2, "chunks": parsed.chunks[:1]})
+    assert rebuild_code_index(legacy).chunks == parsed.chunks

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getJson, send } from "./client";
 import type {
-  AuditDetail, AuditRecord, ConsistencyJob, ConsistencyReport, Conversations, LearningReport, ProjectDetail,
+  AuditDetail, AuditRecord, ConsistencyJob, ConsistencyPlan, ConsistencyReport, Conversations, LearningReport, ProjectDetail,
   ProjectJobs, ProjectSummary, ReviewPayload, ReviewProgress, Settings,
 } from "./types";
 
@@ -18,6 +18,7 @@ export const keys = {
   jobs: (id: string) => ["project", id, "jobs"] as const,
   consistencyJobs: (id: string) => ["project", id, "consistency-jobs"] as const,
   consistencyReport: (id: string, reportId: string) => ["project", id, "consistency", reportId] as const,
+  consistencyPlan: (id: string, planId: string) => ["project", id, "consistency-plan", planId] as const,
 };
 
 export const useSettings = () => useQuery({ queryKey: keys.settings, queryFn: () => getJson<Settings>("/api/settings") });
@@ -119,10 +120,27 @@ export const useConsistencyReport = (id: string, reportId: string | null | undef
 export function useStartConsistency(id: string) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (body: { privacy_ack: boolean; max_checkpoints: number } | { retry: string }) =>
+    mutationFn: (body: { privacy_ack: boolean; max_checkpoints: number; mode: "plan"; planning_strategy: "one-shot" | "agent" } | { retry: string }) =>
       "retry" in body
         ? send<ConsistencyJob>("POST", `/api/projects/${id}/consistency-jobs/${body.retry}/retry`)
         : send<ConsistencyJob>("POST", `/api/projects/${id}/consistency-jobs`, body),
+    onSuccess: () => client.invalidateQueries({ queryKey: keys.consistencyJobs(id) }),
+  });
+}
+
+export const useConsistencyPlan = (id: string, planId: string | null | undefined) =>
+  useQuery({
+    queryKey: keys.consistencyPlan(id, planId ?? ""),
+    queryFn: () => getJson<ConsistencyPlan>(`/api/projects/${id}/consistency-plans/${planId}`),
+    enabled: Boolean(planId),
+    staleTime: Infinity,
+  });
+
+export function useExecuteConsistency(id: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ planId, ...body }: { planId: string; privacy_ack: boolean; selected_ids: string[]; extra_questions: string[] }) =>
+      send<ConsistencyJob>("POST", `/api/projects/${id}/consistency-plans/${planId}/execute`, body),
     onSuccess: () => client.invalidateQueries({ queryKey: keys.consistencyJobs(id) }),
   });
 }

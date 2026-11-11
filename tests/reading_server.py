@@ -70,6 +70,33 @@ class BrowserService(FakeService):
             raise ValueError("模拟模型失败")
         return super().answer_question(paper, question, history, **kwargs)
 
+    def plan_consistency(self, paper, codebase, *, max_checkpoints, progress=None, strategy="one-shot"):
+        from paperaudit.models import ConsistencyPlan, ConsistencyCheckpoint, EvidenceAnchor
+        from paperaudit.consistency_inputs import input_hashes
+        time.sleep(.4)
+        chunk = paper.chunks[0]
+        return ConsistencyPlan(strategy="test-planner", model="fake", target=max_checkpoints,
+            max_requests=160, requests=2, tokens=120, proposed=2, rejected=0, stop_reason="finished",
+            **input_hashes(paper, codebase), checkpoints=[ConsistencyCheckpoint(
+                checkpoint_id=f"K{i:02d}", topic=topic, category="training", question=f"{topic}是否一致？",
+                paper_anchor=EvidenceAnchor(chunk_id=chunk.chunk_id, page=chunk.page, text=chunk.content,
+                                            quote=chunk.content))
+                for i, topic in enumerate(["训练配置", "评估设置"], 1)])
+
+    def check_consistency(self, paper, codebase, checkpoints, plan, *, progress=None):
+        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary
+        time.sleep(.4)
+        if progress:
+            progress("正在核对所选要点", .6)
+        return ConsistencyReport(model="fake", paper_title=paper.title, codebase_name=codebase.name,
+            plan_id=plan.plan_id, items=[ConsistencyItem(checkpoint=c, status="checked",
+                answer=self.answer(paper, codebase, c.question)) for c in checkpoints],
+            summary=ConsistencySummary(checkpoints=len(checkpoints), checked=len(checkpoints), unresolved=len(checkpoints)),
+            planned=plan.proposed, plan_rejected=0,
+            plan_unselected=len(plan.checkpoints) - sum(c.source == "planner" for c in checkpoints),
+            max_checkpoints=len(checkpoints), max_requests=160, concurrency=4, plan_requests=2,
+            requests=2 + 2 * len(checkpoints))
+
 
 if __name__ == "__main__":
     with TemporaryDirectory(prefix="paperaudit-reading-e2e-") as directory:

@@ -46,7 +46,7 @@ LANGUAGES = {
     ".toml": "toml",
     ".sh": "shell",
 }
-CURRENT_CODE_INDEX_VERSION = 2
+CURRENT_CODE_INDEX_VERSION = 3
 
 
 class CodeParseError(ValueError):
@@ -202,7 +202,21 @@ def _python_chunks(path: str, content: str) -> tuple[list[CodeChunk], str | None
                     f"{node.name}.{method.name}",
                 )
             )
-    return chunks, None
+    # Symbols do not cover assignments, registrations, main guards, or class
+    # statements between methods. Index every remaining non-empty line too.
+    covered = {line for chunk in chunks for line in range(chunk.start_line, chunk.end_line + 1)}
+    start = 1
+    while start <= len(lines):
+        if start in covered:
+            start += 1
+            continue
+        end = start
+        while end < len(lines) and end + 1 not in covered and end - start < 79:
+            end += 1
+        if any(line.strip() for line in lines[start - 1:end]):
+            chunks.append(_line_chunk(path, "python", lines, start, end, "<module>"))
+        start = end + 1
+    return sorted(chunks, key=lambda chunk: chunk.start_line), None
 
 
 def _chunks_for_file(path: str, language: str, content: str) -> tuple[list[CodeChunk], str | None]:

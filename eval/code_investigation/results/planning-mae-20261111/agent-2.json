@@ -1,0 +1,608 @@
+{
+  "schema_version": 1,
+  "plan_id": "consistency-plan-20261111T151717Z-640327",
+  "created_at": "2026-11-11T15:17:17.056081+00:00",
+  "strategy": "agent-planner-v1",
+  "model": "configured-model",
+  "checkpoints": [
+    {
+      "checkpoint_id": "K01",
+      "topic": "MAE预训练随机掩码",
+      "category": "architecture",
+      "question": "请核对预训练是否按均匀分布、无放回地随机抽取图像patch作为可见patch。",
+      "paper_anchor": {
+        "chunk_id": "p3_b30",
+        "page": 3,
+        "text": "Masking. Following ViT [16], we divide an image into reg-\nular non-overlapping patches. Then we sample a subset of\npatches and mask (i.e., remove) the remaining ones. Our\nsampling strategy is straightforward: we sample random\npatches without replacement, following a uniform distribu-\ntion. We simply refer to this as “random sampling”.",
+        "quote": "we sample random patches without replacement, following a uniform distribution.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 369.9433898925781,
+            "x1": 545.11328125,
+            "y1": 379.9969482421875
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 381.9903259277344,
+            "x1": 545.1150512695312,
+            "y1": 391.95294189453125
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 393.76885986328125,
+            "x1": 545.1088256835938,
+            "y1": 403.9079284667969
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 405.9002990722656,
+            "x1": 545.1149291992188,
+            "y1": 415.8629150390625
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 417.85528564453125,
+            "x1": 545.1149291992188,
+            "y1": 427.8179016113281
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 429.8102722167969,
+            "x1": 515.0877685546875,
+            "y1": 439.77288818359375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K02",
+      "topic": "主线预训练掩码比例",
+      "category": "hyperparameter",
+      "question": "请核对主线MAE预训练配置中的掩码比例是否一致。",
+      "paper_anchor": {
+        "chunk_id": "p1_b6",
+        "page": 1,
+        "text": "This paper shows that masked autoencoders (MAE) are\nscalable self-supervised learners for computer vision. Our\nMAE approach is simple: we mask random patches of the\ninput image and reconstruct the missing pixels. It is based\non two core designs.\nFirst, we develop an asymmetric\nencoder-decoder architecture, with an encoder that oper-\nates only on the visible subset of patches (without mask to-\nkens), along with a lightweight decoder that reconstructs\nthe original image from the latent representation and mask\ntokens. Second, we ﬁnd that masking a high proportion\nof the input image, e.g., 75%, yields a nontrivial and\nmeaningful self-supervisory task. Coupling these two de-\nsigns enables us to train large models efﬁciently and ef-\nfectively: we accelerate training (by 3× or more) and im-\nprove accuracy. Our scalable approach allows for learning\nhigh-capacity models that generalize well: e.g., a vanilla\nViT-Huge model achieves the best accuracy (87.8%) among\nmethods that use only ImageNet-1K data.\nTransfer per-\nformance in downstream tasks outperforms supervised pre-\ntraining and shows promising scaling behavior.",
+        "quote": "masking a high proportion of the input image, e.g., 75%",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11198425292969,
+            "y0": 336.3789978027344,
+            "x1": 286.364990234375,
+            "y1": 346.3415832519531
+          },
+          {
+            "x0": 50.11198425292969,
+            "y0": 348.333984375,
+            "x1": 286.365234375,
+            "y1": 358.4730529785156
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K03",
+      "topic": "MAE编码器输入",
+      "category": "architecture",
+      "question": "请核对编码器是否仅处理可见patch，且不在编码器输入中使用mask token。",
+      "paper_anchor": {
+        "chunk_id": "p3_b32",
+        "page": 3,
+        "text": "MAE encoder. Our encoder is a ViT [16] but applied only\non visible, unmasked patches. Just as in a standard ViT, our\nencoder embeds patches by a linear projection with added\npositional embeddings, and then processes the resulting set\nvia a series of Transformer blocks. However, our encoder\nonly operates on a small subset (e.g., 25%) of the full set.\nMasked patches are removed; no mask tokens are used.\nThis allows us to train very large encoders with only a frac-\ntion of compute and memory. The full set is handled by a\nlightweight decoder, described next.",
+        "quote": "Masked patches are removed; no mask tokens are used.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 615.0371704101562,
+            "x1": 545.1150512695312,
+            "y1": 624.999755859375
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K04",
+      "topic": "MAE解码器mask token",
+      "category": "architecture",
+      "question": "请核对解码器输入是否由编码后的可见patch与共享的可学习mask向量组成。",
+      "paper_anchor": {
+        "chunk_id": "p3_b33",
+        "page": 3,
+        "text": "MAE decoder. The input to the MAE decoder is the full\nset of tokens consisting of (i) encoded visible patches, and\n(ii) mask tokens. See Figure 1. Each mask token [14] is a\nshared, learned vector that indicates the presence of a miss-",
+        "quote": "Each mask token [14] is a shared, learned vector that indicates the presence of a miss-",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 308.8619384765625,
+            "y0": 691.4891967773438,
+            "x1": 545.114990234375,
+            "y1": 701.4517822265625
+          },
+          {
+            "x0": 308.8619384765625,
+            "y0": 703.4442138671875,
+            "x1": 545.1149291992188,
+            "y1": 713.4067993164062
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K05",
+      "topic": "MAE解码器位置嵌入",
+      "category": "architecture",
+      "question": "请核对解码器是否给完整token集合添加位置嵌入。",
+      "paper_anchor": {
+        "chunk_id": "p4_b1",
+        "page": 4,
+        "text": "ing patch to be predicted. We add positional embeddings to\nall tokens in this full set; without this, mask tokens would\nhave no information about their location in the image. The\ndecoder has another series of Transformer blocks.",
+        "quote": "We add positional embeddings to all tokens in this full set; without this, mask tokens would have no information about their location in the image.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 74.40748596191406,
+            "x1": 286.36505126953125,
+            "y1": 84.37008666992188
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 86.36250305175781,
+            "x1": 286.36505126953125,
+            "y1": 96.32510375976562
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 98.31752014160156,
+            "x1": 286.3651428222656,
+            "y1": 108.28012084960938
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K06",
+      "topic": "MAE像素重建头",
+      "category": "architecture",
+      "question": "请核对重建头是否以线性投影输出每个patch的像素值向量。",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "The last layer of the decoder is a linear projection whose number of output channels equals the number of pixel values in a patch.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 263.58868408203125,
+            "x1": 286.36376953125,
+            "y1": 273.6422424316406
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 275.4581604003906,
+            "x1": 286.3597412109375,
+            "y1": 285.59722900390625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 287.5906066894531,
+            "x1": 286.3650817871094,
+            "y1": 297.55322265625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 299.54559326171875,
+            "x1": 286.36505126953125,
+            "y1": 309.5082092285156
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 311.5005798339844,
+            "x1": 286.3650207519531,
+            "y1": 321.46319580078125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 323.45556640625,
+            "x1": 286.3650207519531,
+            "y1": 333.4181823730469
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 335.4105529785156,
+            "x1": 286.36505126953125,
+            "y1": 345.3731689453125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 347.36553955078125,
+            "x1": 286.3650817871094,
+            "y1": 357.3281555175781
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K07",
+      "topic": "主线预训练重建损失",
+      "category": "training",
+      "question": "请核对重建目标是否为输入图像的像素值，并使用均方误差计算损失。",
+      "paper_anchor": {
+        "chunk_id": "p4_b3",
+        "page": 4,
+        "text": "Reconstruction target. Our MAE reconstructs the input\nby predicting the pixel values for each masked patch. Each\nelement in the decoder’s output is a vector of pixel values\nrepresenting a patch. The last layer of the decoder is a lin-\near projection whose number of output channels equals the\nnumber of pixel values in a patch. The decoder’s output is\nreshaped to form a reconstructed image. Our loss function\ncomputes the mean squared error (MSE) between the recon-\nstructed and original images in the pixel space. We compute\nthe loss only on masked patches, similar to BERT [14].1",
+        "quote": "Our loss function computes the mean squared error (MSE) between the reconstructed and original images in the pixel space.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 50.11199951171875,
+            "y0": 263.58868408203125,
+            "x1": 286.36376953125,
+            "y1": 273.6422424316406
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 275.4581604003906,
+            "x1": 286.3597412109375,
+            "y1": 285.59722900390625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 287.5906066894531,
+            "x1": 286.3650817871094,
+            "y1": 297.55322265625
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 299.54559326171875,
+            "x1": 286.36505126953125,
+            "y1": 309.5082092285156
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 311.5005798339844,
+            "x1": 286.3650207519531,
+            "y1": 321.46319580078125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 323.45556640625,
+            "x1": 286.3650207519531,
+            "y1": 333.4181823730469
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 335.4105529785156,
+            "x1": 286.36505126953125,
+            "y1": 345.3731689453125
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 347.36553955078125,
+            "x1": 286.3650817871094,
+            "y1": 357.3281555175781
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 359.321533203125,
+            "x1": 286.3650817871094,
+            "y1": 369.2841491699219
+          },
+          {
+            "x0": 50.11199188232422,
+            "y0": 369.9272155761719,
+            "x1": 273.451904296875,
+            "y1": 381.2391357421875
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K08",
+      "topic": "主线预训练损失掩码区域",
+      "category": "training",
+      "question": "请核对重建损失是否仅在被遮挡patch上计算。",
+      "paper_anchor": {
+        "chunk_id": "p4_b6",
+        "page": 4,
+        "text": "1Computing the loss only on masked patches differs from traditional\ndenoising autoencoders [58] that compute the loss on all pixels.\nThis\nchoice is purely result-driven: computing the loss on all pixels leads to\na slight decrease in accuracy (e.g., ∼0.5%).",
+        "quote": "Computing the loss only on masked patches differs from traditional denoising autoencoders [58] that compute the loss on all pixels.",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 60.97100067138672,
+            "y0": 675.2606811523438,
+            "x1": 286.36151123046875,
+            "y1": 684.5316772460938
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 686.0265502929688,
+            "x1": 265.47998046875,
+            "y1": 693.9966430664062
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K09",
+      "topic": "主线解码器深度",
+      "category": "architecture",
+      "question": "请核对默认MAE解码器的Transformer block数量。",
+      "paper_anchor": {
+        "chunk_id": "p5_b19",
+        "page": 5,
+        "text": "Overall, our default MAE decoder is lightweight. It has\n8 blocks and a width of 512-d ( gray in Table 1). It only\nhas 9% FLOPs per token vs. ViT-L (24 blocks, 1024-d).\nAs such, while the decoder processes all tokens, it is still a\nsmall fraction of the overall compute.",
+        "quote": "It has 8 blocks and a width of 512-d ( gray in Table 1).",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.06700134277344,
+            "y0": 655.6242065429688,
+            "x1": 286.36492919921875,
+            "y1": 665.5867919921875
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 667.5784912109375,
+            "x1": 286.3634338378906,
+            "y1": 677.5418090820312
+          }
+        ]
+      },
+      "source": "planner"
+    },
+    {
+      "checkpoint_id": "K10",
+      "topic": "主线解码器宽度",
+      "category": "hyperparameter",
+      "question": "请核对主线MAE解码器的通道宽度是否符合论文设置。",
+      "paper_anchor": {
+        "chunk_id": "p5_b19",
+        "page": 5,
+        "text": "Overall, our default MAE decoder is lightweight. It has\n8 blocks and a width of 512-d ( gray in Table 1). It only\nhas 9% FLOPs per token vs. ViT-L (24 blocks, 1024-d).\nAs such, while the decoder processes all tokens, it is still a\nsmall fraction of the overall compute.",
+        "quote": "It has 8 blocks and a width of 512-d ( gray in Table 1).",
+        "locator": null,
+        "context_text": null,
+        "rects": [
+          {
+            "x0": 62.06700134277344,
+            "y0": 655.6242065429688,
+            "x1": 286.36492919921875,
+            "y1": 665.5867919921875
+          },
+          {
+            "x0": 50.11199951171875,
+            "y0": 667.5784912109375,
+            "x1": 286.3634338378906,
+            "y1": 677.5418090820312
+          }
+        ]
+      },
+      "source": "planner"
+    }
+  ],
+  "proposed": 10,
+  "rejected": 0,
+  "steps": [
+    {
+      "tool": "list_dir",
+      "arguments": {
+        "path": ""
+      },
+      "outcome": "列出 16 项",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "MAE approach masking strategy encoder decoder architecture reconstruction loss and implementation details"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "ImageNet pretraining hyperparameters optimizer learning rate schedule batch size epochs augmentations"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "fine-tuning and linear probing transfer learning hyperparameters settings"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "appendix implementation details optimizer weight decay warmup random masking decoder settings"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 3
+      },
+      "outcome": "读取第 3 页的 13 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 4
+      },
+      "outcome": "读取第 4 页的 32 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 5
+      },
+      "outcome": "读取第 5 页的 24 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 11
+      },
+      "outcome": "读取第 11 页的 20 个片段",
+      "ok": true
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 12
+      },
+      "outcome": "读取第 12 页的 22 个片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "default MAE pretraining model decoder dimension depth heads patch size loss normalized pixels masking ratio"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "pre-training ImageNet default epochs batch size AdamW learning rate weight decay random resized crop"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE预训练随机掩码"
+      },
+      "outcome": "ACCEPTED as K01 (1 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主线预训练掩码比例"
+      },
+      "outcome": "ACCEPTED as K02 (2 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE编码器输入"
+      },
+      "outcome": "ACCEPTED as K03 (3 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE解码器mask token"
+      },
+      "outcome": "ACCEPTED as K04 (4 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE解码器位置嵌入"
+      },
+      "outcome": "ACCEPTED as K05 (5 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "MAE像素重建头"
+      },
+      "outcome": "ACCEPTED as K06 (6 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主线预训练重建损失"
+      },
+      "outcome": "ACCEPTED as K07 (7 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主线预训练损失掩码区域"
+      },
+      "outcome": "ACCEPTED as K08 (8 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主线解码器深度"
+      },
+      "outcome": "ACCEPTED as K09 (9 in the plan).",
+      "ok": true
+    },
+    {
+      "tool": "propose_checkpoint",
+      "arguments": {
+        "topic": "主线解码器宽度"
+      },
+      "outcome": "ACCEPTED as K10 (10 in the plan).",
+      "ok": true
+    }
+  ],
+  "stop_reason": "request_limit",
+  "fallback": false,
+  "requests": 12,
+  "tokens": 162439,
+  "elapsed_seconds": 41.4,
+  "paper_hash": "e3f097816f0c8d77c8e8765850d3cddb05f32f6a258eb87940ba2742c9e47803",
+  "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b",
+  "target": 20,
+  "max_requests": 160
+}

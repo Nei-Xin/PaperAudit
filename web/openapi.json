@@ -229,6 +229,113 @@
         }
       }
     },
+    "/api/projects/{pid}/consistency-plans/{plan_id}": {
+      "get": {
+        "summary": "Consistency Plan",
+        "operationId": "consistency_plan_api_projects__pid__consistency_plans__plan_id__get",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsistencyPlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{pid}/consistency-plans/{plan_id}/execute": {
+      "post": {
+        "summary": "Execute Plan",
+        "description": "A person approves a stored plan: check the selected checkpoints and any questions they added.",
+        "operationId": "execute_plan_api_projects__pid__consistency_plans__plan_id__execute_post",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecuteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsistencyJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/projects/{pid}/consistency-jobs/{job_id}/retry": {
       "post": {
         "summary": "Retry Consistency",
@@ -2631,6 +2738,18 @@
             "type": "boolean",
             "title": "Deep Audit",
             "default": false
+          },
+          "consistency_max_requests": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Consistency Max Requests",
+            "default": 160
+          },
+          "consistency_concurrency": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Consistency Concurrency",
+            "default": 4
           }
         },
         "additionalProperties": false,
@@ -2640,7 +2759,9 @@
           "reasoning_effort",
           "retrieval_top_k",
           "judge_batch_size",
-          "deep_audit"
+          "deep_audit",
+          "consistency_max_requests",
+          "consistency_concurrency"
         ],
         "title": "AuditRuntimeSnapshot",
         "description": "Non-secret runtime settings retained for reproducibility."
@@ -3694,7 +3815,23 @@
             "title": "Question"
           },
           "paper_anchor": {
-            "$ref": "#/components/schemas/EvidenceAnchor"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceAnchor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "planner",
+              "user"
+            ],
+            "title": "Source",
+            "default": "planner"
           }
         },
         "additionalProperties": false,
@@ -3704,7 +3841,8 @@
           "topic",
           "category",
           "question",
-          "paper_anchor"
+          "paper_anchor",
+          "source"
         ],
         "title": "ConsistencyCheckpoint",
         "description": "One point the paper states that can be checked by reading the code."
@@ -3846,6 +3984,51 @@
               }
             ],
             "title": "Report Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "audit",
+              "plan",
+              "execute"
+            ],
+            "title": "Kind",
+            "default": "audit"
+          },
+          "planning_strategy": {
+            "type": "string",
+            "enum": [
+              "one-shot",
+              "agent"
+            ],
+            "title": "Planning Strategy",
+            "default": "agent"
+          },
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Id"
+          },
+          "selected_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Selected Ids"
+          },
+          "extra_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Extra Questions"
           }
         },
         "additionalProperties": false,
@@ -3863,10 +4046,138 @@
           "error",
           "runtime",
           "max_checkpoints",
-          "report_id"
+          "report_id",
+          "kind",
+          "planning_strategy",
+          "plan_id",
+          "selected_ids",
+          "extra_questions"
         ],
         "title": "ConsistencyJob",
         "description": "Persisted status for one background paper-code consistency audit."
+      },
+      "ConsistencyPlan": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version",
+            "default": 1
+          },
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id",
+            "default": ""
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "default": ""
+          },
+          "strategy": {
+            "type": "string",
+            "title": "Strategy"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "checkpoints": {
+            "items": {
+              "$ref": "#/components/schemas/ConsistencyCheckpoint"
+            },
+            "type": "array",
+            "title": "Checkpoints"
+          },
+          "proposed": {
+            "type": "integer",
+            "title": "Proposed",
+            "default": 0
+          },
+          "rejected": {
+            "type": "integer",
+            "title": "Rejected",
+            "default": 0
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/CodeInvestigationStep"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "stop_reason": {
+            "type": "string",
+            "title": "Stop Reason",
+            "default": ""
+          },
+          "fallback": {
+            "type": "boolean",
+            "title": "Fallback",
+            "default": false
+          },
+          "requests": {
+            "type": "integer",
+            "title": "Requests",
+            "default": 0
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens",
+            "default": 0
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds",
+            "default": 0
+          },
+          "paper_hash": {
+            "type": "string",
+            "title": "Paper Hash",
+            "default": ""
+          },
+          "code_hash": {
+            "type": "string",
+            "title": "Code Hash",
+            "default": ""
+          },
+          "target": {
+            "type": "integer",
+            "maximum": 40.0,
+            "minimum": 1.0,
+            "title": "Target",
+            "default": 20
+          },
+          "max_requests": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Max Requests",
+            "default": 160
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "plan_id",
+          "created_at",
+          "strategy",
+          "model",
+          "checkpoints",
+          "proposed",
+          "rejected",
+          "steps",
+          "stop_reason",
+          "fallback",
+          "requests",
+          "tokens",
+          "elapsed_seconds",
+          "paper_hash",
+          "code_hash",
+          "target",
+          "max_requests"
+        ],
+        "title": "ConsistencyPlan",
+        "description": "Proposed checkpoints, stored so a person can choose what gets checked."
       },
       "ConsistencyReport": {
         "properties": {
@@ -3912,6 +4223,17 @@
           "summary": {
             "$ref": "#/components/schemas/ConsistencySummary"
           },
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Id"
+          },
           "planned": {
             "type": "integer",
             "title": "Planned"
@@ -3923,6 +4245,11 @@
           "plan_over_limit": {
             "type": "integer",
             "title": "Plan Over Limit",
+            "default": 0
+          },
+          "plan_unselected": {
+            "type": "integer",
+            "title": "Plan Unselected",
             "default": 0
           },
           "max_checkpoints": {
@@ -3970,9 +4297,11 @@
           "codebase_name",
           "items",
           "summary",
+          "plan_id",
           "planned",
           "plan_rejected",
           "plan_over_limit",
+          "plan_unselected",
           "max_checkpoints",
           "max_requests",
           "concurrency",
@@ -3997,6 +4326,24 @@
             "minimum": 1.0,
             "title": "Max Checkpoints",
             "default": 20
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "plan",
+              "audit"
+            ],
+            "title": "Mode",
+            "default": "audit"
+          },
+          "planning_strategy": {
+            "type": "string",
+            "enum": [
+              "one-shot",
+              "agent"
+            ],
+            "title": "Planning Strategy",
+            "default": "one-shot"
           }
         },
         "type": "object",
@@ -4374,6 +4721,33 @@
           "fabricated_evidence"
         ],
         "title": "EvidenceErrorType"
+      },
+      "ExecuteRequest": {
+        "properties": {
+          "privacy_ack": {
+            "type": "boolean",
+            "title": "Privacy Ack",
+            "default": false
+          },
+          "selected_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "title": "Selected Ids"
+          },
+          "extra_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Extra Questions"
+          }
+        },
+        "type": "object",
+        "title": "ExecuteRequest"
       },
       "ExplanationPoint": {
         "properties": {
