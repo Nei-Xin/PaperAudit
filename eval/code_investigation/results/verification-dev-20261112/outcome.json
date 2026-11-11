@@ -1,0 +1,211 @@
+{
+  "observations": 117,
+  "before_matches_reference": 97,
+  "after_matches_reference": 85,
+  "wrong_conclusive": 9,
+  "wrong_conclusive_withheld": 1,
+  "reference_matching_conclusive": 94,
+  "reference_matching_withheld": 12,
+  "semantic_rejections": 14,
+  "unreviewed_required": 0,
+  "baseline_requests": 696,
+  "verification_requests": 111,
+  "baseline_tokens": 2403111,
+  "verification_tokens": 173090,
+  "limitations": "Withholding a reference-matching answer is a false-positive proxy, not an independently adjudicated finding-level error. Unsupported details may justify withholding. Paired runs share the exact investigation, not two independently generated answers.",
+  "acceptance_requests": 9,
+  "acceptance_tokens": 11490,
+  "implementation_commit": "e3068129e712",
+  "experiment_release": "verifier-v1-54c4b3a5321a",
+  "acceptance": {
+    "wrong-consistent": {
+      "n": 3,
+      "statuses": {
+        "failed": 3
+      }
+    },
+    "correct-inconsistent": {
+      "n": 3,
+      "statuses": {
+        "passed": 3
+      }
+    },
+    "correct-consistent": {
+      "n": 3,
+      "statuses": {
+        "passed": 3
+      }
+    }
+  },
+  "by_repeat": {
+    "0": {
+      "n": 39,
+      "before_correct": 33,
+      "after_correct": 29,
+      "pending": 5
+    },
+    "1": {
+      "n": 39,
+      "before_correct": 31,
+      "after_correct": 26,
+      "pending": 6
+    },
+    "2": {
+      "n": 39,
+      "before_correct": 33,
+      "after_correct": 30,
+      "pending": 3
+    }
+  },
+  "before_predictions": {
+    "CONSISTENT": 64,
+    "INCONSISTENT": 38,
+    "MIXED": 8,
+    "NOT_LOCATED": 3,
+    "ABSTAIN": 1,
+    "PARTIAL": 1,
+    "ERROR": 2
+  },
+  "after_predictions": {
+    "CONSISTENT": 54,
+    "INCONSISTENT": 36,
+    "PENDING_REVIEW": 14,
+    "MIXED": 7,
+    "NOT_LOCATED": 3,
+    "ABSTAIN": 1,
+    "ERROR": 2
+  },
+  "total_requests_including_acceptance": 816,
+  "total_tokens_including_acceptance": 2587691,
+  "mean_verification_tokens_per_question": 1479.4,
+  "mean_verification_seconds_per_question": 3.3,
+  "pending_cases": [
+    {
+      "item": "gcn-dropoutx",
+      "repeat": 0,
+      "expected": "INCONSISTENT",
+      "before": "MIXED",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "mae-mask",
+      "repeat": 0,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "mae-maskx",
+      "repeat": 0,
+      "expected": "INCONSISTENT",
+      "before": "INCONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "lora-scaling",
+      "repeat": 0,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "lora-merge",
+      "repeat": 0,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "moco-m",
+      "repeat": 1,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "moco-k",
+      "repeat": 1,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "moco-shufflebn",
+      "repeat": 1,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "lora-b-init",
+      "repeat": 1,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "lora-merge",
+      "repeat": 1,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "lora-gpt3",
+      "repeat": 1,
+      "expected": "NOT_LOCATED",
+      "before": "PARTIAL",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "gcn-dropoutx",
+      "repeat": 2,
+      "expected": "INCONSISTENT",
+      "before": "INCONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "gcn-renorm",
+      "repeat": 2,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    },
+    {
+      "item": "mae-linprobe",
+      "repeat": 2,
+      "expected": "CONSISTENT",
+      "before": "CONSISTENT",
+      "after": "PENDING_REVIEW",
+      "rejected_findings": 1,
+      "unreviewed_findings": 0
+    }
+  ],
+  "label_matching_withheld_interpretation": "A proxy for false positives, not an independently reviewed count of correct findings rejected. See review-analysis.json."
+}

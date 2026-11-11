@@ -1,0 +1,18 @@
+{
+  "observations": 117,
+  "before_matches_reference": 97,
+  "after_matches_reference": 85,
+  "wrong_conclusive": 9,
+  "wrong_conclusive_withheld": 1,
+  "reference_matching_conclusive": 94,
+  "reference_matching_withheld": 12,
+  "semantic_rejections": 14,
+  "unreviewed_required": 0,
+  "baseline_requests": 696,
+  "verification_requests": 111,
+  "baseline_tokens": 2403111,
+  "verification_tokens": 173090,
+  "limitations": "Withholding a reference-matching answer is a false-positive proxy, not an independently adjudicated finding-level error. Unsupported details may justify withholding. Paired runs share the exact investigation, not two independently generated answers.",
+  "acceptance_requests": 9,
+  "acceptance_tokens": 11490
+}

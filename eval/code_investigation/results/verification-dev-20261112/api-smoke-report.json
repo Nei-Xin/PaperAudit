@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "report_id": "consistency-20261111T165247Z-843c97",
+  "created_at": "2026-11-11T16:52:47.997704+00:00",
+  "strategy_version": "consistency-orchestrator-v2-verified",
+  "model": "configured-model",
+  "paper_title": "Masked Autoencoders Are Scalable Vision Learners",
+  "codebase_name": "mae",
+  "items": [
+    {
+      "checkpoint": {
+        "checkpoint_id": "U01",
+        "topic": "请核对预训练默认 warmup epoch 数是否与论文一致，并注明引用支持的具",
+        "category": "other",
+        "question": "请核对预训练默认 warmup epoch 数是否与论文一致，并注明引用支持的具体设置。",
+        "paper_anchor": null,
+        "source": "user"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "请核对预训练默认 warmup epoch 数是否与论文一致，并注明引用支持的具体设置。",
+        "answer": "论文与代码一致：预训练 warmup 为 40 个 epoch。`main_pretrain.py` 默认值为 40，`PRETRAIN.md` 的预训练示例也显式设为 40；论文第 11 页配置表列出 warmup epochs 为 40。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p11_b10",
+            "page": 11,
+            "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+            "quote": "warmup epochs [20] 40",
+            "locator": null,
+            "context_text": null,
+            "rects": [
+              {
+                "x0": 338.2449951171875,
+                "y0": 130.30514526367188,
+                "x1": 395.49993896484375,
+                "y1": 137.27894592285156
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 130.30514526367188,
+                "x1": 453.21380615234375,
+                "y1": 137.27894592285156
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00039:L71-72",
+            "path": "main_pretrain.py",
+            "start_line": 71,
+            "end_line": 72,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+          },
+          {
+            "chunk_id": "c00018:L13-15",
+            "path": "PRETRAIN.md",
+            "start_line": 13,
+            "end_line": 15,
+            "symbol": "Pre-training MAE",
+            "text": "    --epochs 800 \\\n    --warmup_epochs 40 \\\n    --blr 1.5e-4 --weight_decay 0.05 \\"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "预训练默认 warmup epoch 数一致：论文配置为 40，代码 `main_pretrain.py` 默认值为 40，且 `PRETRAIN.md` 示例显式传入 40。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p11_b10",
+                "page": 11,
+                "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+                "quote": "warmup epochs [20] 40",
+                "locator": null,
+                "context_text": null,
+                "rects": [
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 130.30514526367188,
+                    "x1": 395.49993896484375,
+                    "y1": 137.27894592285156
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 130.30514526367188,
+                    "x1": 453.21380615234375,
+                    "y1": 137.27894592285156
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00039:L71-72",
+                "path": "main_pretrain.py",
+                "start_line": 71,
+                "end_line": 72,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+              },
+              {
+                "chunk_id": "c00018:L13-15",
+                "path": "PRETRAIN.md",
+                "start_line": 13,
+                "end_line": 15,
+                "symbol": "Pre-training MAE",
+                "text": "    --epochs 800 \\\n    --warmup_epochs 40 \\\n    --blr 1.5e-4 --weight_decay 0.05 \\"
+              }
+            ],
+            "verification": {
+              "status": "passed",
+              "required": true,
+              "reason": "论文配置值、代码命令行默认值和示例传入值均为 40，支持默认值一致的判断。",
+              "paper_statement": "论文配置表将 warmup epochs 列为 40。",
+              "code_statement": "main_pretrain.py 将 --warmup_epochs 的命令行默认值设为 40；PRETRAIN.md 示例也显式传入 --warmup_epochs 40。"
+            }
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v2-verified",
+          "model": "configured-model",
+          "max_requests": 12,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "list_dir",
+              "arguments": {
+                "path": ""
+              },
+              "outcome": "列出 16 项",
+              "ok": true
+            },
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "warmup_epochs"
+              },
+              "outcome": "匹配 7 行",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_pretrain.py",
+                "start_line": 60,
+                "end_line": 78
+              },
+              "outcome": "读取 main_pretrain.py L60–78",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "PRETRAIN.md",
+                "start_line": 1,
+                "end_line": 24
+              },
+              "outcome": "读取 PRETRAIN.md L1–24",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "pretraining learning rate warmup epochs number of warmup epochs 40"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            },
+            {
+              "tool": "verify_findings",
+              "arguments": {},
+              "outcome": "复核 1 条发现，0 条待人工核对。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 8,
+          "tokens": 20532,
+          "elapsed_seconds": 23.301,
+          "fallback": false
+        }
+      }
+    }
+  ],
+  "summary": {
+    "checkpoints": 1,
+    "checked": 1,
+    "not_checked": 0,
+    "failed": 0,
+    "unresolved": 0,
+    "consistent": 1,
+    "inconsistent": 0,
+    "partial": 0,
+    "not_located": 0,
+    "pending_review": 0
+  },
+  "plan_id": "consistency-plan-20261111T151914Z-a4916b",
+  "planned": 10,
+  "plan_rejected": 2,
+  "plan_over_limit": 0,
+  "plan_unselected": 8,
+  "max_checkpoints": 1,
+  "max_requests": 160,
+  "concurrency": 4,
+  "plan_requests": 12,
+  "requests": 20,
+  "tokens": 160679,
+  "elapsed_seconds": 65.1
+}

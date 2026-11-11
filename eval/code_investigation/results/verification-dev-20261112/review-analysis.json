@@ -1,0 +1,82 @@
+{
+  "assessor": "Codex implementation assistant; post-run qualitative inspection, not independent human adjudication",
+  "scope": "Representative diagnostics only. Does not replace the frozen metrics or assign a ground-truth label to every finding.",
+  "acceptance_note": "All three seeded wrong CONSISTENT findings were rejected. Only two of three explicitly recovered 40; the first said the value could not be determined. Six correct controls passed.",
+  "cases": [
+    {
+      "item": "lora-b-init",
+      "repeat": 1,
+      "finding_id": 0,
+      "classification": "clear_scope_error_in_review",
+      "reason": "Finding is explicitly about B. Both sources say B is zero-initialized, but reviewer rejects because A differs. This is a clear false-positive example in the assistant inspection."
+    },
+    {
+      "item": "mae-maskx",
+      "repeat": 0,
+      "finding_id": 0,
+      "classification": "suspected_overstrict_review",
+      "reason": "Paper excerpt explicitly says default masking ratio 75% in Table 1; reviewer says it does not establish a pretraining default. Scope correspondence should be independently checked, not inferred from label agreement alone."
+    },
+    {
+      "item": "lora-scaling",
+      "repeat": 0,
+      "finding_id": 0,
+      "classification": "suspected_overstrict_review",
+      "reason": "Formula alpha/r and code lora_alpha/r align, but reviewer rejects variable correspondence. The parameter definition was not cited, so independent assessment should distinguish a real evidence gap from overstrict naming requirements."
+    },
+    {
+      "item": "moco-m",
+      "repeat": 1,
+      "finding_id": 0,
+      "classification": "scope_or_evidence_boundary",
+      "reason": "Default 0.999 is explicit on both sides, but self.m wiring is not cited. Reviewer treats the broader default-to-formula connection as required; this is not a pure numeric mismatch."
+    },
+    {
+      "item": "gcn-dropoutx",
+      "repeat": 2,
+      "finding_id": 0,
+      "classification": "real_evidence_gap_despite_matching_reference",
+      "reason": "Finding claims code default 0.6 but cited lines only pass FLAGS.dropout to a feed dictionary. The default definition is absent."
+    },
+    {
+      "item": "gcn-renorm",
+      "repeat": 2,
+      "finding_id": 0,
+      "classification": "real_evidence_gap_despite_matching_reference",
+      "reason": "Paper chunk is truncated before the normalization equation; it only establishes added self-connections. Reviewer cannot recover the missing symmetric-normalization formula."
+    },
+    {
+      "item": "mae-linprobe",
+      "repeat": 2,
+      "finding_id": 0,
+      "classification": "real_evidence_gap_despite_matching_reference",
+      "reason": "Paper excerpt says to follow an earlier recipe and see Table 10, but neither Table 10 nor LARS appears in the cited evidence."
+    },
+    {
+      "item": "mae-mask",
+      "repeat": 0,
+      "finding_id": 0,
+      "classification": "real_evidence_gap_despite_matching_reference",
+      "reason": "The excerpt says 75% performs well, not that it is the default. The broader reference label is correct but the selected evidence is weaker."
+    },
+    {
+      "item": "lora-gpt3",
+      "repeat": 1,
+      "finding_id": 0,
+      "classification": "wrong_conclusive_verdict_withheld",
+      "reason": "A GPT-2 implementation note does not support PARTIAL implementation of GPT-3. Reviewer withheld the wrong definite claim without reclassifying it as NOT_LOCATED."
+    },
+    {
+      "item": "mae-warmupx",
+      "repeat": 2,
+      "finding_id": 0,
+      "classification": "missed_experimental_setting_error",
+      "reason": "Investigator cites p12_b1, a different experimental table with warmup=20, and calls it pretraining. The block lacks its caption. Reviewer repeats this unsupported setting and passes the wrong CONSISTENT judgment. This is distinct from reading [20] as the value in the pretraining table."
+    }
+  ],
+  "next_experiments": [
+    "Preserve table caption and experimental-setting identifiers alongside the cited block, with provenance.",
+    "Constrain each review to the finding's explicit comparison so adjacent A does not invalidate B.",
+    "Freeze new regression controls, then report both false-positive and missed-error rates without tuning on the full round."
+  ]
+}
