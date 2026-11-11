@@ -127,12 +127,6 @@ def default_settings_dir() -> Path:
     return Path.home() / ".paperaudit"
 
 
-def suggested_storage_root() -> Path:
-    documents = Path.home() / "Documents"
-    base = documents if documents.exists() else Path.home()
-    return base / "PaperAuditData"
-
-
 def _atomic_write(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path: Path | None = None
@@ -220,26 +214,6 @@ def save_storage_settings(
         },
     )
     return StorageSettings(storage_root=root)
-
-
-def choose_storage_directory(initial_directory: str | Path | None = None) -> Path | None:
-    """Open the native local folder chooser; callers should retain a text fallback."""
-    try:
-        import tkinter as tk
-        from tkinter import filedialog
-
-        root = tk.Tk()
-        root.withdraw()
-        root.attributes("-topmost", True)
-        selected = filedialog.askdirectory(
-            title="选择 PaperAudit 项目保存位置",
-            initialdir=str(initial_directory or suggested_storage_root().parent),
-            mustexist=False,
-        )
-        root.destroy()
-        return Path(selected) if selected else None
-    except Exception as exc:
-        raise StorageError(f"无法打开系统文件夹选择器：{exc}") from exc
 
 
 def _utc_now() -> str:

@@ -3,8 +3,6 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from io import BytesIO
 import json
-import subprocess
-import sys
 import time
 from zipfile import ZipFile
 
@@ -377,37 +375,6 @@ def test_lifespan_interrupts_all_four_kinds_without_model_calls(setup):
         assert client.get("/api/settings").json()["reasoning_effort"]==""
 
 
-def test_api_import_is_independent_of_streamlit():
-    result=subprocess.run([sys.executable,"-c",
-        "from paperaudit.api.main import create_app; import sys; assert 'streamlit' not in sys.modules; create_app().openapi()"],
-        capture_output=True,text=True)
-    assert result.returncode==0,result.stderr
-
-
-def test_streamlit_progress_uses_same_file_and_survives_new_session(setup):
-    from streamlit.testing.v1 import AppTest
-    options,_,store,pid,_=setup
-    store.save_peer_review(pid,report().model_copy(update={"run_id":"stable-run","generated_at":"2026-11-09"}))
-    source=f'''
-from paperaudit.storage import ProjectStore
-from paperaudit.ui.peer_review import render_peer_review
-store=ProjectStore({str(options["storage_root"])!r})
-pid={pid!r}
-render_peer_review(store.load_peer_review(pid),
-    load_progress=lambda:store.load_review_progress(pid),
-    on_save_progress=lambda value:store.save_review_progress(pid,value))
-'''
-    app=AppTest.from_string(source).run()
-    assert not app.exception
-    checkbox=next(c for c in app.checkbox if c.key.startswith("peer-review-action-done"))
-    checkbox.check().run()
-    assert not app.exception
-    assert store.load_review_progress(pid)["items"][0]["done"]
-    fresh=AppTest.from_string(source).run()
-    assert not fresh.exception
-    assert next(c for c in fresh.checkbox if c.key.startswith("peer-review-action-done")).value
-
-
 def test_legacy_history_default_id_stable_and_read_does_not_migrate_files(setup):
     options,_,store,pid,_=setup
     saved=store.load_learning_project(pid)
@@ -434,3 +401,26 @@ def test_first_answer_preserves_user_named_empty_conversation(setup, kind):
         cid = conversation["active_conversation_id"]
         assert client.post(base + "/" + kind, json={"question": "First question", "conversation_id": cid}).status_code == 200
     assert next(c for c in store.load_learning_project(pid).conversations if c.conversation_id == cid).title == "用户设置的主题"
+
+
+def test_storage_root_comes_from_environment_and_must_be_usable(tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+    from paperaudit.api.main import create_app
+    from paperaudit.storage import StorageError
+
+    SETTINGS = Settings(api_base="https://example.invalid/v1", api_key="test", model="fake")
+    monkeypatch.chdir(tmp_path)  # No .env here.
+    settings_dir = tmp_path / "settings"
+    monkeypatch.delenv("PAPERAUDIT_STORAGE_ROOT", raising=False)
+    with pytest.raises(RuntimeError, match="PAPERAUDIT_STORAGE_ROOT"):
+        with TestClient(create_app(settings_dir=settings_dir, settings=SETTINGS)):
+            pass
+    monkeypatch.setenv("PAPERAUDIT_STORAGE_ROOT", "relative/library")
+    with pytest.raises(StorageError):
+        with TestClient(create_app(settings_dir=settings_dir, settings=SETTINGS)):
+            pass
+    monkeypatch.setenv("PAPERAUDIT_STORAGE_ROOT", str(tmp_path / "library"))
+    with TestClient(create_app(settings_dir=settings_dir, settings=SETTINGS)) as client:
+        assert client.get("/api/projects").status_code == 200
+    assert (tmp_path / "library").is_dir()
+

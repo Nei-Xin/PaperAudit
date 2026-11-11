@@ -21,7 +21,7 @@ from paperaudit.evidence import refresh_evidence_anchors, refresh_learning_repor
 from paperaudit.models import EvidenceAnchor
 from paperaudit.reporting import render_learning_markdown, render_markdown
 from paperaudit.storage import ProjectStore, StorageError
-from paperaudit.ui.audit_view import selected_evidence
+from paperaudit.audit_view import selected_evidence
 
 
 JSON = "application/json; charset=utf-8"

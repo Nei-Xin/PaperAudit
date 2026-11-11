@@ -3,11 +3,13 @@ from __future__ import annotations
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import replace
 import json
+import os
 from pathlib import Path
 from threading import Lock
 from typing import Annotated, Literal
 from urllib.parse import urlsplit
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
@@ -25,7 +27,10 @@ from paperaudit.peer_review_rules import normalize_peer_review_weights
 from .project_routes import router as project_router, read_code_upload, selected_paper
 from .review_routes import router as review_router
 from paperaudit.service import AuditService
-from paperaudit.storage import AuditRecordMetadata, StorageError, load_storage_settings, default_settings_dir, _atomic_write_json
+from paperaudit.storage import (
+    AuditRecordMetadata, StorageError, _atomic_write_json, default_settings_dir, load_storage_settings,
+    validate_storage_root,
+)
 from paperaudit.workflows import require_model, submit_learning, retry_learning, create_project_from_upload, answer_paper_question
 from .schemas import (
     SettingsView, SettingsUpdate, ProjectSummary, ProjectDetail, ProjectCreated,
@@ -73,10 +78,16 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
         directory = settings_dir or default_settings_dir()
         root = storage_root
         if root is None:
+            load_dotenv()
+            requested = os.getenv("PAPERAUDIT_STORAGE_ROOT", "").strip()
             configured = load_storage_settings(directory)
-            if configured is None:
-                raise RuntimeError("未找到存储设置，请先配置 PAPERAUDIT_SETTINGS_DIR。")
-            root = configured.storage_root
+            if requested:
+                # The explicit setting wins and is validated (absolute, writable) on every start.
+                root = validate_storage_root(requested)
+            elif configured is not None:
+                root = configured.storage_root
+            else:
+                raise RuntimeError("未找到项目保存目录，请设置 PAPERAUDIT_STORAGE_ROOT（绝对路径）。")
         active_settings = settings or Settings.from_env()
         model_file = directory / "model.json"
         if model_file.exists():
@@ -342,7 +353,7 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
 
     @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], include_in_schema=False)
     def unavailable(path: str):
-        raise ApiProblem(404, "not_available", "此操作尚未接入，请继续使用旧版。")
+        raise ApiProblem(404, "not_available", "此操作尚不可用。")
 
     assets = (dist or Path(__file__).resolve().parents[3] / "web" / "dist").resolve()
 

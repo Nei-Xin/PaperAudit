@@ -11,7 +11,6 @@ from paperaudit.models import (
     ClaimJudgment, EvidenceCandidate, JudgmentBatch, PaperChunk, ParsedPaper,
 )
 from paperaudit.service import AuditService
-from paperaudit.ui.components import build_review_status_html
 from paperaudit.reporting import _render_review
 
 
@@ -230,7 +229,6 @@ def test_service_routes_conflicts_through_gate_and_persists_provenance(mode):
     assert audit.judgment_before_citation_review.label == AutoLabel.CONTRADICTED
     assert ClaimAudit.model_validate_json(audit.model_dump_json()) == audit
     if mode == 'repair_failure':
-        assert '未通过' in build_review_status_html(audit)
         assert '未通过' in '\n'.join(_render_review(audit))
 
 
@@ -288,9 +286,8 @@ def test_contradiction_quote_repair_runs_once_and_never_changes_verdict_target(r
     assert final.label == (AutoLabel.CONTRADICTED if repair_outcome == 'valid' else AutoLabel.ABSTAIN)
 
 
-def test_failed_schema_review_is_visible_in_ui_and_export():
+def test_failed_schema_review_is_visible_in_export():
     audit = ClaimAudit(claim=claim(), candidates=pool(),
                        judgment=apply_citation_review(judgment(), pool(), None),
                        judgment_before_citation_review=judgment())
-    assert '未获得有效' in build_review_status_html(audit)
     assert '未获得有效' in '\n'.join(_render_review(audit))

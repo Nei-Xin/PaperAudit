@@ -1,4 +1,4 @@
-"""UI-independent business workflows shared by Streamlit and the HTTP API."""
+"""Business workflows behind the HTTP API."""
 from __future__ import annotations
 
 from dataclasses import replace

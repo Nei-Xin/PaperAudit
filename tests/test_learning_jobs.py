@@ -16,7 +16,7 @@ from paperaudit.models import (
     AnswerStatus,
 )
 from paperaudit.storage import ProjectStore, make_conversation
-from paperaudit.ui.demo_data import get_demo_audit_run
+from demo_data import get_demo_audit_run
 
 
 def _settings() -> Settings:

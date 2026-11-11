@@ -37,7 +37,7 @@ from paperaudit.storage import (
     make_conversation,
     validate_storage_root,
 )
-from paperaudit.ui.demo_data import get_demo_audit_run
+from demo_data import get_demo_audit_run
 
 
 def test_concurrent_storage_validation_does_not_share_write_probe(tmp_path, monkeypatch):

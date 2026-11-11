@@ -1,4 +1,4 @@
-"""Peer review export without a dependency on Streamlit."""
+"""Peer review export as Markdown."""
 from paperaudit.models import (PeerReviewReport, PeerReviewVenue, IssueCategory, HumanReviewDecision, ReviewConcern, IssueSeverity)
 
 _DIMENSION_LABELS = {

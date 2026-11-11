@@ -33,7 +33,7 @@ from paperaudit.service import (
     peer_review_consistency_warnings,
     recalculate_peer_review,
 )
-from paperaudit.ui.peer_review import render_peer_review_markdown
+from paperaudit.review_reporting import render_peer_review_markdown
 from paperaudit.storage import ProjectStore
 
 

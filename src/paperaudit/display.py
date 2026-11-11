@@ -10,7 +10,6 @@ from paperaudit.models import (
     ClaimErrorType,
     EvidenceErrorType,
     Severity,
-    ParsedPaper,
 )
 
 
@@ -69,19 +68,3 @@ def evidence_error_name(value: EvidenceErrorType | None) -> str:
     return EVIDENCE_ERROR_NAMES.get(value, "无") if value is not None else "无"
 
 
-def recover_paper_title(paper: ParsedPaper) -> str:
-    """Use the first title block when stored PDF metadata is clearly truncated."""
-
-    title = " ".join(paper.title.split()).strip()
-    words = title.rstrip(" :;,-").casefold().split()
-    if not words or words[-1] not in {
-        "and", "as", "at", "by", "for", "from", "in", "of", "on", "or", "to", "with", "without"
-    }:
-        return title
-    for chunk in paper.chunks:
-        if chunk.page != 1:
-            continue
-        candidate = " ".join(chunk.content.split()).strip()
-        if candidate.casefold().startswith(title.casefold()) and len(candidate) > len(title):
-            return candidate[:240].strip()
-    return f"{title}…"

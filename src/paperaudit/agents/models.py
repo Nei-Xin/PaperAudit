@@ -118,16 +118,3 @@ class CodeInvestigationTrace(BaseModel):
     # True when the investigation did not produce the answer and the fixed
     # single-retrieval pipeline answered instead.
     fallback: bool = False
-
-
-CODE_STOP_LABELS = {
-    "answered": "结论已通过引用校验", "citations_rejected": "引用未通过本地校验",
-    "request_limit": "达到模型请求上限", "time_limit": "达到调查时间上限",
-    "invalid_model_response": "模型响应无效", "provider_error": "模型服务请求失败",
-}
-
-CODE_TOOL_LABELS = {
-    "list_dir": "查看目录", "grep_code": "全文查找", "search_code": "检索代码",
-    "find_symbol": "定位符号", "read_file": "读取文件", "search_paper": "检索论文", "grep_paper": "查找论文原文",
-    "read_page": "读取论文页", "submit_answer": "提交结论",
-}

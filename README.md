@@ -60,6 +60,7 @@ flowchart LR
 - Python 3.11+
 - 可用的 OpenAI 兼容模型 API 地址、密钥和模型名称
 - 推荐使用 `uv`
+- Node.js 18+（构建前端界面）
 
 ## 安装
 
@@ -81,17 +82,31 @@ cp .env.example .env
 HY3_API_BASE=https://your-hy3-api.example/v1
 HY3_API_KEY=your-local-key
 HY3_MODEL=hy3
+PAPERAUDIT_STORAGE_ROOT=/absolute/path/to/paperaudit-data
 ```
 
 `.env` 已加入 `.gitignore`，不得提交真实 API Key。
 
 ## 运行
 
+界面是 React 单页应用，由 FastAPI 后端一并提供。先构建前端（需要 Node.js 18+），再启动后端：
+
 ```shell
-uv run --locked streamlit run app.py
+cd web && npm ci && npm run build && cd ..
+uv run --locked uvicorn paperaudit.api.main:app --host 127.0.0.1 --port 8000
 ```
 
-启动后访问 [http://localhost:8501](http://localhost:8501)。首次打开会要求选择本地项目保存目录。`deploy/` 提供单进程 systemd 服务模板与存储兼容检查脚本。
+启动后访问 [http://127.0.0.1:8000](http://127.0.0.1:8000)。项目（论文、讲解、追问与审计记录）保存在 `.env` 中 `PAPERAUDIT_STORAGE_ROOT` 指定的目录，必须是绝对路径。
+
+服务没有登录机制，只应监听本机地址；需要远程访问时请通过 SSH 隧道等方式转发，不要直接暴露到公网。
+
+开发前端时可以让 Vite 代理到后端，修改后即时生效：
+
+```shell
+cd web && npm run dev
+```
+
+`deploy/` 提供 systemd 服务模板与存储兼容检查脚本。
 
 ## 测试
 

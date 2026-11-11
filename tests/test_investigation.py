@@ -358,23 +358,6 @@ def test_no_candidates_can_be_recovered_and_local_page_error_is_preserved():
     assert result.judgment.severity.value == "high"
 
 
-def test_investigation_panel_renders_evidence_and_outcome():
-    from streamlit.testing.v1 import AppTest
-
-    def render_panel():
-        import streamlit as st
-        from paperaudit.models import ClaimAudit
-        from paperaudit.ui.investigation import render_investigation
-        render_investigation(ClaimAudit.model_validate(st.session_state["fixture"]))
-
-    app = AppTest.from_function(render_panel)
-    app.session_state["fixture"] = run().model_dump(mode="json")
-    app.run()
-    assert not app.exception
-    assert any("Dataset A score is 90." in item.value for item in app.text)
-    assert any("新判断已通过引用校验" in item.value for item in app.markdown)
-
-
 @pytest.mark.parametrize("initial_error, latest_error, expected", [
     ("overgeneralization", "overgeneralization", AutoLabel.PARTIALLY_SUPPORTED),
     ("missing_condition", "missing_condition", AutoLabel.PARTIALLY_SUPPORTED),

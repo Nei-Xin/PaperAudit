@@ -17,8 +17,6 @@ from paperaudit.models import (
 from paperaudit.reporting import render_learning_markdown
 from paperaudit.service import (
     AuditService,
-    build_learning_logic_chain,
-    build_learning_page_context,
     refresh_learning_report_evidence,
 )
 
@@ -273,83 +271,6 @@ def test_learning_report_limits_key_points_and_suggested_pages() -> None:
     assert all(sum(point.key_point for point in section.points) <= 2 for section in report.sections)
     assert len(report.suggested_pages) == 5
     assert 2 in report.suggested_pages
-
-
-def test_page_context_and_questions_change_with_pdf_page() -> None:
-    sections = []
-    for section_type in LearningSectionType:
-        evidence_page = 2 if section_type == LearningSectionType.METHOD else 4
-        sections.append(
-            ReportSection(
-                section_type=section_type,
-                title=f"{section_type.value} title",
-                overview=f"{section_type.value} overview",
-                points=[
-                    ExplanationPoint(
-                        title=f"{section_type.value} point",
-                        explanation=f"{section_type.value} explanation",
-                        evidence=[
-                            EvidenceAnchor(
-                                chunk_id=f"p{evidence_page}_{section_type.value}",
-                                page=evidence_page,
-                                text="evidence",
-                            )
-                        ],
-                    )
-                ],
-            )
-        )
-    report = LearningReport(
-        paper_title="Test Paper",
-        one_sentence_summary="summary",
-        sections=sections,
-    )
-    paper = ParsedPaper(
-        title="Test Paper",
-        page_count=5,
-        chunks=[
-            PaperChunk(chunk_id="p1_h", page=1, content="1\nIntroduction"),
-            PaperChunk(chunk_id="p2_h", page=2, content="2\nMethodology"),
-            PaperChunk(chunk_id="p4_h", page=4, content="3\nExperiments"),
-        ],
-    )
-
-    method_context = build_learning_page_context(report, paper, 2)
-    experiment_context = build_learning_page_context(report, paper, 4)
-
-    assert method_context.paper_section == "§2 Methodology"
-    assert any(point.section_type == LearningSectionType.METHOD for point in method_context.points)
-    assert method_context.chunk_ids == ("p2_method",)
-    assert "第 2 页" in method_context.suggested_questions[0]
-    assert experiment_context.paper_section == "§3 Experiments"
-    assert experiment_context.chunk_ids != method_context.chunk_ids
-    assert experiment_context.suggested_questions != method_context.suggested_questions
-
-
-def test_page_context_recognizes_numbered_heading_with_period() -> None:
-    report = make_report()
-    paper = ParsedPaper(
-        title="Heading formats",
-        page_count=3,
-        chunks=[
-            PaperChunk(chunk_id="p1_h", page=1, content="1. Introduction"),
-            PaperChunk(chunk_id="p2_h", page=2, content="2. Methodology"),
-            PaperChunk(chunk_id="p3_h", page=3, content="3. Experiments"),
-        ],
-    )
-
-    context = build_learning_page_context(report, paper, 2)
-
-    assert context.paper_section == "§2 Methodology"
-
-
-def test_logic_chain_contains_only_evidence_backed_nodes() -> None:
-    report = make_report()
-
-    nodes = build_learning_logic_chain(report)
-
-    assert [node.role for node in nodes] == ["问题", "作者方案", "验证证据"]
-    assert all(node.evidence for node in nodes)
 
 
 def test_key_point_requires_valid_evidence() -> None:

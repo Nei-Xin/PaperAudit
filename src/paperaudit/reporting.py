@@ -10,7 +10,7 @@ from paperaudit.display import (
 )
 from paperaudit.models import AuditRun, AutoLabel, ClaimAudit, LearningReport, Severity
 from paperaudit.agents.models import STOP_LABELS, TOOL_LABELS
-from paperaudit.ui.audit_view import citation_review_passed, normalize_evidence_display, selected_evidence
+from paperaudit.audit_view import citation_review_passed, normalize_evidence_display, selected_evidence
 
 
 _DIMENSION_LABELS = {

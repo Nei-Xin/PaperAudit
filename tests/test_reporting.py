@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from paperaudit.display import fully_supported_rate, label_counts, recover_paper_title
+from paperaudit.display import fully_supported_rate, label_counts
 from paperaudit.models import (
     AutoLabel,
     ClaimErrorType,
     EvidenceErrorType,
-    PaperChunk,
-    ParsedPaper,
     SkippedReportSource,
     CandidateGapReview,
     CitationReview,
 )
 from paperaudit.reporting import render_markdown
-from paperaudit.ui.demo_data import get_demo_audit_run
+from demo_data import get_demo_audit_run
 
 
 def _report_run():
@@ -76,22 +74,6 @@ def test_report_distinguishes_extraction_accounting_from_non_abstention_rate() -
     assert "不代表报告原文抽取完整率" in report
     assert "原文 7 句；其中 1 句" in report
     assert "第 1 行 · 标题或页码标记：# 标题" in report
-
-
-def test_existing_truncated_title_is_recovered_from_first_page_title_block() -> None:
-    paper = ParsedPaper(
-        title="MLLM-as-a-Judge for Image Safety without",
-        page_count=1,
-        chunks=[
-            PaperChunk(
-                chunk_id="p1_b14",
-                page=1,
-                content="MLLM-as-a-Judge for Image Safety without\nHuman Labeling",
-            )
-        ],
-    )
-
-    assert recover_paper_title(paper).endswith("without Human Labeling")
 
 
 def test_markdown_includes_recheck_provenance() -> None:

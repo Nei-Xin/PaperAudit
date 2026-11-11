@@ -12,7 +12,7 @@ from paperaudit.config import Settings
 from paperaudit.models import AuditRuntimeSnapshot, ClaimCategory
 from paperaudit.pdf_parser import parse_pdf
 from paperaudit.storage import ProjectStore
-from paperaudit.ui.demo_data import get_demo_audit_run
+from demo_data import get_demo_audit_run
 from test_api import FakeService, test_pdf
 
 

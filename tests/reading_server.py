@@ -30,7 +30,7 @@ class BrowserService(FakeService):
         return super().generate_learning_report(paper)
 
     def audit(self, paper, text, scope, *, mode, progress=None):
-        from paperaudit.ui.demo_data import get_demo_audit_run
+        from demo_data import get_demo_audit_run
         time.sleep(.7)
         count = self.attempts.get(text, 0) + 1
         self.attempts[text] = count

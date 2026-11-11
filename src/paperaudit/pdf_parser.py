@@ -102,38 +102,6 @@ def _choose_title(
     ) or "未命名论文"
 
 
-def extract_pdf_title(pdf_bytes: bytes) -> str | None:
-    """Re-derive a title from the first page, e.g. to repair saved projects."""
-
-    try:
-        document = fitz.open(stream=pdf_bytes, filetype="pdf")
-    except Exception:
-        return None
-    try:
-        if document.page_count == 0:
-            return None
-        lines: list[tuple[str, float]] = []
-        first_text = ""
-        for block in document[0].get_text("dict", sort=True).get("blocks", []):
-            if block.get("type") != 0:
-                continue
-            block_lines = []
-            for line in block.get("lines", []):
-                text = _normalize_text("".join(str(span.get("text", "")) for span in line.get("spans", [])))
-                if not text:
-                    continue
-                block_lines.append(text)
-                if _is_horizontal(line):
-                    lines.append((text, _line_font_size(line)))
-            block_text = _normalize_text("\n".join(block_lines))
-            if not first_text and len(block_text) >= 2:
-                first_text = block_text
-        title = _choose_title(document, lines, first_text)
-        return None if title == "未命名论文" else title
-    finally:
-        document.close()
-
-
 _TABLE_MARKER = re.compile(r"^\s*(?:table|tab\.|表)\s*\d+[A-Za-z]?\b", re.IGNORECASE)
 _FORMULA_MARKER = re.compile(
     r"(?:\s[=≈≤≥∑∏√∫∞±]|\b(?:arg\s*min|arg\s*max|softmax|sigmoid|"
