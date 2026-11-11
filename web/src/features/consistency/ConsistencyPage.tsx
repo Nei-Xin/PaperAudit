@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { READ_ONLY } from "@/api/client";
+import { TopBar } from "@/app/ProjectLayout";
 import {
   useConsistencyJobs,
   useConsistencyReport,
@@ -39,10 +40,22 @@ type Group =
   | "CONSISTENT";
 
 const GROUPS: { key: Group; title: string; hint: string }[] = [
-  { key: "INCONSISTENT", title: "不一致", hint: "论文与代码给出了不同的取值或做法" },
+  {
+    key: "INCONSISTENT",
+    title: "不一致",
+    hint: "论文与代码给出了不同的取值或做法",
+  },
   { key: "PARTIAL", title: "部分对应", hint: "代码只实现了论文描述的一部分" },
-  { key: "NOT_LOCATED", title: "未定位", hint: "本次调查没有在代码中找到，不代表仓库里一定没有" },
-  { key: "UNRESOLVED", title: "证据不足", hint: "调查完成，但证据不足以下结论" },
+  {
+    key: "NOT_LOCATED",
+    title: "未定位",
+    hint: "本次调查没有在代码中找到，不代表仓库里一定没有",
+  },
+  {
+    key: "UNRESOLVED",
+    title: "证据不足",
+    hint: "调查完成，但证据不足以下结论",
+  },
   { key: "SKIPPED", title: "未完成", hint: "达到请求上限或调查失败，没有结论" },
   { key: "CONSISTENT", title: "一致", hint: "论文与代码说的是同一件事" },
 ];
@@ -78,119 +91,125 @@ export function ConsistencyPage() {
   if (!project.data) return <Loading />;
   if (!hasCode)
     return (
-      <EmptyState title="还没有代码">
-        一致性审计会逐项核对论文中的做法与代码实现。请先在
-        <Link className="text-accent" to={`/p/${projectId}/read?view=code`}>
-          阅读页的“代码”标签
-        </Link>
-        上传源码 ZIP。
-      </EmptyState>
+      <div className="flex h-full min-h-0 min-w-0 flex-col">
+        <TopBar />
+        <EmptyState title="还没有代码">
+          一致性审计会逐项核对论文中的做法与代码实现。请先在
+          <Link className="text-accent" to={`/p/${projectId}/read?view=code`}>
+            阅读页的“代码”标签
+          </Link>
+          上传源码 ZIP。
+        </EmptyState>
+      </div>
     );
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-5xl flex-col gap-4 overflow-auto px-5 py-5">
-      <section className="rounded-card bg-card p-4 shadow-card">
-        <h2 className="text-[15px] font-semibold">论文与代码一致性审计</h2>
-        <p className="mt-1 text-sm leading-6 text-ink-3">
-          先从论文中列出可以通过阅读代码核对的要点，再为每个要点单独启动一次调查并行核对。每条结论都附带论文与代码的原文引用。
-        </p>
-        {active ? (
-          <div className="mt-3">
-            <Progress value={active.progress} label={active.stage} />
-          </div>
-        ) : (
-          <form
-            className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!READ_ONLY && ack && !start.isPending)
-                start.mutate({ privacy_ack: true, max_checkpoints: limit });
-            }}
-          >
-            <label className="flex items-center gap-2 text-ink-3">
-              最多核对
-              <select
-                className="rounded bg-page p-1"
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
+      <TopBar />
+      <div className="min-h-0 flex-1 overflow-auto">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-1 pb-6">
+          <section className="rounded-card bg-card p-4 shadow-card">
+            <h2 className="text-[15px] font-semibold">论文与代码一致性审计</h2>
+            <p className="mt-1 text-sm leading-6 text-ink-3">
+              先从论文中列出可以通过阅读代码核对的要点，再为每个要点单独启动一次调查并行核对。每条结论都附带论文与代码的原文引用。
+            </p>
+            {active ? (
+              <div className="mt-3">
+                <Progress value={active.progress} label={active.stage} />
+              </div>
+            ) : (
+              <form
+                className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!READ_ONLY && ack && !start.isPending)
+                    start.mutate({ privacy_ack: true, max_checkpoints: limit });
+                }}
               >
-                {[5, 10, 20, 30].map((n) => (
-                  <option key={n} value={n}>
-                    {n} 项
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex items-center gap-2 text-ink-3">
-              <input
-                type="checkbox"
-                checked={ack}
-                onChange={(e) => setAck(e.target.checked)}
-              />
-              我同意将论文与代码片段发送到已配置的模型服务。
-            </label>
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={READ_ONLY || !ack || start.isPending}
-            >
-              {finished.length ? "重新审计" : "开始审计"}
-            </button>
-            <span className="basis-full text-xs text-ink-4">
-              每个要点约需 4–8 次模型请求；整份审计有总请求上限，超出后剩余要点会标为未完成。
-            </span>
-            <MockNote />
-          </form>
-        )}
-        {start.error && (
-          <div className="mt-3">
-            <ErrorState error={start.error} />
-          </div>
-        )}
-        {!active &&
-          latest &&
-          (latest.status === "FAILED" || latest.status === "INTERRUPTED") && (
-            <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-bad-soft px-3 py-2 text-sm text-bad-text">
-              <span>
-                上一次审计未完成：{latest.error ?? latest.stage}
-              </span>
-              <button
-                type="button"
-                className="underline"
-                disabled={READ_ONLY || start.isPending}
-                onClick={() => start.mutate({ retry: latest.job_id })}
-              >
-                重试
-              </button>
-            </div>
-          )}
-        {finished.length > 1 && (
-          <label className="mt-3 flex items-center gap-2 text-xs text-ink-3">
-            查看历史结果
-            <select
-              className="rounded bg-page p-1"
-              value={reportId ?? ""}
-              onChange={(e) => setChosen(e.target.value)}
-            >
-              {finished.map((job) => (
-                <option key={job.job_id} value={job.report_id ?? ""}>
-                  {new Date(job.created_at).toLocaleString("zh-CN")}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-      </section>
+                <label className="flex items-center gap-2 text-ink-3">
+                  最多核对
+                  <select
+                    className="rounded bg-page p-1"
+                    value={limit}
+                    onChange={(e) => setLimit(Number(e.target.value))}
+                  >
+                    {[5, 10, 20, 30].map((n) => (
+                      <option key={n} value={n}>
+                        {n} 项
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-ink-3">
+                  <input
+                    type="checkbox"
+                    checked={ack}
+                    onChange={(e) => setAck(e.target.checked)}
+                  />
+                  我同意将论文与代码片段发送到已配置的模型服务。
+                </label>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={READ_ONLY || !ack || start.isPending}
+                >
+                  {finished.length ? "重新审计" : "开始审计"}
+                </button>
+                <span className="basis-full text-xs text-ink-4">
+                  每个要点约需 4–8
+                  次模型请求；整份审计有总请求上限，超出后剩余要点会标为未完成。
+                </span>
+                <MockNote />
+              </form>
+            )}
+            {start.error && (
+              <div className="mt-3">
+                <ErrorState error={start.error} />
+              </div>
+            )}
+            {!active &&
+              latest &&
+              (latest.status === "FAILED" ||
+                latest.status === "INTERRUPTED") && (
+                <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-bad-soft px-3 py-2 text-sm text-bad-text">
+                  <span>上一次审计未完成：{latest.error ?? latest.stage}</span>
+                  <button
+                    type="button"
+                    className="underline"
+                    disabled={READ_ONLY || start.isPending}
+                    onClick={() => start.mutate({ retry: latest.job_id })}
+                  >
+                    重试
+                  </button>
+                </div>
+              )}
+            {finished.length > 1 && (
+              <label className="mt-3 flex items-center gap-2 text-xs text-ink-3">
+                查看历史结果
+                <select
+                  className="rounded bg-page p-1"
+                  value={reportId ?? ""}
+                  onChange={(e) => setChosen(e.target.value)}
+                >
+                  {finished.map((job) => (
+                    <option key={job.job_id} value={job.report_id ?? ""}>
+                      {new Date(job.created_at).toLocaleString("zh-CN")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </section>
 
-      {jobs.error && <ErrorState error={jobs.error} />}
-      {report.error && <ErrorState error={report.error} />}
-      {reportId && report.isLoading && <Loading />}
-      {report.data && (
-        <Report projectId={projectId} report={report.data} />
-      )}
-      {!reportId && !active && jobs.data && (
-        <p className="px-1 text-sm text-ink-4">还没有审计结果。</p>
-      )}
+          {jobs.error && <ErrorState error={jobs.error} />}
+          {report.error && <ErrorState error={report.error} />}
+          {reportId && report.isLoading && <Loading />}
+          {report.data && <Report projectId={projectId} report={report.data} />}
+          {!reportId && !active && jobs.data && (
+            <p className="px-1 text-sm text-ink-4">还没有审计结果。</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -218,7 +237,7 @@ function Report({
       </p>
     );
   return (
-    <>
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
       <section className="rounded-card bg-card p-4 shadow-card">
         <div className="flex flex-wrap gap-2 text-sm">
           {GROUPS.map(({ key, title }) => {
@@ -235,8 +254,9 @@ function Report({
           })}
         </div>
         <p className="mt-3 text-xs leading-5 text-ink-4">
-          共 {s.checkpoints} 个要点，完成核对 {s.checked} 个；上方按要点计数，一个要点可包含多条发现（一致{" "}
-          {s.consistent} · 不一致 {s.inconsistent} · 部分对应 {s.partial} · 未定位{" "}
+          共 {s.checkpoints} 个要点，完成核对 {s.checked}{" "}
+          个；上方按要点计数，一个要点可包含多条发现（一致 {s.consistent} ·
+          不一致 {s.inconsistent} · 部分对应 {s.partial} · 未定位{" "}
           {s.not_located}）。规划提出 {report.planned} 个，剔除{" "}
           {report.plan_rejected} 个（引文不在论文中或重复），另有{" "}
           {report.plan_over_limit ?? 0} 个因超出上限未核对。用了{" "}
@@ -248,7 +268,11 @@ function Report({
         const items = grouped.get(key);
         if (!items?.length) return null;
         return (
-          <section key={key} id={`group-${key}`} className="flex flex-col gap-2">
+          <section
+            key={key}
+            id={`group-${key}`}
+            className="flex flex-col gap-2"
+          >
             <h3 className="px-1 text-sm font-semibold">
               {title} · {items.length}
               <span className="ml-2 font-normal text-ink-4">{hint}</span>
@@ -263,7 +287,7 @@ function Report({
           </section>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -276,7 +300,13 @@ const TONE: Record<Group, string> = {
   CONSISTENT: VERDICTS.CONSISTENT.tone,
 };
 
-function Item({ projectId, item }: { projectId: string; item: ConsistencyItem }) {
+function Item({
+  projectId,
+  item,
+}: {
+  projectId: string;
+  item: ConsistencyItem;
+}) {
   const { checkpoint, answer } = item;
   const anchor = checkpoint.paper_anchor;
   const findings = answer?.findings ?? [];
