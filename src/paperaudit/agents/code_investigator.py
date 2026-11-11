@@ -293,7 +293,11 @@ class CodeInvestigator:
                             tool="submit_answer", ok=False, outcome="结论格式无效，已要求重新提交。"))
                         reply(submission, "INVALID ARGUMENTS. Call submit_answer again with the documented "
                               "fields only.\n- " + "\n- ".join(problems))
-                    elif result is not None and not problems and not dropped:
+                    elif result is None:
+                        steps.append(CodeInvestigationStep(
+                            tool="submit_answer", ok=False, outcome="结论格式无效。"))
+                        stop = "invalid_model_response"
+                    elif not problems and not dropped:
                         steps.append(CodeInvestigationStep(tool="submit_answer", outcome="结论通过引用校验。"))
                         answer, stop = result, "answered"
                     elif not repaired:
@@ -305,10 +309,6 @@ class CodeInvestigator:
                         reply(submission, "REJECTED. Fix these and call submit_answer once more; this is "
                               "the only repair attempt. Do not invent quotes.\n- "
                               + "\n- ".join([*dropped, *problems]))
-                    elif result is None:
-                        steps.append(CodeInvestigationStep(
-                            tool="submit_answer", ok=False, outcome="结论格式无效。"))
-                        stop = "invalid_model_response"
                     else:
                         rejected = dropped
                         if problems:
