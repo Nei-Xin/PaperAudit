@@ -196,6 +196,25 @@ def test_second_rejection_fails_closed_instead_of_keeping_unsupported_relation()
     assert len(client.requests) == 3  # Exactly one repair attempt.
 
 
+def test_paper_quote_may_differ_from_the_pdf_only_in_typesetting():
+    typeset = ParsedPaper(title="Demo", page_count=2, chunks=[PaperChunk(
+        chunk_id="p2_b1", page=2,
+        content="For ﬁne-tuning we use 16 (number of hid- den units) and a drop-\nout rate of 0.5.")])
+    def run(quote):
+        client = ScriptedClient(
+            [call("grep_code", text="dropout: 0.3"), call("search_paper", query="hidden units")],
+            *[[submit(findings=[finding(paper=[{"chunk_id": "p2_b1", "quote": quote}])])]] * 2)
+        return CodeInvestigator(client, typeset, codebase(), "hy3").run("隐藏单元数一致吗？", AnswerScope.JOINT)
+
+    answer, trace = run("fine-tuning we use 16 (number of hidden units) and a dropout rate of 0.5")
+    assert answer.status == AnswerStatus.ANSWERED and not trace.first_rejections
+    assert answer.findings[0].paper_citations[0].quote.startswith("fine-tuning we use 16")
+    for changed in ("we use 32 (number of hidden units)", "number of visible units", "16 hidden units"):
+        answer, trace = run(changed)
+        assert answer.status == AnswerStatus.INSUFFICIENT_EVIDENCE and trace.stop_reason == "citations_rejected"
+        assert trace.first_rejections and "verbatim" in trace.first_rejections[0]
+
+
 def test_paper_chunk_that_was_never_read_cannot_be_cited():
     client = ScriptedClient(
         [call("grep_code", text="dropout: 0.3")],

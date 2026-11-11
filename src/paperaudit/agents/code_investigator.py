@@ -11,6 +11,7 @@ from collections.abc import Sequence
 import json
 import re
 from time import monotonic
+import unicodedata
 
 from openai import APIError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
@@ -169,6 +170,16 @@ def _collapse(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def _typeset(text: str) -> str:
+    """Text with PDF typesetting removed: ligatures unfolded, hyphens inside words dropped.
+
+    "hid- den" (a line break), "hidden" and "ﬁne-tuning"/"fine-tuning" compare
+    equal. Words, numbers and their order still have to match exactly.
+    """
+    text = _collapse(unicodedata.normalize("NFKC", text)).casefold()
+    return re.sub(r"(?<=\w)-\s?(?=\w)", "", text)
+
+
 class CodeInvestigator:
     MAX_TOOL_CALLS = 16
     MAX_CALLS_PER_TURN = 4
@@ -194,6 +205,7 @@ class CodeInvestigator:
         stop = ""
         tool_calls = 0
         nudged = repaired = told_to_finish = False
+        first_rejections: list[str] = []
         with use_request_budget(self.budget), CodeWorkspace(self.paper, self.codebase) as workspace:
             messages: list[dict[str, object]] = [
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -252,6 +264,7 @@ class CodeInvestigator:
                         steps.append(CodeInvestigationStep(
                             tool="submit_answer", ok=False,
                             outcome=f"{len(problems) + len(dropped)} 项未通过校验，已要求修正一次。"))
+                        first_rejections = [*dropped, *problems]
                         reply(submission, "REJECTED. Fix these and call submit_answer once more; this is "
                               "the only repair attempt. Do not invent quotes.\n- "
                               + "\n- ".join([*dropped, *problems]))
@@ -298,7 +311,7 @@ class CodeInvestigator:
         trace = CodeInvestigationTrace(
             model=self.model, max_requests=self.budget.max_requests, max_seconds=self.budget.max_seconds,
             max_tool_calls=self.MAX_TOOL_CALLS, steps=steps, stop_reason=stop,
-            rejected_citations=rejected, requests=self.budget.requests, tokens=self.budget.tokens,
+            rejected_citations=rejected, first_rejections=first_rejections, requests=self.budget.requests, tokens=self.budget.tokens,
             elapsed_seconds=round(monotonic() - self.budget.started, 3),
         )
         if answer is not None:
@@ -381,6 +394,10 @@ Codebase: {json.dumps(self.codebase.name, ensure_ascii=False)} ({len(self.codeba
         if chunk is None:
             return f"paper chunk {item.chunk_id}: not returned by a tool in this investigation"
         quote = _validated_evidence_quote(item.quote, chunk.content)
+        if quote is None and 8 <= len(_collapse(item.quote)) <= 320 and (
+                _typeset(item.quote) in _typeset(chunk.content)):
+            # Same words; only PDF typesetting differs (ligatures, line-break hyphens).
+            quote = _collapse(item.quote)
         if quote is None:
             return (f"paper chunk {item.chunk_id}: quote must be 8-320 characters "
                     "copied verbatim from that chunk")

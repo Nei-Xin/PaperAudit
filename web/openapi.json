@@ -3239,6 +3239,13 @@
             ],
             "title": "Stop Reason"
           },
+          "first_rejections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "First Rejections"
+          },
           "rejected_citations": {
             "items": {
               "type": "string"

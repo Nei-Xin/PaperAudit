@@ -108,6 +108,9 @@ class CodeInvestigationTrace(BaseModel):
     max_tool_calls: int
     steps: list[CodeInvestigationStep] = Field(default_factory=list)
     stop_reason: CodeStopReason
+    # What the first submission failed on, when the single repair was used.
+    first_rejections: list[str] = Field(default_factory=list)
+    # What was still removed after that repair.
     rejected_citations: list[str] = Field(default_factory=list)
     requests: int = 0
     tokens: int = 0

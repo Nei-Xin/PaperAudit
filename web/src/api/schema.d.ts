@@ -1063,6 +1063,8 @@ export interface components {
              * @enum {string}
              */
             stop_reason: "answered" | "citations_rejected" | "request_limit" | "time_limit" | "invalid_model_response" | "provider_error";
+            /** First Rejections */
+            first_rejections?: string[];
             /** Rejected Citations */
             rejected_citations?: string[];
             /**
