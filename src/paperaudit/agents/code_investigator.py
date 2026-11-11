@@ -215,9 +215,10 @@ class CodeInvestigator:
     MAX_CALLS_PER_TURN = 4
 
     def __init__(self, client: Hy3Client, paper: ParsedPaper, codebase: ParsedCodebase, model: str,
-                 *, budget: RequestBudget | None = None):
+                 *, budget: RequestBudget | None = None, verify_findings: bool = False):
         self.client, self.paper, self.codebase, self.model = client, paper, codebase, model
-        self.budget = budget or RequestBudget(max_requests=11, max_seconds=180)
+        self.verify_findings = verify_findings
+        self.budget = budget or RequestBudget(max_requests=12 if verify_findings else 11, max_seconds=180)
 
     def run(
         self,
@@ -244,9 +245,12 @@ class CodeInvestigator:
                     selected_paper_chunk_ids, selected_paper_text, selected_code)},
             ]
             while not stop:
+                if self.verify_findings and self.budget.requests >= self.budget.max_requests - 1:
+                    stop = "request_limit"
+                    break
                 # Keep the last requests for a conclusion, one format retry and one citation repair.
                 finishing = (tool_calls >= self.MAX_TOOL_CALLS
-                             or self.budget.requests >= self.budget.max_requests - 3)
+                             or self.budget.requests >= self.budget.max_requests - 3 - int(self.verify_findings))
                 if finishing and not told_to_finish:
                     told_to_finish = True
                     messages.append({"role": "user", "content":
@@ -345,7 +349,20 @@ class CodeInvestigator:
                     steps.append(CodeInvestigationStep(
                         tool=call.name[:60], arguments=arguments, outcome=outcome, ok=ok))
 
+        if self.verify_findings and answer is not None and answer.status == AnswerStatus.ANSWERED:
+            from .finding_verifier import verify_answer
+            with use_request_budget(self.budget):
+                answer = verify_answer(self.client, answer)
+            reviewed = [f for f in answer.findings if f.verification.required]
+            if reviewed:
+                pending = sum(f.needs_review for f in reviewed)
+                steps.append(CodeInvestigationStep(tool="verify_findings", ok=not pending,
+                    outcome=f"复核 {len(reviewed)} 条发现，{pending} 条待人工核对。"))
+                if pending:
+                    stop = "verification_pending"
+
         trace = CodeInvestigationTrace(
+            strategy_version="code-investigation-v2-verified" if self.verify_findings else "code-investigation-v1",
             model=self.model, max_requests=self.budget.max_requests, max_seconds=self.budget.max_seconds,
             max_tool_calls=self.MAX_TOOL_CALLS, steps=steps, stop_reason=stop,
             rejected_citations=rejected, first_rejections=first_rejections, requests=self.budget.requests, tokens=self.budget.tokens,

@@ -21,7 +21,7 @@ import {
   MockNote,
   Progress,
 } from "@/components/States";
-import { InvestigationTrace, VERDICTS } from "@/features/reader/investigation";
+import { FindingLabel, VerificationDetails, needsReview, InvestigationTrace, VERDICTS } from "@/features/reader/investigation";
 
 import { CATEGORY, ConsistencyPlanReview } from "./ConsistencyPlanReview";
 
@@ -29,11 +29,13 @@ type Group =
   | "INCONSISTENT"
   | "PARTIAL"
   | "NOT_LOCATED"
+  | "REVIEW"
   | "UNRESOLVED"
   | "SKIPPED"
   | "CONSISTENT";
 
 const GROUPS: { key: Group; title: string; hint: string }[] = [
+  { key: "REVIEW", title: "待核对", hint: "证据支持复核未通过或未完成，保留原判定供人工核对" },
   {
     key: "INCONSISTENT",
     title: "不一致",
@@ -60,6 +62,7 @@ function groupOf(item: ConsistencyItem): Group {
   const findings = item.answer.findings ?? [];
   if (item.answer.status !== "ANSWERED" || findings.length === 0)
     return "UNRESOLVED";
+  if (findings.some(needsReview)) return "REVIEW";
   for (const verdict of ["INCONSISTENT", "PARTIAL", "NOT_LOCATED"] as const)
     if (findings.some((f) => f.verdict === verdict)) return verdict;
   return "CONSISTENT";
@@ -279,7 +282,7 @@ function Report({
           共 {s.checkpoints} 个要点，完成核对 {s.checked}{" "}
           个；上方按要点计数，一个要点可包含多条发现（一致 {s.consistent} ·
           不一致 {s.inconsistent} · 部分对应 {s.partial} · 未定位{" "}
-          {s.not_located}）。规划提出 {report.planned} 个，剔除{" "}
+          {s.not_located} · 待核对 {s.pending_review ?? 0}）。规划提出 {report.planned} 个，剔除{" "}
           {report.plan_rejected} 个（引文不在论文中或重复），另有{" "}
           {report.plan_over_limit ?? 0} 个因数量上限未选入，{report.plan_unselected ?? 0} 个未选择。已选项中 {s.not_checked} 个因请求预算不足未执行。用了{" "}
           {report.requests} 次模型请求（上限 {report.max_requests}），耗时{" "}
@@ -317,6 +320,7 @@ const TONE: Record<Group, string> = {
   INCONSISTENT: VERDICTS.INCONSISTENT.tone,
   PARTIAL: VERDICTS.PARTIAL.tone,
   NOT_LOCATED: VERDICTS.NOT_LOCATED.tone,
+  REVIEW: "bg-warn-soft text-warn-text",
   UNRESOLVED: "bg-line-soft text-ink-3",
   SKIPPED: "bg-line-soft text-ink-3",
   CONSISTENT: VERDICTS.CONSISTENT.tone,
@@ -376,12 +380,9 @@ function Finding({
 }) {
   return (
     <li className="rounded-lg bg-page px-3 py-2 text-sm leading-6">
-      <span
-        className={`mr-2 rounded px-1.5 py-0.5 text-xs ${VERDICTS[finding.verdict].tone}`}
-      >
-        {VERDICTS[finding.verdict].label}
-      </span>
+      <FindingLabel finding={finding} />
       {finding.text}
+      <VerificationDetails finding={finding} />
       {(finding.paper_citations ?? []).map((a, k) => (
         <p key={`p${k}`} className="mt-1.5 text-xs leading-5 text-ink-3">
           <span className="text-ink-4">论文第 {a.page} 页：</span>

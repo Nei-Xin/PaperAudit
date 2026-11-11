@@ -41,6 +41,14 @@ class PlannedClient:
         active_budget.get().reserve()
         return ConsistencyPlanDraft(checkpoints=self.drafts)
 
+    def verify_findings(self, payload):
+        from paperaudit.agents.finding_verifier import VerificationBatch
+        active_budget.get().reserve()
+        with self.lock:
+            self.requests += 1
+        return VerificationBatch(results=[dict(finding_id=p["finding_id"], paper_statement="fixture",
+            code_statement="fixture", supports_verdict=True, reason="fixture") for p in payload])
+
     def tool_turn(self, messages, tools, *, force_tool=None) -> ToolTurn:
         active_budget.get().reserve()
         if any(t["function"]["name"] == "propose_checkpoint" for t in tools):
@@ -96,7 +104,7 @@ def test_each_checkpoint_gets_its_own_investigation_seeded_with_the_paper_passag
     assert set(client.first_messages) == {"dropout 和代码一致吗？", "层数 和代码一致吗？", "学习率 和代码一致吗？"}
     summary = report.summary
     assert (summary.checked, summary.inconsistent, summary.consistent, summary.unresolved) == (3, 1, 1, 1)
-    assert report.plan_requests == 1 and report.requests == 1 + 3 * 2 and report.planned == 3
+    assert report.plan_requests == 1 and report.requests == 1 + 3 * 2 + 2 and report.planned == 3
     assert ConsistencyReport.model_validate_json(report.model_dump_json()) == report
 
 

@@ -84,14 +84,24 @@ class BrowserService(FakeService):
                 for i, topic in enumerate(["训练配置", "评估设置"], 1)])
 
     def check_consistency(self, paper, codebase, checkpoints, plan, *, progress=None):
-        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary
+        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary, PaperCodeFinding, FindingVerification
+        from paperaudit.agents.consistency import summarize
         time.sleep(.4)
         if progress:
             progress("正在核对所选要点", .6)
+        items = []
+        for c in checkpoints:
+            answer = self.answer(paper, codebase, c.question)
+            pending = c.checkpoint_id == "K01"
+            finding = PaperCodeFinding(text="默认 warmup 配置一致。", verdict="CONSISTENT",
+                paper_citations=answer.paper_citations, code_citations=answer.code_citations,
+                verification=FindingVerification(status="failed" if pending else "passed", required=True,
+                    reason="论文为 40，代码为 20，不支持一致判定。" if pending else "证据支持该判定。",
+                    paper_statement="40 epochs", code_statement="20 epochs" if pending else "40 epochs"))
+            items.append(ConsistencyItem(checkpoint=c, status="checked",
+                answer=answer.model_copy(update={"findings": [finding]})))
         return ConsistencyReport(model="fake", paper_title=paper.title, codebase_name=codebase.name,
-            plan_id=plan.plan_id, items=[ConsistencyItem(checkpoint=c, status="checked",
-                answer=self.answer(paper, codebase, c.question)) for c in checkpoints],
-            summary=ConsistencySummary(checkpoints=len(checkpoints), checked=len(checkpoints), unresolved=len(checkpoints)),
+            plan_id=plan.plan_id, items=items, summary=summarize(items),
             planned=plan.proposed, plan_rejected=0,
             plan_unselected=len(plan.checkpoints) - sum(c.source == "planner" for c in checkpoints),
             max_checkpoints=len(checkpoints), max_requests=160, concurrency=4, plan_requests=2,

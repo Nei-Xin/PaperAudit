@@ -1,6 +1,6 @@
 // Shared presentation of paper-code investigation results: verdict labels and
 // the collapsible record of what an investigation did.
-import type { JointAnswer } from "@/api/types";
+import type { JointAnswer, PaperCodeFinding } from "@/api/types";
 
 export const VERDICTS: Record<
   NonNullable<JointAnswer["findings"]>[number]["verdict"],
@@ -24,10 +24,13 @@ const TOOL_LABELS: Record<string, string> = {
   submit_answer: "提交结论",
   propose_checkpoint: "提出核对要点",
   finish_plan: "完成规划",
+  continue_reading: "继续阅读",
+  verify_findings: "复核证据支持",
 };
 
 const STOP_LABELS: Record<string, string> = {
   answered: "结论已通过引用校验",
+  verification_pending: "部分发现待人工核对",
   citations_rejected: "引用未通过本地校验",
   request_limit: "达到模型请求上限",
   time_limit: "达到调查时间上限",
@@ -73,4 +76,29 @@ export function AgentSteps({ steps }: { steps: NonNullable<NonNullable<JointAnsw
           </li>
         ))}
       </ol>;
+}
+
+export function needsReview(finding: PaperCodeFinding): boolean {
+  const v = finding.verification;
+  return v?.status === "failed" || Boolean(v?.required && v.status !== "passed");
+}
+
+export function FindingLabel({ finding }: { finding: PaperCodeFinding }) {
+  const pending = needsReview(finding);
+  return <span className={`mr-2 rounded px-1.5 py-0.5 text-xs ${pending ? "bg-warn-soft text-warn-text" : VERDICTS[finding.verdict].tone}`}>
+    {pending ? "待核对" : VERDICTS[finding.verdict].label}
+  </span>;
+}
+
+export function VerificationDetails({ finding }: { finding: PaperCodeFinding }) {
+  const v = finding.verification;
+  if (finding.verdict === "NOT_LOCATED") return null;
+  if (!v || v.status === "not_reviewed" && !v.required)
+    return <p className="mt-1 text-xs text-ink-4">未进行证据支持复核。</p>;
+  return <details className="mt-1 text-xs text-ink-3" open={needsReview(finding)}>
+    <summary className="cursor-pointer">{v.status === "passed" ? "证据支持复核通过" : `待核对 · 原判定：${VERDICTS[finding.verdict].label}`}</summary>
+    <p className="mt-1">{v.reason}</p>
+    {v.paper_statement && <p>论文陈述：{v.paper_statement}</p>}
+    {v.code_statement && <p>代码陈述：{v.code_statement}</p>}
+  </details>;
 }

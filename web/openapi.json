@@ -3539,6 +3539,7 @@
             "enum": [
               "answered",
               "citations_rejected",
+              "verification_pending",
               "request_limit",
               "time_limit",
               "invalid_model_response",
@@ -4395,6 +4396,11 @@
             "type": "integer",
             "title": "Not Located",
             "default": 0
+          },
+          "pending_review": {
+            "type": "integer",
+            "title": "Pending Review",
+            "default": 0
           }
         },
         "additionalProperties": false,
@@ -4408,7 +4414,8 @@
           "consistent",
           "inconsistent",
           "partial",
-          "not_located"
+          "not_located",
+          "pending_review"
         ],
         "title": "ConsistencySummary"
       },
@@ -4791,6 +4798,50 @@
           "NOT_LOCATED"
         ],
         "title": "FindingVerdict"
+      },
+      "FindingVerification": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed",
+              "not_reviewed"
+            ],
+            "title": "Status",
+            "default": "not_reviewed"
+          },
+          "required": {
+            "type": "boolean",
+            "title": "Required",
+            "default": false
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "default": ""
+          },
+          "paper_statement": {
+            "type": "string",
+            "title": "Paper Statement",
+            "default": ""
+          },
+          "code_statement": {
+            "type": "string",
+            "title": "Code Statement",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "required",
+          "reason",
+          "paper_statement",
+          "code_statement"
+        ],
+        "title": "FindingVerification"
       },
       "HTTPValidationError": {
         "properties": {
@@ -5444,6 +5495,9 @@
             },
             "type": "array",
             "title": "Code Citations"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/FindingVerification"
           }
         },
         "additionalProperties": false,
@@ -5452,7 +5506,8 @@
           "text",
           "verdict",
           "paper_citations",
-          "code_citations"
+          "code_citations",
+          "verification"
         ],
         "title": "PaperCodeFinding",
         "description": "One checked statement about how the code relates to the paper."

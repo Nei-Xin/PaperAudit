@@ -51,6 +51,11 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole("heading", { name: "3. 核对报告" })).toBeVisible();
     await expect(page.getByText("补充问题：学习率如何调整？")).toBeVisible();
     await expect(page.getByText(/1 个未选择/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "待核对 1", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "一致 1", exact: true })).toBeVisible();
+    await expect(page.getByText("待核对 · 原判定：一致", { exact: true })).toBeVisible();
+    await expect(page.getByText("论文为 40，代码为 20，不支持一致判定。", { exact: true })).toBeVisible();
+    await expect(page.getByText("证据支持复核通过", { exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole("heading", { name: "3. 核对报告" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);

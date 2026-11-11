@@ -247,6 +247,7 @@ class CodeLearningService:
 
             investigated, trace = CodeInvestigator(
                 self.client, paper, codebase, self.settings.model,
+                verify_findings=self.settings.code_verification,
             ).run(normalized, scope, history, selected_paper_chunk_ids,
                   selected_paper_text, selected_code)
             if investigated is not None:

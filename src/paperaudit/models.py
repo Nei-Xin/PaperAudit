@@ -480,6 +480,14 @@ class FindingVerdict(str, Enum):
     NOT_LOCATED = "NOT_LOCATED"
 
 
+class FindingVerification(StrictModel):
+    status: Literal["passed", "failed", "not_reviewed"] = "not_reviewed"
+    required: bool = False
+    reason: str = ""
+    paper_statement: str = ""
+    code_statement: str = ""
+
+
 class PaperCodeFinding(StrictModel):
     """One checked statement about how the code relates to the paper."""
 
@@ -487,6 +495,12 @@ class PaperCodeFinding(StrictModel):
     verdict: FindingVerdict
     paper_citations: list[EvidenceAnchor] = Field(default_factory=list)
     code_citations: list[CodeCitation] = Field(default_factory=list)
+    verification: FindingVerification = Field(default_factory=FindingVerification)
+
+    @property
+    def needs_review(self) -> bool:
+        return self.verification.status == "failed" or (
+            self.verification.required and self.verification.status != "passed")
 
 
 class JointQuery(StrictModel):
@@ -856,6 +870,7 @@ class ConsistencySummary(StrictModel):
     inconsistent: int = 0
     partial: int = 0
     not_located: int = 0
+    pending_review: int = 0  # Findings withheld after failed or unavailable semantic verification.
 
 
 class ConsistencyReport(StrictModel):

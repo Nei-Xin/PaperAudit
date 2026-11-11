@@ -30,6 +30,7 @@ class Settings:
     judge_batch_size: int = 6
     deep_audit: bool = False
     code_agent: bool = False
+    code_verification: bool = False
     consistency_max_requests: int = 160
     consistency_concurrency: int = 4
 
@@ -49,6 +50,7 @@ class Settings:
             judge_batch_size=_int_env("PAPERAUDIT_JUDGE_BATCH_SIZE", 6),
             deep_audit=os.getenv("PAPERAUDIT_DEEP_AUDIT", "").strip().lower() in {"1", "true", "yes"},
             code_agent=os.getenv("PAPERAUDIT_CODE_AGENT", "").strip().lower() in {"1", "true", "yes"},
+            code_verification=os.getenv("PAPERAUDIT_CODE_VERIFICATION", "").strip().lower() in {"1", "true", "yes"},
             consistency_max_requests=_int_env("PAPERAUDIT_CONSISTENCY_MAX_REQUESTS", 160),
             consistency_concurrency=_int_env("PAPERAUDIT_CONSISTENCY_CONCURRENCY", 4),
         )

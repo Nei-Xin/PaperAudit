@@ -226,6 +226,33 @@ class Hy3Client:
             max_retries=0, timeout=min(self.settings.timeout_seconds, remaining),
         )
 
+    def verify_findings(self, payload: list[dict]):
+        """One isolated, tool-free request; no JSON repair or hidden retry."""
+        from .agents.finding_verifier import VerificationBatch, SYSTEM_PROMPT as verification_prompt
+
+        budget = active_budget.get()
+        client = self._budgeted_client(budget) if budget else self._client.with_options(max_retries=0)
+        effort = self.settings.reasoning_effort
+        response = client.chat.completions.create(
+            model=self.settings.model,
+            messages=[{"role": "system", "content": verification_prompt},
+                      {"role": "user", "content": json.dumps({"findings": payload}, ensure_ascii=False)
+                       + "\nReturn one JSON object matching this schema:\n"
+                       + json.dumps(VerificationBatch.model_json_schema(), ensure_ascii=False)}],
+            temperature=self.settings.temperature, top_p=self.settings.top_p,
+            extra_body={"chat_template_kwargs": {"reasoning_effort": effort}} if effort else None,
+            response_format={"type": "json_object"},
+        )
+        if budget is not None and response.usage is not None:
+            budget.tokens += response.usage.total_tokens
+        try:
+            content = response.choices[0].message.content
+            if not isinstance(content, str):
+                raise ValueError("Missing content")
+            return VerificationBatch.model_validate(_extract_json(content))
+        except (IndexError, ValueError, TypeError) as exc:
+            raise Hy3ResponseError("复核响应未通过结构校验。") from exc
+
     def tool_turn(self, messages: Sequence[dict[str, object]], tools: Sequence[dict[str, object]],
                   *, force_tool: str | None = None) -> ToolTurn:
         """Ask for the next step of a tool-calling conversation (native function calling)."""

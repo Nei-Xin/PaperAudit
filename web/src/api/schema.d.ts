@@ -1161,7 +1161,7 @@ export interface components {
              * Stop Reason
              * @enum {string}
              */
-            stop_reason: "answered" | "citations_rejected" | "request_limit" | "time_limit" | "invalid_model_response" | "provider_error";
+            stop_reason: "answered" | "citations_rejected" | "verification_pending" | "request_limit" | "time_limit" | "invalid_model_response" | "provider_error";
             /** First Rejections */
             first_rejections?: string[];
             /** Rejected Citations */
@@ -1564,6 +1564,11 @@ export interface components {
              * @default 0
              */
             not_located: number;
+            /**
+             * Pending Review
+             * @default 0
+             */
+            pending_review: number;
         };
         /** Conversation */
         Conversation: {
@@ -1686,6 +1691,35 @@ export interface components {
          * @enum {string}
          */
         FindingVerdict: "CONSISTENT" | "INCONSISTENT" | "PARTIAL" | "NOT_LOCATED";
+        /** FindingVerification */
+        FindingVerification: {
+            /**
+             * Status
+             * @default not_reviewed
+             * @enum {string}
+             */
+            status: "passed" | "failed" | "not_reviewed";
+            /**
+             * Required
+             * @default false
+             */
+            required: boolean;
+            /**
+             * Reason
+             * @default
+             */
+            reason: string;
+            /**
+             * Paper Statement
+             * @default
+             */
+            paper_statement: string;
+            /**
+             * Code Statement
+             * @default
+             */
+            code_statement: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1950,6 +1984,7 @@ export interface components {
             paper_citations: components["schemas"]["EvidenceAnchor"][];
             /** Code Citations */
             code_citations: components["schemas"]["CodeCitation"][];
+            verification: components["schemas"]["FindingVerification"];
         };
         /**
          * PaperCodeRelation

@@ -82,7 +82,7 @@ TOOL_LABELS = {
 
 
 CodeStopReason = Literal[
-    "answered", "citations_rejected", "request_limit", "time_limit",
+    "answered", "citations_rejected", "verification_pending", "request_limit", "time_limit",
     "invalid_model_response", "provider_error",
 ]
 

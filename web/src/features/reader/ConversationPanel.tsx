@@ -16,7 +16,7 @@ import type {
 import { EmptyState, ErrorState, Loading, MockNote } from "@/components/States";
 import { Modal } from "@/components/Modal";
 import { anchorLabel } from "@/lib/labels";
-import { InvestigationTrace, VERDICTS } from "./investigation";
+import { FindingLabel, VerificationDetails, InvestigationTrace } from "./investigation";
 
 export function QaView({
   projectId,
@@ -176,12 +176,9 @@ export function QaView({
                         key={n}
                         className="rounded-lg bg-page px-3 py-2 text-sm leading-6"
                       >
-                        <span
-                          className={`mr-2 rounded px-1.5 py-0.5 text-xs ${VERDICTS[f.verdict].tone}`}
-                        >
-                          {VERDICTS[f.verdict].label}
-                        </span>
+                        <FindingLabel finding={f} />
                         {f.text}
+                        <VerificationDetails finding={f} />
                         <div className="mt-1.5 flex flex-wrap gap-1.5">
                           {(f.paper_citations ?? []).map((a, k) => (
                             <button

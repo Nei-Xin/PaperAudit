@@ -50,7 +50,7 @@ STOP_NOTES = {
 
 
 class ConsistencyOrchestrator:
-    PER_ITEM_REQUESTS = 11
+    PER_ITEM_REQUESTS = 12
     PLAN_REQUESTS = 3  # One call plus the JSON repair, with a spare.
 
     def __init__(self, client: Hy3Client, model: str, *, max_checkpoints: int = 20,
@@ -143,7 +143,7 @@ class ConsistencyOrchestrator:
             try:
                 answer, trace = CodeInvestigator(
                     self.client, paper, codebase, self.model,
-                    budget=budget,
+                    budget=budget, verify_findings=True,
                 ).run(checkpoint.question, AnswerScope.JOINT,
                       selected_paper_chunk_ids=[anchor.chunk_id] if anchor else [],
                       selected_paper_text=anchor.quote if anchor else None)
@@ -171,6 +171,7 @@ class ConsistencyOrchestrator:
 
         items = [item for item in results if item is not None]
         return ConsistencyReport(
+            strategy_version="consistency-orchestrator-v2-verified",
             model=self.model, paper_title=paper.title, codebase_name=codebase.name,
             items=items, summary=summarize(items), plan_id=plan.plan_id or None, planned=plan.proposed,
             plan_rejected=plan.rejected,
@@ -221,7 +222,9 @@ def summarize(items: list[ConsistencyItem]) -> ConsistencySummary:
                 summary.unresolved += 1
                 continue
             for finding in item.answer.findings:
-                if finding.verdict == FindingVerdict.CONSISTENT:
+                if finding.needs_review:
+                    summary.pending_review += 1
+                elif finding.verdict == FindingVerdict.CONSISTENT:
                     summary.consistent += 1
                 elif finding.verdict == FindingVerdict.INCONSISTENT:
                     summary.inconsistent += 1

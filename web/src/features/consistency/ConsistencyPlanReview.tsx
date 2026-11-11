@@ -32,8 +32,8 @@ export function ConsistencyPlanReview({ projectId, plan, busy, onExecute }: {
   const disabled = busy || execute.isPending || READ_ONLY;
   const ceiling = plan.max_requests ?? 160;
   const spent = plan.requests ?? 0;
-  const estimated = spent + count * 6;
-  const estimatedCapacity = Math.max(0, Math.floor((ceiling - spent) / 6));
+  const estimated = spent + count * 7;
+  const estimatedCapacity = Math.max(0, Math.floor((ceiling - spent) / 7));
   return <section aria-label="审阅规划" className="rounded-card bg-card p-4 shadow-card">
     <h3 className="text-[15px] font-semibold">2. 审阅核对要点</h3>
     <p className="mt-1 text-sm leading-6 text-ink-3">选择需要核对的内容，确认后开始调查。共 {plan.checkpoints.length} 个可选要点。</p>
@@ -73,7 +73,7 @@ export function ConsistencyPlanReview({ projectId, plan, busy, onExecute }: {
       </label>
       <div className="rounded-lg bg-page p-3 text-sm leading-6" aria-live="polite">
         已选 {draft.selected.length} 项，补充 {extra.length} 项。预计共约 {estimated} 次模型请求（含规划 {spent} 次），本次上限 {ceiling} 次。
-        <p className="text-xs text-ink-4">按每项约 6 次估算，实际用量取决于调查过程；预算不足的项会保留为未完成。</p>
+        <p className="text-xs text-ink-4">按每项约 7 次估算（含一次证据支持复核），实际用量取决于调查过程；预算不足的项会保留为未完成。</p>
         {estimated > ceiling && <p className="text-warn-text">预计超出预算，按规划顺序靠后的约 {Math.max(0, count - estimatedCapacity)} 项可能无法完成；可减少选择。补充问题排在最后。</p>}
         {invalid && <p className="text-warn-text">请选择至少一项；合计最多 40 项，补充问题最多 10 个且每个不超过 300 字。</p>}
       </div>
