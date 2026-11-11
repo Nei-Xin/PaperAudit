@@ -366,32 +366,33 @@ export function AskBox({
           </div>
         )}
         {hasCode ? (
-          <label className="flex items-center gap-2 text-xs text-ink-3">
-            回答范围
-            <select
-              aria-label="回答范围"
-              className="min-w-0 rounded bg-page p-1"
-              value={scope}
-              onChange={(e) => setScope(e.target.value as AnswerScope)}
+          <div className="flex items-center gap-2 text-xs text-ink-3">
+            <label className="flex min-w-0 items-center gap-2">
+              回答范围
+              <select
+                className="min-w-0 rounded bg-page p-1"
+                value={scope}
+                onChange={(e) => setScope(e.target.value as AnswerScope)}
+              >
+                <option value="auto">自动判断</option>
+                <option value="paper">论文</option>
+                <option value="code">代码</option>
+                <option value="joint">论文与代码</option>
+              </select>
+            </label>
+            <label
+              className="ml-auto flex shrink-0 items-center gap-1.5"
+              title="多步查找并阅读代码与论文后再回答，耗时更长"
             >
-              <option value="auto">自动判断</option>
-              <option value="paper">论文</option>
-              <option value="code">代码</option>
-              <option value="joint">论文与代码</option>
-            </select>
-            <span className="ml-auto flex items-center gap-1.5">
               <input
-                id="investigate"
                 type="checkbox"
                 checked={scope !== "paper" && investigate}
                 disabled={scope === "paper"}
                 onChange={(e) => setInvestigate(e.target.checked)}
               />
-              <span title="多步查找并阅读代码与论文后再回答，耗时更长">
-                深度调查
-              </span>
-            </span>
-          </label>
+              深度调查
+            </label>
+          </div>
         ) : (
           <label className="flex gap-2 text-xs text-ink-3">
             <input
