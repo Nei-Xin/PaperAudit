@@ -237,7 +237,7 @@ function Report({
       </p>
     );
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col">
+    <div className="flex flex-col gap-4">
       <section className="rounded-card bg-card p-4 shadow-card">
         <div className="flex flex-wrap gap-2 text-sm">
           {GROUPS.map(({ key, title }) => {
