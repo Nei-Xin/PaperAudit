@@ -805,7 +805,8 @@ Rules:
 - Clearly separate what the paper describes, what the code implements, and any difference.
 - Preserve conditions, parameter values, and uncertainty.
 - Use one relation: IMPLEMENTS, CONFIGURES, EVALUATES, LOADS_DATA, DOCUMENTS,
-  PARTIAL_MATCH, or NOT_LOCATED.
+  PARTIAL_MATCH, MISMATCH, or NOT_LOCATED.
+- MISMATCH means the supplied paper text and code state different values or behavior.
 - NOT_LOCATED means only that the current candidates do not locate an implementation; it
   must not be phrased as proof that the repository has no implementation.
 - Paper citation IDs and code citation IDs may contain only supplied chunk_id values.
