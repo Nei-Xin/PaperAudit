@@ -55,6 +55,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{pid}/consistency-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consistency Jobs */
+        get: operations["consistency_jobs_api_projects__pid__consistency_jobs_get"];
+        put?: never;
+        /** Create Consistency */
+        post: operations["create_consistency_api_projects__pid__consistency_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/consistency-jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry Consistency */
+        post: operations["retry_consistency_api_projects__pid__consistency_jobs__job_id__retry_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/projects/{pid}/consistency-reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consistency Report */
+        get: operations["consistency_report_api_projects__pid__consistency_reports__report_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{pid}": {
         parameters: {
             query?: never;
@@ -1132,6 +1184,212 @@ export interface components {
             human_note?: string | null;
             severity_level?: components["schemas"]["IssueSeverity"] | null;
             category?: components["schemas"]["IssueCategory"] | null;
+        };
+        /**
+         * ConsistencyCategory
+         * @enum {string}
+         */
+        ConsistencyCategory: "hyperparameter" | "architecture" | "training" | "data" | "evaluation" | "other";
+        /**
+         * ConsistencyCheckpoint
+         * @description One point the paper states that can be checked by reading the code.
+         */
+        ConsistencyCheckpoint: {
+            /** Checkpoint Id */
+            checkpoint_id: string;
+            /** Topic */
+            topic: string;
+            category: components["schemas"]["ConsistencyCategory"];
+            /** Question */
+            question: string;
+            paper_anchor: components["schemas"]["EvidenceAnchor"];
+        };
+        /** ConsistencyItem */
+        ConsistencyItem: {
+            checkpoint: components["schemas"]["ConsistencyCheckpoint"];
+            status: components["schemas"]["ConsistencyItemStatus"];
+            /** Note */
+            note: string | null;
+            answer: components["schemas"]["JointAnswer"] | null;
+        };
+        /**
+         * ConsistencyItemStatus
+         * @enum {string}
+         */
+        ConsistencyItemStatus: "checked" | "not_checked" | "failed";
+        /**
+         * ConsistencyJob
+         * @description Persisted status for one background paper-code consistency audit.
+         */
+        ConsistencyJob: {
+            /**
+             * Schema Version
+             * @default 1
+             */
+            schema_version: number;
+            /** Job Id */
+            job_id: string;
+            /** Project Id */
+            project_id: string;
+            /** Created At */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Completed At */
+            completed_at: string | null;
+            /** @default QUEUED */
+            status: components["schemas"]["AuditJobStatus"];
+            /**
+             * Progress
+             * @default 0
+             */
+            progress: number;
+            /**
+             * Stage
+             * @default 等待执行
+             */
+            stage: string;
+            /** Error */
+            error: string | null;
+            runtime: components["schemas"]["AuditRuntimeSnapshot"];
+            /**
+             * Max Checkpoints
+             * @default 20
+             */
+            max_checkpoints: number;
+            /** Report Id */
+            report_id: string | null;
+        };
+        /**
+         * ConsistencyReport
+         * @description Result of checking every planned point of a paper against its code.
+         */
+        ConsistencyReport: {
+            /**
+             * Schema Version
+             * @default 1
+             */
+            schema_version: number;
+            /**
+             * Report Id
+             * @default
+             */
+            report_id: string;
+            /**
+             * Created At
+             * @default
+             */
+            created_at: string;
+            /**
+             * Strategy Version
+             * @default consistency-orchestrator-v1
+             */
+            strategy_version: string;
+            /** Model */
+            model: string;
+            /** Paper Title */
+            paper_title: string;
+            /** Codebase Name */
+            codebase_name: string;
+            /** Items */
+            items: components["schemas"]["ConsistencyItem"][];
+            summary: components["schemas"]["ConsistencySummary"];
+            /** Planned */
+            planned: number;
+            /** Plan Rejected */
+            plan_rejected: number;
+            /**
+             * Plan Over Limit
+             * @default 0
+             */
+            plan_over_limit: number;
+            /** Max Checkpoints */
+            max_checkpoints: number;
+            /** Max Requests */
+            max_requests: number;
+            /** Concurrency */
+            concurrency: number;
+            /**
+             * Plan Requests
+             * @default 0
+             */
+            plan_requests: number;
+            /**
+             * Requests
+             * @default 0
+             */
+            requests: number;
+            /**
+             * Tokens
+             * @default 0
+             */
+            tokens: number;
+            /**
+             * Elapsed Seconds
+             * @default 0
+             */
+            elapsed_seconds: number;
+        };
+        /** ConsistencyRequest */
+        ConsistencyRequest: {
+            /**
+             * Privacy Ack
+             * @default false
+             */
+            privacy_ack: boolean;
+            /**
+             * Max Checkpoints
+             * @default 20
+             */
+            max_checkpoints: number;
+        };
+        /** ConsistencySummary */
+        ConsistencySummary: {
+            /**
+             * Checkpoints
+             * @default 0
+             */
+            checkpoints: number;
+            /**
+             * Checked
+             * @default 0
+             */
+            checked: number;
+            /**
+             * Not Checked
+             * @default 0
+             */
+            not_checked: number;
+            /**
+             * Failed
+             * @default 0
+             */
+            failed: number;
+            /**
+             * Unresolved
+             * @default 0
+             */
+            unresolved: number;
+            /**
+             * Consistent
+             * @default 0
+             */
+            consistent: number;
+            /**
+             * Inconsistent
+             * @default 0
+             */
+            inconsistent: number;
+            /**
+             * Partial
+             * @default 0
+             */
+            partial: number;
+            /**
+             * Not Located
+             * @default 0
+             */
+            not_located: number;
         };
         /** Conversation */
         Conversation: {
@@ -2366,6 +2624,136 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consistency_jobs_api_projects__pid__consistency_jobs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsistencyJob"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_consistency_api_projects__pid__consistency_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsistencyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsistencyJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    retry_consistency_api_projects__pid__consistency_jobs__job_id__retry_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsistencyJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consistency_report_api_projects__pid__consistency_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pid: string;
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsistencyReport"];
                 };
             };
             /** @description Validation Error */

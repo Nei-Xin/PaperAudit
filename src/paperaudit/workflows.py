@@ -142,3 +142,12 @@ def compare_related_work(store, service, project_id, references, *, report=None)
     comparison = service.compare_related_work(paper, references)
     save_peer_review_edit(store, project_id, report.model_copy(update={"related_work_comparison": comparison}))
     return comparison
+
+
+def submit_consistency(store, manager, settings, project_id, max_checkpoints=20, *, runtime=None):
+    require_model(settings)
+    job = store.create_consistency_job(project_id, runtime=runtime or runtime_snapshot(settings),
+                                       max_checkpoints=max_checkpoints)
+    manager.submit(project_id, job.job_id, settings)
+    return job
+

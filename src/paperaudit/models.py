@@ -773,3 +773,101 @@ class PeerReviewRevisionJob(StrictModel):
     rubric_version: str = "general_ai_ml@1.0"
     rubric_weights: dict[str, float] = Field(default_factory=dict)
     revision_id: str | None = None
+
+
+class ConsistencyCategory(str, Enum):
+    HYPERPARAMETER = "hyperparameter"
+    ARCHITECTURE = "architecture"
+    TRAINING = "training"
+    DATA = "data"
+    EVALUATION = "evaluation"
+    OTHER = "other"
+
+
+class ConsistencyCheckpointDraft(StrictModel):
+    topic: str = Field(min_length=1, max_length=120)
+    category: ConsistencyCategory
+    chunk_id: str = Field(max_length=200)
+    quote: str = Field(min_length=1, max_length=600)
+    question: str = Field(min_length=1, max_length=300)
+
+
+class ConsistencyPlanDraft(StrictModel):
+    checkpoints: list[ConsistencyCheckpointDraft] = Field(default_factory=list, max_length=60)
+
+
+class ConsistencyCheckpoint(StrictModel):
+    """One point the paper states that can be checked by reading the code."""
+
+    checkpoint_id: str
+    topic: str
+    category: ConsistencyCategory
+    question: str
+    paper_anchor: EvidenceAnchor
+
+
+class ConsistencyItemStatus(str, Enum):
+    CHECKED = "checked"
+    NOT_CHECKED = "not_checked"  # The overall request budget ran out before this item started.
+    FAILED = "failed"            # The investigation ended without a conclusion.
+
+
+class ConsistencyItem(StrictModel):
+    checkpoint: ConsistencyCheckpoint
+    status: ConsistencyItemStatus
+    note: str | None = None
+    answer: JointAnswer | None = None
+
+
+class ConsistencySummary(StrictModel):
+    checkpoints: int = 0
+    checked: int = 0
+    not_checked: int = 0
+    failed: int = 0
+    unresolved: int = 0  # Checked, but the investigation reported insufficient evidence.
+    consistent: int = 0
+    inconsistent: int = 0
+    partial: int = 0
+    not_located: int = 0
+
+
+class ConsistencyReport(StrictModel):
+    """Result of checking every planned point of a paper against its code."""
+
+    schema_version: int = 1
+    report_id: str = ""
+    created_at: str = ""
+    strategy_version: str = "consistency-orchestrator-v1"
+    model: str
+    paper_title: str
+    codebase_name: str
+    items: list[ConsistencyItem]
+    summary: ConsistencySummary
+    planned: int            # Checkpoints the planner proposed.
+    plan_rejected: int      # Proposed checkpoints dropped: quote not in the paper, or a duplicate topic.
+    plan_over_limit: int = 0  # Valid proposals left out because max_checkpoints was reached.
+    max_checkpoints: int
+    max_requests: int
+    concurrency: int
+    plan_requests: int = 0
+    requests: int = 0       # All model requests, planning included.
+    tokens: int = 0
+    elapsed_seconds: float = 0
+
+
+class ConsistencyJob(StrictModel):
+    """Persisted status for one background paper-code consistency audit."""
+
+    schema_version: int = 1
+    job_id: str
+    project_id: str
+    created_at: str
+    started_at: str | None = None
+    completed_at: str | None = None
+    status: AuditJobStatus = AuditJobStatus.QUEUED
+    progress: float = Field(default=0.0, ge=0.0, le=1.0)
+    stage: str = "等待执行"
+    error: str | None = None
+    runtime: AuditRuntimeSnapshot
+    max_checkpoints: int = Field(default=20, ge=1, le=40)
+    report_id: str | None = None

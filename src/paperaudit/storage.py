@@ -19,6 +19,8 @@ from paperaudit.code_parser import CURRENT_CODE_INDEX_VERSION, rebuild_code_inde
 
 from paperaudit.models import (
     AuditJob,
+    ConsistencyJob,
+    ConsistencyReport,
     AuditJobStatus,
     AuditRun,
     AuditRuntimeSnapshot,
@@ -1391,6 +1393,90 @@ class ProjectStore:
                 self.update_learning_job(metadata.project_id, updated)
                 interrupted += 1
         return interrupted
+
+    @_serialized_write
+    def create_consistency_job(self, project_id: str, *, runtime: AuditRuntimeSnapshot | dict[str, Any],
+                               max_checkpoints: int = 20) -> ConsistencyJob:
+        if self.load_learning_project(project_id).codebase is None:
+            raise StorageError("请先上传代码 ZIP。")
+        if any(job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}
+               for job in self.list_consistency_jobs(project_id)):
+            raise StorageError("当前项目已有一致性审计正在执行。")
+        job = ConsistencyJob(
+            job_id=_record_id("consistency-job"), project_id=project_id,
+            created_at=datetime.now(timezone.utc).isoformat(),
+            runtime=AuditRuntimeSnapshot.model_validate(runtime), max_checkpoints=max_checkpoints,
+        )
+        jobs_dir = self._project_dir(project_id) / "consistency-jobs"
+        jobs_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write(jobs_dir / f"{job.job_id}.json", job.model_dump_json(indent=2).encode("utf-8"))
+        return job
+
+    def load_consistency_job(self, project_id: str, job_id: str) -> ConsistencyJob:
+        project_dir = self._require_project_dir(project_id)
+        _validate_record_id(job_id, "consistency-job", "一致性审计任务")
+        try:
+            job = ConsistencyJob.model_validate_json(
+                (project_dir / "consistency-jobs" / f"{job_id}.json").read_text(encoding="utf-8"))
+            if job.project_id != project_id or job.job_id != job_id:
+                raise ValueError("consistency job identity mismatch")
+        except (OSError, TypeError, ValueError) as exc:
+            raise StorageError("一致性审计任务不存在、已损坏或版本不受支持。") from exc
+        return job
+
+    def list_consistency_jobs(self, project_id: str) -> list[ConsistencyJob]:
+        jobs_dir = self._require_project_dir(project_id) / "consistency-jobs"
+        jobs: list[ConsistencyJob] = []
+        for job_path in jobs_dir.glob("consistency-job-*.json") if jobs_dir.exists() else ():
+            try:
+                job = ConsistencyJob.model_validate_json(job_path.read_text(encoding="utf-8"))
+                if job.project_id == project_id:
+                    jobs.append(job)
+            except (OSError, TypeError, ValueError):
+                continue
+        return sorted(jobs, key=lambda item: item.created_at, reverse=True)
+
+    def update_consistency_job(self, project_id: str, job: ConsistencyJob) -> None:
+        project_dir = self._require_project_dir(project_id)
+        _validate_record_id(job.job_id, "consistency-job", "一致性审计任务")
+        if job.project_id != project_id:
+            raise StorageError("一致性审计任务不属于当前项目。")
+        _atomic_write(project_dir / "consistency-jobs" / f"{job.job_id}.json",
+                      job.model_dump_json(indent=2).encode("utf-8"))
+
+    def mark_interrupted_consistency_jobs(self) -> int:
+        interrupted = 0
+        for metadata in self.list_projects():
+            for job in self.list_consistency_jobs(metadata.project_id):
+                if job.status in {AuditJobStatus.QUEUED, AuditJobStatus.RUNNING}:
+                    self.update_consistency_job(metadata.project_id, job.model_copy(update={
+                        "status": AuditJobStatus.INTERRUPTED, "completed_at": _utc_now(),
+                        "stage": "任务已中断", "error": "应用在一致性审计完成前退出，请重新发起。",
+                    }))
+                    interrupted += 1
+        return interrupted
+
+    @_serialized_write
+    def save_consistency_report(self, project_id: str, report: ConsistencyReport) -> ConsistencyReport:
+        saved = report.model_copy(update={
+            "report_id": _record_id("consistency"), "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+        reports_dir = self._require_project_dir(project_id) / "consistency"
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        _atomic_write(reports_dir / f"{saved.report_id}.json", saved.model_dump_json(indent=2).encode("utf-8"))
+        return saved
+
+    def load_consistency_report(self, project_id: str, report_id: str) -> ConsistencyReport:
+        project_dir = self._require_project_dir(project_id)
+        _validate_record_id(report_id, "consistency", "一致性审计报告")
+        try:
+            report = ConsistencyReport.model_validate_json(
+                (project_dir / "consistency" / f"{report_id}.json").read_text(encoding="utf-8"))
+            if report.report_id != report_id:
+                raise ValueError("consistency report identity mismatch")
+        except (OSError, TypeError, ValueError) as exc:
+            raise StorageError("一致性审计报告不存在、已损坏或版本不受支持。") from exc
+        return report
 
     @_serialized_write
     def create_peer_review_revision_job(

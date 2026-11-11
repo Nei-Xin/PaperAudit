@@ -12,6 +12,7 @@ from .models import (
     CodeCandidate,
     CodeCitation,
     CodeSelection,
+    ConsistencyReport,
     EvidenceAnchor,
     EvidenceCandidate,
     JointAnswer,
@@ -169,6 +170,17 @@ class CodeLearningService:
 
     def parse(self, zip_bytes: bytes, filename: str) -> ParsedCodebase:
         return parse_code_zip(zip_bytes, filename)
+
+    def audit_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase, *, max_checkpoints: int = 20,
+                          progress=None) -> ConsistencyReport:
+        """Plan the paper's checkable points and investigate each against the code."""
+        from .agents.consistency import ConsistencyOrchestrator
+
+        return ConsistencyOrchestrator(
+            self.client, self.settings.model, max_checkpoints=max_checkpoints,
+            max_requests=self.settings.consistency_max_requests,
+            concurrency=self.settings.consistency_concurrency,
+        ).run(paper, codebase, progress)
 
     def _retrieve_code(
         self,

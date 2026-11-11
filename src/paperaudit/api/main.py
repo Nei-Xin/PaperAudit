@@ -20,6 +20,8 @@ from paperaudit.hy3_client import Hy3ConfigurationError, Hy3ResponseError
 from paperaudit.learning_jobs import LearningJobManager
 from paperaudit.audit_jobs import AuditJobManager, default_audit_service
 from .audit_routes import router as audit_router, report_input, DEFAULT_SCOPE
+from .consistency_routes import router as consistency_router
+from paperaudit.consistency_jobs import ConsistencyJobManager
 from paperaudit.models import LearningReport, LearningJob, PaperAnswer, PeerReviewVenue, ClaimCategory
 from paperaudit.code_service import CodeLearningService
 from paperaudit.peer_review_jobs import PeerReviewJobManager, PeerReviewRevisionJobManager
@@ -99,6 +101,7 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
         app.state.audit_manager = AuditJobManager(api.store, service_factory=audit_service_factory or (default_audit_service if service_factory is AuditService else service_factory))
         app.state.review_manager = PeerReviewJobManager(api.store, service_factory=service_factory)
         app.state.revision_manager = PeerReviewRevisionJobManager(api.store, service_factory=service_factory)
+        app.state.consistency_manager = ConsistencyJobManager(api.store, service_factory=code_service_factory)
         app.state.service_factory = service_factory
         app.state.code_service_factory = code_service_factory
         app.state.model_file = model_file
@@ -111,9 +114,11 @@ def create_app(*, storage_root: Path | None = None, settings: Settings | None = 
             app.state.audit_manager.shutdown(wait=True)
             app.state.review_manager.shutdown(wait=True)
             app.state.revision_manager.shutdown(wait=True)
+            app.state.consistency_manager.shutdown(wait=True)
 
     app = FastAPI(title="PaperAudit API", version="0.4.0", lifespan=lifespan)
     app.include_router(audit_router)
+    app.include_router(consistency_router)
     app.include_router(project_router)
     app.include_router(review_router)
 

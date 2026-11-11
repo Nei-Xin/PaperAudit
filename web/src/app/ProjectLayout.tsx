@@ -43,7 +43,9 @@ export function TopBar({ actions }: { actions?: ReactNode }) {
     ? "审计"
     : pathname.endsWith("/review")
       ? "评审"
-      : "阅读";
+      : pathname.endsWith("/consistency")
+        ? "一致性"
+        : "阅读";
   useDocumentTitle(project.data?.title, view);
   const tabs = [
     { to: "read", label: "阅读" },
@@ -52,6 +54,8 @@ export function TopBar({ actions }: { actions?: ReactNode }) {
       to: "review",
       label: decision ? `评审 · ${DECISION_LABELS[decision].zh}` : "评审",
     },
+    // Comparing a paper with its code needs an uploaded codebase.
+    ...(project.data?.has_code ? [{ to: "consistency", label: "一致性" }] : []),
   ];
   return (
     <>

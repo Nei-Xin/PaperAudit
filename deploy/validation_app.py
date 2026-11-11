@@ -69,5 +69,12 @@ class ValidationCodeService(CodeLearningService):
                 budget.tokens += answer.investigation.tokens
             return answer
 
+    def audit_consistency(self, paper, codebase, **kwargs):
+        with meter("consistency") as budget:
+            report = super().audit_consistency(paper, codebase, **kwargs)
+            # Investigations run in worker threads under their own budgets.
+            budget.requests, budget.tokens = report.requests, report.tokens
+            return report
+
 
 app = create_app(service_factory=ValidationService, code_service_factory=ValidationCodeService)

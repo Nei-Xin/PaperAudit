@@ -10,6 +10,7 @@ import { Loading } from "@/components/States";
 // Project views pull in react-pdf / pdf.js: load them on demand so the home page stays small.
 const ReaderPage = lazy(() => import("@/features/reader/ReaderPage").then((m) => ({ default: m.ReaderPage })));
 const AuditPage = lazy(() => import("@/features/audit/AuditPage").then((m) => ({ default: m.AuditPage })));
+const ConsistencyPage = lazy(() => import("@/features/consistency/ConsistencyPage").then((m) => ({ default: m.ConsistencyPage })));
 const ReviewPage = lazy(() => import("@/features/review/ReviewPage").then((m) => ({ default: m.ReviewPage })));
 
 const view = (element: ReactNode) => <Suspense fallback={<Loading />}>{element}</Suspense>;
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
               { path: "read", element: view(<ReaderPage />) },
               { path: "audit/:auditId?", element: view(<AuditPage />) },
               { path: "review", element: view(<ReviewPage />) },
+              { path: "consistency", element: view(<ConsistencyPage />) },
             ],
           },
           { path: "*", element: <Navigate to="/" replace /> },

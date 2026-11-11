@@ -12,10 +12,10 @@ from typing import Any, Generic, TypeVar
 
 from paperaudit.config import Settings
 from paperaudit.models import (
-    AuditJob, AuditJobStatus, LearningJob, PeerReviewJob, PeerReviewRevisionJob,
+    AuditJob, AuditJobStatus, ConsistencyJob, LearningJob, PeerReviewJob, PeerReviewRevisionJob,
 )
 
-JobT = TypeVar("JobT", AuditJob, LearningJob, PeerReviewJob, PeerReviewRevisionJob)
+JobT = TypeVar("JobT", AuditJob, ConsistencyJob, LearningJob, PeerReviewJob, PeerReviewRevisionJob)
 logger = logging.getLogger(__name__)
 
 

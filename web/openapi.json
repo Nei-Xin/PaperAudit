@@ -139,6 +139,192 @@
         }
       }
     },
+    "/api/projects/{pid}/consistency-jobs": {
+      "post": {
+        "summary": "Create Consistency",
+        "operationId": "create_consistency_api_projects__pid__consistency_jobs_post",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsistencyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsistencyJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Consistency Jobs",
+        "operationId": "consistency_jobs_api_projects__pid__consistency_jobs_get",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConsistencyJob"
+                  },
+                  "title": "Response Consistency Jobs Api Projects  Pid  Consistency Jobs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{pid}/consistency-jobs/{job_id}/retry": {
+      "post": {
+        "summary": "Retry Consistency",
+        "operationId": "retry_consistency_api_projects__pid__consistency_jobs__job_id__retry_post",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsistencyJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/{pid}/consistency-reports/{report_id}": {
+      "get": {
+        "summary": "Consistency Report",
+        "operationId": "consistency_report_api_projects__pid__consistency_reports__report_id__get",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsistencyReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/projects/{pid}": {
       "patch": {
         "summary": "Rename Project",
@@ -3477,6 +3663,407 @@
           "expected_run_id"
         ],
         "title": "ConcernUpdate"
+      },
+      "ConsistencyCategory": {
+        "type": "string",
+        "enum": [
+          "hyperparameter",
+          "architecture",
+          "training",
+          "data",
+          "evaluation",
+          "other"
+        ],
+        "title": "ConsistencyCategory"
+      },
+      "ConsistencyCheckpoint": {
+        "properties": {
+          "checkpoint_id": {
+            "type": "string",
+            "title": "Checkpoint Id"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "category": {
+            "$ref": "#/components/schemas/ConsistencyCategory"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "paper_anchor": {
+            "$ref": "#/components/schemas/EvidenceAnchor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "checkpoint_id",
+          "topic",
+          "category",
+          "question",
+          "paper_anchor"
+        ],
+        "title": "ConsistencyCheckpoint",
+        "description": "One point the paper states that can be checked by reading the code."
+      },
+      "ConsistencyItem": {
+        "properties": {
+          "checkpoint": {
+            "$ref": "#/components/schemas/ConsistencyCheckpoint"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ConsistencyItemStatus"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "answer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JointAnswer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "checkpoint",
+          "status",
+          "note",
+          "answer"
+        ],
+        "title": "ConsistencyItem"
+      },
+      "ConsistencyItemStatus": {
+        "type": "string",
+        "enum": [
+          "checked",
+          "not_checked",
+          "failed"
+        ],
+        "title": "ConsistencyItemStatus"
+      },
+      "ConsistencyJob": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version",
+            "default": 1
+          },
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/AuditJobStatus",
+            "default": "QUEUED"
+          },
+          "progress": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Progress",
+            "default": 0.0
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage",
+            "default": "等待执行"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "runtime": {
+            "$ref": "#/components/schemas/AuditRuntimeSnapshot"
+          },
+          "max_checkpoints": {
+            "type": "integer",
+            "maximum": 40.0,
+            "minimum": 1.0,
+            "title": "Max Checkpoints",
+            "default": 20
+          },
+          "report_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "job_id",
+          "project_id",
+          "created_at",
+          "started_at",
+          "completed_at",
+          "status",
+          "progress",
+          "stage",
+          "error",
+          "runtime",
+          "max_checkpoints",
+          "report_id"
+        ],
+        "title": "ConsistencyJob",
+        "description": "Persisted status for one background paper-code consistency audit."
+      },
+      "ConsistencyReport": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "title": "Schema Version",
+            "default": 1
+          },
+          "report_id": {
+            "type": "string",
+            "title": "Report Id",
+            "default": ""
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "default": ""
+          },
+          "strategy_version": {
+            "type": "string",
+            "title": "Strategy Version",
+            "default": "consistency-orchestrator-v1"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "paper_title": {
+            "type": "string",
+            "title": "Paper Title"
+          },
+          "codebase_name": {
+            "type": "string",
+            "title": "Codebase Name"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ConsistencyItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ConsistencySummary"
+          },
+          "planned": {
+            "type": "integer",
+            "title": "Planned"
+          },
+          "plan_rejected": {
+            "type": "integer",
+            "title": "Plan Rejected"
+          },
+          "plan_over_limit": {
+            "type": "integer",
+            "title": "Plan Over Limit",
+            "default": 0
+          },
+          "max_checkpoints": {
+            "type": "integer",
+            "title": "Max Checkpoints"
+          },
+          "max_requests": {
+            "type": "integer",
+            "title": "Max Requests"
+          },
+          "concurrency": {
+            "type": "integer",
+            "title": "Concurrency"
+          },
+          "plan_requests": {
+            "type": "integer",
+            "title": "Plan Requests",
+            "default": 0
+          },
+          "requests": {
+            "type": "integer",
+            "title": "Requests",
+            "default": 0
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens",
+            "default": 0
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "report_id",
+          "created_at",
+          "strategy_version",
+          "model",
+          "paper_title",
+          "codebase_name",
+          "items",
+          "summary",
+          "planned",
+          "plan_rejected",
+          "plan_over_limit",
+          "max_checkpoints",
+          "max_requests",
+          "concurrency",
+          "plan_requests",
+          "requests",
+          "tokens",
+          "elapsed_seconds"
+        ],
+        "title": "ConsistencyReport",
+        "description": "Result of checking every planned point of a paper against its code."
+      },
+      "ConsistencyRequest": {
+        "properties": {
+          "privacy_ack": {
+            "type": "boolean",
+            "title": "Privacy Ack",
+            "default": false
+          },
+          "max_checkpoints": {
+            "type": "integer",
+            "maximum": 40.0,
+            "minimum": 1.0,
+            "title": "Max Checkpoints",
+            "default": 20
+          }
+        },
+        "type": "object",
+        "title": "ConsistencyRequest"
+      },
+      "ConsistencySummary": {
+        "properties": {
+          "checkpoints": {
+            "type": "integer",
+            "title": "Checkpoints",
+            "default": 0
+          },
+          "checked": {
+            "type": "integer",
+            "title": "Checked",
+            "default": 0
+          },
+          "not_checked": {
+            "type": "integer",
+            "title": "Not Checked",
+            "default": 0
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "default": 0
+          },
+          "unresolved": {
+            "type": "integer",
+            "title": "Unresolved",
+            "default": 0
+          },
+          "consistent": {
+            "type": "integer",
+            "title": "Consistent",
+            "default": 0
+          },
+          "inconsistent": {
+            "type": "integer",
+            "title": "Inconsistent",
+            "default": 0
+          },
+          "partial": {
+            "type": "integer",
+            "title": "Partial",
+            "default": 0
+          },
+          "not_located": {
+            "type": "integer",
+            "title": "Not Located",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "checkpoints",
+          "checked",
+          "not_checked",
+          "failed",
+          "unresolved",
+          "consistent",
+          "inconsistent",
+          "partial",
+          "not_located"
+        ],
+        "title": "ConsistencySummary"
       },
       "Conversation": {
         "properties": {
