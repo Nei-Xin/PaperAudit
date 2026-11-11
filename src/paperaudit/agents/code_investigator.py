@@ -16,7 +16,7 @@ import unicodedata
 from openai import APIError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from paperaudit.evidence import _quote_rects, _validated_evidence_quote
+from paperaudit.evidence import _quote_rects
 from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
 from paperaudit.models import (
     AnswerScope,
@@ -45,14 +45,14 @@ class CodeQuote(BaseModel):
     path: str = Field(max_length=500)
     start_line: int = Field(ge=1)
     end_line: int = Field(ge=1)
-    quote: str = Field(min_length=1, max_length=600)
+    quote: str = Field(min_length=1, max_length=6000)
 
 
 class PaperQuote(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     chunk_id: str = Field(max_length=200)
-    quote: str = Field(min_length=1, max_length=600)
+    quote: str = Field(min_length=1, max_length=3000)
 
 
 class SubmittedFinding(BaseModel):
@@ -84,12 +84,12 @@ def _citation_schemas(max_code: int, max_paper: int) -> dict:
                            "start_line": {"type": "integer", "minimum": 1},
                            "end_line": {"type": "integer", "minimum": 1},
                            "quote": {"type": "string",
-                                     "description": "Copied verbatim from the cited lines."}}}},
+                                     "description": "A short excerpt copied verbatim from the cited lines, without line numbers."}}}},
         "paper_citations": {"type": "array", "maxItems": max_paper, "items": {
             "type": "object", "additionalProperties": False, "required": ["chunk_id", "quote"],
-            "properties": {"chunk_id": {"type": "string"},
+            "properties": {"chunk_id": {"type": "string", "description": "Only the id, for example p4_b10."},
                            "quote": {"type": "string",
-                                     "description": "8-320 characters copied verbatim from that chunk."}}}},
+                                     "description": "One or two sentences copied verbatim from that chunk."}}}},
     }
 
 
@@ -122,7 +122,9 @@ SYSTEM_PROMPT = """You investigate how a research paper relates to its source co
 
 Method:
 - Work in small steps: locate (list_dir, grep_code, search_code, find_symbol), then read the
-  actual lines (read_file), then check what the paper states (search_paper, read_page).
+  actual lines (read_file), then check what the paper states (search_paper, grep_paper, read_page).
+- search_paper ranks by topic and can miss a short sentence that only states a value. When you
+  need a specific number, symbol or term from the paper, use grep_paper with that exact text.
 - Follow the code: when a function delegates to another, or a value comes from a configuration
   file or command-line default, read that too before concluding.
 - You may call several tools in one turn when the calls are independent.
@@ -131,8 +133,11 @@ Method:
 
 Evidence rules (enforced by the program, not by you):
 - Cite only code lines and paper chunks that a tool returned in this conversation.
-- Every quote must be copied verbatim from the cited lines or chunk. grep_code shows single
-  lines; read the surrounding lines before citing a wider range.
+- Every quote must be copied verbatim from the cited lines or chunk. Keep quotes short: the
+  one line or sentence that carries the point, not a whole function or paragraph. Do not
+  paraphrase, reformat numbers or include line numbers. grep_code shows single lines; read
+  the surrounding lines before citing a wider range.
+- A paper citation's chunk_id is only the id shown after "chunk_id=", for example p4_b10.
 - Each code citation covers at most 60 lines; prefer the few lines that carry the point.
 - If the user selected code, cite lines inside that selection.
 
@@ -170,14 +175,39 @@ def _collapse(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+_DASHES = str.maketrans({char: "-" for char in "\u2010\u2011\u2012\u2013\u2014\u2212"})
+
+
 def _typeset(text: str) -> str:
     """Text with PDF typesetting removed: ligatures unfolded, hyphens inside words dropped.
 
     "hid- den" (a line break), "hidden" and "ﬁne-tuning"/"fine-tuning" compare
-    equal. Words, numbers and their order still have to match exactly.
+    equal, as do the different dash and minus characters. Words, numbers and
+    their order still have to match exactly.
     """
-    text = _collapse(unicodedata.normalize("NFKC", text)).casefold()
+    text = _collapse(unicodedata.normalize("NFKC", text).translate(_DASHES)).casefold()
     return re.sub(r"(?<=\w)-\s?(?=\w)", "", text)
+
+
+def _fragments(quote: str) -> list[str]:
+    """Parts of a quotation around "..." elisions, without surrounding quote marks."""
+    parts = re.split(r"\s*(?:\.{3,}|\u2026)\s*", quote)
+    return [part for part in (_collapse(part).strip("\"'\u201c\u201d\u2018\u2019") for part in parts) if part]
+
+
+def _appears_in_order(fragments: list[str], source: str) -> bool:
+    position = 0
+    for fragment in fragments:
+        found = source.find(fragment, position)
+        if found < 0:
+            return False
+        position = found + len(fragment)
+    return True
+
+
+def _excerpt(text: str) -> str:
+    text = _collapse(text)
+    return repr(text if len(text) <= 90 else text[:87] + "...")
 
 
 class CodeInvestigator:
@@ -187,7 +217,7 @@ class CodeInvestigator:
     def __init__(self, client: Hy3Client, paper: ParsedPaper, codebase: ParsedCodebase, model: str,
                  *, budget: RequestBudget | None = None):
         self.client, self.paper, self.codebase, self.model = client, paper, codebase, model
-        self.budget = budget or RequestBudget(max_requests=10, max_seconds=180)
+        self.budget = budget or RequestBudget(max_requests=11, max_seconds=180)
 
     def run(
         self,
@@ -204,7 +234,7 @@ class CodeInvestigator:
         answer: JointAnswer | None = None
         stop = ""
         tool_calls = 0
-        nudged = repaired = told_to_finish = False
+        nudged = repaired = reformatted = told_to_finish = False
         first_rejections: list[str] = []
         with use_request_budget(self.budget), CodeWorkspace(self.paper, self.codebase) as workspace:
             messages: list[dict[str, object]] = [
@@ -214,9 +244,9 @@ class CodeInvestigator:
                     selected_paper_chunk_ids, selected_paper_text, selected_code)},
             ]
             while not stop:
-                # Keep the last requests for a conclusion and one citation repair.
+                # Keep the last requests for a conclusion, one format retry and one citation repair.
                 finishing = (tool_calls >= self.MAX_TOOL_CALLS
-                             or self.budget.requests >= self.budget.max_requests - 2)
+                             or self.budget.requests >= self.budget.max_requests - 3)
                 if finishing and not told_to_finish:
                     told_to_finish = True
                     messages.append({"role": "user", "content":
@@ -256,7 +286,14 @@ class CodeInvestigator:
                             reply(call, "Not executed: submit_answer ended this turn.")
                     result, problems, dropped = self._submit(
                         submission.arguments, workspace, question, scope, selected_code)
-                    if result is not None and not problems and not dropped:
+                    if result is None and not reformatted:
+                        # Malformed arguments are not a citation guess; they get their own retry.
+                        reformatted = True
+                        steps.append(CodeInvestigationStep(
+                            tool="submit_answer", ok=False, outcome="结论格式无效，已要求重新提交。"))
+                        reply(submission, "INVALID ARGUMENTS. Call submit_answer again with the documented "
+                              "fields only.\n- " + "\n- ".join(problems))
+                    elif result is not None and not problems and not dropped:
                         steps.append(CodeInvestigationStep(tool="submit_answer", outcome="结论通过引用校验。"))
                         answer, stop = result, "answered"
                     elif not repaired:
@@ -374,8 +411,11 @@ Codebase: {json.dumps(self.codebase.name, ensure_ascii=False)} ({len(self.codeba
         if not set(range(item.start_line, item.end_line + 1)) <= workspace.observed_lines.get(path, set()):
             return f"{label}: some cited lines were never returned by a tool; read them first"
         text = "\n".join(lines[item.start_line - 1:item.end_line])
-        if len(_collapse(item.quote)) < 3 or _collapse(item.quote) not in _collapse(text):
-            return f"{label}: quote is not verbatim text from those lines"
+        # Tool output shows "  12| code"; a quote copied with that prefix is still the code.
+        quote = re.sub(r"(?m)^\s*\d+\|\s?", "", item.quote)
+        fragments = _fragments(quote)
+        if sum(map(len, fragments)) < 3 or not _appears_in_order(fragments, _collapse(text)):
+            return f"{label}: quote {_excerpt(item.quote)} is not verbatim text from those lines"
         owner = max(
             (chunk for chunk in self.codebase.chunks if chunk.path == path
              and chunk.start_line <= item.end_line and chunk.end_line >= item.start_line),
@@ -390,17 +430,19 @@ Codebase: {json.dumps(self.codebase.name, ensure_ascii=False)} ({len(self.codeba
 
     @staticmethod
     def _paper_citation(item: PaperQuote, workspace: CodeWorkspace) -> EvidenceAnchor | str:
-        chunk = workspace.observed_chunks.get(item.chunk_id)
+        # Tool output prints "[chunk_id=p4_b10 | page 4]"; accept the id however it was copied.
+        chunk_id = re.split(r"[|\]\s]", item.chunk_id.strip().lstrip("[").removeprefix("chunk_id="), 1)[0]
+        chunk = workspace.observed_chunks.get(chunk_id)
         if chunk is None:
             return f"paper chunk {item.chunk_id}: not returned by a tool in this investigation"
-        quote = _validated_evidence_quote(item.quote, chunk.content)
-        if quote is None and 8 <= len(_collapse(item.quote)) <= 320 and (
-                _typeset(item.quote) in _typeset(chunk.content)):
-            # Same words; only PDF typesetting differs (ligatures, line-break hyphens).
-            quote = _collapse(item.quote)
-        if quote is None:
-            return (f"paper chunk {item.chunk_id}: quote must be 8-320 characters "
-                    "copied verbatim from that chunk")
+        fragments = _fragments(item.quote)
+        if sum(map(len, fragments)) < 8:
+            return f"paper chunk {chunk_id}: quote {_excerpt(item.quote)} is too short to identify a passage"
+        # Verbatim, or differing only in PDF typesetting (ligatures, line-break hyphens, dashes).
+        if not (_appears_in_order([part.casefold() for part in fragments], _collapse(chunk.content).casefold())
+                or _appears_in_order([_typeset(part) for part in fragments], _typeset(chunk.content))):
+            return f"paper chunk {chunk_id}: quote {_excerpt(item.quote)} is not verbatim text from that chunk"
+        quote = fragments[0][:320]
         return EvidenceAnchor(chunk_id=chunk.chunk_id, page=chunk.page, text=chunk.content,
                               quote=quote, rects=_quote_rects(chunk, quote))
 

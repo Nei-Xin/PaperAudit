@@ -215,6 +215,78 @@ def test_paper_quote_may_differ_from_the_pdf_only_in_typesetting():
         assert trace.first_rejections and "verbatim" in trace.first_rejections[0]
 
 
+@pytest.mark.parametrize("code_quote, paper_id, paper_quote", [
+    ("    2|   dropout: 0.3", "p2_b1", "dropout with a rate of 0.1"),            # copied with its line number
+    ("model: ... dropout: 0.3 ... layers: 6", "p2_b1", "We apply dropout ... each sub-layer"),  # elided
+    ("dropout: 0.3", "[chunk_id=p2_b1 | page 2]", "dropout with a rate of 0.1"),    # id copied with its header
+    ("dropout: 0.3", "p2_b1 | page 2", "“We apply dropout with a rate of 0.1 to the output of each sub-layer.”"),
+])
+def test_citations_are_accepted_however_the_verbatim_text_was_copied(code_quote, paper_id, paper_quote):
+    code = {"path": "configs/base.yaml", "start_line": 1, "end_line": 3, "quote": code_quote}
+    client = ScriptedClient(
+        [call("read_file", path="configs/base.yaml", start_line=1, end_line=3),
+         call("search_paper", query="dropout rate")],
+        [submit(findings=[finding(code=[code], paper=[{"chunk_id": paper_id, "quote": paper_quote}])])])
+    answer, trace = investigate(client)
+    assert answer.status == AnswerStatus.ANSWERED and not trace.first_rejections
+    assert answer.findings[0].paper_citations[0].chunk_id == "p2_b1"
+
+
+@pytest.mark.parametrize("code_quote, paper_quote", [
+    ("layers: 6 ... dropout: 0.3", "dropout with a rate of 0.1"),         # fragments out of order
+    ("dropout: ... 0.5", "dropout with a rate of 0.1"),                   # a fragment that is not there
+    ("dropout: 0.3", "dropout ... rate of 0.3"),
+    ("dropout: 0.3", "0.1"),                                              # too short to identify anything
+])
+def test_elided_quotes_still_have_to_be_the_source_text_in_order(code_quote, paper_quote):
+    code = {"path": "configs/base.yaml", "start_line": 1, "end_line": 3, "quote": code_quote}
+    bad = [submit(findings=[finding(code=[code], paper=[{"chunk_id": "p2_b1", "quote": paper_quote}])])]
+    client = ScriptedClient(
+        [call("read_file", path="configs/base.yaml", start_line=1, end_line=3),
+         call("search_paper", query="dropout rate")], bad, bad)
+    answer, trace = investigate(client)
+    assert answer.status == AnswerStatus.INSUFFICIENT_EVIDENCE and trace.stop_reason == "citations_rejected"
+    assert "quote '" in trace.first_rejections[0]  # The trace shows what was rejected.
+
+
+def test_long_verbatim_quotes_pass_and_the_stored_paper_quote_is_bounded():
+    long_paper = ParsedPaper(title="Demo", page_count=2, chunks=[PaperChunk(
+        chunk_id="p2_b1", page=2, content=PAPER_TEXT + " " + "Further details follow. " * 30)])
+    client = ScriptedClient(
+        [call("read_file", path="src/model.py", start_line=1, end_line=10),
+         call("search_paper", query="dropout rate")],
+        [submit(findings=[finding(
+            code=[{"path": "src/model.py", "start_line": 1, "end_line": 10, "quote": MODEL_PY}],
+            paper=[{"chunk_id": "p2_b1", "quote": long_paper.chunks[0].content}])])])
+    answer, _ = CodeInvestigator(client, long_paper, codebase(), "hy3").run("dropout 一致吗？", AnswerScope.JOINT)
+    assert answer.status == AnswerStatus.ANSWERED and len(MODEL_PY) > 200
+    assert len(answer.findings[0].paper_citations[0].quote) == 320
+
+
+def test_malformed_submission_gets_its_own_retry_and_keeps_the_citation_repair():
+    wrong_quote = submit(findings=[finding(code=[{**YAML_QUOTE, "quote": "dropout: 0.9"}])])
+    client = ScriptedClient(
+        [call("grep_code", text="dropout: 0.3"), call("search_paper", query="dropout rate")],
+        [call("submit_answer", answer="x", status="ANSWERED", findings="x")],
+        [wrong_quote], [submit()])
+    answer, trace = investigate(client)
+    assert answer.status == AnswerStatus.ANSWERED and trace.stop_reason == "answered"
+    assert [s.outcome[:6] for s in trace.steps if s.tool == "submit_answer"] == ["结论格式无效", "3 项未通过", "结论通过引用"]
+    assert "INVALID ARGUMENTS" in client.tool_results(2)[-1]
+
+    again = [call("submit_answer", answer="x", status="ANSWERED", findings="x")]
+    answer, trace = investigate(ScriptedClient(again, again))
+    assert answer is None and trace.stop_reason == "invalid_model_response"
+
+
+def test_grep_paper_finds_a_short_sentence_that_only_states_a_value():
+    with CodeWorkspace(paper(), codebase()) as workspace:
+        text, outcome = workspace.run("grep_paper", {"text": "Eight  GPUs"})
+        assert "[chunk_id=p3_b1 | page 3]" in text and outcome == "匹配 1 个论文片段"
+        assert "p3_b1" in workspace.observed_chunks and "p2_b1" not in workspace.observed_chunks
+        assert "No passage contains" in workspace.run("grep_paper", {"text": "65536"})[0]
+
+
 def test_paper_chunk_that_was_never_read_cannot_be_cited():
     client = ScriptedClient(
         [call("grep_code", text="dropout: 0.3")],
@@ -287,7 +359,7 @@ def test_tool_errors_are_reported_to_the_model_without_ending_the_run():
 def test_tool_budget_forces_a_conclusion_with_only_the_submit_tool():
     client = ScriptedClient(*[[call("grep_code", text=f"dropout{i}")] for i in range(3)], [
         submit(**NO_ANSWER)])
-    answer, trace = investigate(client, budget=RequestBudget(max_requests=5, max_seconds=60))
+    answer, trace = investigate(client, budget=RequestBudget(max_requests=6, max_seconds=60))
     assert [r["force"] for r in client.requests] == [None, None, None, "submit_answer"]
     assert client.requests[-1]["tools"] == ["submit_answer"]
     assert "budget is used up" in client.requests[-1]["messages"][-1]["content"]

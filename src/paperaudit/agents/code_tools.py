@@ -49,6 +49,9 @@ TOOL_SPECS = [
               {"path": _STR, "start_line": _INT, "end_line": _INT}, ["path", "start_line", "end_line"]),
     _function("search_paper", "Ranked search over the paper text using a targeted English query. "
               "Returns passages with chunk_id and page.", {"query": _STR}, ["query"]),
+    _function("grep_paper", "Case-insensitive literal text search over the paper (not a regular expression). "
+              "Use it for an exact number, symbol or term such as '65536' or 'warm-up'. Returns the "
+              "passages that contain it.", {"text": _STR}, ["text"]),
     _function("read_page", "Read the parsed text blocks of one paper page.", {"page": _INT}, ["page"]),
 ]
 
@@ -82,7 +85,7 @@ class CodeWorkspace:
             "list_dir": self._list_dir, "grep_code": self._grep_code,
             "search_code": self._search_code, "find_symbol": self._find_symbol,
             "read_file": self._read_file, "search_paper": self._search_paper,
-            "read_page": self._read_page,
+            "grep_paper": self._grep_paper, "read_page": self._read_page,
         }
 
     def __enter__(self) -> "CodeWorkspace":
@@ -252,6 +255,18 @@ class CodeWorkspace:
         if not text:
             return "No passage matched. Try other terms or read_page.", "无匹配"
         return text, f"返回 {text.count('[chunk_id=')} 个论文片段"
+
+    def _grep_paper(self, arguments: dict) -> tuple[str, str]:
+        needle = " ".join(_string(arguments, "text", limit=200).casefold().split())
+        found = [chunk for chunk in self.paper.chunks
+                 if needle in " ".join(chunk.content.casefold().split())]
+        if not found:
+            return ("No passage contains that exact text. The PDF may spell it differently "
+                    "(symbols, line breaks); try a shorter fragment or search_paper."), "无匹配"
+        text = self._paper_blocks(found[:8])
+        if len(found) > text.count("[chunk_id="):
+            text += f"\n\n[{len(found)} passages match; only the first ones are shown. Use a longer text.]"
+        return text, f"匹配 {len(found)} 个论文片段"
 
     def _read_page(self, arguments: dict) -> tuple[str, str]:
         page = _integer(arguments, "page")

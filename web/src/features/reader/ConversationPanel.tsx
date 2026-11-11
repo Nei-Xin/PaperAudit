@@ -454,6 +454,7 @@ const TOOL_LABELS: Record<string, string> = {
   find_symbol: "定位符号",
   read_file: "读取文件",
   search_paper: "检索论文",
+  grep_paper: "查找论文原文",
   read_page: "读取论文页",
   submit_answer: "提交结论",
 };
