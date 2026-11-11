@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from contextlib import nullcontext
+from dataclasses import dataclass
 from collections import Counter
 from collections.abc import Sequence
 from typing import TypeVar
@@ -160,6 +161,22 @@ def _bounded_candidate_payload(
     return payload
 
 
+@dataclass(frozen=True)
+class ToolCall:
+    id: str
+    name: str
+    arguments: str
+
+
+@dataclass(frozen=True)
+class ToolTurn:
+    """One assistant turn of a tool-calling conversation."""
+
+    message: dict[str, object]  # Append unchanged to the running message list.
+    tool_calls: tuple[ToolCall, ...]
+    content: str
+
+
 class Hy3Client:
     def __init__(self, settings: Settings):
         if not settings.is_configured:
@@ -179,15 +196,7 @@ class Hy3Client:
         effort = reasoning_effort or self.settings.reasoning_effort
         extra_body = {"chat_template_kwargs": {"reasoning_effort": effort}} if effort else None
         budget = active_budget.get()
-        request_client = self._client
-        if budget is not None:
-            # Each wire request is counted, including JSON repairs. Disable SDK
-            # retries here so hidden retries cannot exceed this claim's budget.
-            remaining = budget.reserve()
-            request_client = self._client.with_options(
-                max_retries=0, timeout=min(self.settings.timeout_seconds, remaining),
-            )
-        response = request_client.chat.completions.create(
+        response = self._budgeted_client(budget).chat.completions.create(
             model=self.settings.model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -205,6 +214,51 @@ class Hy3Client:
             raise Hy3ResponseError("Hy3 API 返回了空内容。")
         self.raw_outputs.append(content)
         return content
+
+    def _budgeted_client(self, budget: RequestBudget | None) -> OpenAI:
+        if budget is None:
+            return self._client
+        # Each wire request is counted, including JSON repairs. Disable SDK
+        # retries here so hidden retries cannot exceed this claim's budget.
+        remaining = budget.reserve()
+        return self._client.with_options(
+            max_retries=0, timeout=min(self.settings.timeout_seconds, remaining),
+        )
+
+    def tool_turn(self, messages: Sequence[dict[str, object]], tools: Sequence[dict[str, object]],
+                  *, force_tool: str | None = None) -> ToolTurn:
+        """Ask for the next step of a tool-calling conversation (native function calling)."""
+        effort = self.settings.reasoning_effort
+        budget = active_budget.get()
+        response = self._budgeted_client(budget).chat.completions.create(
+            model=self.settings.model,
+            messages=list(messages),
+            tools=list(tools),
+            temperature=self.settings.temperature,
+            top_p=self.settings.top_p,
+            extra_body={"chat_template_kwargs": {"reasoning_effort": effort}} if effort else None,
+            **({"tool_choice": {"type": "function", "function": {"name": force_tool}}} if force_tool else {}),
+        )
+        if budget is not None and response.usage is not None:
+            budget.tokens += response.usage.total_tokens
+        if not response.choices:
+            raise Hy3ResponseError("Hy3 API 返回了空内容。")
+        reply = response.choices[0].message
+        calls = tuple(
+            ToolCall(id=call.id, name=call.function.name, arguments=call.function.arguments or "{}")
+            for call in reply.tool_calls or [] if call.type == "function"
+        )
+        content = reply.content if isinstance(reply.content, str) else ""
+        message: dict[str, object] = {"role": "assistant", "content": content or None}
+        if calls:
+            message["tool_calls"] = [
+                {"id": call.id, "type": "function",
+                 "function": {"name": call.name, "arguments": call.arguments}}
+                for call in calls
+            ]
+        elif not content.strip():
+            raise Hy3ResponseError("Hy3 API 返回了空内容。")
+        return ToolTurn(message=message, tool_calls=calls, content=content)
 
     def _json_call(
         self,

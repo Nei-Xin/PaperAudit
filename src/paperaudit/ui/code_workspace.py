@@ -44,6 +44,7 @@ _RELATION_LABELS = {
     "LOADS_DATA": "代码负责数据加载",
     "DOCUMENTS": "代码文档解释了论文内容",
     "PARTIAL_MATCH": "论文与代码部分对应",
+    "MISMATCH": "论文与代码不一致",
     "NOT_LOCATED": "当前候选中未定位到对应实现",
 }
 

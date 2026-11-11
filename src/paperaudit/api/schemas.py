@@ -157,6 +157,8 @@ class CodeQuestion(Input):
     scope: AnswerScope = AnswerScope.AUTO
     selection: PaperSelection | None = None
     selected_code: CodeSelection | None = None
+    # None uses the server default (PAPERAUDIT_CODE_AGENT).
+    investigate: bool | None = None
 
 
 class ReviewRequest(Input):

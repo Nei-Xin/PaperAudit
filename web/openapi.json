@@ -3168,6 +3168,117 @@
         ],
         "title": "CodeFile"
       },
+      "CodeInvestigationStep": {
+        "properties": {
+          "tool": {
+            "type": "string",
+            "title": "Tool"
+          },
+          "arguments": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Arguments"
+          },
+          "outcome": {
+            "type": "string",
+            "title": "Outcome"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tool",
+          "outcome"
+        ],
+        "title": "CodeInvestigationStep"
+      },
+      "CodeInvestigationTrace": {
+        "properties": {
+          "strategy_version": {
+            "type": "string",
+            "title": "Strategy Version",
+            "default": "code-investigation-v1"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "max_requests": {
+            "type": "integer",
+            "title": "Max Requests"
+          },
+          "max_seconds": {
+            "type": "number",
+            "title": "Max Seconds"
+          },
+          "max_tool_calls": {
+            "type": "integer",
+            "title": "Max Tool Calls"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/CodeInvestigationStep"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "stop_reason": {
+            "type": "string",
+            "enum": [
+              "answered",
+              "citations_rejected",
+              "request_limit",
+              "time_limit",
+              "invalid_model_response",
+              "provider_error"
+            ],
+            "title": "Stop Reason"
+          },
+          "rejected_citations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected Citations"
+          },
+          "requests": {
+            "type": "integer",
+            "title": "Requests",
+            "default": 0
+          },
+          "tokens": {
+            "type": "integer",
+            "title": "Tokens",
+            "default": 0
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds",
+            "default": 0
+          },
+          "fallback": {
+            "type": "boolean",
+            "title": "Fallback",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model",
+          "max_requests",
+          "max_seconds",
+          "max_tool_calls",
+          "stop_reason"
+        ],
+        "title": "CodeInvestigationTrace",
+        "description": "What the paper-code investigator did; stored with the answer it produced."
+      },
       "CodeQuestion": {
         "properties": {
           "question": {
@@ -3215,6 +3326,17 @@
                 "type": "null"
               }
             ]
+          },
+          "investigate": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Investigate"
           }
         },
         "additionalProperties": false,
@@ -3692,6 +3814,16 @@
         ],
         "title": "ExplanationPoint"
       },
+      "FindingVerdict": {
+        "type": "string",
+        "enum": [
+          "CONSISTENT",
+          "INCONSISTENT",
+          "PARTIAL",
+          "NOT_LOCATED"
+        ],
+        "title": "FindingVerdict"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -4027,6 +4159,23 @@
                 "type": "null"
               }
             ]
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/PaperCodeFinding"
+            },
+            "type": "array",
+            "title": "Findings"
+          },
+          "investigation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodeInvestigationTrace"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -4039,7 +4188,9 @@
           "selected_code",
           "paper_citations",
           "code_citations",
-          "relation"
+          "relation",
+          "findings",
+          "investigation"
         ],
         "title": "JointAnswer"
       },
@@ -4303,6 +4454,41 @@
         ],
         "title": "PaperAnswer"
       },
+      "PaperCodeFinding": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/FindingVerdict"
+          },
+          "paper_citations": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceAnchor"
+            },
+            "type": "array",
+            "title": "Paper Citations"
+          },
+          "code_citations": {
+            "items": {
+              "$ref": "#/components/schemas/CodeCitation"
+            },
+            "type": "array",
+            "title": "Code Citations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "text",
+          "verdict",
+          "paper_citations",
+          "code_citations"
+        ],
+        "title": "PaperCodeFinding",
+        "description": "One checked statement about how the code relates to the paper."
+      },
       "PaperCodeRelation": {
         "type": "string",
         "enum": [
@@ -4312,6 +4498,7 @@
           "LOADS_DATA",
           "DOCUMENTS",
           "PARTIAL_MATCH",
+          "MISMATCH",
           "NOT_LOCATED"
         ],
         "title": "PaperCodeRelation"

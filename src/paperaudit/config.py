@@ -29,6 +29,7 @@ class Settings:
     max_paper_chars: int = 120_000
     judge_batch_size: int = 6
     deep_audit: bool = False
+    code_agent: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -45,6 +46,7 @@ class Settings:
             max_paper_chars=_int_env("PAPERAUDIT_MAX_PAPER_CHARS", 120_000),
             judge_batch_size=_int_env("PAPERAUDIT_JUDGE_BATCH_SIZE", 6),
             deep_audit=os.getenv("PAPERAUDIT_DEEP_AUDIT", "").strip().lower() in {"1", "true", "yes"},
+            code_agent=os.getenv("PAPERAUDIT_CODE_AGENT", "").strip().lower() in {"1", "true", "yes"},
         )
 
     @property

@@ -79,3 +79,52 @@ TOOL_LABELS = {
     "search_paper": "全文检索", "read_page": "读取指定页",
     "expand_context": "补读相邻上下文", "finish": "结束调查",
 }
+
+
+CodeStopReason = Literal[
+    "answered", "citations_rejected", "request_limit", "time_limit",
+    "invalid_model_response", "provider_error",
+]
+
+
+class CodeInvestigationStep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tool: str
+    arguments: dict[str, object] = Field(default_factory=dict)
+    outcome: str
+    ok: bool = True
+
+
+class CodeInvestigationTrace(BaseModel):
+    """What the paper-code investigator did; stored with the answer it produced."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    strategy_version: str = "code-investigation-v1"
+    model: str
+    max_requests: int
+    max_seconds: float
+    max_tool_calls: int
+    steps: list[CodeInvestigationStep] = Field(default_factory=list)
+    stop_reason: CodeStopReason
+    rejected_citations: list[str] = Field(default_factory=list)
+    requests: int = 0
+    tokens: int = 0
+    elapsed_seconds: float = 0
+    # True when the investigation did not produce the answer and the fixed
+    # single-retrieval pipeline answered instead.
+    fallback: bool = False
+
+
+CODE_STOP_LABELS = {
+    "answered": "结论已通过引用校验", "citations_rejected": "引用未通过本地校验",
+    "request_limit": "达到模型请求上限", "time_limit": "达到调查时间上限",
+    "invalid_model_response": "模型响应无效", "provider_error": "模型服务请求失败",
+}
+
+CODE_TOOL_LABELS = {
+    "list_dir": "查看目录", "grep_code": "全文查找", "search_code": "检索代码",
+    "find_symbol": "定位符号", "read_file": "读取文件", "search_paper": "检索论文",
+    "read_page": "读取论文页", "submit_answer": "提交结论",
+}

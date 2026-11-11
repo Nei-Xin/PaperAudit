@@ -1022,6 +1022,70 @@ export interface components {
             /** Line Count */
             line_count: number;
         };
+        /** CodeInvestigationStep */
+        CodeInvestigationStep: {
+            /** Tool */
+            tool: string;
+            /** Arguments */
+            arguments?: {
+                [key: string]: unknown;
+            };
+            /** Outcome */
+            outcome: string;
+            /**
+             * Ok
+             * @default true
+             */
+            ok: boolean;
+        };
+        /**
+         * CodeInvestigationTrace
+         * @description What the paper-code investigator did; stored with the answer it produced.
+         */
+        CodeInvestigationTrace: {
+            /**
+             * Strategy Version
+             * @default code-investigation-v1
+             */
+            strategy_version: string;
+            /** Model */
+            model: string;
+            /** Max Requests */
+            max_requests: number;
+            /** Max Seconds */
+            max_seconds: number;
+            /** Max Tool Calls */
+            max_tool_calls: number;
+            /** Steps */
+            steps?: components["schemas"]["CodeInvestigationStep"][];
+            /**
+             * Stop Reason
+             * @enum {string}
+             */
+            stop_reason: "answered" | "citations_rejected" | "request_limit" | "time_limit" | "invalid_model_response" | "provider_error";
+            /** Rejected Citations */
+            rejected_citations?: string[];
+            /**
+             * Requests
+             * @default 0
+             */
+            requests: number;
+            /**
+             * Tokens
+             * @default 0
+             */
+            tokens: number;
+            /**
+             * Elapsed Seconds
+             * @default 0
+             */
+            elapsed_seconds: number;
+            /**
+             * Fallback
+             * @default false
+             */
+            fallback: boolean;
+        };
         /** CodeQuestion */
         CodeQuestion: {
             /** Question */
@@ -1037,6 +1101,8 @@ export interface components {
             scope: components["schemas"]["AnswerScope"];
             selection?: components["schemas"]["PaperSelection"] | null;
             selected_code?: components["schemas"]["CodeSelection"] | null;
+            /** Investigate */
+            investigate?: boolean | null;
         };
         /** CodeSelection */
         CodeSelection: {
@@ -1169,6 +1235,11 @@ export interface components {
             /** Evidence */
             evidence: components["schemas"]["EvidenceAnchor"][];
         };
+        /**
+         * FindingVerdict
+         * @enum {string}
+         */
+        FindingVerdict: "CONSISTENT" | "INCONSISTENT" | "PARTIAL" | "NOT_LOCATED";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1312,6 +1383,9 @@ export interface components {
             /** Code Citations */
             code_citations: components["schemas"]["CodeCitation"][];
             relation: components["schemas"]["PaperCodeRelation"] | null;
+            /** Findings */
+            findings: components["schemas"]["PaperCodeFinding"][];
+            investigation: components["schemas"]["CodeInvestigationTrace"] | null;
         };
         /**
          * LearningJob
@@ -1419,10 +1493,23 @@ export interface components {
             conclusions: components["schemas"]["AnswerConclusion"][];
         };
         /**
+         * PaperCodeFinding
+         * @description One checked statement about how the code relates to the paper.
+         */
+        PaperCodeFinding: {
+            /** Text */
+            text: string;
+            verdict: components["schemas"]["FindingVerdict"];
+            /** Paper Citations */
+            paper_citations: components["schemas"]["EvidenceAnchor"][];
+            /** Code Citations */
+            code_citations: components["schemas"]["CodeCitation"][];
+        };
+        /**
          * PaperCodeRelation
          * @enum {string}
          */
-        PaperCodeRelation: "IMPLEMENTS" | "CONFIGURES" | "EVALUATES" | "LOADS_DATA" | "DOCUMENTS" | "PARTIAL_MATCH" | "NOT_LOCATED";
+        PaperCodeRelation: "IMPLEMENTS" | "CONFIGURES" | "EVALUATES" | "LOADS_DATA" | "DOCUMENTS" | "PARTIAL_MATCH" | "MISMATCH" | "NOT_LOCATED";
         /** PaperSelection */
         PaperSelection: {
             /** Text */

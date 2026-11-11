@@ -189,6 +189,7 @@ class CodeLearningService:
         selected_paper_chunk_ids: Sequence[str] = (),
         selected_paper_text: str | None = None,
         selected_code: CodeSelection | None = None,
+        investigate: bool | None = None,
     ) -> JointAnswer:
         normalized = question.strip()
         if not normalized:
@@ -212,23 +213,41 @@ class CodeLearningService:
                 selected_code=selected_code,
                 paper_citations=paper_answer.citations,
             )
+        trace = None
+        if self.settings.code_agent if investigate is None else investigate:
+            from .agents.code_investigator import CodeInvestigator
+
+            investigated, trace = CodeInvestigator(
+                self.client, paper, codebase, self.settings.model,
+            ).run(normalized, scope, history, selected_paper_chunk_ids,
+                  selected_paper_text, selected_code)
+            if investigated is not None:
+                return investigated
         if scope == AnswerScope.CODE:
-            return self._answer_code(
+            answer = self._answer_code(
                 codebase,
                 normalized,
                 history,
                 selected_paper_text,
                 selected_code,
             )
-        return self._answer_joint(
-            paper,
-            codebase,
-            normalized,
-            history,
-            selected_paper_chunk_ids,
-            selected_paper_text,
-            selected_code,
-        )
+        else:
+            answer = self._answer_joint(
+                paper,
+                codebase,
+                normalized,
+                history,
+                selected_paper_chunk_ids,
+                selected_paper_text,
+                selected_code,
+            )
+        if trace is not None:
+            # The investigation ended without a conclusion (budget, provider or
+            # protocol failure); the fixed pipeline answered. Keep the record.
+            answer = answer.model_copy(update={
+                "investigation": trace.model_copy(update={"fallback": True}),
+            })
+        return answer
 
     def _answer_code(
         self,

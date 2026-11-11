@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .agents.models import InvestigationTrace
+from .agents.models import CodeInvestigationTrace, InvestigationTrace
 
 
 class StrictModel(BaseModel):
@@ -469,7 +469,24 @@ class PaperCodeRelation(str, Enum):
     LOADS_DATA = "LOADS_DATA"
     DOCUMENTS = "DOCUMENTS"
     PARTIAL_MATCH = "PARTIAL_MATCH"
+    MISMATCH = "MISMATCH"
     NOT_LOCATED = "NOT_LOCATED"
+
+
+class FindingVerdict(str, Enum):
+    CONSISTENT = "CONSISTENT"
+    INCONSISTENT = "INCONSISTENT"
+    PARTIAL = "PARTIAL"
+    NOT_LOCATED = "NOT_LOCATED"
+
+
+class PaperCodeFinding(StrictModel):
+    """One checked statement about how the code relates to the paper."""
+
+    text: str
+    verdict: FindingVerdict
+    paper_citations: list[EvidenceAnchor] = Field(default_factory=list)
+    code_citations: list[CodeCitation] = Field(default_factory=list)
 
 
 class JointQuery(StrictModel):
@@ -501,6 +518,8 @@ class JointAnswer(StrictModel):
     paper_citations: list[EvidenceAnchor] = Field(default_factory=list)
     code_citations: list[CodeCitation] = Field(default_factory=list)
     relation: PaperCodeRelation | None = None
+    findings: list[PaperCodeFinding] = Field(default_factory=list)
+    investigation: CodeInvestigationTrace | None = None
 
 
 class AtomicClaim(StrictModel):
