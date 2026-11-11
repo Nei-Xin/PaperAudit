@@ -23,7 +23,7 @@ def meter(operation: str):
     succeeded = False
     try:
         with use_request_budget(budget):
-            yield
+            yield budget
         succeeded = True
     finally:
         record = dict(operation=operation, succeeded=succeeded,
@@ -61,8 +61,13 @@ class ValidationService(AuditService):
 
 class ValidationCodeService(CodeLearningService):
     def answer(self, paper, codebase, question, **kwargs):
-        with meter("code_qa"):
-            return super().answer(paper, codebase, question, **kwargs)
+        with meter("code_qa") as budget:
+            answer = super().answer(paper, codebase, question, **kwargs)
+            if answer.investigation is not None:
+                # An investigation runs under its own request budget; record what it used here too.
+                budget.requests += answer.investigation.requests
+                budget.tokens += answer.investigation.tokens
+            return answer
 
 
 app = create_app(service_factory=ValidationService, code_service_factory=ValidationCodeService)

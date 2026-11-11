@@ -510,3 +510,17 @@ def test_tool_turn_sends_native_tools_counts_budget_and_disables_hidden_retries(
     assert seen[0]["tools"] == spec and "tool_choice" not in seen[0]
     assert seen[1]["tool_choice"] == {"type": "function", "function": {"name": "grep_code"}}
     assert budget.requests == 3 and budget.tokens == 20 and len(seen) == 3  # The 503 was not retried.
+
+
+def test_validation_service_records_what_an_investigation_used(tmp_path, monkeypatch):
+    from deploy.validation_app import ValidationCodeService
+
+    usage = tmp_path / "usage.jsonl"
+    monkeypatch.setenv("PAPERAUDIT_VALIDATION_USAGE_FILE", str(usage))
+    client = ScriptedClient([call("grep_code", text="dropout: 0.3"),
+                             call("search_paper", query="dropout rate")], [submit()])
+    answer = ValidationCodeService(SETTINGS, client).answer(
+        paper(), codebase(), "论文的 dropout 和代码一致吗？", investigate=True)
+    record = json.loads(usage.read_text())
+    assert answer.investigation.requests == 2
+    assert (record["operation"], record["succeeded"], record["requests"]) == ("code_qa", True, 2)
