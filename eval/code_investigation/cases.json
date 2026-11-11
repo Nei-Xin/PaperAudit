@@ -1,0 +1,842 @@
+{
+ "version": "code-investigation-dev-v1",
+ "split": "development",
+ "papers": {
+  "moco": {
+   "title": "Momentum Contrast for Unsupervised Visual Representation Learning",
+   "arxiv": "1911.05722v3",
+   "repo": "facebookresearch/moco",
+   "commit": "132aea9da9bb995a411c915c0420be3db62052f3",
+   "pdf_sha256": "ad31ea26ed2d9ba3e2f767a2dcb0961a5b70ff505b1c3fb18d07201140e4e1fe",
+   "zip_sha256": "34713b0f0cc8069a38dcf9b4afc17bcd4819efe73afc38d9bc0c91e602eec32e",
+   "include": null,
+   "note": "HEAD (8976944) is an empty tree; the parent commit is used."
+  },
+  "gcn": {
+   "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+   "arxiv": "1609.02907v4",
+   "repo": "tkipf/gcn",
+   "commit": "39a4089fe72ad9f055ed6fdb9746abdcfebc4d81",
+   "pdf_sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+   "zip_sha256": "e72bca00cb0c30824116f5dbfb2c914161d3a2422659ce6611172e38bc29dc8b",
+   "include": null
+  },
+  "mae": {
+   "title": "Masked Autoencoders Are Scalable Vision Learners",
+   "arxiv": "2111.06377v3",
+   "repo": "facebookresearch/mae",
+   "commit": "efb2a8062c206524e35e47d04501ed4f544c0ae8",
+   "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+   "zip_sha256": "ae81c72ec3c22a6b17e4faf808f610a02aacc6a93f0bc3b26cccf8d7126424a0",
+   "include": null
+  },
+  "lora": {
+   "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+   "arxiv": "2106.09685v2",
+   "repo": "microsoft/LoRA",
+   "commit": "c4593f060e6a368d7bb5af5273b8e42810cdef90",
+   "pdf_sha256": "e9a0d3128767db616085dc0f4e6e455e672e89af823e8ed1282793682787395a",
+   "zip_sha256": "87f17d9e193ab8f7a031a765aa6d6b8e0165284f525eb05d7f65dd4a9d2f74c8",
+   "include": [
+    "loralib/",
+    "README.md",
+    "setup.py",
+    "examples/NLG/src/",
+    "examples/NLG/README.md"
+   ],
+   "note": "The full archive exceeds the upload limits (vendored transformers copy, data and vocabulary files); only the listed code and documentation paths are kept."
+  }
+ },
+ "mutations": {
+  "moco_k": [
+   [
+    "main_moco.py",
+    "65536",
+    "4096",
+    2
+   ],
+   [
+    "moco/builder.py",
+    "65536",
+    "4096",
+    2
+   ]
+  ],
+  "moco_m": [
+   [
+    "main_moco.py",
+    "0.999",
+    "0.99",
+    2
+   ],
+   [
+    "moco/builder.py",
+    "0.999",
+    "0.99",
+    2
+   ]
+  ],
+  "moco_t": [
+   [
+    "main_moco.py",
+    "0.07",
+    "0.2",
+    2
+   ],
+   [
+    "moco/builder.py",
+    "0.07",
+    "0.2",
+    2
+   ]
+  ],
+  "moco_schedule": [
+   [
+    "main_moco.py",
+    "[120, 160]",
+    "[60, 80]",
+    1
+   ]
+  ],
+  "gcn_hidden": [
+   [
+    "gcn/train.py",
+    "'hidden1', 16,",
+    "'hidden1', 32,",
+    1
+   ]
+  ],
+  "gcn_wd": [
+   [
+    "gcn/train.py",
+    "5e-4",
+    "5e-3",
+    1
+   ]
+  ],
+  "gcn_dropout": [
+   [
+    "gcn/train.py",
+    "'dropout', 0.5,",
+    "'dropout', 0.6,",
+    1
+   ]
+  ],
+  "mae_wd": [
+   [
+    "main_pretrain.py",
+    "default=0.05",
+    "default=0.5",
+    1
+   ],
+   [
+    "main_pretrain.py",
+    "(default: 0.05)",
+    "(default: 0.5)",
+    1
+   ],
+   [
+    "PRETRAIN.md",
+    "--weight_decay 0.05",
+    "--weight_decay 0.5",
+    1
+   ]
+  ],
+  "mae_betas": [
+   [
+    "main_pretrain.py",
+    "betas=(0.9, 0.95)",
+    "betas=(0.9, 0.999)",
+    1
+   ]
+  ],
+  "mae_mask": [
+   [
+    "main_pretrain.py",
+    "default=0.75",
+    "default=0.6",
+    1
+   ],
+   [
+    "models_mae.py",
+    "mask_ratio=0.75",
+    "mask_ratio=0.6",
+    1
+   ],
+   [
+    "PRETRAIN.md",
+    "--mask_ratio 0.75",
+    "--mask_ratio 0.6",
+    1
+   ]
+  ],
+  "mae_warmup": [
+   [
+    "main_pretrain.py",
+    "'--warmup_epochs', type=int, default=40",
+    "'--warmup_epochs', type=int, default=20",
+    1
+   ],
+   [
+    "PRETRAIN.md",
+    "--warmup_epochs 40",
+    "--warmup_epochs 20",
+    1
+   ]
+  ],
+  "lora_scaling": [
+   [
+    "loralib/layers.py",
+    "self.lora_alpha / self.r",
+    "self.lora_alpha / math.sqrt(self.r)",
+    4
+   ]
+  ]
+ },
+ "items": [
+  {
+   "id": "moco-m",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文默认的动量更新系数 m 和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.99",
+    "动量",
+    "momentum"
+   ],
+   "gold_paths": [
+    "main_moco.py",
+    "moco/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-mx",
+   "paper": "moco",
+   "mutation": "moco_m",
+   "question": "论文默认的动量更新系数 m 和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.99",
+    "动量",
+    "momentum"
+   ],
+   "gold_paths": [
+    "main_moco.py",
+    "moco/builder.py"
+   ],
+   "note": "controlled edit of moco-m"
+  },
+  {
+   "id": "moco-k",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文实验使用的字典（队列）大小 K 和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "65536",
+    "4096",
+    "队列",
+    "字典"
+   ],
+   "gold_paths": [
+    "main_moco.py",
+    "moco/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-kx",
+   "paper": "moco",
+   "mutation": "moco_k",
+   "question": "论文实验使用的字典（队列）大小 K 和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "65536",
+    "4096",
+    "队列",
+    "字典"
+   ],
+   "gold_paths": [
+    "main_moco.py",
+    "moco/builder.py"
+   ],
+   "note": "controlled edit of moco-k"
+  },
+  {
+   "id": "moco-t",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文对比损失中的温度 τ 和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.07",
+    "0.2",
+    "温度"
+   ],
+   "gold_paths": [
+    "main_moco.py",
+    "moco/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-tx",
+   "paper": "moco",
+   "mutation": "moco_t",
+   "question": "论文对比损失中的温度 τ 和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.07",
+    "0.2",
+    "温度"
+   ],
+   "gold_paths": [
+    "main_moco.py",
+    "moco/builder.py"
+   ],
+   "note": "controlled edit of moco-t"
+  },
+  {
+   "id": "moco-schedule",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文在 ImageNet-1M 预训练时学习率下降的 epoch 位置，和代码默认的学习率调度一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "120",
+    "160",
+    "60",
+    "80"
+   ],
+   "gold_paths": [
+    "main_moco.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-schedulex",
+   "paper": "moco",
+   "mutation": "moco_schedule",
+   "question": "论文在 ImageNet-1M 预训练时学习率下降的 epoch 位置，和代码默认的学习率调度一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "120",
+    "160",
+    "60",
+    "80"
+   ],
+   "gold_paths": [
+    "main_moco.py"
+   ],
+   "note": "controlled edit of moco-schedule"
+  },
+  {
+   "id": "moco-sgd",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文预训练使用的 SGD 动量和 weight decay 与代码默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.9",
+    "0.0001",
+    "1e-4",
+    "weight decay",
+    "权重衰减"
+   ],
+   "gold_paths": [
+    "main_moco.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-lincls",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文线性分类评估使用的初始学习率和 weight decay，与线性评估代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "30",
+    "weight decay",
+    "权重衰减"
+   ],
+   "gold_paths": [
+    "main_lincls.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-shufflebn",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文描述的 Shuffling BN 在代码里实现了吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "shuffl",
+    "打乱",
+    "BN"
+   ],
+   "gold_paths": [
+    "moco/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "moco-ig1b",
+   "paper": "moco",
+   "mutation": null,
+   "question": "论文在 IG-1B 数据集上使用的指数衰减学习率策略，在代码里实现了吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "IG-1B",
+    "指数"
+   ],
+   "gold_paths": [],
+   "note": "No IG-1B, Instagram or exponential-decay code or configuration in the repository."
+  },
+  {
+   "id": "gcn-dropout",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文在引文网络数据集（Cora 等）上使用的 dropout 率和代码默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.5",
+    "0.6",
+    "dropout"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gcn-dropoutx",
+   "paper": "gcn",
+   "mutation": "gcn_dropout",
+   "question": "论文在引文网络数据集（Cora 等）上使用的 dropout 率和代码默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.5",
+    "0.6",
+    "dropout"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": "controlled edit of gcn-dropout"
+  },
+  {
+   "id": "gcn-hidden",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文在引文网络数据集（Cora 等）上使用的隐藏层单元数和代码默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "16",
+    "32",
+    "隐藏"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gcn-hiddenx",
+   "paper": "gcn",
+   "mutation": "gcn_hidden",
+   "question": "论文在引文网络数据集（Cora 等）上使用的隐藏层单元数和代码默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "16",
+    "32",
+    "隐藏"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": "controlled edit of gcn-hidden"
+  },
+  {
+   "id": "gcn-wd",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文在引文网络数据集（Cora 等）上使用的 L2 正则化系数和代码默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "5e-4",
+    "5e-3",
+    "10",
+    "正则",
+    "weight_decay"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gcn-wdx",
+   "paper": "gcn",
+   "mutation": "gcn_wd",
+   "question": "论文在引文网络数据集（Cora 等）上使用的 L2 正则化系数和代码默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "5e-4",
+    "5e-3",
+    "10",
+    "正则",
+    "weight_decay"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": "controlled edit of gcn-wd"
+  },
+  {
+   "id": "gcn-optim",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文训练使用的学习率和最大训练轮数与代码默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.01",
+    "200",
+    "学习率"
+   ],
+   "gold_paths": [
+    "gcn/train.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gcn-renorm",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文提出的 renormalization trick（给邻接矩阵加自环后做对称归一化）在代码里实现了吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "归一化",
+    "renormal",
+    "自环",
+    "eye"
+   ],
+   "gold_paths": [
+    "gcn/utils.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gcn-glorot",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文所说的权重初始化方式在代码里是如何实现的，一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "Glorot",
+    "glorot",
+    "初始化"
+   ],
+   "gold_paths": [
+    "gcn/inits.py",
+    "gcn/layers.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gcn-nell",
+   "paper": "gcn",
+   "mutation": null,
+   "question": "论文为 NELL 数据集使用的那组超参数（dropout、L2 正则、隐藏单元数）在代码里有对应的配置吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "NELL"
+   ],
+   "gold_paths": [],
+   "note": "The repository ships only Cora, Citeseer and Pubmed; NELL does not appear anywhere."
+  },
+  {
+   "id": "mae-mask",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文默认的掩码比例和预训练代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "75",
+    "0.75",
+    "0.6",
+    "掩码"
+   ],
+   "gold_paths": [
+    "main_pretrain.py",
+    "models_mae.py",
+    "PRETRAIN.md"
+   ],
+   "note": ""
+  },
+  {
+   "id": "mae-maskx",
+   "paper": "mae",
+   "mutation": "mae_mask",
+   "question": "论文默认的掩码比例和预训练代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "75",
+    "0.75",
+    "0.6",
+    "掩码"
+   ],
+   "gold_paths": [
+    "main_pretrain.py",
+    "models_mae.py",
+    "PRETRAIN.md"
+   ],
+   "note": "controlled edit of mae-mask"
+  },
+  {
+   "id": "mae-betas",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文预训练设置中 AdamW 的 β1、β2 和预训练代码一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.95",
+    "0.999",
+    "β",
+    "beta"
+   ],
+   "gold_paths": [
+    "main_pretrain.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "mae-betasx",
+   "paper": "mae",
+   "mutation": "mae_betas",
+   "question": "论文预训练设置中 AdamW 的 β1、β2 和预训练代码一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.95",
+    "0.999",
+    "β",
+    "beta"
+   ],
+   "gold_paths": [
+    "main_pretrain.py"
+   ],
+   "note": "controlled edit of mae-betas"
+  },
+  {
+   "id": "mae-wd",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文预训练使用的 weight decay 和预训练代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.05",
+    "0.5",
+    "weight decay",
+    "权重衰减"
+   ],
+   "gold_paths": [
+    "main_pretrain.py",
+    "PRETRAIN.md"
+   ],
+   "note": ""
+  },
+  {
+   "id": "mae-wdx",
+   "paper": "mae",
+   "mutation": "mae_wd",
+   "question": "论文预训练使用的 weight decay 和预训练代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.05",
+    "0.5",
+    "weight decay",
+    "权重衰减"
+   ],
+   "gold_paths": [
+    "main_pretrain.py",
+    "PRETRAIN.md"
+   ],
+   "note": "controlled edit of mae-wd"
+  },
+  {
+   "id": "mae-warmup",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文预训练的 warmup epoch 数和预训练代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "40",
+    "20",
+    "warmup"
+   ],
+   "gold_paths": [
+    "main_pretrain.py",
+    "PRETRAIN.md"
+   ],
+   "note": ""
+  },
+  {
+   "id": "mae-warmupx",
+   "paper": "mae",
+   "mutation": "mae_warmup",
+   "question": "论文预训练的 warmup epoch 数和预训练代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "40",
+    "20",
+    "warmup"
+   ],
+   "gold_paths": [
+    "main_pretrain.py",
+    "PRETRAIN.md"
+   ],
+   "note": "controlled edit of mae-warmup"
+  },
+  {
+   "id": "mae-linprobe",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文线性探测（linear probing）设置中的优化器，以及分类器前额外加的归一化层，在代码里实现了吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "LARS",
+    "BatchNorm",
+    "线性"
+   ],
+   "gold_paths": [
+    "main_linprobe.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "mae-layerdecay",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文微调设置中的 layer-wise lr decay 取值和微调代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.75",
+    "layer"
+   ],
+   "gold_paths": [
+    "main_finetune.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "mae-blockmask",
+   "paper": "mae",
+   "mutation": null,
+   "question": "论文消融实验里的 block-wise 掩码采样策略在代码里实现了吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "block",
+    "块"
+   ],
+   "gold_paths": [],
+   "note": "models_mae.py implements only per-sample random masking."
+  },
+  {
+   "id": "lora-scaling",
+   "paper": "lora",
+   "mutation": null,
+   "question": "论文中对低秩更新 ΔWx 的缩放系数，和 loralib 中的实现一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "α",
+    "alpha",
+    "缩放",
+    "scaling"
+   ],
+   "gold_paths": [
+    "loralib/layers.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "lora-scalingx",
+   "paper": "lora",
+   "mutation": "lora_scaling",
+   "question": "论文中对低秩更新 ΔWx 的缩放系数，和 loralib 中的实现一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "α",
+    "alpha",
+    "缩放",
+    "scaling"
+   ],
+   "gold_paths": [
+    "loralib/layers.py"
+   ],
+   "note": "controlled edit of lora-scaling"
+  },
+  {
+   "id": "lora-b-init",
+   "paper": "lora",
+   "mutation": null,
+   "question": "论文对矩阵 B 的初始化方式，和 loralib 的 Linear 层实现一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "B",
+    "零",
+    "zero"
+   ],
+   "gold_paths": [
+    "loralib/layers.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "lora-a-init",
+   "paper": "lora",
+   "mutation": null,
+   "question": "论文对矩阵 A 的初始化方式，和 loralib 的 Linear 层实现一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "A",
+    "高斯",
+    "Gaussian",
+    "kaiming"
+   ],
+   "gold_paths": [
+    "loralib/layers.py"
+   ],
+   "note": "Natural: the paper states random Gaussian for A; Linear uses kaiming_uniform_."
+  },
+  {
+   "id": "lora-merge",
+   "paper": "lora",
+   "mutation": null,
+   "question": "论文说部署时可以把 BA 合并进原权重从而不增加推理延迟，loralib 里实现了这种合并吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "合并",
+    "merge"
+   ],
+   "gold_paths": [
+    "loralib/layers.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "lora-gpt3",
+   "paper": "lora",
+   "mutation": null,
+   "question": "论文在 GPT-3 175B 上做的 LoRA 微调实验，在代码里有对应实现吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "GPT-3",
+    "175B"
+   ],
+   "gold_paths": [],
+   "note": "No GPT-3 code or mention in the kept paths (or in any .py/.md of the full archive)."
+  }
+ ]
+}

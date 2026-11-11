@@ -14,8 +14,13 @@ Browser_Actual_*.png
 # Local-only material kept out of the public repository: evaluation runs,
 # internal notes and experiment scripts.
 _archive/
-eval/
+eval/*
 docs/
+
+# Published: the paper-code investigation evaluation. Its inputs (papers and
+# repository archives) are downloaded by fetch.py and never committed.
+!eval/code_investigation/
+eval/code_investigation/data/
 
 # Internal deployment and validation records (server paths, evidence) stay local.
 deploy/*-validation.md

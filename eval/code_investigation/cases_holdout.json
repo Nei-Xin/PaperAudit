@@ -1,0 +1,1109 @@
+{
+ "version": "code-investigation-holdout-v1",
+ "split": "holdout",
+ "papers": {
+  "simsiam": {
+   "title": "Exploring Simple Siamese Representation Learning",
+   "arxiv": "2011.10566v1",
+   "repo": "facebookresearch/simsiam",
+   "commit": "a7bc1772896d0dad0806c51f0bb6f3b16d290468",
+   "pdf_sha256": "37d37c81d423d503f54d99bc5c9d9dc23d07c7bd1aad62f37b47ec7d2871e63e",
+   "zip_sha256": "427e1517c97a1155037bca9879d5c3450bffa6306f0a3b1d089d5147ce0522f5",
+   "include": null
+  },
+  "gat": {
+   "title": "Graph Attention Networks",
+   "arxiv": "1710.10903v3",
+   "repo": "PetarV-/GAT",
+   "commit": "5af87e7fce2b90ae1cbd621cd58059036a3c7436",
+   "pdf_sha256": "a7d811a44e1c65bf27da3a01859f23a8edbe33b8f96114b4b5066aedb078f284",
+   "zip_sha256": "3be613c3fd46f464ccd59874badd8e94cd572560c215e2be126244046d0e5f00",
+   "include": null
+  },
+  "dino": {
+   "title": "Emerging Properties in Self-Supervised Vision Transformers",
+   "arxiv": "2104.14294v2",
+   "repo": "facebookresearch/dino",
+   "commit": "7c446df5b9f45747937fb0d72314eb9f7b66930a",
+   "pdf_sha256": "aa464cfd59a428890190bea1065823a491a853478b4fb2a25f5eb44d442ce296",
+   "zip_sha256": "3c65181860269457eed8367f313a5a6d695951dd985750a940722de2175a05ff",
+   "include": null
+  },
+  "ddpm": {
+   "title": "Denoising Diffusion Probabilistic Models",
+   "arxiv": "2006.11239v2",
+   "repo": "hojonathanho/diffusion",
+   "commit": "1e0dceb3b3495bbe19116a5e1b3596cd0706c543",
+   "pdf_sha256": "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+   "zip_sha256": "ad7334dec27650b0b86705e24a12fc71996591b8cec06506e781c64a0905e540",
+   "include": null
+  }
+ },
+ "mutations": {
+  "simsiam_lr": [
+   [
+    "main_simsiam.py",
+    "default=0.05",
+    "default=0.03",
+    1
+   ]
+  ],
+  "simsiam_wd": [
+   [
+    "main_simsiam.py",
+    "default=1e-4",
+    "default=5e-4",
+    1
+   ],
+   [
+    "main_simsiam.py",
+    "(default: 1e-4)",
+    "(default: 5e-4)",
+    1
+   ]
+  ],
+  "simsiam_pred": [
+   [
+    "main_simsiam.py",
+    "'--pred-dim', default=512",
+    "'--pred-dim', default=1024",
+    1
+   ],
+   [
+    "simsiam/builder.py",
+    "pred_dim=512",
+    "pred_dim=1024",
+    1
+   ],
+   [
+    "main_simsiam.py",
+    "predictor (default: 512)",
+    "predictor (default: 1024)",
+    1
+   ]
+  ],
+  "gat_hidden": [
+   [
+    "execute_cora.py",
+    "hid_units = [8]",
+    "hid_units = [16]",
+    1
+   ],
+   [
+    "execute_cora_sparse.py",
+    "hid_units = [8]",
+    "hid_units = [16]",
+    1
+   ]
+  ],
+  "gat_dropout": [
+   [
+    "execute_cora.py",
+    "attn_drop: 0.6, ffd_drop: 0.6",
+    "attn_drop: 0.5, ffd_drop: 0.5",
+    1
+   ],
+   [
+    "execute_cora_sparse.py",
+    "attn_drop: 0.6, ffd_drop: 0.6",
+    "attn_drop: 0.5, ffd_drop: 0.5",
+    1
+   ]
+  ],
+  "gat_l2": [
+   [
+    "execute_cora.py",
+    "l2_coef = 0.0005",
+    "l2_coef = 0.005",
+    1
+   ],
+   [
+    "execute_cora_sparse.py",
+    "l2_coef = 0.0005",
+    "l2_coef = 0.005",
+    1
+   ]
+  ],
+  "gat_lr": [
+   [
+    "execute_cora.py",
+    "lr = 0.005",
+    "lr = 0.05",
+    1
+   ],
+   [
+    "execute_cora_sparse.py",
+    "lr = 0.005",
+    "lr = 0.05",
+    1
+   ]
+  ],
+  "gat_patience": [
+   [
+    "execute_cora.py",
+    "patience = 100",
+    "patience = 20",
+    1
+   ],
+   [
+    "execute_cora_sparse.py",
+    "patience = 100",
+    "patience = 20",
+    1
+   ]
+  ],
+  "dino_momentum": [
+   [
+    "main_dino.py",
+    "default=0.996",
+    "default=0.99",
+    1
+   ]
+  ],
+  "dino_student_temp": [
+   [
+    "main_dino.py",
+    "student_temp=0.1",
+    "student_temp=0.2",
+    1
+   ]
+  ],
+  "dino_wd_end": [
+   [
+    "main_dino.py",
+    "'--weight_decay_end', type=float, default=0.4",
+    "'--weight_decay_end', type=float, default=0.2",
+    1
+   ]
+  ],
+  "dino_warmup": [
+   [
+    "main_dino.py",
+    "\"--warmup_epochs\", default=10",
+    "\"--warmup_epochs\", default=5",
+    1
+   ]
+  ],
+  "dino_knn_temp": [
+   [
+    "eval_knn.py",
+    "default=0.07",
+    "default=0.1",
+    1
+   ]
+  ],
+  "ddpm_steps": [
+   [
+    "scripts/run_cifar.py",
+    "num_diffusion_timesteps=1000",
+    "num_diffusion_timesteps=500",
+    1
+   ],
+   [
+    "scripts/run_celebahq.py",
+    "num_diffusion_timesteps=1000",
+    "num_diffusion_timesteps=500",
+    1
+   ],
+   [
+    "scripts/run_lsun.py",
+    "num_diffusion_timesteps=1000",
+    "num_diffusion_timesteps=500",
+    1
+   ]
+  ],
+  "ddpm_beta": [
+   [
+    "scripts/run_cifar.py",
+    "beta_end=0.02",
+    "beta_end=0.01",
+    1
+   ],
+   [
+    "scripts/run_celebahq.py",
+    "beta_end=0.02",
+    "beta_end=0.01",
+    1
+   ],
+   [
+    "scripts/run_lsun.py",
+    "beta_end=0.02",
+    "beta_end=0.01",
+    1
+   ]
+  ],
+  "ddpm_dropout": [
+   [
+    "scripts/run_cifar.py",
+    "dropout=0.1, randflip=1",
+    "dropout=0.3, randflip=1",
+    1
+   ]
+  ],
+  "ddpm_lr": [
+   [
+    "scripts/run_cifar.py",
+    "lr=2e-4",
+    "lr=1e-4",
+    1
+   ]
+  ],
+  "ddpm_ema": [
+   [
+    "diffusion_tf/tpu_utils/tpu_utils.py",
+    "ema_decay=0.9999",
+    "ema_decay=0.999",
+    1
+   ]
+  ]
+ },
+ "items": [
+  {
+   "id": "simsiam-lr",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文预训练的基础学习率（base lr）和预训练代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.05",
+    "0.03",
+    "学习率",
+    "lr"
+   ],
+   "gold_paths": [
+    "main_simsiam.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-lrx",
+   "paper": "simsiam",
+   "mutation": "simsiam_lr",
+   "question": "论文预训练的基础学习率（base lr）和预训练代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.05",
+    "0.03",
+    "学习率",
+    "lr"
+   ],
+   "gold_paths": [
+    "main_simsiam.py"
+   ],
+   "note": "controlled edit of simsiam-lr"
+  },
+  {
+   "id": "simsiam-wd",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文预训练时 SGD 的 weight decay 和预训练代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.0001",
+    "1e-4",
+    "5e-4",
+    "weight decay",
+    "权重衰减"
+   ],
+   "gold_paths": [
+    "main_simsiam.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-wdx",
+   "paper": "simsiam",
+   "mutation": "simsiam_wd",
+   "question": "论文预训练时 SGD 的 weight decay 和预训练代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.0001",
+    "1e-4",
+    "5e-4",
+    "weight decay",
+    "权重衰减"
+   ],
+   "gold_paths": [
+    "main_simsiam.py"
+   ],
+   "note": "controlled edit of simsiam-wd"
+  },
+  {
+   "id": "simsiam-pred",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文中 prediction MLP 隐藏层的维度和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "512",
+    "1024",
+    "隐藏"
+   ],
+   "gold_paths": [
+    "main_simsiam.py",
+    "simsiam/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-predx",
+   "paper": "simsiam",
+   "mutation": "simsiam_pred",
+   "question": "论文中 prediction MLP 隐藏层的维度和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "512",
+    "1024",
+    "隐藏"
+   ],
+   "gold_paths": [
+    "main_simsiam.py",
+    "simsiam/builder.py"
+   ],
+   "note": "controlled edit of simsiam-pred"
+  },
+  {
+   "id": "simsiam-batch",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文默认的 batch size 和预训练代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "512",
+    "batch"
+   ],
+   "gold_paths": [
+    "main_simsiam.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-schedule",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文所说的学习率线性缩放规则和余弦衰减调度，在预训练代码里实现了吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "256",
+    "余弦",
+    "cos",
+    "缩放"
+   ],
+   "gold_paths": [
+    "main_simsiam.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-stopgrad",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文强调的 stop-gradient 操作在代码里实现了吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "stop",
+    "detach",
+    "梯度"
+   ],
+   "gold_paths": [
+    "simsiam/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-projector",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文对 projection MLP 的描述（层数、每层是否有 BN、输出层是否有 ReLU）和代码实现一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "BN",
+    "层",
+    "ReLU",
+    "projection"
+   ],
+   "gold_paths": [
+    "simsiam/builder.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "simsiam-warmup",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文在大 batch size（≥1024）实验中使用的学习率 warm-up，在代码里实现了吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "warm"
+   ],
+   "gold_paths": [],
+   "note": "No warm-up code or option anywhere in the repository."
+  },
+  {
+   "id": "simsiam-knn",
+   "paper": "simsiam",
+   "mutation": null,
+   "question": "论文用来监控训练进度的 kNN 分类器，在代码里实现了吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "kNN",
+    "knn",
+    "近邻"
+   ],
+   "gold_paths": [],
+   "note": "No kNN monitor in the repository."
+  },
+  {
+   "id": "gat-hidden",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文在 Cora 上第一层每个注意力头输出的特征数和代码设置一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "8",
+    "16",
+    "特征",
+    "hid_units"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-hiddenx",
+   "paper": "gat",
+   "mutation": "gat_hidden",
+   "question": "论文在 Cora 上第一层每个注意力头输出的特征数和代码设置一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "8",
+    "16",
+    "特征",
+    "hid_units"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": "controlled edit of gat-hidden"
+  },
+  {
+   "id": "gat-dropout",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文在直推式任务中使用的 dropout 概率和代码设置一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.6",
+    "0.5",
+    "dropout"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-dropoutx",
+   "paper": "gat",
+   "mutation": "gat_dropout",
+   "question": "论文在直推式任务中使用的 dropout 概率和代码设置一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.6",
+    "0.5",
+    "dropout"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": "controlled edit of gat-dropout"
+  },
+  {
+   "id": "gat-l2",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文在直推式任务中使用的 L2 正则化系数和代码设置一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.0005",
+    "0.005",
+    "L2",
+    "正则"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-l2x",
+   "paper": "gat",
+   "mutation": "gat_l2",
+   "question": "论文在直推式任务中使用的 L2 正则化系数和代码设置一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.0005",
+    "0.005",
+    "L2",
+    "正则"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": "controlled edit of gat-l2"
+  },
+  {
+   "id": "gat-lr",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文在 Cora 上使用的初始学习率和代码设置一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.005",
+    "0.05",
+    "学习率"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-lrx",
+   "paper": "gat",
+   "mutation": "gat_lr",
+   "question": "论文在 Cora 上使用的初始学习率和代码设置一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.005",
+    "0.05",
+    "学习率"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": "controlled edit of gat-lr"
+  },
+  {
+   "id": "gat-patience",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文早停策略使用的 patience 和代码设置一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "100",
+    "20",
+    "patience",
+    "早停"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-patiencex",
+   "paper": "gat",
+   "mutation": "gat_patience",
+   "question": "论文早停策略使用的 patience 和代码设置一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "100",
+    "20",
+    "patience",
+    "早停"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py"
+   ],
+   "note": "controlled edit of gat-patience"
+  },
+  {
+   "id": "gat-elu",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文第一层之后使用的非线性激活函数和代码设置一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "ELU",
+    "elu"
+   ],
+   "gold_paths": [
+    "execute_cora.py",
+    "execute_cora_sparse.py",
+    "models/gat.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-leakyrelu",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文注意力机制中使用的 LeakyReLU 在代码里实现了吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "LeakyReLU",
+    "leaky"
+   ],
+   "gold_paths": [
+    "utils/layers.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "gat-const",
+   "paper": "gat",
+   "mutation": null,
+   "question": "论文用于对照的常数注意力模型 Const-GAT（a(x, y) = 1）在代码里实现了吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "Const",
+    "常数"
+   ],
+   "gold_paths": [],
+   "note": "No constant-attention variant in the repository."
+  },
+  {
+   "id": "dino-momentum",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文教师网络动量更新系数的初始值和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.996",
+    "0.99",
+    "动量"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-momentumx",
+   "paper": "dino",
+   "mutation": "dino_momentum",
+   "question": "论文教师网络动量更新系数的初始值和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.996",
+    "0.99",
+    "动量"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": "controlled edit of dino-momentum"
+  },
+  {
+   "id": "dino-student-temp",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文学生网络的温度 τs 和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.1",
+    "0.2",
+    "学生",
+    "student"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-student-tempx",
+   "paper": "dino",
+   "mutation": "dino_student_temp",
+   "question": "论文学生网络的温度 τs 和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.1",
+    "0.2",
+    "学生",
+    "student"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": "controlled edit of dino-student-temp"
+  },
+  {
+   "id": "dino-wd-end",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文 weight decay 余弦调度的终值和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.4",
+    "0.2",
+    "终",
+    "weight_decay_end"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-wd-endx",
+   "paper": "dino",
+   "mutation": "dino_wd_end",
+   "question": "论文 weight decay 余弦调度的终值和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.4",
+    "0.2",
+    "终",
+    "weight_decay_end"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": "controlled edit of dino-wd-end"
+  },
+  {
+   "id": "dino-warmup",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文学习率线性 warmup 的 epoch 数和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "10",
+    "5",
+    "warmup"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-warmupx",
+   "paper": "dino",
+   "mutation": "dino_warmup",
+   "question": "论文学习率线性 warmup 的 epoch 数和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "10",
+    "5",
+    "warmup"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": "controlled edit of dino-warmup"
+  },
+  {
+   "id": "dino-knn-temp",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文 k-NN 评估中加权投票使用的温度 τ 和 k-NN 评估代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.07",
+    "0.1",
+    "温度"
+   ],
+   "gold_paths": [
+    "eval_knn.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-knn-tempx",
+   "paper": "dino",
+   "mutation": "dino_knn_temp",
+   "question": "论文 k-NN 评估中加权投票使用的温度 τ 和 k-NN 评估代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.07",
+    "0.1",
+    "温度"
+   ],
+   "gold_paths": [
+    "eval_knn.py"
+   ],
+   "note": "controlled edit of dino-knn-temp"
+  },
+  {
+   "id": "dino-optimizer",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文预训练使用的优化器和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "adamw",
+    "AdamW",
+    "优化器"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-linear-layers",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文对 ViT-S 做线性评估时拼接最后几层 [CLS] token 的层数，和线性评估代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "4",
+    "n_last_blocks",
+    "拼接"
+   ],
+   "gold_paths": [
+    "eval_linear.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "dino-teacher-temp",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文对教师温度 τt 的设置（warm-up 的终值和持续的 epoch 数）和代码的默认参数一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.07",
+    "0.04",
+    "30",
+    "教师",
+    "teacher"
+   ],
+   "gold_paths": [
+    "main_dino.py"
+   ],
+   "note": "Natural: the paper warms tau_t from 0.04 to 0.07 over 30 epochs; the defaults are teacher_temp=0.04 and warmup_teacher_temp_epochs=0."
+  },
+  {
+   "id": "dino-sinkhorn",
+   "paper": "dino",
+   "mutation": null,
+   "question": "论文消融实验中对教师输出使用 Sinkhorn-Knopp 的变体，在代码里实现了吗？",
+   "expected": "NOT_LOCATED",
+   "keywords": [
+    "Sinkhorn",
+    "SK"
+   ],
+   "gold_paths": [],
+   "note": "No Sinkhorn-Knopp code in the repository."
+  },
+  {
+   "id": "ddpm-steps",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文设置的扩散步数 T 和训练脚本的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "1000",
+    "500",
+    "步"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py",
+    "scripts/run_celebahq.py",
+    "scripts/run_lsun.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "ddpm-stepsx",
+   "paper": "ddpm",
+   "mutation": "ddpm_steps",
+   "question": "论文设置的扩散步数 T 和训练脚本的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "1000",
+    "500",
+    "步"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py",
+    "scripts/run_celebahq.py",
+    "scripts/run_lsun.py"
+   ],
+   "note": "controlled edit of ddpm-steps"
+  },
+  {
+   "id": "ddpm-beta",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文前向过程方差 β 线性调度的终值 βT 和训练脚本的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.02",
+    "0.01",
+    "β",
+    "beta"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py",
+    "scripts/run_celebahq.py",
+    "scripts/run_lsun.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "ddpm-betax",
+   "paper": "ddpm",
+   "mutation": "ddpm_beta",
+   "question": "论文前向过程方差 β 线性调度的终值 βT 和训练脚本的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.02",
+    "0.01",
+    "β",
+    "beta"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py",
+    "scripts/run_celebahq.py",
+    "scripts/run_lsun.py"
+   ],
+   "note": "controlled edit of ddpm-beta"
+  },
+  {
+   "id": "ddpm-dropout",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文在 CIFAR10 上使用的 dropout 率和 CIFAR10 训练脚本的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.1",
+    "0.3",
+    "dropout"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "ddpm-dropoutx",
+   "paper": "ddpm",
+   "mutation": "ddpm_dropout",
+   "question": "论文在 CIFAR10 上使用的 dropout 率和 CIFAR10 训练脚本的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.1",
+    "0.3",
+    "dropout"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py"
+   ],
+   "note": "controlled edit of ddpm-dropout"
+  },
+  {
+   "id": "ddpm-lr",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文在 CIFAR10 上使用的学习率和 CIFAR10 训练脚本的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "2e-4",
+    "1e-4",
+    "10",
+    "学习率"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "ddpm-lrx",
+   "paper": "ddpm",
+   "mutation": "ddpm_lr",
+   "question": "论文在 CIFAR10 上使用的学习率和 CIFAR10 训练脚本的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "2e-4",
+    "1e-4",
+    "10",
+    "学习率"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py"
+   ],
+   "note": "controlled edit of ddpm-lr"
+  },
+  {
+   "id": "ddpm-ema",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文对模型参数使用的 EMA 衰减系数和代码的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "0.9999",
+    "0.999",
+    "EMA"
+   ],
+   "gold_paths": [
+    "diffusion_tf/tpu_utils/tpu_utils.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "ddpm-emax",
+   "paper": "ddpm",
+   "mutation": "ddpm_ema",
+   "question": "论文对模型参数使用的 EMA 衰减系数和代码的默认值一致吗？",
+   "expected": "INCONSISTENT",
+   "keywords": [
+    "0.9999",
+    "0.999",
+    "EMA"
+   ],
+   "gold_paths": [
+    "diffusion_tf/tpu_utils/tpu_utils.py"
+   ],
+   "note": "controlled edit of ddpm-ema"
+  },
+  {
+   "id": "ddpm-batch",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文在 CIFAR10 上训练使用的 batch size 和 CIFAR10 训练脚本的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "128",
+    "batch"
+   ],
+   "gold_paths": [
+    "scripts/run_cifar.py"
+   ],
+   "note": ""
+  },
+  {
+   "id": "ddpm-lr-256",
+   "paper": "ddpm",
+   "mutation": null,
+   "question": "论文对 256×256 图像使用的学习率和 CelebA-HQ 训练脚本的默认值一致吗？",
+   "expected": "CONSISTENT",
+   "keywords": [
+    "2e-5",
+    "0.00002",
+    "10",
+    "学习率"
+   ],
+   "gold_paths": [
+    "scripts/run_celebahq.py"
+   ],
+   "note": ""
+  }
+ ]
+}

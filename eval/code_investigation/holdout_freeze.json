@@ -1,0 +1,39 @@
+{
+ "cases_holdout_sha256": "66b27a560b3a077a5dd01019d6de28dfae9f51cc1f20e2d46a44a5629e437a70",
+ "frozen_on": "2026-11-11",
+ "code_commit": "a4d714c",
+ "model_runs": 1,
+ "rule": "Not used for tuning. No model run until changes driven by the development set are finished; then one pre-declared run, reported whatever the outcome. Any later edit to the cases is a new version.",
+ "declared_run": {
+  "declared_on": "2026-11-11",
+  "code_commit": "b75294e",
+  "output": "holdout-v1-run1",
+  "modes": [
+   "agent",
+   "fixed"
+  ],
+  "repeats": 3,
+  "workers": 4,
+  "max_requests": 1500,
+  "primary_metric": "verdict matches reference, all observations in the denominator, pooled over repeats",
+  "also_reported": [
+   "per repeat",
+   "by expected verdict",
+   "directional errors",
+   "abstentions",
+   "cost"
+  ],
+  "note": "Declared before any model call on these cases. Scoring rules are those of score.py at this commit."
+ },
+ "runs": [
+  {
+   "output": "holdout-v1-run1",
+   "code_commit": "b75294e",
+   "observations": 306,
+   "requests": 1253,
+   "agent": "139/153",
+   "fixed": "88/153",
+   "status": "Seen. Any further use of these cases is no longer a held-out result."
+  }
+ ]
+}
