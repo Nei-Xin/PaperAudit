@@ -1,0 +1,326 @@
+[
+  {
+    "received_seconds": 2.634,
+    "connection": 1,
+    "event": {
+      "event_id": 1,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:28.003392+00:00",
+      "kind": "job_status",
+      "checkpoint_id": null,
+      "topic": "",
+      "tool": "",
+      "arguments": {},
+      "outcome": "正在准备论文与代码索引",
+      "ok": true,
+      "status": "RUNNING",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 2.634,
+    "connection": 1,
+    "event": {
+      "event_id": 2,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:28.055749+00:00",
+      "kind": "item_queued",
+      "checkpoint_id": "U01",
+      "topic": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数",
+      "tool": "",
+      "arguments": {},
+      "outcome": "等待核对。",
+      "ok": true,
+      "status": "queued",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 2.634,
+    "connection": 1,
+    "event": {
+      "event_id": 3,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:28.057643+00:00",
+      "kind": "job_status",
+      "checkpoint_id": null,
+      "topic": "",
+      "tool": "",
+      "arguments": {},
+      "outcome": "正在逐项核对（0/1）",
+      "ok": true,
+      "status": "RUNNING",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 2.634,
+    "connection": 1,
+    "event": {
+      "event_id": 4,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:28.060412+00:00",
+      "kind": "item_started",
+      "checkpoint_id": "U01",
+      "topic": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数",
+      "tool": "",
+      "arguments": {},
+      "outcome": "正在核对。",
+      "ok": true,
+      "status": "running",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 6.185,
+    "connection": 1,
+    "event": {
+      "event_id": 5,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:31.921569+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "list_dir",
+      "arguments": {
+        "path": ""
+      },
+      "outcome": "列出 16 项",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 9.261,
+    "connection": 2,
+    "event": {
+      "event_id": 6,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:35.319906+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "grep_code",
+      "arguments": {
+        "text": "warmup_epochs"
+      },
+      "outcome": "匹配 7 行",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 9.261,
+    "connection": 2,
+    "event": {
+      "event_id": 7,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:35.334367+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "search_paper",
+      "arguments": {
+        "query": "pretraining warmup epochs number; supervised fine tuning warmup epochs setting"
+      },
+      "outcome": "返回 6 个论文片段",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 9.261,
+    "connection": 2,
+    "event": {
+      "event_id": 8,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:35.336898+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "grep_paper",
+      "arguments": {
+        "text": "warmup"
+      },
+      "outcome": "匹配 5 个论文片段",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 11.98,
+    "connection": 2,
+    "event": {
+      "event_id": 9,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:37.530800+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "read_file",
+      "arguments": {
+        "path": "main_pretrain.py",
+        "start_line": 60,
+        "end_line": 76
+      },
+      "outcome": "读取 main_pretrain.py L60–76",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 13.874,
+    "connection": 2,
+    "event": {
+      "event_id": 10,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:39.690924+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "read_file",
+      "arguments": {
+        "path": "main_finetune.py",
+        "start_line": 70,
+        "end_line": 79
+      },
+      "outcome": "读取 main_finetune.py L70–79",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 23.451,
+    "connection": 2,
+    "event": {
+      "event_id": 11,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:49.443221+00:00",
+      "kind": "tool_step",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "submit_answer",
+      "arguments": {},
+      "outcome": "结论通过引用校验。",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 26.93,
+    "connection": 2,
+    "event": {
+      "event_id": 12,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:53.101192+00:00",
+      "kind": "verification",
+      "checkpoint_id": "U01",
+      "topic": "",
+      "tool": "verify_findings",
+      "arguments": {},
+      "outcome": "复核 2 条发现，0 条待人工核对。",
+      "ok": true,
+      "status": "",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 26.93,
+    "connection": 2,
+    "event": {
+      "event_id": 13,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:53.102720+00:00",
+      "kind": "item_finished",
+      "checkpoint_id": "U01",
+      "topic": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数",
+      "tool": "",
+      "arguments": {},
+      "outcome": "核对完成。",
+      "ok": true,
+      "status": "checked",
+      "verdicts": [
+        "CONSISTENT",
+        "CONSISTENT",
+        "NOT_LOCATED"
+      ],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 26.931,
+    "connection": 2,
+    "event": {
+      "event_id": 14,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:53.104424+00:00",
+      "kind": "job_status",
+      "checkpoint_id": null,
+      "topic": "",
+      "tool": "",
+      "arguments": {},
+      "outcome": "正在逐项核对（1/1）",
+      "ok": true,
+      "status": "RUNNING",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 26.931,
+    "connection": 2,
+    "event": {
+      "event_id": 15,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:53.106977+00:00",
+      "kind": "job_status",
+      "checkpoint_id": null,
+      "topic": "",
+      "tool": "",
+      "arguments": {},
+      "outcome": "正在保存一致性审计结果",
+      "ok": true,
+      "status": "RUNNING",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  },
+  {
+    "received_seconds": 27.431,
+    "connection": 2,
+    "event": {
+      "event_id": 16,
+      "job_id": "consistency-job-20261112T032827Z-01ba85",
+      "created_at": "2026-11-12T03:28:53.110932+00:00",
+      "kind": "job_status",
+      "checkpoint_id": null,
+      "topic": "",
+      "tool": "",
+      "arguments": {},
+      "outcome": "已完成",
+      "ok": true,
+      "status": "SUCCEEDED",
+      "verdicts": [],
+      "pending_review": 0
+    }
+  }
+]

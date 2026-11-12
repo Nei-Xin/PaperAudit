@@ -1,0 +1,6 @@
+{
+  "event_id": 5,
+  "tool": "list_dir",
+  "received_seconds": 6.968,
+  "job_status": "RUNNING"
+}

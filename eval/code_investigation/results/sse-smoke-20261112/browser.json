@@ -1,0 +1,7 @@
+{
+  "liveText": "任务过程\n实时连接已建立\n\n正在逐项核对（0/1）\n\nU01 · 论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数\n核对中\n查看目录 — 列出 16 项\n查看 1 个步骤",
+  "replayText": "任务过程\n任务已结束，事件已同步\n\n已完成\n\nU01 · 论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数\n一致、未定位\n\n核对完成。\n\n查看 8 个步骤",
+  "desktopOverflow": false,
+  "mobileOverflow": false,
+  "errors": []
+}

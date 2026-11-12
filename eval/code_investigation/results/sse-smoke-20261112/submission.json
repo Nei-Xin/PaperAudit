@@ -1,0 +1,6 @@
+{
+  "project_id": "1b490443925c72a2",
+  "plan_id": "consistency-plan-20261111T151914Z-a4916b",
+  "job_id": "consistency-job-20261112T032827Z-01ba85",
+  "question": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数是否相同？请区分预训练和监督训练设置，并引用具体配置。"
+}

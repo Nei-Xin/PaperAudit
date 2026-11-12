@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "report_id": "consistency-20261112T032853Z-31cbd8",
+  "created_at": "2026-11-12T03:28:53.108809+00:00",
+  "strategy_version": "consistency-orchestrator-v2-verified",
+  "paper_title": "Masked Autoencoders Are Scalable Vision Learners",
+  "codebase_name": "mae",
+  "items": [
+    {
+      "checkpoint": {
+        "checkpoint_id": "U01",
+        "topic": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数",
+        "category": "other",
+        "question": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数是否相同？请区分预训练和监督训练设置，并引用具体配置。",
+        "paper_anchor": null,
+        "source": "user"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "论文预训练的 warmup 轮数与 main_pretrain.py 的默认参数是否相同？请区分预训练和监督训练设置，并引用具体配置。",
+        "answer": "- 论文 Table 8 的 MAE 预训练 warmup 为 40 轮；`main_pretrain.py` 的 `--warmup_epochs` 默认值也是 40，因此两者相同。\n- 区分训练设置：论文 Table 9 的端到端微调（监督训练）warmup 为 5 轮，对应 `main_finetune.py` 默认值 5；Table 10 线性探测则是 10 轮，不应与预训练混为一谈。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p11_b10",
+            "page": 11,
+            "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+            "quote": "warmup epochs [20] 40",
+            "locator": null,
+            "context_text": null,
+            "source_context": [
+              {
+                "chunk_id": "p11_b11",
+                "page": 11,
+                "text": "Table 8. Pre-training setting.",
+                "relation": "nearby_table_caption",
+                "rects": [
+                  {
+                    "x0": 372.81298828125,
+                    "y0": 153.42713928222656,
+                    "x1": 481.16278076171875,
+                    "y1": 162.47540283203125
+                  }
+                ]
+              }
+            ],
+            "rects": [
+              {
+                "x0": 338.2449951171875,
+                "y0": 130.30514526367188,
+                "x1": 395.49993896484375,
+                "y1": 137.27894592285156
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 130.30514526367188,
+                "x1": 453.21380615234375,
+                "y1": 137.27894592285156
+              }
+            ]
+          },
+          {
+            "chunk_id": "p11_b12",
+            "page": 11,
+            "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+            "quote": "warmup epochs 5",
+            "locator": null,
+            "context_text": null,
+            "source_context": [
+              {
+                "chunk_id": "p11_b13",
+                "page": 11,
+                "text": "Table 9. End-to-end ﬁne-tuning setting.",
+                "relation": "nearby_table_caption",
+                "rects": [
+                  {
+                    "x0": 352.66998291015625,
+                    "y0": 303.80108642578125,
+                    "x1": 501.30584716796875,
+                    "y1": 312.849365234375
+                  }
+                ]
+              }
+            ],
+            "rects": [
+              {
+                "x0": 338.2449951171875,
+                "y0": 240.03115844726562,
+                "x1": 382.1381530761719,
+                "y1": 247.0049591064453
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 240.03115844726562,
+                "x1": 449.7268981933594,
+                "y1": 247.0049591064453
+              }
+            ]
+          },
+          {
+            "chunk_id": "p11_b13",
+            "page": 11,
+            "text": "Table 9. End-to-end ﬁne-tuning setting.",
+            "quote": "Table 9. End-to-end ﬁne-tuning setting.",
+            "locator": null,
+            "context_text": null,
+            "source_context": [],
+            "rects": [
+              {
+                "x0": 352.66998291015625,
+                "y0": 303.80108642578125,
+                "x1": 501.30584716796875,
+                "y1": 312.849365234375
+              }
+            ]
+          },
+          {
+            "chunk_id": "p11_b14",
+            "page": 11,
+            "text": "conﬁg\nvalue\noptimizer\nLARS [66]\nbase learning rate\n0.1\nweight decay\n0\noptimizer momentum\n0.9\nbatch size\n16384\nlearning rate schedule\ncosine decay\nwarmup epochs\n10\ntraining epochs\n90\naugmentation\nRandomResizedCrop",
+            "quote": "warmup epochs 10",
+            "locator": null,
+            "context_text": null,
+            "source_context": [
+              {
+                "chunk_id": "p11_b15",
+                "page": 11,
+                "text": "Table 10. Linear probing setting. We use LARS with a large\nbatch for faster training; SGD works similarly with a 4096 batch.",
+                "relation": "nearby_table_caption",
+                "rects": [
+                  {
+                    "x0": 308.86199951171875,
+                    "y0": 413.527099609375,
+                    "x1": 545.1096801757812,
+                    "y1": 422.57537841796875
+                  },
+                  {
+                    "x0": 308.8620300292969,
+                    "y0": 424.5679626464844,
+                    "x1": 542.3379516601562,
+                    "y1": 433.53436279296875
+                  }
+                ]
+              }
+            ],
+            "rects": [
+              {
+                "x0": 338.2449951171875,
+                "y0": 382.275146484375,
+                "x1": 382.1381530761719,
+                "y1": 389.2489318847656
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 382.275146484375,
+                "x1": 453.21380615234375,
+                "y1": 389.2489318847656
+              }
+            ]
+          },
+          {
+            "chunk_id": "p11_b15",
+            "page": 11,
+            "text": "Table 10. Linear probing setting. We use LARS with a large\nbatch for faster training; SGD works similarly with a 4096 batch.",
+            "quote": "Table 10. Linear probing setting.",
+            "locator": null,
+            "context_text": null,
+            "source_context": [],
+            "rects": [
+              {
+                "x0": 308.86199951171875,
+                "y0": 413.527099609375,
+                "x1": 545.1096801757812,
+                "y1": 422.57537841796875
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00039:L71-72",
+            "path": "main_pretrain.py",
+            "start_line": 71,
+            "end_line": 72,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+          },
+          {
+            "chunk_id": "c00031:L76-77",
+            "path": "main_finetune.py",
+            "start_line": 76,
+            "end_line": 77,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--warmup_epochs', type=int, default=5, metavar='N',\n                        help='epochs to warmup LR')"
+          }
+        ],
+        "relation": "PARTIAL_MATCH",
+        "findings": [
+          {
+            "text": "预训练 warmup：论文 Table 8 规定 40 轮，代码 `main_pretrain.py` 默认 `--warmup_epochs=40`，一致。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p11_b10",
+                "page": 11,
+                "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+                "quote": "warmup epochs [20] 40",
+                "locator": null,
+                "context_text": null,
+                "source_context": [
+                  {
+                    "chunk_id": "p11_b11",
+                    "page": 11,
+                    "text": "Table 8. Pre-training setting.",
+                    "relation": "nearby_table_caption",
+                    "rects": [
+                      {
+                        "x0": 372.81298828125,
+                        "y0": 153.42713928222656,
+                        "x1": 481.16278076171875,
+                        "y1": 162.47540283203125
+                      }
+                    ]
+                  }
+                ],
+                "rects": [
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 130.30514526367188,
+                    "x1": 395.49993896484375,
+                    "y1": 137.27894592285156
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 130.30514526367188,
+                    "x1": 453.21380615234375,
+                    "y1": 137.27894592285156
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00039:L71-72",
+                "path": "main_pretrain.py",
+                "start_line": 71,
+                "end_line": 72,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+              }
+            ],
+            "verification": {
+              "status": "passed",
+              "required": true,
+              "reason": "论文预训练表格与代码命令行默认值均为 40 轮。",
+              "paper_statement": "Table 8 的预训练设置将 warmup epochs 列为 40 轮。",
+              "code_statement": "`main_pretrain.py` 将 `--warmup_epochs` 的命令行默认值设为 40。"
+            }
+          },
+          {
+            "text": "监督端到端微调 warmup：论文 Table 9 规定 5 轮，代码 `main_finetune.py` 默认值为 5；这是微调设置而非预训练设置。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p11_b12",
+                "page": 11,
+                "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-3\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.999\nlayer-wise lr decay [10, 2]\n0.75\nbatch size\n1024\nlearning rate schedule\ncosine decay\nwarmup epochs\n5\ntraining epochs\n100 (B), 50 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B/L) 0.2 (H)",
+                "quote": "warmup epochs 5",
+                "locator": null,
+                "context_text": null,
+                "source_context": [
+                  {
+                    "chunk_id": "p11_b13",
+                    "page": 11,
+                    "text": "Table 9. End-to-end ﬁne-tuning setting.",
+                    "relation": "nearby_table_caption",
+                    "rects": [
+                      {
+                        "x0": 352.66998291015625,
+                        "y0": 303.80108642578125,
+                        "x1": 501.30584716796875,
+                        "y1": 312.849365234375
+                      }
+                    ]
+                  }
+                ],
+                "rects": [
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 240.03115844726562,
+                    "x1": 382.1381530761719,
+                    "y1": 247.0049591064453
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 240.03115844726562,
+                    "x1": 449.7268981933594,
+                    "y1": 247.0049591064453
+                  }
+                ]
+              },
+              {
+                "chunk_id": "p11_b13",
+                "page": 11,
+                "text": "Table 9. End-to-end ﬁne-tuning setting.",
+                "quote": "Table 9. End-to-end ﬁne-tuning setting.",
+                "locator": null,
+                "context_text": null,
+                "source_context": [],
+                "rects": [
+                  {
+                    "x0": 352.66998291015625,
+                    "y0": 303.80108642578125,
+                    "x1": 501.30584716796875,
+                    "y1": 312.849365234375
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00031:L76-77",
+                "path": "main_finetune.py",
+                "start_line": 76,
+                "end_line": 77,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--warmup_epochs', type=int, default=5, metavar='N',\n                        help='epochs to warmup LR')"
+              }
+            ],
+            "verification": {
+              "status": "passed",
+              "required": true,
+              "reason": "论文明确标为端到端微调的设置与代码默认值均为 5 轮。",
+              "paper_statement": "Table 9 的端到端微调设置将 warmup epochs 列为 5 轮。",
+              "code_statement": "`main_finetune.py` 将 `--warmup_epochs` 的命令行默认值设为 5。"
+            }
+          },
+          {
+            "text": "监督线性探测另有其设置：论文 Table 10 warmup 为 10 轮；它与预训练及端到端微调分别列示。",
+            "verdict": "NOT_LOCATED",
+            "paper_citations": [
+              {
+                "chunk_id": "p11_b14",
+                "page": 11,
+                "text": "conﬁg\nvalue\noptimizer\nLARS [66]\nbase learning rate\n0.1\nweight decay\n0\noptimizer momentum\n0.9\nbatch size\n16384\nlearning rate schedule\ncosine decay\nwarmup epochs\n10\ntraining epochs\n90\naugmentation\nRandomResizedCrop",
+                "quote": "warmup epochs 10",
+                "locator": null,
+                "context_text": null,
+                "source_context": [
+                  {
+                    "chunk_id": "p11_b15",
+                    "page": 11,
+                    "text": "Table 10. Linear probing setting. We use LARS with a large\nbatch for faster training; SGD works similarly with a 4096 batch.",
+                    "relation": "nearby_table_caption",
+                    "rects": [
+                      {
+                        "x0": 308.86199951171875,
+                        "y0": 413.527099609375,
+                        "x1": 545.1096801757812,
+                        "y1": 422.57537841796875
+                      },
+                      {
+                        "x0": 308.8620300292969,
+                        "y0": 424.5679626464844,
+                        "x1": 542.3379516601562,
+                        "y1": 433.53436279296875
+                      }
+                    ]
+                  }
+                ],
+                "rects": [
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 382.275146484375,
+                    "x1": 382.1381530761719,
+                    "y1": 389.2489318847656
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 382.275146484375,
+                    "x1": 453.21380615234375,
+                    "y1": 389.2489318847656
+                  }
+                ]
+              },
+              {
+                "chunk_id": "p11_b15",
+                "page": 11,
+                "text": "Table 10. Linear probing setting. We use LARS with a large\nbatch for faster training; SGD works similarly with a 4096 batch.",
+                "quote": "Table 10. Linear probing setting.",
+                "locator": null,
+                "context_text": null,
+                "source_context": [],
+                "rects": [
+                  {
+                    "x0": 308.86199951171875,
+                    "y0": 413.527099609375,
+                    "x1": 545.1096801757812,
+                    "y1": 422.57537841796875
+                  }
+                ]
+              }
+            ],
+            "code_citations": [],
+            "verification": {
+              "status": "not_reviewed",
+              "required": false,
+              "reason": "",
+              "paper_statement": "",
+              "code_statement": ""
+            }
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v2-verified",
+          "max_requests": 12,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "list_dir",
+              "arguments": {
+                "path": ""
+              },
+              "outcome": "列出 16 项",
+              "ok": true
+            },
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "warmup_epochs"
+              },
+              "outcome": "匹配 7 行",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "pretraining warmup epochs number; supervised fine tuning warmup epochs setting"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "warmup"
+              },
+              "outcome": "匹配 5 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_pretrain.py",
+                "start_line": 60,
+                "end_line": 76
+              },
+              "outcome": "读取 main_pretrain.py L60–76",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_finetune.py",
+                "start_line": 70,
+                "end_line": 79
+              },
+              "outcome": "读取 main_finetune.py L70–79",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            },
+            {
+              "tool": "verify_findings",
+              "arguments": {},
+              "outcome": "复核 2 条发现，0 条待人工核对。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 6,
+          "tokens": 18219,
+          "elapsed_seconds": 25.042,
+          "fallback": false,
+          "repo_map_used": false
+        }
+      }
+    }
+  ],
+  "summary": {
+    "checkpoints": 1,
+    "checked": 1,
+    "not_checked": 0,
+    "failed": 0,
+    "unresolved": 0,
+    "consistent": 2,
+    "inconsistent": 0,
+    "partial": 0,
+    "not_located": 1,
+    "pending_review": 0
+  },
+  "plan_id": "consistency-plan-20261111T151914Z-a4916b",
+  "planned": 10,
+  "plan_rejected": 2,
+  "plan_over_limit": 0,
+  "plan_unselected": 8,
+  "max_checkpoints": 1,
+  "max_requests": 160,
+  "concurrency": 4,
+  "plan_requests": 12,
+  "repo_map": null,
+  "repo_map_reused": false,
+  "repo_map_requests": 0,
+  "repo_map_tokens": 0,
+  "requests": 18,
+  "tokens": 158366,
+  "elapsed_seconds": 66.9
+}

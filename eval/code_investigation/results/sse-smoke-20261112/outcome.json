@@ -1,0 +1,63 @@
+{
+  "job_id": "consistency-job-20261112T032827Z-01ba85",
+  "report_id": "consistency-20261112T032853Z-31cbd8",
+  "status": "SUCCEEDED",
+  "first_tool": {
+    "event_id": 5,
+    "tool": "list_dir",
+    "received_seconds": 6.968,
+    "job_status": "RUNNING"
+  },
+  "terminal_seconds": 27.433,
+  "disconnect_after_event": 5,
+  "event_count": 16,
+  "contiguous_ids": true,
+  "reconnect_no_duplicates_or_gaps": true,
+  "full_replay_matches": true,
+  "headers": [
+    {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Accel-Buffering": "no"
+    },
+    {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Accel-Buffering": "no"
+    },
+    {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Accel-Buffering": "no"
+    }
+  ],
+  "new_requests": 6,
+  "new_tokens": 18219,
+  "saved_plan_requests": 12,
+  "saved_plan_tokens": 140147,
+  "summary": {
+    "checkpoints": 1,
+    "checked": 1,
+    "not_checked": 0,
+    "failed": 0,
+    "unresolved": 0,
+    "consistent": 2,
+    "inconsistent": 0,
+    "partial": 0,
+    "not_located": 1,
+    "pending_review": 0
+  },
+  "limitations": [
+    "One known development question; engineering smoke, not an accuracy evaluation.",
+    "Live API reached through SSH tunnel; arbitrary reverse proxies not evaluated."
+  ],
+  "deployed_commit": "cb321cc945f0722425fbee9d72433e827fb82ab2",
+  "backend_local_tests": 638,
+  "backend_linux_tests": 638,
+  "browser_workflows": 8,
+  "frontend_build_passed": true,
+  "legacy_project_count": 7,
+  "legacy_audit_count": 11,
+  "legacy_exports_roundtrip": true,
+  "deployment_backup_and_previous_release_retained": true
+}
