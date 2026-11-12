@@ -118,3 +118,4 @@ class CodeInvestigationTrace(BaseModel):
     # True when the investigation did not produce the answer and the fixed
     # single-retrieval pipeline answered instead.
     fallback: bool = False
+    repo_map_used: bool = False

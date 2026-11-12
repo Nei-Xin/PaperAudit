@@ -106,7 +106,7 @@ def runtime_snapshot(settings):
                                 retrieval_top_k=settings.retrieval_top_k,
                                 judge_batch_size=settings.judge_batch_size, deep_audit=settings.deep_audit,
                                 consistency_max_requests=settings.consistency_max_requests,
-                                consistency_concurrency=settings.consistency_concurrency)
+                                consistency_concurrency=settings.consistency_concurrency, repo_map=settings.repo_map)
 
 
 def submit_peer_review(store, manager, settings, project_id, venue, rubric_weights=None, *, runtime=None):

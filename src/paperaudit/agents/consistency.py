@@ -54,8 +54,10 @@ class ConsistencyOrchestrator:
     PLAN_REQUESTS = 3  # One call plus the JSON repair, with a spare.
 
     def __init__(self, client: Hy3Client, model: str, *, max_checkpoints: int = 20,
-                 max_requests: int = 160, concurrency: int = 4):
+                 max_requests: int = 160, concurrency: int = 4,
+                 repo_map=None, enable_repo_map: bool = False, on_repo_map=None):
         self.client, self.model = client, model
+        self.repo_map, self.enable_repo_map, self.on_repo_map = repo_map, enable_repo_map, on_repo_map
         self.max_checkpoints, self.max_requests = max_checkpoints, max(1, max_requests)
         self.concurrency = max(1, concurrency)
 
@@ -118,8 +120,22 @@ class ConsistencyOrchestrator:
         started = monotonic()
         notify = progress or (lambda stage, value: None)
 
+        from .repo_mapper import build_repo_map, usable_map
+        memory = None
+        reused = False
+        map_requests = map_tokens = 0
+        if self.enable_repo_map and checkpoints:
+            if usable_map(self.repo_map, codebase):
+                memory, reused = self.repo_map, True
+            elif ceiling - plan.requests >= self.PER_ITEM_REQUESTS + 4:
+                notify("正在生成仓库地图", 0.12)
+                memory = build_repo_map(self.client, codebase, self.model)
+                map_requests, map_tokens = memory.requests, memory.tokens
+                if memory.entries and self.on_repo_map:
+                    self.on_repo_map(memory)
+
         state = Condition()
-        spent, tokens, running, done = plan.requests, plan.tokens, 0, 0
+        spent, tokens, running, done = plan.requests + map_requests, plan.tokens + map_tokens, 0, 0
         results: list[ConsistencyItem | None] = [None] * len(checkpoints)
 
         def work(index: int) -> None:
@@ -143,7 +159,7 @@ class ConsistencyOrchestrator:
             try:
                 answer, trace = CodeInvestigator(
                     self.client, paper, codebase, self.model,
-                    budget=budget, verify_findings=True,
+                    budget=budget, verify_findings=True, repo_map=memory,
                 ).run(checkpoint.question, AnswerScope.JOINT,
                       selected_paper_chunk_ids=[anchor.chunk_id] if anchor else [],
                       selected_paper_text=anchor.quote if anchor else None)
@@ -179,6 +195,7 @@ class ConsistencyOrchestrator:
             plan_unselected=max(0, len(plan.checkpoints) - sum(c.source == "planner" for c in checkpoints)) if reviewed else 0,
             max_checkpoints=self.max_checkpoints, max_requests=ceiling,
             concurrency=self.concurrency, plan_requests=plan.requests,
+            repo_map=memory, repo_map_reused=reused, repo_map_requests=map_requests, repo_map_tokens=map_tokens,
             requests=spent, tokens=tokens,
             elapsed_seconds=round(plan.elapsed_seconds + monotonic() - started, 1),
         )

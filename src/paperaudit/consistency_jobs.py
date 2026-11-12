@@ -57,6 +57,9 @@ class ConsistencyJobManager(BackgroundJobManager[ConsistencyJob]):
             if not plan.checkpoints:
                 raise StorageError("没有从论文中找到可以通过阅读代码核对的要点。")
             return {"plan_id": self._store.save_consistency_plan(job.project_id, plan).plan_id}
+        map_options = ({"repo_map": self._store.load_repo_map(job.project_id),
+                        "on_repo_map": lambda memory: self._store.save_repo_map(job.project_id, memory)}
+                       if settings.repo_map else {})
         if job.kind == "execute":
             plan = self._store.load_consistency_plan(job.project_id, job.plan_id or "")
             validate_plan_inputs(plan, saved.paper, saved.codebase)
@@ -64,11 +67,11 @@ class ConsistencyJobManager(BackgroundJobManager[ConsistencyJob]):
             chosen += [ConsistencyCheckpoint(checkpoint_id=f"U{n:02d}", topic=question[:40],
                                              category=ConsistencyCategory.OTHER, question=question, source="user")
                        for n, question in enumerate(job.extra_questions, 1)]
-            report = service.check_consistency(saved.paper, saved.codebase, chosen, plan, progress=context.progress)
+            report = service.check_consistency(saved.paper, saved.codebase, chosen, plan, progress=context.progress, **map_options)
         else:
             report = service.audit_consistency(
                 saved.paper, saved.codebase, max_checkpoints=job.max_checkpoints, progress=context.progress,
-                strategy=job.planning_strategy,
+                strategy=job.planning_strategy, **map_options,
             )
         if not report.items:
             raise StorageError("没有找到可核对的要点，请重试规划或补充自定义问题。")

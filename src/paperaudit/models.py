@@ -716,6 +716,7 @@ class AuditRuntimeSnapshot(StrictModel):
     deep_audit: bool = False
     consistency_max_requests: int = Field(default=160, ge=1)
     consistency_concurrency: int = Field(default=4, ge=1)
+    repo_map: bool = False
 
 
 class AuditJob(StrictModel):
@@ -883,6 +884,40 @@ class ConsistencySummary(StrictModel):
     pending_review: int = 0  # Findings withheld after failed or unavailable semantic verification.
 
 
+class RepoMapEntry(StrictModel):
+    path: str = Field(min_length=1, max_length=300)
+    start_line: int = Field(ge=1, strict=True)
+    end_line: int = Field(ge=1, strict=True)
+    role: str = Field(min_length=1, max_length=160)
+
+    @model_validator(mode="after")
+    def ordered_lines(self):
+        if self.end_line < self.start_line or self.end_line - self.start_line >= 150:
+            raise ValueError("Map locations must cover 1 to 150 lines")
+        return self
+
+
+class RepoMap(StrictModel):
+    version: str = "repo-map-v1"
+    code_hash: str
+    model: str
+    entries: list[RepoMapEntry] = Field(default_factory=list, max_length=10)
+    steps: list[CodeInvestigationStep] = Field(default_factory=list)
+    stop_reason: str
+    requests: int = Field(default=0, ge=0, le=4)
+    tokens: int = Field(default=0, ge=0)
+    elapsed_seconds: float = 0
+
+    def navigation_text(self) -> str:
+        return "\n".join(f"{e.path} L{e.start_line}-{e.end_line}: {e.role}" for e in self.entries)
+
+    @model_validator(mode="after")
+    def bounded_text(self):
+        if len(self.navigation_text()) > 1500:
+            raise ValueError("Repository map exceeds 1500 characters")
+        return self
+
+
 class ConsistencyReport(StrictModel):
     """Result of checking every planned point of a paper against its code."""
 
@@ -904,6 +939,10 @@ class ConsistencyReport(StrictModel):
     max_requests: int
     concurrency: int
     plan_requests: int = 0
+    repo_map: RepoMap | None = None
+    repo_map_reused: bool = False
+    repo_map_requests: int = 0  # Charged in this execution; cached maps cost zero.
+    repo_map_tokens: int = 0
     requests: int = 0       # All model requests, planning included.
     tokens: int = 0
     elapsed_seconds: float = 0

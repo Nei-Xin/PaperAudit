@@ -57,8 +57,11 @@ for (const width of [1440, 390]) {
     await expect(page.getByText("论文为 40，代码为 20，不支持一致判定。", { exact: true })).toBeVisible();
     await expect(page.getByText("证据支持复核通过", { exact: true })).toBeVisible();
     await expect(page.getByText(/相邻表题 · 第 1 页 · fixture-caption：Table 8/).first()).toBeVisible();
+    await page.getByText("仓库地图 · 复用已保存地图 · 新增 0 次请求", { exact: true }).click();
+    await expect(page.getByText("训练入口和默认配置", { exact: true })).toBeVisible();
     await page.reload();
     await expect(page.getByRole("heading", { name: "3. 核对报告" })).toBeVisible();
+    await expect(page.getByText("仓库地图 · 复用已保存地图 · 新增 0 次请求", { exact: true })).toBeVisible();
     await expect(page.getByText(/相邻表题 · 第 1 页 · fixture-caption：Table 8/).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await review.screenshot({ path: testInfo.outputPath("planning-review.png") });

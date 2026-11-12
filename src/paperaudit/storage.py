@@ -23,6 +23,7 @@ from paperaudit.models import (
     ConsistencyJob,
     ConsistencyPlan,
     ConsistencyReport,
+    RepoMap,
     AuditJobStatus,
     AuditRun,
     AuditRuntimeSnapshot,
@@ -1621,10 +1622,31 @@ class ProjectStore:
         return interrupted
 
 
+    def load_repo_map(self, project_id: str) -> RepoMap | None:
+        """Optional cache: missing, damaged or stale maps never block an investigation."""
+        from paperaudit.agents.repo_mapper import usable_map
+        directory = self._require_project_dir(project_id)
+        try:
+            memory = RepoMap.model_validate_json((directory / "repo-map.json").read_bytes())
+            codebase = ParsedCodebase.model_validate_json((directory / "codebase.json").read_bytes())
+            return memory if usable_map(memory, codebase) else None
+        except (OSError, ValueError):
+            return None
+
+    @_serialized_write
+    def save_repo_map(self, project_id: str, memory: RepoMap) -> None:
+        from paperaudit.agents.repo_mapper import usable_map
+        directory = self._require_project_dir(project_id)
+        codebase = ParsedCodebase.model_validate_json((directory / "codebase.json").read_bytes())
+        if not usable_map(memory, codebase):
+            raise StorageError("仓库地图为空、版本过期或代码已变化，不能保存。")
+        _atomic_write(directory / "repo-map.json", memory.model_dump_json(indent=2).encode())
+
     @_serialized_write
     def save_codebase(self, project_id: str, codebase: ParsedCodebase) -> None:
         directory = self._require_project_dir(project_id)
         _atomic_write(directory / "codebase.json", codebase.model_dump_json(indent=2).encode())
+        (directory / "repo-map.json").unlink(missing_ok=True)
         metadata = _metadata_from_dict(json.loads((directory / "metadata.json").read_text()))
         _atomic_write_json(directory / "metadata.json", replace(metadata, has_code=True, updated_at=_utc_now()).__dict__)
 

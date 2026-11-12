@@ -167,7 +167,8 @@ def code_question(request: Request, pid: str, body: CodeQuestion):
             saved.paper, saved.codebase, body.question, requested_scope=body.scope,
             history=current.joint_history, selected_paper_chunk_ids=ids,
             selected_paper_text=text, selected_code=selection,
-            investigate=body.investigate)
+            investigate=body.investigate,
+            **({"repo_map": state.api.store.load_repo_map(pid)} if state.api.settings.repo_map else {}))
         updated = replace(current, joint_history=[*current.joint_history, answer][-10:],
                           title=body.question[:36] if (current.title in {"新对话", "默认对话"}
                           and not current.paper_history and not current.joint_history) else current.title,

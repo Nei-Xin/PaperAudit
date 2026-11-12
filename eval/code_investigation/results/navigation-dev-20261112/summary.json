@@ -1,0 +1,138 @@
+{
+  "source_sha256": "90135ee2797c9aa6713e276a2e5b88d64380ec3a35b423cac6a64cc61a9a05ec",
+  "source": "tmp/experiments/code-investigation/dev-v1-run4-abstain-fix/observations.jsonl",
+  "overall": {
+    "investigations": 117,
+    "tool_calls": {
+      "list_dir": 128,
+      "grep_paper": 109,
+      "search_paper": 105,
+      "search_code": 71,
+      "grep_code": 104,
+      "find_symbol": 18,
+      "read_file": 172,
+      "read_page": 9
+    },
+    "first_three": {
+      "list_dir": 120,
+      "grep_paper": 26,
+      "search_paper": 45,
+      "grep_code": 68,
+      "read_file": 37,
+      "search_code": 51,
+      "find_symbol": 4
+    },
+    "first_three_with_list_dir": 93,
+    "first_three_with_unscoped_grep": 57,
+    "requests": 695,
+    "tokens": 2425604
+  },
+  "by_paper": {
+    "gcn": {
+      "investigations": 30,
+      "tool_calls": {
+        "list_dir": 50,
+        "grep_code": 21,
+        "search_paper": 30,
+        "read_file": 45,
+        "grep_paper": 28,
+        "search_code": 22,
+        "read_page": 3,
+        "find_symbol": 4
+      },
+      "first_three": {
+        "list_dir": 47,
+        "grep_code": 9,
+        "search_code": 17,
+        "search_paper": 11,
+        "read_file": 1,
+        "grep_paper": 5
+      },
+      "first_three_with_list_dir": 28,
+      "first_three_with_unscoped_grep": 5,
+      "requests": 203,
+      "tokens": 705993
+    },
+    "lora": {
+      "investigations": 18,
+      "tool_calls": {
+        "list_dir": 29,
+        "search_code": 18,
+        "search_paper": 23,
+        "read_file": 23,
+        "grep_paper": 20,
+        "grep_code": 11,
+        "read_page": 5,
+        "find_symbol": 5
+      },
+      "first_three": {
+        "list_dir": 24,
+        "search_code": 14,
+        "grep_code": 5,
+        "find_symbol": 2,
+        "read_file": 2,
+        "search_paper": 7
+      },
+      "first_three_with_list_dir": 16,
+      "first_three_with_unscoped_grep": 3,
+      "requests": 122,
+      "tokens": 493004
+    },
+    "mae": {
+      "investigations": 33,
+      "tool_calls": {
+        "grep_code": 30,
+        "read_file": 42,
+        "search_paper": 30,
+        "grep_paper": 30,
+        "list_dir": 25,
+        "search_code": 10,
+        "find_symbol": 4,
+        "read_page": 1
+      },
+      "first_three": {
+        "grep_code": 24,
+        "read_file": 15,
+        "search_paper": 17,
+        "list_dir": 25,
+        "grep_paper": 9,
+        "search_code": 8,
+        "find_symbol": 1
+      },
+      "first_three_with_list_dir": 25,
+      "first_three_with_unscoped_grep": 24,
+      "requests": 167,
+      "tokens": 538588
+    },
+    "moco": {
+      "investigations": 36,
+      "tool_calls": {
+        "list_dir": 24,
+        "grep_paper": 31,
+        "search_paper": 22,
+        "search_code": 21,
+        "grep_code": 42,
+        "find_symbol": 5,
+        "read_file": 62
+      },
+      "first_three": {
+        "list_dir": 24,
+        "grep_paper": 12,
+        "search_paper": 10,
+        "grep_code": 30,
+        "read_file": 19,
+        "search_code": 12,
+        "find_symbol": 1
+      },
+      "first_three_with_list_dir": 24,
+      "first_three_with_unscoped_grep": 25,
+      "requests": 203,
+      "tokens": 688019
+    }
+  },
+  "limitations": [
+    "Tool calls are not model requests; old traces do not retain request-to-tool grouping.",
+    "Unscoped grep may be a precise parameter lookup, not directory exploration.",
+    "Counts identify a possible optimization, not measured cost savings."
+  ]
+}

@@ -289,6 +289,18 @@ function Report({
           {Math.round(report.elapsed_seconds)} 秒。
         </p>
       </section>
+      {report.repo_map && <details className="rounded-card bg-card p-4 text-sm text-ink-3">
+        <summary className="cursor-pointer">仓库地图 · {report.repo_map_reused ? "复用已保存地图" : "本次生成"} · 新增 {report.repo_map_requests ?? 0} 次请求</summary>
+        <p className="mt-2 text-xs text-ink-4">仅帮助定位；判定仍须引用本次实际读到的代码。替换代码后地图失效。</p>
+        {!report.repo_map.entries.length && <p className="mt-2">未生成可用地图，本次调查照常进行。</p>}
+        <ul className="mt-2 space-y-2">
+          {report.repo_map.entries.map((entry, n) => <li key={n}>
+            <Link className="break-all text-accent" to={`/p/${projectId}/read?view=code&file=${encodeURIComponent(entry.path)}`}>
+              {entry.path} · L{entry.start_line}–{entry.end_line}
+            </Link><span className="ml-2">{entry.role}</span>
+          </li>)}
+        </ul>
+      </details>}
       {GROUPS.map(({ key, title, hint }) => {
         const items = grouped.get(key);
         if (!items?.length) return null;

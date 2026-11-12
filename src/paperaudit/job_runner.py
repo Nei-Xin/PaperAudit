@@ -98,7 +98,7 @@ class BackgroundJobManager(Generic[JobT]):
                            judge_batch_size=job.runtime.judge_batch_size,
                            deep_audit=job.runtime.deep_audit,
                            consistency_max_requests=job.runtime.consistency_max_requests,
-                           consistency_concurrency=job.runtime.consistency_concurrency)
+                           consistency_concurrency=job.runtime.consistency_concurrency, repo_map=job.runtime.repo_map)
         context = JobContext(job.model_copy(update={
             "status": AuditJobStatus.RUNNING, "started_at": utc_now(),
             "progress": 0.01, "stage": self.start_stage, "error": None,

@@ -84,7 +84,7 @@ class BrowserService(FakeService):
                 for i, topic in enumerate(["训练配置", "评估设置"], 1)])
 
     def check_consistency(self, paper, codebase, checkpoints, plan, *, progress=None):
-        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary, PaperCodeFinding, FindingVerification, EvidenceContext
+        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary, PaperCodeFinding, FindingVerification, EvidenceContext, RepoMap, RepoMapEntry
         from paperaudit.agents.consistency import summarize
         time.sleep(.4)
         if progress:
@@ -105,6 +105,9 @@ class BrowserService(FakeService):
                 answer=answer.model_copy(update={"findings": [finding]})))
         return ConsistencyReport(model="fake", paper_title=paper.title, codebase_name=codebase.name,
             plan_id=plan.plan_id, items=items, summary=summarize(items),
+            repo_map=RepoMap(code_hash=plan.code_hash,model="fake",stop_reason="finished",
+                entries=[RepoMapEntry(path=codebase.files[0].path,start_line=1,end_line=2,role="训练入口和默认配置")]),
+            repo_map_reused=True,
             planned=plan.proposed, plan_rejected=0,
             plan_unselected=len(plan.checkpoints) - sum(c.source == "planner" for c in checkpoints),
             max_checkpoints=len(checkpoints), max_requests=160, concurrency=4, plan_requests=2,

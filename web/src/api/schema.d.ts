@@ -890,6 +890,11 @@ export interface components {
              * @default 4
              */
             consistency_concurrency: number;
+            /**
+             * Repo Map
+             * @default false
+             */
+            repo_map: boolean;
         };
         /** AuditSummary */
         AuditSummary: {
@@ -1186,6 +1191,11 @@ export interface components {
              * @default false
              */
             fallback: boolean;
+            /**
+             * Repo Map Used
+             * @default false
+             */
+            repo_map_used: boolean;
         };
         /** CodeQuestion */
         CodeQuestion: {
@@ -1476,6 +1486,22 @@ export interface components {
              * @default 0
              */
             plan_requests: number;
+            repo_map: components["schemas"]["RepoMap"] | null;
+            /**
+             * Repo Map Reused
+             * @default false
+             */
+            repo_map_reused: boolean;
+            /**
+             * Repo Map Requests
+             * @default 0
+             */
+            repo_map_requests: number;
+            /**
+             * Repo Map Tokens
+             * @default 0
+             */
+            repo_map_tokens: number;
             /**
              * Requests
              * @default 0
@@ -2512,6 +2538,50 @@ export interface components {
             privacy_ack: boolean;
             /** Expected Run Id */
             expected_run_id: string;
+        };
+        /** RepoMap */
+        RepoMap: {
+            /**
+             * Version
+             * @default repo-map-v1
+             */
+            version: string;
+            /** Code Hash */
+            code_hash: string;
+            /** Model */
+            model: string;
+            /** Entries */
+            entries: components["schemas"]["RepoMapEntry"][];
+            /** Steps */
+            steps: components["schemas"]["CodeInvestigationStep"][];
+            /** Stop Reason */
+            stop_reason: string;
+            /**
+             * Requests
+             * @default 0
+             */
+            requests: number;
+            /**
+             * Tokens
+             * @default 0
+             */
+            tokens: number;
+            /**
+             * Elapsed Seconds
+             * @default 0
+             */
+            elapsed_seconds: number;
+        };
+        /** RepoMapEntry */
+        RepoMapEntry: {
+            /** Path */
+            path: string;
+            /** Start Line */
+            start_line: number;
+            /** End Line */
+            end_line: number;
+            /** Role */
+            role: string;
         };
         /** ReportPreview */
         ReportPreview: {

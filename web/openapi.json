@@ -2750,6 +2750,11 @@
             "minimum": 1.0,
             "title": "Consistency Concurrency",
             "default": 4
+          },
+          "repo_map": {
+            "type": "boolean",
+            "title": "Repo Map",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -2761,7 +2766,8 @@
           "judge_batch_size",
           "deep_audit",
           "consistency_max_requests",
-          "consistency_concurrency"
+          "consistency_concurrency",
+          "repo_map"
         ],
         "title": "AuditRuntimeSnapshot",
         "description": "Non-secret runtime settings retained for reproducibility."
@@ -3580,6 +3586,11 @@
             "type": "boolean",
             "title": "Fallback",
             "default": false
+          },
+          "repo_map_used": {
+            "type": "boolean",
+            "title": "Repo Map Used",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -4270,6 +4281,31 @@
             "title": "Plan Requests",
             "default": 0
           },
+          "repo_map": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RepoMap"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "repo_map_reused": {
+            "type": "boolean",
+            "title": "Repo Map Reused",
+            "default": false
+          },
+          "repo_map_requests": {
+            "type": "integer",
+            "title": "Repo Map Requests",
+            "default": 0
+          },
+          "repo_map_tokens": {
+            "type": "integer",
+            "title": "Repo Map Tokens",
+            "default": 0
+          },
           "requests": {
             "type": "integer",
             "title": "Requests",
@@ -4307,6 +4343,10 @@
           "max_requests",
           "concurrency",
           "plan_requests",
+          "repo_map",
+          "repo_map_reused",
+          "repo_map_requests",
+          "repo_map_tokens",
           "requests",
           "tokens",
           "elapsed_seconds"
@@ -6881,6 +6921,109 @@
           "expected_run_id"
         ],
         "title": "RelatedWorkRequest"
+      },
+      "RepoMap": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "default": "repo-map-v1"
+          },
+          "code_hash": {
+            "type": "string",
+            "title": "Code Hash"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/RepoMapEntry"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Entries"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/CodeInvestigationStep"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "stop_reason": {
+            "type": "string",
+            "title": "Stop Reason"
+          },
+          "requests": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 0.0,
+            "title": "Requests",
+            "default": 0
+          },
+          "tokens": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Tokens",
+            "default": 0
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "code_hash",
+          "model",
+          "entries",
+          "steps",
+          "stop_reason",
+          "requests",
+          "tokens",
+          "elapsed_seconds"
+        ],
+        "title": "RepoMap"
+      },
+      "RepoMapEntry": {
+        "properties": {
+          "path": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Path"
+          },
+          "start_line": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Start Line"
+          },
+          "end_line": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "End Line"
+          },
+          "role": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Role"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "path",
+          "start_line",
+          "end_line",
+          "role"
+        ],
+        "title": "RepoMapEntry"
       },
       "ReportPreview": {
         "properties": {

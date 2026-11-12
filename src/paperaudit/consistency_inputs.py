@@ -5,11 +5,13 @@ import json
 from paperaudit.models import ConsistencyPlan, ParsedCodebase, ParsedPaper
 
 
+def index_hash(value: ParsedPaper | ParsedCodebase) -> str:
+    return sha256(json.dumps(value.model_dump(mode="json"), sort_keys=True,
+                            ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+
+
 def input_hashes(paper: ParsedPaper, codebase: ParsedCodebase) -> dict[str, str]:
-    def digest(value):
-        return sha256(json.dumps(value.model_dump(mode="json"), sort_keys=True,
-                                 ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
-    return {"paper_hash": digest(paper), "code_hash": digest(codebase)}
+    return {"paper_hash": index_hash(paper), "code_hash": index_hash(codebase)}
 
 
 def validate_plan_inputs(plan: ConsistencyPlan, paper: ParsedPaper, codebase: ParsedCodebase) -> None:
