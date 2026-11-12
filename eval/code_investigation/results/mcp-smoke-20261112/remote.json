@@ -1,0 +1,9 @@
+{
+  "transport": "SSH stdio",
+  "tools_listed": 8,
+  "read_page": 11,
+  "response_matches_local_snapshot": true,
+  "paper_chunk_present": true,
+  "caption_present": true,
+  "server_model_requests": 0
+}

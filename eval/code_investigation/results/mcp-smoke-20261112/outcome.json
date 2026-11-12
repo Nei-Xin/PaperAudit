@@ -34,5 +34,11 @@
     "Client answer is not checked by PaperAudit citation validation or semantic review.",
     "Server performs no model calls; the external client still incurs its own model usage.",
     "Single-project startup snapshot; reconnect after input replacement."
-  ]
+  ],
+  "implementation_commit": "ec2b148a2a4183604c20cf33458a981cbda6ec60",
+  "linux_backend_tests": 645,
+  "release_manifest_verified": true,
+  "standalone_server_installed": true,
+  "web_service_restarted": false,
+  "source_snapshot_matches_server_hashes": true
 }
