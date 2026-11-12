@@ -15,6 +15,8 @@ from time import monotonic
 
 from openai import APIError
 
+from paperaudit.consistency_events import StepLog
+
 from paperaudit.evidence import _quote_rects
 from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
 from paperaudit.models import (
@@ -111,15 +113,16 @@ class ConsistencyPlanner:
     CLOSING_REQUESTS = 3
 
     def __init__(self, client: Hy3Client, model: str, *, target: int = 20,
-                 budget: RequestBudget | None = None):
+                 budget: RequestBudget | None = None, on_step=None):
         self.client, self.model, self.target = client, model, target
+        self.on_step = on_step
         self.limit = min(60, target * 2)  # Enough spare for a person to choose from.
         self.budget = budget or RequestBudget(max_requests=12, max_seconds=240)
 
     def run(self, paper: ParsedPaper, codebase: ParsedCodebase) -> ConsistencyPlan:
         accepted: list[ConsistencyCheckpoint] = []
         seen: set[str] = set()
-        steps: list[CodeInvestigationStep] = []
+        steps = StepLog(self.on_step)
         proposed = rejected = reads = 0
         stop = ""
         nudged = review_pending = False
@@ -205,7 +208,8 @@ class ConsistencyPlanner:
                         rejected += not outcome.startswith("ACCEPTED")
                         reply(outcome)
                         steps.append(CodeInvestigationStep(tool=call.name,
-                            arguments={"topic": str(arguments.get("topic", ""))[:120]},
+                            arguments={"topic": str(arguments.get("topic", ""))[:120],
+                                       **({"checkpoint_id": accepted[-1].checkpoint_id} if outcome.startswith("ACCEPTED") else {})},
                             outcome=outcome, ok=outcome.startswith("ACCEPTED")))
                         continue
                     if extracting or call.name not in PLANNER_TOOLS or reads >= self.MAX_READ_CALLS:

@@ -948,6 +948,23 @@ class ConsistencyReport(StrictModel):
     elapsed_seconds: float = 0
 
 
+class ConsistencyEvent(StrictModel):
+    event_id: int = Field(ge=1)
+    job_id: str
+    created_at: str
+    kind: Literal["job_status", "planning_started", "planning_step", "checkpoint_accepted",
+                  "planning_finished", "item_queued", "item_started", "tool_step", "verification", "item_finished"]
+    checkpoint_id: str | None = None
+    topic: str = Field(default="", max_length=160)
+    tool: str = Field(default="", max_length=60)
+    arguments: dict[str, str | int | bool] = Field(default_factory=dict)
+    outcome: str = Field(default="", max_length=400)
+    ok: bool = True
+    status: str = Field(default="", max_length=40)
+    verdicts: list[FindingVerdict] = Field(default_factory=list, max_length=8)
+    pending_review: int = Field(default=0, ge=0)
+
+
 class ConsistencyJob(StrictModel):
     """Persisted status for one background paper-code consistency audit."""
 

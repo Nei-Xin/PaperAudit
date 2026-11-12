@@ -432,6 +432,68 @@
         }
       }
     },
+    "/api/projects/{pid}/consistency-jobs/{job_id}/events": {
+      "get": {
+        "summary": "Consistency Events",
+        "description": "Replay durable records, then tail. Last-Event-ID takes precedence on reconnect.",
+        "operationId": "consistency_events_api_projects__pid__consistency_jobs__job_id__events_get",
+        "parameters": [
+          {
+            "name": "pid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pid"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 9999999999,
+              "minimum": 0,
+              "default": 0,
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSE: audit data is a ConsistencyEvent; end carries persisted job status.",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/ConsistencyEvent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/projects/{pid}": {
       "patch": {
         "summary": "Rename Project",
@@ -3858,6 +3920,128 @@
         ],
         "title": "ConsistencyCheckpoint",
         "description": "One point the paper states that can be checked by reading the code."
+      },
+      "ConsistencyEvent": {
+        "properties": {
+          "event_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Event Id"
+          },
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "job_status",
+              "planning_started",
+              "planning_step",
+              "checkpoint_accepted",
+              "planning_finished",
+              "item_queued",
+              "item_started",
+              "tool_step",
+              "verification",
+              "item_finished"
+            ],
+            "title": "Kind"
+          },
+          "checkpoint_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkpoint Id"
+          },
+          "topic": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Topic",
+            "default": ""
+          },
+          "tool": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Tool",
+            "default": ""
+          },
+          "arguments": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Arguments"
+          },
+          "outcome": {
+            "type": "string",
+            "maxLength": 400,
+            "title": "Outcome",
+            "default": ""
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "default": true
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 40,
+            "title": "Status",
+            "default": ""
+          },
+          "verdicts": {
+            "items": {
+              "$ref": "#/components/schemas/FindingVerdict"
+            },
+            "type": "array",
+            "maxItems": 8,
+            "title": "Verdicts"
+          },
+          "pending_review": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pending Review",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_id",
+          "job_id",
+          "created_at",
+          "kind",
+          "checkpoint_id",
+          "topic",
+          "tool",
+          "arguments",
+          "outcome",
+          "ok",
+          "status",
+          "verdicts",
+          "pending_review"
+        ],
+        "title": "ConsistencyEvent"
       },
       "ConsistencyItem": {
         "properties": {

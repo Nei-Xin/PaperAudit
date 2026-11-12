@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from typing import Protocol
+import logging
+from threading import Lock
 
 from paperaudit.code_service import CodeLearningService
 from paperaudit.config import Settings
@@ -16,15 +18,15 @@ from paperaudit.storage import ProjectStore, StorageError
 class ConsistencyRunner(Protocol):
     def audit_consistency(self, paper: object, codebase: object, *, max_checkpoints: int,
                           progress: Callable[[str, float], None] | None = None,
-                          strategy: str = "one-shot") -> ConsistencyReport: ...
+                          strategy: str = "one-shot", on_event=None) -> ConsistencyReport: ...
 
     def plan_consistency(self, paper: object, codebase: object, *, max_checkpoints: int,
                          progress: Callable[[str, float], None] | None = None,
-                         strategy: str = "one-shot") -> ConsistencyPlan: ...
+                         strategy: str = "one-shot", on_event=None) -> ConsistencyPlan: ...
 
     def check_consistency(self, paper: object, codebase: object, checkpoints: list[ConsistencyCheckpoint],
                           plan: ConsistencyPlan, *,
-                          progress: Callable[[str, float], None] | None = None) -> ConsistencyReport: ...
+                          progress: Callable[[str, float], None] | None = None, on_event=None) -> ConsistencyReport: ...
 
 
 class ConsistencyJobManager(BackgroundJobManager[ConsistencyJob]):
@@ -50,10 +52,32 @@ class ConsistencyJobManager(BackgroundJobManager[ConsistencyJob]):
         if saved.codebase is None:
             raise StorageError("项目中的代码已被移除，无法执行一致性审计。")
         service = self._service_factory(settings)
+        events_available = True
+        event_lock = Lock()
+        def event(**fields):
+            nonlocal events_available
+            def redact(value):
+                if isinstance(value, str):
+                    for secret in (settings.api_key, settings.api_base):
+                        if secret:
+                            value = value.replace(secret, "[已隐藏]")
+                elif isinstance(value, dict):
+                    value = {k: redact(v) for k, v in value.items()}
+                elif isinstance(value, list):
+                    value = [redact(v) for v in value]
+                return value
+            with event_lock:
+                if not events_available:
+                    return
+                try:
+                    self._store.append_consistency_event(job.project_id, job.job_id, **redact(fields))
+                except (OSError, ValueError, StorageError):
+                    events_available = False
+                    logging.getLogger(__name__).warning("Consistency events unavailable; continuing task")
         if job.kind == "plan":
             # Stop here: the stored plan waits for a person to choose what gets checked.
             plan = service.plan_consistency(saved.paper, saved.codebase, max_checkpoints=job.max_checkpoints,
-                                            progress=context.progress, strategy=job.planning_strategy)
+                                            progress=context.progress, strategy=job.planning_strategy, on_event=event)
             if not plan.checkpoints:
                 raise StorageError("没有从论文中找到可以通过阅读代码核对的要点。")
             return {"plan_id": self._store.save_consistency_plan(job.project_id, plan).plan_id}
@@ -67,11 +91,11 @@ class ConsistencyJobManager(BackgroundJobManager[ConsistencyJob]):
             chosen += [ConsistencyCheckpoint(checkpoint_id=f"U{n:02d}", topic=question[:40],
                                              category=ConsistencyCategory.OTHER, question=question, source="user")
                        for n, question in enumerate(job.extra_questions, 1)]
-            report = service.check_consistency(saved.paper, saved.codebase, chosen, plan, progress=context.progress, **map_options)
+            report = service.check_consistency(saved.paper, saved.codebase, chosen, plan, progress=context.progress, on_event=event, **map_options)
         else:
             report = service.audit_consistency(
                 saved.paper, saved.codebase, max_checkpoints=job.max_checkpoints, progress=context.progress,
-                strategy=job.planning_strategy, **map_options,
+                strategy=job.planning_strategy, on_event=event, **map_options,
             )
         if not report.items:
             raise StorageError("没有找到可核对的要点，请重试规划或补充自定义问题。")

@@ -17,6 +17,7 @@ from time import monotonic
 
 from openai import APIError
 
+from paperaudit.consistency_events import step_fields
 from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
 from paperaudit.consistency_inputs import input_hashes, validate_plan_inputs
 from paperaudit.models import (
@@ -55,8 +56,9 @@ class ConsistencyOrchestrator:
 
     def __init__(self, client: Hy3Client, model: str, *, max_checkpoints: int = 20,
                  max_requests: int = 160, concurrency: int = 4,
-                 repo_map=None, enable_repo_map: bool = False, on_repo_map=None):
+                 repo_map=None, enable_repo_map: bool = False, on_repo_map=None, on_event=None):
         self.client, self.model = client, model
+        self.emit = on_event or (lambda **fields: None)
         self.repo_map, self.enable_repo_map, self.on_repo_map = repo_map, enable_repo_map, on_repo_map
         self.max_checkpoints, self.max_requests = max_checkpoints, max(1, max_requests)
         self.concurrency = max(1, concurrency)
@@ -73,10 +75,17 @@ class ConsistencyOrchestrator:
         (progress or (lambda stage, value: None))("正在阅读论文并规划要核对的要点", 0.05)
         if strategy not in {"one-shot", "agent"}:
             raise ValueError("Unknown consistency planning strategy")
+        self.emit(kind="planning_started", outcome="正在规划核对要点。")
+        def planning_step(step):
+            accepted = step.tool == "propose_checkpoint" and step.ok
+            self.emit(kind="checkpoint_accepted" if accepted else "planning_step",
+                      checkpoint_id=str(step.arguments["checkpoint_id"]) if accepted else None,
+                      topic=str(step.arguments.get("topic", ""))[:160], **step_fields(step))
         if strategy == "agent":
             plan = ConsistencyPlanner(
                 self.client, self.model, target=self.max_checkpoints,
                 budget=RequestBudget(max_requests=min(12, self.max_requests), max_seconds=240),
+                on_step=planning_step,
             ).run(paper, codebase)
             if not plan.checkpoints and plan.requests < self.max_requests:
                 fallback = self._plan_in_one_call(paper, self.max_requests - plan.requests)
@@ -89,6 +98,12 @@ class ConsistencyOrchestrator:
                 })
         else:
             plan = self._plan_in_one_call(paper, self.max_requests)
+        if strategy == "one-shot" or plan.fallback:
+            for checkpoint in plan.checkpoints:
+                self.emit(kind="checkpoint_accepted", checkpoint_id=checkpoint.checkpoint_id,
+                          topic=checkpoint.topic[:160], outcome="核对要点已接受。")
+        self.emit(kind="planning_finished", outcome=f"规划得到 {len(plan.checkpoints)} 个有效要点。",
+                  status=plan.stop_reason)
         return plan.model_copy(update={**input_hashes(paper, codebase),
                                        "target": self.max_checkpoints, "max_requests": self.max_requests})
 
@@ -138,6 +153,18 @@ class ConsistencyOrchestrator:
         spent, tokens, running, done = plan.requests + map_requests, plan.tokens + map_tokens, 0, 0
         results: list[ConsistencyItem | None] = [None] * len(checkpoints)
 
+        for checkpoint in checkpoints:
+            self.emit(kind="item_queued", checkpoint_id=checkpoint.checkpoint_id,
+                      topic=checkpoint.topic[:160], status="queued", outcome="等待核对。")
+
+        def finish_event(item):
+            findings = item.answer.findings if item.answer else []
+            self.emit(kind="item_finished", checkpoint_id=item.checkpoint.checkpoint_id,
+                      status=item.status.value, topic=item.checkpoint.topic[:160],
+                      outcome=(item.note or ("核对完成。" if findings else "证据不足，未得出判定。"))[:400],
+                      verdicts=[f.verdict.value for f in findings],
+                      pending_review=sum(f.needs_review for f in findings))
+
         def work(index: int) -> None:
             nonlocal spent, tokens, running, done
             checkpoint = checkpoints[index]
@@ -153,13 +180,19 @@ class ConsistencyOrchestrator:
                         checkpoint=checkpoint, status=ConsistencyItemStatus.NOT_CHECKED,
                         note="达到本次审计的模型请求上限，未核对该项。")
                     done += 1
+                    finish_event(results[index])
                     return
                 running += 1
             budget = RequestBudget(max_requests=self.PER_ITEM_REQUESTS, max_seconds=180)
             try:
+                self.emit(kind="item_started", checkpoint_id=checkpoint.checkpoint_id,
+                          topic=checkpoint.topic[:160], status="running", outcome="正在核对。")
                 answer, trace = CodeInvestigator(
                     self.client, paper, codebase, self.model,
                     budget=budget, verify_findings=True, repo_map=memory,
+                    on_step=lambda step: self.emit(
+                        kind="verification" if step.tool == "verify_findings" else "tool_step",
+                        checkpoint_id=checkpoint.checkpoint_id, **step_fields(step)),
                 ).run(checkpoint.question, AnswerScope.JOINT,
                       selected_paper_chunk_ids=[anchor.chunk_id] if anchor else [],
                       selected_paper_text=anchor.quote if anchor else None)
@@ -177,6 +210,7 @@ class ConsistencyOrchestrator:
                 running -= 1
                 done += 1
                 state.notify_all()
+                finish_event(item)
                 notify(f"正在逐项核对（{done}/{len(checkpoints)}）", 0.15 + 0.8 * done / len(checkpoints))
 
         if checkpoints:

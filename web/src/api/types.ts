@@ -61,3 +61,5 @@ export type ConsistencyPlan = Schema["ConsistencyPlan"];
 export type ConsistencyReport = Schema["ConsistencyReport"];
 export type ConsistencyItem = Schema["ConsistencyItem"];
 export type PaperCodeFinding = Schema["PaperCodeFinding"];
+
+export type ConsistencyEvent = Schema["ConsistencyEvent"];

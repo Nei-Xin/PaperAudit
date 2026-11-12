@@ -23,6 +23,7 @@ import {
 } from "@/components/States";
 import { FindingLabel, VerificationDetails, PaperSourceContext, needsReview, InvestigationTrace, VERDICTS } from "@/features/reader/investigation";
 
+import { ConsistencyProgress } from "./ConsistencyProgress";
 import { CATEGORY, ConsistencyPlanReview } from "./ConsistencyPlanReview";
 
 type Group =
@@ -93,6 +94,8 @@ function ConsistencyWorkspace({ projectId }: { projectId: string }) {
   const [chosen, setChosen] = useState<string>();
   const reportId = chosen ?? finished[0]?.report_id;
   const report = useConsistencyReport(projectId, reportId);
+  const eventJob = active ?? (chosen ? finished.find(job => job.report_id === chosen)
+    : chosenPlan ? plans.find(job => job.plan_id === chosenPlan) : latest);
 
   if (project.error) return <ErrorState error={project.error} />;
   if (!project.data) return <Loading />;
@@ -224,6 +227,7 @@ function ConsistencyWorkspace({ projectId }: { projectId: string }) {
           </label>}
           {plan.error && <ErrorState error={plan.error} />}
           {planId && plan.isLoading && <Loading />}
+          {eventJob && <ConsistencyProgress key={eventJob.job_id} projectId={projectId} job={eventJob} />}
           {plan.data && <ConsistencyPlanReview key={`${projectId}:${planId}`} projectId={projectId} plan={plan.data}
             busy={Boolean(active) || start.isPending} onExecute={() => setChosen(undefined)} />}
           {reportId && <h3 className="px-1 text-[15px] font-semibold">3. 核对报告</h3>}

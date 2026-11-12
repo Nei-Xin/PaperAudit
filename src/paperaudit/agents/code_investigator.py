@@ -14,6 +14,8 @@ from time import monotonic
 import unicodedata
 
 from openai import APIError
+
+from paperaudit.consistency_events import StepLog
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from paperaudit.evidence import _quote_rects
@@ -218,10 +220,11 @@ class CodeInvestigator:
     MAX_CALLS_PER_TURN = 4
 
     def __init__(self, client: Hy3Client, paper: ParsedPaper, codebase: ParsedCodebase, model: str,
-                 *, budget: RequestBudget | None = None, verify_findings: bool = False, repo_map=None):
+                 *, budget: RequestBudget | None = None, verify_findings: bool = False, repo_map=None, on_step=None):
         self.client, self.paper, self.codebase, self.model = client, paper, codebase, model
         from .repo_mapper import usable_map
         self.repo_map = repo_map if usable_map(repo_map, codebase) else None
+        self.on_step = on_step
         self.verify_findings = verify_findings
         self.budget = budget or RequestBudget(max_requests=12 if verify_findings else 11, max_seconds=180)
 
@@ -235,7 +238,7 @@ class CodeInvestigator:
         selected_code: CodeSelection | None = None,
     ) -> tuple[JointAnswer | None, CodeInvestigationTrace]:
         """Return a citation-checked answer, or None when the run produced none."""
-        steps: list[CodeInvestigationStep] = []
+        steps = StepLog(self.on_step)
         rejected: list[str] = []
         answer: JointAnswer | None = None
         stop = ""

@@ -8,6 +8,7 @@ from threading import RLock
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
+import logging
 import os
 from pathlib import Path
 import secrets
@@ -1460,11 +1461,29 @@ class ProjectStore:
                 continue
         return sorted(jobs, key=lambda item: item.created_at, reverse=True)
 
+    def consistency_event_path(self, project_id: str, job_id: str) -> Path:
+        self.load_consistency_job(project_id, job_id)  # Validate identity and project ownership.
+        return self._project_dir(project_id) / "consistency-jobs" / f"{job_id}.events.jsonl"
+
+    @_serialized_write
+    def append_consistency_event(self, project_id: str, job_id: str, **fields):
+        from paperaudit.consistency_events import append_event
+        return append_event(self.consistency_event_path(project_id, job_id), job_id, fields)
+
+    @_serialized_write
     def update_consistency_job(self, project_id: str, job: ConsistencyJob) -> None:
         project_dir = self._require_project_dir(project_id)
         _validate_record_id(job.job_id, "consistency-job", "一致性审计任务")
         if job.project_id != project_id:
             raise StorageError("一致性审计任务不属于当前项目。")
+        # Persist the final event before publishing terminal job status. Stream readers
+        # observing that status can drain the journal without missing the last event.
+        try:
+            self.append_consistency_event(project_id, job.job_id, kind="job_status",
+                                          status=job.status, outcome=job.stage[:400])
+        except (OSError, ValueError, StorageError):
+            # Observability must not prevent recovery or hide the authoritative status.
+            logging.getLogger(__name__).warning("Could not append consistency status event")
         _atomic_write(project_dir / "consistency-jobs" / f"{job.job_id}.json",
                       job.model_dump_json(indent=2).encode("utf-8"))
 

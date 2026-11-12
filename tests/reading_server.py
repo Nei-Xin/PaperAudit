@@ -70,11 +70,14 @@ class BrowserService(FakeService):
             raise ValueError("模拟模型失败")
         return super().answer_question(paper, question, history, **kwargs)
 
-    def plan_consistency(self, paper, codebase, *, max_checkpoints, progress=None, strategy="one-shot"):
+    def plan_consistency(self, paper, codebase, *, max_checkpoints, progress=None, strategy="one-shot", on_event=None):
         from paperaudit.models import ConsistencyPlan, ConsistencyCheckpoint, EvidenceAnchor
         from paperaudit.consistency_inputs import input_hashes
         time.sleep(.4)
         chunk = paper.chunks[0]
+        if on_event:
+            on_event(kind="planning_started", outcome="正在规划核对要点。")
+            on_event(kind="checkpoint_accepted", checkpoint_id="K01", topic="训练配置", outcome="核对要点已接受。")
         return ConsistencyPlan(strategy="test-planner", model="fake", target=max_checkpoints,
             max_requests=160, requests=2, tokens=120, proposed=2, rejected=0, stop_reason="finished",
             **input_hashes(paper, codebase), checkpoints=[ConsistencyCheckpoint(
@@ -83,7 +86,7 @@ class BrowserService(FakeService):
                                             quote=chunk.content))
                 for i, topic in enumerate(["训练配置", "评估设置"], 1)])
 
-    def check_consistency(self, paper, codebase, checkpoints, plan, *, progress=None):
+    def check_consistency(self, paper, codebase, checkpoints, plan, *, progress=None, on_event=None):
         from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary, PaperCodeFinding, FindingVerification, EvidenceContext, RepoMap, RepoMapEntry
         from paperaudit.agents.consistency import summarize
         time.sleep(.4)
@@ -91,6 +94,15 @@ class BrowserService(FakeService):
             progress("正在核对所选要点", .6)
         items = []
         for c in checkpoints:
+            if on_event:
+                on_event(kind="item_queued", checkpoint_id=c.checkpoint_id, topic=c.topic, status="queued")
+                on_event(kind="item_started", checkpoint_id=c.checkpoint_id, topic=c.topic, status="running")
+                on_event(kind="tool_step", checkpoint_id=c.checkpoint_id, tool="read_file",
+                         arguments={"path":codebase.files[0].path,"start_line":1,"end_line":2}, outcome="读取测试文件 L1–2")
+            if "实时验收" in c.question:
+                time.sleep(8)
+            if "实时验收失败" in c.question:
+                raise RuntimeError("测试任务在读取后失败")
             answer = self.answer(paper, codebase, c.question)
             for anchor in answer.paper_citations:
                 anchor.source_context = [EvidenceContext(chunk_id="fixture-caption", page=1,
@@ -101,6 +113,11 @@ class BrowserService(FakeService):
                 verification=FindingVerification(status="failed" if pending else "passed", required=True,
                     reason="论文为 40，代码为 20，不支持一致判定。" if pending else "证据支持该判定。",
                     paper_statement="40 epochs", code_statement="20 epochs" if pending else "40 epochs"))
+            if on_event:
+                on_event(kind="verification", checkpoint_id=c.checkpoint_id, tool="verify_findings", ok=not pending,
+                         outcome="复核 1 条发现。")
+                on_event(kind="item_finished", checkpoint_id=c.checkpoint_id, topic=c.topic, status="checked",
+                         verdicts=["CONSISTENT"], pending_review=int(pending), outcome="核对完成。")
             items.append(ConsistencyItem(checkpoint=c, status="checked",
                 answer=answer.model_copy(update={"findings": [finding]})))
         return ConsistencyReport(model="fake", paper_title=paper.title, codebase_name=codebase.name,
@@ -121,4 +138,12 @@ if __name__ == "__main__":
         app = create_app(storage_root=root / "library", settings_dir=root / "settings",
                          settings=Settings(api_base="https://example.invalid/v1", api_key="fake-only", model="fake"),
                          service_factory=lambda _: runner, code_service_factory=lambda _: runner)
+        @app.middleware("http")
+        async def test_event_cursor(request, call_next):
+            response = await call_next(request)
+            if request.url.path.endswith("/events"):
+                # Playwright interception does not expose EventSource's late-added header.
+                response.headers["X-Test-Event-Cursor"] = request.headers.get("last-event-id", "none")
+            return response
+
         uvicorn.run(app, host="127.0.0.1", port=8001, log_level="warning")

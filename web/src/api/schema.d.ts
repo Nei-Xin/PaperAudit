@@ -144,6 +144,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/projects/{pid}/consistency-jobs/{job_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Consistency Events
+         * @description Replay durable records, then tail. Last-Event-ID takes precedence on reconnect.
+         */
+        get: operations["consistency_events_api_projects__pid__consistency_jobs__job_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/projects/{pid}": {
         parameters: {
             query?: never;
@@ -1266,6 +1286,58 @@ export interface components {
              * @enum {string}
              */
             source: "planner" | "user";
+        };
+        /** ConsistencyEvent */
+        ConsistencyEvent: {
+            /** Event Id */
+            event_id: number;
+            /** Job Id */
+            job_id: string;
+            /** Created At */
+            created_at: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "job_status" | "planning_started" | "planning_step" | "checkpoint_accepted" | "planning_finished" | "item_queued" | "item_started" | "tool_step" | "verification" | "item_finished";
+            /** Checkpoint Id */
+            checkpoint_id: string | null;
+            /**
+             * Topic
+             * @default
+             */
+            topic: string;
+            /**
+             * Tool
+             * @default
+             */
+            tool: string;
+            /** Arguments */
+            arguments: {
+                [key: string]: string | number | boolean;
+            };
+            /**
+             * Outcome
+             * @default
+             */
+            outcome: string;
+            /**
+             * Ok
+             * @default true
+             */
+            ok: boolean;
+            /**
+             * Status
+             * @default
+             */
+            status: string;
+            /** Verdicts */
+            verdicts: components["schemas"]["FindingVerdict"][];
+            /**
+             * Pending Review
+             * @default 0
+             */
+            pending_review: number;
         };
         /** ConsistencyItem */
         ConsistencyItem: {
@@ -3135,6 +3207,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsistencyReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    consistency_events_api_projects__pid__consistency_jobs__job_id__events_get: {
+        parameters: {
+            query?: {
+                after?: number;
+            };
+            header?: never;
+            path: {
+                pid: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description SSE: audit data is a ConsistencyEvent; end carries persisted job status. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["ConsistencyEvent"];
                 };
             };
             /** @description Validation Error */

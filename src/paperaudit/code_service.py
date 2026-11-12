@@ -173,31 +173,31 @@ class CodeLearningService:
     def parse(self, zip_bytes: bytes, filename: str) -> ParsedCodebase:
         return parse_code_zip(zip_bytes, filename)
 
-    def _orchestrator(self, max_checkpoints: int, *, repo_map=None, on_repo_map=None):
+    def _orchestrator(self, max_checkpoints: int, *, repo_map=None, on_repo_map=None, on_event=None):
         from .agents.consistency import ConsistencyOrchestrator
 
         return ConsistencyOrchestrator(
             self.client, self.settings.model, max_checkpoints=max_checkpoints,
             max_requests=self.settings.consistency_max_requests,
             concurrency=self.settings.consistency_concurrency,
-            repo_map=repo_map, on_repo_map=on_repo_map, enable_repo_map=self.settings.repo_map,
+            repo_map=repo_map, on_repo_map=on_repo_map, on_event=on_event, enable_repo_map=self.settings.repo_map,
         )
 
     def audit_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase, *, max_checkpoints: int = 20,
-                          progress=None, strategy: str = "one-shot", repo_map=None, on_repo_map=None) -> ConsistencyReport:
+                          progress=None, strategy: str = "one-shot", repo_map=None, on_repo_map=None, on_event=None) -> ConsistencyReport:
         """Plan the paper's checkable points and investigate each against the code."""
-        return self._orchestrator(max_checkpoints, repo_map=repo_map, on_repo_map=on_repo_map).run(paper, codebase, progress, strategy=strategy)
+        return self._orchestrator(max_checkpoints, repo_map=repo_map, on_repo_map=on_repo_map, on_event=on_event).run(paper, codebase, progress, strategy=strategy)
 
     def plan_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase, *, max_checkpoints: int = 20,
-                         progress=None, strategy: str = "one-shot") -> ConsistencyPlan:
+                         progress=None, strategy: str = "one-shot", on_event=None) -> ConsistencyPlan:
         """Only propose the points to check, for a person to review."""
-        return self._orchestrator(max_checkpoints).plan(paper, codebase, progress, strategy=strategy)
+        return self._orchestrator(max_checkpoints, on_event=on_event).plan(paper, codebase, progress, strategy=strategy)
 
     def check_consistency(self, paper: ParsedPaper, codebase: ParsedCodebase,
                           checkpoints: list[ConsistencyCheckpoint], plan: ConsistencyPlan, *,
-                          progress=None, repo_map=None, on_repo_map=None) -> ConsistencyReport:
+                          progress=None, repo_map=None, on_repo_map=None, on_event=None) -> ConsistencyReport:
         """Investigate the checkpoints chosen from a stored plan."""
-        return self._orchestrator(max(1, len(checkpoints)), repo_map=repo_map, on_repo_map=on_repo_map).execute(paper, codebase, checkpoints, plan, progress)
+        return self._orchestrator(max(1, len(checkpoints)), repo_map=repo_map, on_repo_map=on_repo_map, on_event=on_event).execute(paper, codebase, checkpoints, plan, progress)
 
     def _retrieve_code(
         self,

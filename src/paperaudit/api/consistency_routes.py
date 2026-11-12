@@ -1,10 +1,17 @@
 """Paper-code consistency audits: submit, follow and read."""
+import asyncio
+import json
+from time import monotonic
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi.responses import StreamingResponse
+from starlette.concurrency import run_in_threadpool
+
+from paperaudit.consistency_events import read_events
 from pydantic import BaseModel, Field
 
-from paperaudit.models import ConsistencyJob, ConsistencyPlan, ConsistencyReport
+from paperaudit.models import ConsistencyEvent, ConsistencyJob, ConsistencyPlan, ConsistencyReport
 from paperaudit.consistency_inputs import validate_plan_inputs
 from paperaudit.storage import StorageError
 from paperaudit.workflows import submit_consistency
@@ -116,3 +123,78 @@ def consistency_report(request: Request, pid: str, report_id: str):
         return request.app.state.api.store.load_consistency_report(pid, report_id)
     except StorageError as exc:
         raise HTTPException(404, str(exc)) from exc
+
+
+class EventStreamResponse(StreamingResponse):
+    media_type = "text/event-stream"
+
+
+@router.get("/projects/{pid}/consistency-jobs/{job_id}/events",
+            response_class=EventStreamResponse,
+            responses={200: {"model": ConsistencyEvent,
+                             "description": "SSE: audit data is a ConsistencyEvent; end carries persisted job status.",
+                             "content": {"text/event-stream": {"schema": {"type": "object"}}}}})
+async def consistency_events(request: Request, pid: str, job_id: str, after: int = Query(default=0, ge=0, le=9_999_999_999)):
+    """Replay durable records, then tail. Last-Event-ID takes precedence on reconnect."""
+    store = request.app.state.api.store
+    require_project(request.app.state.api, pid)
+    try:
+        path = await run_in_threadpool(store.consistency_event_path, pid, job_id)
+    except StorageError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    header = request.headers.get("last-event-id")
+    if header is not None:
+        if not header.isascii() or not header.isdigit() or len(header) > 10:
+            raise HTTPException(422, "事件编号无效。")
+        after = int(header)
+    try:
+        # Validate the cursor before sending headers; never silently skip future events.
+        last, offset = 0, 0
+        while True:
+            batch, offset = await run_in_threadpool(read_events, path, offset)
+            for event in batch:
+                if event.event_id != last + 1 or event.job_id != job_id:
+                    raise ValueError("Invalid event sequence")
+                last = event.event_id
+            if len(batch) < 128:
+                break
+        if after > last:
+            raise HTTPException(409, "事件编号超出当前日志，请从头重新读取。")
+    except (ValueError, OSError):
+        raise HTTPException(409, "事件日志无法读取，任务状态和最终报告仍可查询。")
+    return StreamingResponse(event_stream(request, store, pid, job_id, path, after),
+                             media_type="text/event-stream",
+                             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"})
+
+
+async def event_stream(request, store, pid, job_id, path, after, *, poll_seconds=0.5, heartbeat_seconds=15):
+    offset = 0
+    seen = 0
+    heartbeat = monotonic()
+    yield "retry: 1500\n\n"
+    while not await request.is_disconnected():
+        try:
+            # Terminal status is published after the final persisted event. Read status
+            # first, then drain: a concurrent completion cannot race past the last batch.
+            job = await run_in_threadpool(store.load_consistency_job, pid, job_id)
+            batch, offset = await run_in_threadpool(read_events, path, offset)
+            for event in batch:
+                if event.job_id != job_id or event.event_id != seen + 1:
+                    raise ValueError("Invalid event identity or sequence")
+                seen = event.event_id
+                if event.event_id > after:
+                    yield f"id: {event.event_id}\nevent: audit\ndata: {event.model_dump_json()}\n\n"
+                    after = event.event_id
+            if len(batch) == 128:
+                continue
+            if job.status not in {"QUEUED", "RUNNING"}:
+                yield 'event: end\ndata: ' + json.dumps({"status": job.status.value,
+                    "plan_id": job.plan_id, "report_id": job.report_id}, ensure_ascii=False) + '\n\n'
+                return
+        except (StorageError, ValueError, OSError):
+            yield 'event: stream_error\ndata: {"message":"事件日志暂不可读，请查看任务状态。"}\n\n'
+            return
+        if monotonic() - heartbeat >= heartbeat_seconds:
+            yield ': keep-alive\n\n'
+            heartbeat = monotonic()
+        await asyncio.sleep(poll_seconds)
