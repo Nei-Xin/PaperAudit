@@ -1,0 +1,38 @@
+{
+  "mcp_sdk": "2.3.0",
+  "local_backend_tests": 645,
+  "optional_dependency_isolation": "Core API imports in a separate environment without MCP; MCP CLI exits with an install hint on stderr.",
+  "read_only_checks": [
+    "All tools through modern and legacy stdio clients against a chmod read-only project; hashes unchanged.",
+    "Missing storage is not created.",
+    "Legacy code index rebuilt in memory only.",
+    "Host paths, traversal, unknown tools and invalid parameters rejected; session remains usable."
+  ],
+  "source_index_sha256": {
+    "codebase.json": "ff4d3bef47748fcd0d4fa44c912f9e2dee34cce47340bb936d85c428658a8fb1",
+    "paper-index.json": "68ea252f578598e611609db505efa23e2f23dad63ca9fa0fb1906407f91c2d4d"
+  },
+  "server_model_requests": 0,
+  "real_client_tool_calls": 4,
+  "client_model_usage": {
+    "input_tokens": 58238,
+    "cached_input_tokens": 37120,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 548,
+    "reasoning_output_tokens": 100
+  },
+  "client_validation": "Warmup=40 in paper page 11 (p11_b10, table caption p11_b11) and main_pretrain.py L71-72; [20] recognized as reference number.",
+  "claude_attempt": {
+    "client_version": "2.1.303",
+    "mcp_connected": true,
+    "model_question_completed": false,
+    "reason": "OAuth session expired and could not be refreshed",
+    "reported_cost_usd": 0
+  },
+  "limitations": [
+    "Known MAE development case; engineering integration only, not independent accuracy evidence.",
+    "Client answer is not checked by PaperAudit citation validation or semantic review.",
+    "Server performs no model calls; the external client still incurs its own model usage.",
+    "Single-project startup snapshot; reconnect after input replacement."
+  ]
+}

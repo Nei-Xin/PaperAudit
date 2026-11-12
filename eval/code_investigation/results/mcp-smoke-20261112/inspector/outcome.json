@@ -1,0 +1,75 @@
+{
+  "inspector_version": "2.15.0",
+  "node_version": "22.23.4",
+  "tools": [
+    {
+      "tool": "list_dir",
+      "arguments": {
+        "path": "."
+      },
+      "ok": true,
+      "characters": 464
+    },
+    {
+      "tool": "grep_code",
+      "arguments": {
+        "text": "warmup_epochs",
+        "path_prefix": "main_pretrain.py"
+      },
+      "ok": true,
+      "characters": 102
+    },
+    {
+      "tool": "search_code",
+      "arguments": {
+        "query": "warmup_epochs"
+      },
+      "ok": true,
+      "characters": 6770
+    },
+    {
+      "tool": "find_symbol",
+      "arguments": {
+        "name": "get_args_parser"
+      },
+      "ok": true,
+      "characters": 135
+    },
+    {
+      "tool": "read_file",
+      "arguments": {
+        "path": "main_pretrain.py",
+        "start_line": 65,
+        "end_line": 75
+      },
+      "ok": true,
+      "characters": 746
+    },
+    {
+      "tool": "search_paper",
+      "arguments": {
+        "query": "warmup epochs pre-training"
+      },
+      "ok": true,
+      "characters": 2682
+    },
+    {
+      "tool": "grep_paper",
+      "arguments": {
+        "text": "warmup epochs"
+      },
+      "ok": true,
+      "characters": 1940
+    },
+    {
+      "tool": "read_page",
+      "arguments": {
+        "page": 11
+      },
+      "ok": true,
+      "characters": 6026
+    }
+  ],
+  "server_model_requests": 0,
+  "scope": "MAE engineering smoke; source retrieval only, no accuracy evaluation"
+}

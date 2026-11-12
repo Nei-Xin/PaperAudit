@@ -1,0 +1,9 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "读取 main_pretrain.py L65–75\n\n   65|                         help='learning rate (absolute lr)')\n   66|     parser.add_argument('--blr', type=float, default=1e-3, metavar='LR',\n   67|                         help='base learning rate: absolute_lr = base_lr * total_batch_size / 256')\n   68|     parser.add_argument('--min_lr', type=float, default=0., metavar='LR',\n   69|                         help='lower lr bound for cyclic schedulers that hit 0')\n   70| \n   71|     parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n   72|                         help='epochs to warmup LR')\n   73| \n   74|     # Dataset parameters\n   75|     parser.add_argument('--data_path', default='/datasets01/imagenet_full_size/061417/', type=str,"
+    }
+  ],
+  "isError": false
+}

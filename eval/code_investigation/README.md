@@ -423,3 +423,23 @@ python eval/code_investigation/sse_smoke.py \
   --project PROJECT_ID --plan PLAN_ID \
   --output /tmp/paperaudit-sse-smoke
 ```
+
+## 只读 MCP 接口验收
+
+第七步复用 `CodeWorkspace` 的 8 个查询工具，使用官方 Python SDK 2.3.0 的底层 server 接口，以保留原有参数 JSON Schema。依赖放在 `mcp` extra，普通 API 无需安装；独立 stdio 进程不启动 HTTP 服务，不执行模型请求，不提供 `investigate`。项目加载只读 `paper-index.json` 与 `codebase.json`，避免普通 `ProjectStore` 的写权限探测与落盘索引升级。旧索引只在内存重建，进程期间快照固定，重连才读取替换后的输入。
+
+本地完整测试 **645 项通过**，其中新增 7 项 MCP 测试覆盖现代／旧版协议的真实 stdio 子进程、8 个工具的发现与调用、只读目录下文件哈希不变、重复检索、错误参数后继续使用、主机路径与跨目录访问拒绝、缺失／损坏／符号链接索引拒绝、旧索引仅内存升级、启动错误只写 stderr。另建不含 MCP extra 的环境，确认普通 API 正常导入，MCP 命令给出明确的安装提示。
+
+官方 Inspector **2.15.0**（Node **22.23.4**）成功列出 8 个工具，并逐个调用 MAE 的实际论文／代码索引。可复现脚本 `mcp_smoke.py` 只运行 Inspector、不调用模型：
+
+```bash
+python eval/code_investigation/mcp_smoke.py \
+  --config /absolute/path/to/mcp.json --server paperaudit \
+  --output /tmp/paperaudit-mcp-inspector
+```
+
+真实客户端使用 **Codex CLI 0.163.0**，仅临时配置该 MCP 服务，通过 4 次调用（`grep_paper`、`grep_code`、`read_page`、`read_file`）回答 warmup 问题：论文第 11 页 `p11_b10` 为 40，表题 `p11_b11` 确认预训练设置；`main_pretrain.py` 第 71–72 行默认值也是 40，并正确识别 `[20]` 为参考文献编号。工具结果保留页码、片段编号和代码行号。客户端报告输入 58,238 tokens（其中 37,120 为缓存输入）、输出 548 tokens；这些是外部客户端的模型用量，不是 MCP server 的模型调用成本。服务器侧模型请求为 **0**。
+
+Claude Code 2.1.303 也完成了 MCP 连接，但模型请求因其 OAuth 会话过期而失败，不能计为该客户端的问答验收；未修改登录状态或持久配置，最终用 Codex 完成问答。未把账号、会话标识或本机部署路径写入公开结果。
+
+结果在 [results/mcp-smoke-20261112](results/mcp-smoke-20261112/)：Inspector 完整输出、客户端工具调用与回答、输入索引哈希及验收摘要。此为已知 MAE 开发案例的工程验收，不是独立准确率结果。只读 MCP 提供的是可定位原文，**外部客户端的结论未经 PaperAudit 引用校验或语义复核**。客户端仍需先通过 PaperAudit 上传解析项目，代码读取本身与编码助手原有能力重叠，主要增量是解析后的论文检索。

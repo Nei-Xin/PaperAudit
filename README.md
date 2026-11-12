@@ -21,6 +21,7 @@ PaperAudit 是一个面向英文 AI 论文的中文学习与证据审计工具�
 - **论文—代码一致性审计**：默认单次规划，可选自主阅读规划 agent（实验）。后者从论文大纲出发，小批阅读后立即提要点、校验引文，并预留最后三次请求用于整理与修正；目前开发对照尚未证明覆盖收益，成本较高。两种方式均先保存规划，用户可勾选、取消或补充问题，再批准并行调查；刷新或重启后仍可继续，替换论文或代码后必须重新规划。每项调查有独立上下文与预算，引用校验后默认用一次无工具模型请求复核证据是否支持判定，单项最多 12 次请求。复核先分别提取论文与代码陈述的值或做法；未通过或复核未完成的发现标为“待核对”，保留原判定及原因，不改判，也不计入已确认的判定数量。整份审计另有总请求上限（默认 160 次，含规划）；单项异常也计入用量。结果按不一致、部分对应、未定位、一致分组，明确区分未选择、预算不足与调查失败。同一规划的相同选择重复提交会复用已有的等待中、运行中或成功任务。API 仍支持一次性审计；`planning_strategy` 可选 `one-shot`（默认）或 `agent`。
   对有可靠版面关联的配置表，调查会同时保留相邻表题原文、页码和片段编号，帮助复核区分预训练、微调等实验设置；结果页展示表题来源及复核理由。关联不明确时不猜测。
 - **一致性审计实时进度**：规划、工具调用、逐项判定与复核结果完成后立即显示；事件先写入项目日志，再经 SSE 推送。断线按事件编号续传，刷新重放并去重，失败／中断明确显示未完成要点。只展示工具步骤与简短结果，不逐 token 输出模型内容；连接、重连和回放不调用模型。详情见 [工程验收](eval/code_investigation/README.md#实时进度与持久事件)。
+- **只读 MCP 接口（可选）**：通过独立 stdio 进程向编码助手提供已上传项目的 8 个论文／代码查询工具，保留论文页码、片段编号、表题与代码行号。服务读取启动时的索引快照，不写项目、不执行代码、不联网，也不调用模型。外部客户端生成的结论不经过 PaperAudit 的引用校验或语义复核。
 - **仓库地图记忆（可选）**：审计规划后用最多 4 次请求生成带文件与行号的导航地图，落盘并按代码索引哈希失效；后续调查和追问可复用。地图不作为证据，引用仍须来自本次实际读取。`PAPERAUDIT_REPO_MAP=true` 开启，默认关闭；首次生成与复用用量分别记录。开发对照中，计入生成后请求仅下降 2.1%、tokens 增加 5.7%，未达到默认启用门槛，详见 [评测记录](eval/code_investigation/README.md#2026-11-12仓库地图对照结果)。
 - **模拟投稿评审**：按研究价值、创新性、技术可靠性、实验充分性、清晰度和可复现性六个维度生成评审意见与五档预审建议。
 - **报告证据审计**：拆分原子论断，核验引用、数字、条件和结论边界，输出支持标签、错误类型、风险等级、六维评分及证据定位。
@@ -112,6 +113,55 @@ cd web && npm run dev
 
 `deploy/` 提供 systemd 服务模板与存储兼容检查脚本。
 
+## MCP 客户端接入
+
+先通过 PaperAudit 上传并解析一篇论文和配套代码 ZIP，再从项目页面 URL `/p/<project_id>/...` 取得项目 ID。只查询已有项目不需要配置模型 API：
+
+```shell
+uv sync --locked --extra mcp
+.venv/bin/python -m paperaudit.mcp_server \
+  --storage-root /absolute/path/to/paperaudit-data \
+  --project PROJECT_ID
+```
+
+这是供客户端启动的 stdio 进程，不是网页或 HTTP 服务；stdout 只用于协议消息，诊断写到 stderr。`--storage-root` 未指定时依次读取进程环境变量 `PAPERAUDIT_STORAGE_ROOT`、本机 PaperAudit 存储设置，不自动加载 `.env`。客户端应使用安装了可选依赖的 Python **绝对路径**，避免工作目录不同或 `uv run` 移除未声明的 extra。
+
+Claude Code／Cursor 的 `mcp.json` 示例（替换绝对路径与项目 ID，Windows 使用 `.venv/Scripts/python.exe`）：
+
+```json
+{
+  "mcpServers": {
+    "paperaudit": {
+      "command": "/absolute/path/to/PaperAudit/.venv/bin/python",
+      "args": ["-m", "paperaudit.mcp_server", "--storage-root", "/absolute/path/to/paperaudit-data", "--project", "PROJECT_ID"]
+    }
+  }
+}
+```
+
+Claude Code 可用 `claude --mcp-config /absolute/path/to/mcp.json --strict-mcp-config` 临时连接。Codex 对应的配置为：
+
+```toml
+[mcp_servers.paperaudit]
+command = "/absolute/path/to/PaperAudit/.venv/bin/python"
+args = ["-m", "paperaudit.mcp_server", "--storage-root", "/absolute/path/to/paperaudit-data", "--project", "PROJECT_ID"]
+```
+
+可问：“论文预训练的 warmup epochs 与代码默认值是否一致？请通过 PaperAudit 工具给出论文页码、chunk_id 和代码行号。”服务器不需要密钥，但编码助手自身的模型仍需要有效登录或 API 配置；客户端可能把工具返回的论文／代码内容发送给其模型服务。
+
+工具为 `list_dir`、`grep_code`、`search_code`、`find_symbol`、`read_file`、`search_paper`、`grep_paper`、`read_page`，参数直接复用调查 agent 的定义。路径仅查询上传的代码索引，无法读取主机任意文件；读取范围、检索条数和输出长度沿用原工具限制。目录根路径可用空字符串或 `.`。只读属性是给客户端的提示，实际边界由工具实现保证。
+
+服务只绑定一个项目，启动后快照固定；替换输入后需重启连接。只读取两个索引，不读 PDF、历史问答或模型配置；旧代码索引仅在内存升级，不写回。缺少索引、索引损坏或指向其他位置的索引链接会拒绝启动。没有上传／写入／删除、网络端口或高层 `investigate` 工具。它的主要增量是带页码的已解析论文检索，代码助手本身就能阅读本地代码；此版本不提供自动结论校验。
+
+使用官方 Inspector 验收（Node 至少满足 Inspector 的版本要求）：
+
+```shell
+npx --yes --package=node@22.23.4 --package=@modelcontextprotocol/inspector@2.15.0 \
+  mcp-inspector --cli --config /absolute/path/to/mcp.json --server paperaudit --method tools/list
+```
+
+8 个工具的实际调用与真实客户端记录见 [MCP 验收](eval/code_investigation/README.md#只读-mcp-接口验收)。实现采用官方 [MCP Python SDK 2.3.0](https://github.com/modelcontextprotocol/python-sdk/tree/v2.3.0)，可选依赖范围为 `mcp>=2.3,<3`，具体版本由 `uv.lock` 固定；[Codex MCP 配置](https://developers.openai.com/codex/mcp)使用客户端自己的配置格式。
+
 ## 测试
 
 ```shell
@@ -119,3 +169,5 @@ uv run --locked python -m pytest -q
 ```
 
 测试使用模型替身，不调用真实 API。
+
+包含 MCP 子进程与协议验收的完整测试：`uv run --locked --extra mcp python -m pytest -q`。未安装 extra 时 MCP 集成测试跳过，普通 API 仍可独立运行。
