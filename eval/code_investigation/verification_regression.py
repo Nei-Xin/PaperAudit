@@ -16,7 +16,7 @@ from threading import Lock
 from time import monotonic
 
 from paperaudit.agents.code_tools import CodeWorkspace
-from paperaudit.agents.finding_verifier import verify_answer, SYSTEM_PROMPT
+from paperaudit.agents.finding_verifier import verify_answer
 from paperaudit.config import Settings
 from paperaudit.hy3_client import Hy3Client
 from paperaudit.models import JointAnswer, PaperCodeFinding, ParsedCodebase
@@ -25,6 +25,7 @@ from paperaudit.request_budget import RequestBudget, use_request_budget
 
 HERE = Path(__file__).resolve().parent
 ARMS = ('v1', 'captions_only', 'scope_only', 'v2')
+SCOPED_PROMPT = (HERE/'verification_scope_v2_prompt.txt').read_text()
 
 
 def fixtures(data):
@@ -97,7 +98,7 @@ def main():
     settings=Settings.from_env()
     old_prompt=(HERE/'verification_v1_prompt.txt').read_text()
     root=HERE.parents[1]
-    sources=[*root.joinpath('src/paperaudit').rglob('*.py'),Path(__file__),HERE/'verification_v1_prompt.txt']
+    sources=[*root.joinpath('src/paperaudit').rglob('*.py'),Path(__file__),HERE/'verification_v1_prompt.txt',HERE/'verification_scope_v2_prompt.txt']
     protocol={'split':'development regression, previously seen cases; no holdout claim',
         'model':settings.model,'temperature':settings.temperature,'reasoning_effort':settings.reasoning_effort,
         'inputs':inputs,'arms':ARMS,'repeats':3,'workers':3,'max_requests':len(items)*len(ARMS)*3,
@@ -106,7 +107,7 @@ def main():
         'scoring':'Expected supported: only passed is correct. Expected unsupported: only failed is correct. '
                   'Errors or not_reviewed are unsuccessful in both groups and remain in denominators.',
         'sources':{str(p.relative_to(root)):sha256(p.read_bytes()).hexdigest() for p in sources},
-        'prompts':{'v1':old_prompt,'v2':SYSTEM_PROMPT},
+        'prompts':{'v1':old_prompt,'v2':SCOPED_PROMPT},
         'selection':'Twelve fixed cases: eight prior development findings, three original warmup fixtures, '
                     'and one controlled B initialization mutation. All previously known topics.',
         'mechanisms':{'captions_only':'v1 prompt with new source_context',
@@ -136,7 +137,7 @@ def main():
                 for f in payload:
                     for a in f['paper']:
                         a.pop('source_context',None);a.pop('chunk_id',None)
-            return super().verify_findings(payload,system_prompt=old_prompt if self.arm in {'v1','captions_only'} else SYSTEM_PROMPT)
+            return super().verify_findings(payload,system_prompt=old_prompt if self.arm in {'v1','captions_only'} else SCOPED_PROMPT)
     def work(item,arm,repeat):
         record('dispatch.jsonl',{'case':item['id'],'arm':arm,'repeat':repeat})
         budget=RequestBudget(max_requests=1,max_seconds=180);start=monotonic()
