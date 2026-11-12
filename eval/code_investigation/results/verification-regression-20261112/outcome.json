@@ -1,0 +1,56 @@
+{
+  "experiment_commit": "67f1440",
+  "deployed_commit": "a777c9e6086106d8f2443955c87db085096b9b9a",
+  "deployment": "releases/step3-captions-a777c9e60861",
+  "previous_release": "releases/step3-e3068129e712",
+  "decision": "Deploy caption provenance with the exact original review prompt. Keep scope prompt as evaluation-only candidate.",
+  "reason": "Captions fix the observed setting error with modest cost. Scope prompt fixes some cases but introduces repeated mask-setting false rejections; no overall false-rejection improvement.",
+  "limitations": [
+    "Targeted previously seen development cases, not a new holdout or end-to-end accuracy evaluation.",
+    "Expected labels are implementation-assistant annotations, not independent human judgments.",
+    "Three repeats per case are too few to establish stable ranking of close aggregate results.",
+    "B initialization scope error and alpha naming false rejections remain known issues in deployed prompt."
+  ],
+  "regression": {
+    "requests": 144,
+    "tokens": 237207,
+    "transport_or_schema_failures": 0
+  },
+  "validation": {
+    "local_backend_tests": 618,
+    "linux_final_release_backend_tests": 618,
+    "browser_workflow_tests": 6,
+    "frontend_build": "passed",
+    "legacy_projects": 7,
+    "legacy_audits": 11,
+    "legacy_exports_roundtrip": true,
+    "live_browser": {
+      "widths": [
+        1440,
+        390
+      ],
+      "caption_visible_after_reload": true,
+      "runtime_errors": 0,
+      "horizontal_overflow": false
+    }
+  },
+  "smoke": {
+    "project_id": "1b490443925c72a2",
+    "report_id": "consistency-20261112T015031Z-4f2273",
+    "new_requests": 5,
+    "new_tokens": 13543,
+    "report_requests_including_saved_plan": 17,
+    "saved_plan_requests": 12,
+    "saved_plan_tokens": 140147,
+    "body_chunk": "p11_b10",
+    "caption_chunk": "p11_b11",
+    "caption": "Table 8. Pre-training setting.",
+    "paper_value": 40,
+    "code_value": 40,
+    "verification": "passed"
+  },
+  "total_new_usage": {
+    "requests": 149,
+    "tokens": 250750
+  }
+}

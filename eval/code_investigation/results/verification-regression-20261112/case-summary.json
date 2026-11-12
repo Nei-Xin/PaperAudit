@@ -1,0 +1,278 @@
+[
+  {
+    "case": "wrong_experiment",
+    "expected_supported": false,
+    "rationale": "Table belongs to supervised training from scratch, not pretraining.",
+    "arms": {
+      "v1": {
+        "correct": 0,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "reference_marker_error",
+    "expected_supported": false,
+    "rationale": "Pretraining table value is 40; [20] is a reference marker, not the value.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "correct_pretrain_difference",
+    "expected_supported": true,
+    "rationale": "Pretraining table value is 40; [20] is a reference marker, not the value.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 1,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "correct_pretrain_match",
+    "expected_supported": true,
+    "rationale": "Pretraining table value is 40; [20] is a reference marker, not the value.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 2,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "b_init_neighbor_difference",
+    "expected_supported": true,
+    "rationale": "Only B zero-initialization is asserted; A is out of scope.",
+    "arms": {
+      "v1": {
+        "correct": 2,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 2,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "b_init_actual_difference",
+    "expected_supported": false,
+    "rationale": "The target B now differs; scope restriction must not accept this wrong consistency claim.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "scaling_same_roles",
+    "expected_supported": true,
+    "rationale": "Both paper and code define rank-normalized alpha scaling.",
+    "arms": {
+      "v1": {
+        "correct": 0,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 1,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 2,
+        "n": 3
+      },
+      "v2": {
+        "correct": 2,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "scaling_real_difference",
+    "expected_supported": true,
+    "rationale": "The controlled scaling change supports the original INCONSISTENT verdict.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "default_mask_difference",
+    "expected_supported": true,
+    "rationale": "Explicit Table 1 default 75% differs from code default 0.6.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 0,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "missing_code_default",
+    "expected_supported": false,
+    "rationale": "Only FLAGS.dropout use is cited; its value is not defined.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "missing_normalization_formula",
+    "expected_supported": false,
+    "rationale": "Paper excerpt stops before the symmetric normalization formula.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  },
+  {
+    "case": "missing_optimizer_recipe",
+    "expected_supported": false,
+    "rationale": "The cited prose refers to a recipe but does not identify the optimizer.",
+    "arms": {
+      "v1": {
+        "correct": 3,
+        "n": 3
+      },
+      "captions_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "scope_only": {
+        "correct": 3,
+        "n": 3
+      },
+      "v2": {
+        "correct": 3,
+        "n": 3
+      }
+    }
+  }
+]
