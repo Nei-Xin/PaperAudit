@@ -282,6 +282,7 @@ Pages: {paper.page_count}
         accepted.append(ConsistencyCheckpoint(
             checkpoint_id=f"K{len(accepted) + 1:02d}", topic=topic, category=category, question=question,
             paper_anchor=EvidenceAnchor(chunk_id=chunk.chunk_id, page=chunk.page, text=chunk.content,
-                                        quote=stored, rects=_quote_rects(chunk, stored)),
+                                        quote=stored, rects=_quote_rects(chunk, stored),
+                                        source_context=workspace.observed_context.get(chunk_id, [])),
         ))
         return f"ACCEPTED as {accepted[-1].checkpoint_id} ({len(accepted)} in the plan)."

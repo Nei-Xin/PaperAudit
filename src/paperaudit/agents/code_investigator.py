@@ -139,6 +139,9 @@ Evidence rules (enforced by the program, not by you):
   the surrounding lines before citing a wider range.
 - A paper citation's chunk_id is only the id shown after "chunk_id=", for example p4_b10.
 - Each code citation covers at most 60 lines; prefer the few lines that carry the point.
+- Table passages may include a separately identified nearby caption. Check its experimental
+  setting before using a numeric row; supervised training, pre-training and fine-tuning are not
+  interchangeable. A missing setting is uncertainty, not permission to assume the question's setting.
 - If the user selected code, cite lines inside that selection.
 
 Findings (whenever the question compares code with the paper):
@@ -379,8 +382,8 @@ class CodeInvestigator:
         for chunk_id in dict.fromkeys(selected_paper_chunk_ids):
             chunk = workspace.paper_chunks.get(chunk_id)
             if chunk is not None:
-                workspace.observe_chunk(chunk_id)
-                selected_chunks.append({"chunk_id": chunk_id, "page": chunk.page, "content": chunk.content})
+                selected_chunks.append(chunk)
+        selected_passages = workspace._paper_blocks(selected_chunks)
         code = {}
         if selected_code is not None and selected_code.path in workspace.files:
             end = min(selected_code.end_line, len(workspace.files[selected_code.path]))
@@ -404,7 +407,7 @@ Codebase: {json.dumps(self.codebase.name, ensure_ascii=False)} ({len(self.codeba
 </untrusted_selected_paper_text>
 
 <untrusted_selected_paper_chunks>
-{json.dumps(selected_chunks, ensure_ascii=False)}
+{selected_passages}
 </untrusted_selected_paper_chunks>
 
 <untrusted_selected_code>
@@ -461,7 +464,8 @@ Codebase: {json.dumps(self.codebase.name, ensure_ascii=False)} ({len(self.codeba
             return f"paper chunk {chunk_id}: quote {_excerpt(item.quote)} is not verbatim text from that chunk"
         quote = fragments[0][:320]
         return EvidenceAnchor(chunk_id=chunk.chunk_id, page=chunk.page, text=chunk.content,
-                              quote=quote, rects=_quote_rects(chunk, quote))
+                              quote=quote, rects=_quote_rects(chunk, quote),
+                              source_context=workspace.observed_context.get(chunk_id, []))
 
     def _submit(self, raw: str, workspace: CodeWorkspace, question: str, scope: AnswerScope,
                 selected_code: CodeSelection | None) -> tuple[JointAnswer | None, list[str], list[str]]:

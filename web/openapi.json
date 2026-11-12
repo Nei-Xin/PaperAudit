@@ -4666,6 +4666,13 @@
             ],
             "title": "Context Text"
           },
+          "source_context": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceContext"
+            },
+            "type": "array",
+            "title": "Source Context"
+          },
           "rects": {
             "items": {
               "$ref": "#/components/schemas/PageRect"
@@ -4683,6 +4690,7 @@
           "quote",
           "locator",
           "context_text",
+          "source_context",
           "rects"
         ],
         "title": "EvidenceAnchor"
@@ -4720,6 +4728,47 @@
           "score"
         ],
         "title": "EvidenceCandidate"
+      },
+      "EvidenceContext": {
+        "properties": {
+          "chunk_id": {
+            "type": "string",
+            "title": "Chunk Id"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Page"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "relation": {
+            "type": "string",
+            "const": "nearby_table_caption",
+            "title": "Relation",
+            "default": "nearby_table_caption"
+          },
+          "rects": {
+            "items": {
+              "$ref": "#/components/schemas/PageRect"
+            },
+            "type": "array",
+            "title": "Rects"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "chunk_id",
+          "page",
+          "text",
+          "relation",
+          "rects"
+        ],
+        "title": "EvidenceContext",
+        "description": "Exact source context shown with a passage, with explicit provenance."
       },
       "EvidenceErrorType": {
         "type": "string",

@@ -9,8 +9,9 @@ text the investigation really read.
 from __future__ import annotations
 
 from paperaudit.code_retrieval import CodeRetriever
-from paperaudit.models import PaperChunk, ParsedCodebase, ParsedPaper
+from paperaudit.models import EvidenceContext, PaperChunk, ParsedCodebase, ParsedPaper
 from paperaudit.retrieval import EvidenceRetriever
+from paperaudit.paper_context import table_caption_links
 
 MAX_RESULT_CHARS = 8_000
 MAX_LINE_CHARS = 300
@@ -79,6 +80,8 @@ class CodeWorkspace:
         self.paper_chunks = {chunk.chunk_id: chunk for chunk in paper.chunks}
         self.observed_lines: dict[str, set[int]] = {}
         self.observed_chunks: dict[str, PaperChunk] = {}
+        self.caption_links = table_caption_links(paper)
+        self.observed_context: dict[str, list[EvidenceContext]] = {}
         self._code_index: CodeRetriever | None = None
         self._paper_index: EvidenceRetriever | None = None
         self._tools = {
@@ -239,11 +242,18 @@ class CodeWorkspace:
         blocks, used = [], 0
         for chunk in chunks:
             block = f"[chunk_id={chunk.chunk_id} | page {chunk.page}]\n{chunk.content}"
+            caption = self.caption_links.get(chunk.chunk_id)
+            if caption:
+                block += (f"\n[nearby_table_caption for={chunk.chunk_id} | chunk_id={caption.chunk_id} "
+                          f"| page {caption.page}; layout association, check setting]\n{caption.text}")
             if used + len(block) > MAX_RESULT_CHARS - 80:
                 continue  # Whole passages only, as elsewhere in the audit.
             blocks.append(block)
             used += len(block) + 2
             self.observe_chunk(chunk.chunk_id)
+            if caption:
+                self.observe_chunk(caption.chunk_id)
+                self.observed_context[chunk.chunk_id] = [caption]
         return "\n\n".join(blocks)
 
     def _search_paper(self, arguments: dict) -> tuple[str, str]:

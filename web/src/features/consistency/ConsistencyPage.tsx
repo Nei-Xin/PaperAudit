@@ -21,7 +21,7 @@ import {
   MockNote,
   Progress,
 } from "@/components/States";
-import { FindingLabel, VerificationDetails, needsReview, InvestigationTrace, VERDICTS } from "@/features/reader/investigation";
+import { FindingLabel, VerificationDetails, PaperSourceContext, needsReview, InvestigationTrace, VERDICTS } from "@/features/reader/investigation";
 
 import { CATEGORY, ConsistencyPlanReview } from "./ConsistencyPlanReview";
 
@@ -384,10 +384,10 @@ function Finding({
       {finding.text}
       <VerificationDetails finding={finding} />
       {(finding.paper_citations ?? []).map((a, k) => (
-        <p key={`p${k}`} className="mt-1.5 text-xs leading-5 text-ink-3">
-          <span className="text-ink-4">论文第 {a.page} 页：</span>
-          {a.quote}
-        </p>
+        <div key={`p${k}`} className="mt-1.5 text-xs leading-5 text-ink-3">
+          <p><span className="text-ink-4">论文第 {a.page} 页：</span>{a.quote}</p>
+          <PaperSourceContext anchor={a} />
+        </div>
       ))}
       {(finding.code_citations ?? []).map((c, k) => (
         <div key={`c${k}`} className="mt-1.5">

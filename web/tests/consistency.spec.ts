@@ -56,8 +56,10 @@ for (const width of [1440, 390]) {
     await expect(page.getByText("待核对 · 原判定：一致", { exact: true })).toBeVisible();
     await expect(page.getByText("论文为 40，代码为 20，不支持一致判定。", { exact: true })).toBeVisible();
     await expect(page.getByText("证据支持复核通过", { exact: true })).toBeVisible();
+    await expect(page.getByText(/相邻表题 · 第 1 页 · fixture-caption：Table 8/).first()).toBeVisible();
     await page.reload();
     await expect(page.getByRole("heading", { name: "3. 核对报告" })).toBeVisible();
+    await expect(page.getByText(/相邻表题 · 第 1 页 · fixture-caption：Table 8/).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await review.screenshot({ path: testInfo.outputPath("planning-review.png") });
     const changed = await page.request.post(`http://127.0.0.1:8001/api/projects/${pid}/code`, { multipart: {

@@ -226,7 +226,7 @@ class Hy3Client:
             max_retries=0, timeout=min(self.settings.timeout_seconds, remaining),
         )
 
-    def verify_findings(self, payload: list[dict]):
+    def verify_findings(self, payload: list[dict], *, system_prompt: str | None = None):
         """One isolated, tool-free request; no JSON repair or hidden retry."""
         from .agents.finding_verifier import VerificationBatch, SYSTEM_PROMPT as verification_prompt
 
@@ -235,7 +235,7 @@ class Hy3Client:
         effort = self.settings.reasoning_effort
         response = client.chat.completions.create(
             model=self.settings.model,
-            messages=[{"role": "system", "content": verification_prompt},
+            messages=[{"role": "system", "content": system_prompt or verification_prompt},
                       {"role": "user", "content": json.dumps({"findings": payload}, ensure_ascii=False)
                        + "\nReturn one JSON object matching this schema:\n"
                        + json.dumps(VerificationBatch.model_json_schema(), ensure_ascii=False)}],

@@ -102,3 +102,13 @@ export function VerificationDetails({ finding }: { finding: PaperCodeFinding }) 
     {v.code_statement && <p>代码陈述：{v.code_statement}</p>}
   </details>;
 }
+
+export function PaperSourceContext({ anchor }: { anchor: PaperCodeFinding["paper_citations"][number] }) {
+  const contexts = anchor.source_context ?? [];
+  if (!contexts.length) return null;
+  return <div className="mt-1 text-xs leading-5 text-ink-3">
+    {contexts.map(c => <p key={c.chunk_id}>
+      <span className="text-ink-4">相邻表题 · 第 {c.page} 页 · {c.chunk_id}：</span>{c.text}
+    </p>)}
+  </div>;
+}

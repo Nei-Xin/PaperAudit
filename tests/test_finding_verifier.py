@@ -10,7 +10,7 @@ from paperaudit.agents.consistency import summarize
 from paperaudit.agents.finding_verifier import VerificationBatch, verify_answer
 from paperaudit.hy3_client import Hy3Client, Hy3ResponseError
 from paperaudit.models import (AnswerScope, CodeCitation, ConsistencyCheckpoint, ConsistencyItem,
-    EvidenceAnchor, JointAnswer, PaperCodeFinding)
+    EvidenceAnchor, EvidenceContext, JointAnswer, PaperCodeFinding)
 from paperaudit.request_budget import RequestBudget, active_budget, use_request_budget
 from paperaudit.code_service import CodeLearningService
 from test_code_investigation import ScriptedClient, SETTINGS, call, codebase, paper, submit
@@ -106,6 +106,24 @@ def test_old_findings_load_as_unreviewed_without_retroactive_downgrade():
     del raw["findings"][0]["verification"]
     loaded = JointAnswer.model_validate(raw)
     assert loaded.findings[0].verification.status == "not_reviewed" and not loaded.findings[0].needs_review
+
+
+def test_caption_provenance_survives_storage_and_is_sent_separately_to_reviewer():
+    original = answer()
+    anchor = original.findings[0].paper_citations[0]
+    anchor.source_context = [EvidenceContext(chunk_id="p11_caption", page=11,
+        text="Table 8. Pre-training setting.")]
+    restored = JointAnswer.model_validate_json(original.model_dump_json())
+    client = Reviewer()
+    with use_request_budget(RequestBudget(max_requests=1)):
+        checked = verify_answer(client, restored)
+    sent = client.payloads[0][0]["paper"][0]
+    assert sent["text"] == anchor.text and sent["chunk_id"] == anchor.chunk_id
+    assert sent["source_context"] == [anchor.source_context[0].model_dump(mode="json")]
+    assert checked.findings[0].paper_citations[0] == anchor
+    old = original.model_dump()
+    del old["findings"][0]["paper_citations"][0]["source_context"]
+    assert JointAnswer.model_validate(old).findings[0].paper_citations[0].source_context == []
 
 
 def test_investigator_reserves_and_accounts_for_one_verification_request():

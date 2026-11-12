@@ -1,0 +1,857 @@
+[
+  {
+    "id": "wrong_experiment",
+    "paper": "mae",
+    "expected": false,
+    "provenance": "reviewed-findings.jsonl:mae-warmupx:2:finding0",
+    "reason": "Table belongs to supervised training from scratch, not pretraining.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "论文的预训练配置将 warmup epochs 设为 20；`main_pretrain.py` 将 `--warmup_epochs` 默认设为 20，因此两者一致。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p12_b1",
+              "page": 12,
+              "text": "conﬁg\nvalue\noptimizer\nAdamW\nbase learning rate\n1e-4\nweight decay\n0.3\noptimizer momentum\nβ1, β2=0.9, 0.95\nbatch size\n4096\nlearning rate schedule\ncosine decay\nwarmup epochs\n20\ntraining epochs\n300 (B), 200 (L/H)\naugmentation\nRandAug (9, 0.5) [12]\nlabel smoothing [52]\n0.1\nmixup [69]\n0.8\ncutmix [68]\n1.0\ndrop path [30]\n0.1 (B), 0.2 (L/H)\nexp. moving average (EMA)\n0.9999",
+              "quote": "warmup epochs 20",
+              "locator": null,
+              "context_text": null,
+              "source_context": [
+                {
+                  "chunk_id": "p12_b2",
+                  "page": 12,
+                  "text": "Table 11. Supervised training ViT from scratch.",
+                  "relation": "nearby_table_caption",
+                  "rects": [
+                    {
+                      "x0": 77.46700286865234,
+                      "y0": 202.20411682128906,
+                      "x1": 259.0093688964844,
+                      "y1": 211.25238037109375
+                    }
+                  ]
+                }
+              ],
+              "rects": [
+                {
+                  "x0": 79.49500274658203,
+                  "y0": 130.30514526367188,
+                  "x1": 123.38809204101562,
+                  "y1": 137.27894592285156
+                },
+                {
+                  "x0": 187.49000549316406,
+                  "y0": 130.30514526367188,
+                  "x1": 194.4637908935547,
+                  "y1": 137.27894592285156
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00039:L71-72",
+              "path": "main_pretrain.py",
+              "start_line": 71,
+              "end_line": 72,
+              "symbol": "get_args_parser",
+              "text": "    parser.add_argument('--warmup_epochs', type=int, default=20, metavar='N',\n                        help='epochs to warmup LR')"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "reference_marker_error",
+    "paper": "mae",
+    "expected": false,
+    "provenance": "acceptance.jsonl:wrong-consistent:1",
+    "reason": "Pretraining table value is 40; [20] is a reference marker, not the value.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "论文默认 warmup 与代码默认值均为 20，一致。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p11_b10",
+              "page": 11,
+              "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+              "quote": "warmup epochs [20] 40",
+              "locator": null,
+              "context_text": null,
+              "source_context": [
+                {
+                  "chunk_id": "p11_b11",
+                  "page": 11,
+                  "text": "Table 8. Pre-training setting.",
+                  "relation": "nearby_table_caption",
+                  "rects": [
+                    {
+                      "x0": 372.81298828125,
+                      "y0": 153.42713928222656,
+                      "x1": 481.16278076171875,
+                      "y1": 162.47540283203125
+                    }
+                  ]
+                }
+              ],
+              "rects": []
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "main_pretrain.py:L71",
+              "path": "main_pretrain.py",
+              "start_line": 71,
+              "end_line": 72,
+              "symbol": null,
+              "text": "    parser.add_argument('--warmup_epochs', type=int, default=20, metavar='N',\n                        help='epochs to warmup LR')"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "correct_pretrain_difference",
+    "paper": "mae",
+    "expected": true,
+    "provenance": "acceptance.jsonl:correct-inconsistent:1",
+    "reason": "Pretraining table value is 40; [20] is a reference marker, not the value.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "论文 warmup 为 40，代码默认 20，不一致。",
+          "verdict": "INCONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p11_b10",
+              "page": 11,
+              "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+              "quote": "warmup epochs [20] 40",
+              "locator": null,
+              "context_text": null,
+              "source_context": [
+                {
+                  "chunk_id": "p11_b11",
+                  "page": 11,
+                  "text": "Table 8. Pre-training setting.",
+                  "relation": "nearby_table_caption",
+                  "rects": [
+                    {
+                      "x0": 372.81298828125,
+                      "y0": 153.42713928222656,
+                      "x1": 481.16278076171875,
+                      "y1": 162.47540283203125
+                    }
+                  ]
+                }
+              ],
+              "rects": []
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "main_pretrain.py:L71",
+              "path": "main_pretrain.py",
+              "start_line": 71,
+              "end_line": 72,
+              "symbol": null,
+              "text": "    parser.add_argument('--warmup_epochs', type=int, default=20, metavar='N',\n                        help='epochs to warmup LR')"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "correct_pretrain_match",
+    "paper": "mae",
+    "expected": true,
+    "provenance": "acceptance.jsonl:correct-consistent:1",
+    "reason": "Pretraining table value is 40; [20] is a reference marker, not the value.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "论文默认 warmup 与代码默认值均为 40，一致。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p11_b10",
+              "page": 11,
+              "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+              "quote": "warmup epochs [20] 40",
+              "locator": null,
+              "context_text": null,
+              "source_context": [
+                {
+                  "chunk_id": "p11_b11",
+                  "page": 11,
+                  "text": "Table 8. Pre-training setting.",
+                  "relation": "nearby_table_caption",
+                  "rects": [
+                    {
+                      "x0": 372.81298828125,
+                      "y0": 153.42713928222656,
+                      "x1": 481.16278076171875,
+                      "y1": 162.47540283203125
+                    }
+                  ]
+                }
+              ],
+              "rects": []
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "main_pretrain.py:L71",
+              "path": "main_pretrain.py",
+              "start_line": 71,
+              "end_line": 72,
+              "symbol": null,
+              "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "b_init_neighbor_difference",
+    "paper": "lora",
+    "expected": true,
+    "provenance": "reviewed-findings.jsonl:lora-b-init:1:finding0",
+    "reason": "Only B zero-initialization is asserted; A is out of scope.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "B 的初始化：论文规定为零初始化，`loralib.Linear.reset_parameters` 也调用 `nn.init.zeros_(self.lora_B)`，一致。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p4_b10",
+              "page": 4,
+              "text": "We illustrate our reparametrization in Figure 1. We use a random Gaussian initialization for A and\nzero for B, so ∆W = BA is zero at the beginning of training. We then scale ∆Wx by α",
+              "quote": "We use a random Gaussian initialization for A and zero for B, so ∆W = BA is zero at the beginning of training.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 107.99996948242188,
+                  "y0": 483.2828063964844,
+                  "x1": 503.99993896484375,
+                  "y1": 493.4759521484375
+                },
+                {
+                  "x0": 107.99993896484375,
+                  "y0": 492.6546325683594,
+                  "x1": 464.43450927734375,
+                  "y1": 504.4349670410156
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00175:L119-125",
+              "path": "loralib/layers.py",
+              "start_line": 119,
+              "end_line": 125,
+              "symbol": "Linear.reset_parameters",
+              "text": "    def reset_parameters(self):\n        nn.Linear.reset_parameters(self)\n        if hasattr(self, 'lora_A'):\n            # initialize B the same way as the default for nn.Linear and A to zero\n            # this is different than what is described in the paper but should not affect performance\n            nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))\n            nn.init.zeros_(self.lora_B)"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "b_init_actual_difference",
+    "paper": "lora",
+    "expected": false,
+    "provenance": "Controlled evidence mutation of b_init_neighbor_difference: zeros_(B) -> ones_(B), exactly once.",
+    "reason": "The target B now differs; scope restriction must not accept this wrong consistency claim.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "B 的初始化：论文规定为零初始化，`loralib.Linear.reset_parameters` 也调用 `nn.init.zeros_(self.lora_B)`，一致。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p4_b10",
+              "page": 4,
+              "text": "We illustrate our reparametrization in Figure 1. We use a random Gaussian initialization for A and\nzero for B, so ∆W = BA is zero at the beginning of training. We then scale ∆Wx by α",
+              "quote": "We use a random Gaussian initialization for A and zero for B, so ∆W = BA is zero at the beginning of training.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 107.99996948242188,
+                  "y0": 483.2828063964844,
+                  "x1": 503.99993896484375,
+                  "y1": 493.4759521484375
+                },
+                {
+                  "x0": 107.99993896484375,
+                  "y0": 492.6546325683594,
+                  "x1": 464.43450927734375,
+                  "y1": 504.4349670410156
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00175:L119-125",
+              "path": "loralib/layers.py",
+              "start_line": 119,
+              "end_line": 125,
+              "symbol": "Linear.reset_parameters",
+              "text": "    def reset_parameters(self):\n        nn.Linear.reset_parameters(self)\n        if hasattr(self, 'lora_A'):\n            # initialize B the same way as the default for nn.Linear and A to zero\n            # this is different than what is described in the paper but should not affect performance\n            nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))\n            nn.init.ones_(self.lora_B)"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "scaling_same_roles",
+    "paper": "lora",
+    "expected": true,
+    "provenance": "reviewed-findings.jsonl:lora-scaling:0:finding0",
+    "reason": "Both paper and code define rank-normalized alpha scaling.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "缩放系数一致：论文将 ΔWx 乘以 α/r；`loralib` 对 LoRA 更新设置 `self.scaling = self.lora_alpha / self.r`，因此对应关系是 α=`lora_alpha`。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p4_b10",
+              "page": 4,
+              "text": "We illustrate our reparametrization in Figure 1. We use a random Gaussian initialization for A and\nzero for B, so ∆W = BA is zero at the beginning of training. We then scale ∆Wx by α",
+              "quote": "We then scale ∆Wx by α",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 107.99993896484375,
+                  "y0": 492.6546325683594,
+                  "x1": 464.43450927734375,
+                  "y1": 504.4349670410156
+                }
+              ]
+            },
+            {
+              "chunk_id": "p4_b11",
+              "page": 4,
+              "text": "r , where α\nis a constant in r. When optimizing with Adam, tuning α is roughly the same as tuning the learning\nrate if we scale the initialization appropriately. As a result, we simply set α to the ﬁrst r we try\nand do not tune it. This scaling helps to reduce the need to retune hyperparameters when we vary\nr (Yang & Hu, 2021).",
+              "quote": "r , where α is a constant in r.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 459.885009765625,
+                  "y0": 494.241943359375,
+                  "x1": 503.9660949707031,
+                  "y1": 507.8700866699219
+                },
+                {
+                  "x0": 108.00003051757812,
+                  "y0": 505.200927734375,
+                  "x1": 504.0030517578125,
+                  "y1": 515.39404296875
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00174:L109-114",
+              "path": "loralib/layers.py",
+              "start_line": 109,
+              "end_line": 114,
+              "symbol": "Linear.__init__",
+              "text": "        if r > 0:\n            self.lora_A = nn.Parameter(self.weight.new_zeros((r, in_features)))\n            self.lora_B = nn.Parameter(self.weight.new_zeros((out_features, r)))\n            self.scaling = self.lora_alpha / self.r\n            # Freezing the pre-trained weight matrix\n            self.weight.requires_grad = False"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "scaling_real_difference",
+    "paper": "lora",
+    "expected": true,
+    "provenance": "reviewed-findings.jsonl:lora-scalingx:0:finding0",
+    "reason": "The controlled scaling change supports the original INCONSISTENT verdict.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "低秩更新 ΔWx 的缩放系数：论文写作 α/r，`loralib` 实现使用 `lora_alpha / sqrt(r)`，公式不同。",
+          "verdict": "INCONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p4_b10",
+              "page": 4,
+              "text": "We illustrate our reparametrization in Figure 1. We use a random Gaussian initialization for A and\nzero for B, so ∆W = BA is zero at the beginning of training. We then scale ∆Wx by α",
+              "quote": "We then scale ∆Wx by α",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 107.99993896484375,
+                  "y0": 492.6546325683594,
+                  "x1": 464.43450927734375,
+                  "y1": 504.4349670410156
+                }
+              ]
+            },
+            {
+              "chunk_id": "p4_b11",
+              "page": 4,
+              "text": "r , where α\nis a constant in r. When optimizing with Adam, tuning α is roughly the same as tuning the learning\nrate if we scale the initialization appropriately. As a result, we simply set α to the ﬁrst r we try\nand do not tune it. This scaling helps to reduce the need to retune hyperparameters when we vary\nr (Yang & Hu, 2021).",
+              "quote": "r , where α is a constant in r.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 459.885009765625,
+                  "y0": 494.241943359375,
+                  "x1": 503.9660949707031,
+                  "y1": 507.8700866699219
+                },
+                {
+                  "x0": 108.00003051757812,
+                  "y0": 505.200927734375,
+                  "x1": 504.0030517578125,
+                  "y1": 515.39404296875
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00169:L47-52",
+              "path": "loralib/layers.py",
+              "start_line": 47,
+              "end_line": 52,
+              "symbol": "Embedding.__init__",
+              "text": "        if r > 0:\n            self.lora_A = nn.Parameter(self.weight.new_zeros((r, num_embeddings)))\n            self.lora_B = nn.Parameter(self.weight.new_zeros((embedding_dim, r)))\n            self.scaling = self.lora_alpha / math.sqrt(self.r)\n            # Freezing the pre-trained weight matrix\n            self.weight.requires_grad = False"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "default_mask_difference",
+    "paper": "mae",
+    "expected": true,
+    "provenance": "reviewed-findings.jsonl:mae-maskx:0:finding0",
+    "reason": "Explicit Table 1 default 75% differs from code default 0.6.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "默认预训练掩码比例：论文为 75%，代码预训练参数默认值为 0.6（60%），不一致。",
+          "verdict": "INCONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p5_b13",
+              "page": 5,
+              "text": "Table 1. MAE ablation experiments with ViT-L/16 on ImageNet-1K. We report ﬁne-tuning (ft) and linear probing (lin) accuracy (%). If\nnot speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation\nis random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs. Default settings are marked in gray .",
+              "quote": "If not speciﬁed, the default is: the decoder has depth 8 and width 512, the reconstruction target is unnormalized pixels, the data augmentation is random resized cropping, the masking ratio is 75%, and the pre-training length is 800 epochs.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 50.11199951171875,
+                  "y0": 238.89100646972656,
+                  "x1": 545.1162109375,
+                  "y1": 247.93927001953125
+                },
+                {
+                  "x0": 50.11199951171875,
+                  "y0": 249.93185424804688,
+                  "x1": 545.1109619140625,
+                  "y1": 258.89825439453125
+                },
+                {
+                  "x0": 50.11199951171875,
+                  "y0": 260.8908386230469,
+                  "x1": 531.3357543945312,
+                  "y1": 269.85736083984375
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00039:L53-54",
+              "path": "main_pretrain.py",
+              "start_line": 53,
+              "end_line": 54,
+              "symbol": "get_args_parser",
+              "text": "    parser.add_argument('--mask_ratio', default=0.6, type=float,\n                        help='Masking ratio (percentage of removed patches).')"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "missing_code_default",
+    "paper": "gcn",
+    "expected": false,
+    "provenance": "reviewed-findings.jsonl:gcn-dropoutx:2:finding0",
+    "reason": "Only FLAGS.dropout use is cited; its value is not defined.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "引文网络（Citeseer、Cora、Pubmed）的 dropout 率：论文为 0.5；代码训练默认值为 0.6，故不一致。",
+          "verdict": "INCONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p7_b7",
+              "page": 7,
+              "text": "We further report wall-clock training time in seconds until convergence (in brackets) for our method\n(incl. evaluation of validation error) and for Planetoid. For the latter, we used an implementation pro-\nvided by the authors3 and trained on the same hardware (with GPU) as our GCN model. We trained\nand tested our model on the same dataset splits as in Yang et al. (2016) and report mean accuracy\nof 100 runs with random weight initializations. We used the following sets of hyperparameters for\nCiteseer, Cora and Pubmed: 0.5 (dropout rate), 5 · 10−4 (L2 regularization) and 16 (number of hid-\nden units); and for NELL: 0.1 (dropout rate), 1 · 10−5 (L2 regularization) and 64 (number of hidden\nunits).",
+              "quote": "We used the following sets of hyperparameters for Citeseer, Cora and Pubmed: 0.5 (dropout rate), 5 · 10−4 (L2 regularization) and 16 (number of hid-",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 108.0000228881836,
+                  "y0": 367.357421875,
+                  "x1": 504.0032958984375,
+                  "y1": 377.3200378417969
+                },
+                {
+                  "x0": 108.0000228881836,
+                  "y0": 374.7004089355469,
+                  "x1": 503.9997253417969,
+                  "y1": 388.36260986328125
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00057:L81-87",
+              "path": "gcn/train.py",
+              "start_line": 81,
+              "end_line": 87,
+              "symbol": "<module>",
+              "text": "    t = time.time()\n    # Construct feed dictionary\n    feed_dict = construct_feed_dict(features, support, y_train, train_mask, placeholders)\n    feed_dict.update({placeholders['dropout']: FLAGS.dropout})\n\n    # Training step\n    outs = sess.run([model.opt_op, model.loss, model.accuracy], feed_dict=feed_dict)"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "missing_normalization_formula",
+    "paper": "gcn",
+    "expected": false,
+    "provenance": "reviewed-findings.jsonl:gcn-renorm:2:finding0",
+    "reason": "Paper excerpt stops before the symmetric normalization formula.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "论文与代码均采用加自环后的对称归一化邻接矩阵。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p2_b8",
+              "page": 2,
+              "text": "Here, ˜A = A + IN is the adjacency matrix of the undirected graph G with added self-connections.\nIN is the identity matrix, ˜Dii = P",
+              "quote": "Here, ˜A = A + IN is the adjacency matrix of the undirected graph G with added self-connections.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 108.0,
+                  "y0": 173.31008911132812,
+                  "x1": 503.9953918457031,
+                  "y1": 187.20211791992188
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00064:L122-129",
+              "path": "gcn/utils.py",
+              "start_line": 122,
+              "end_line": 129,
+              "symbol": "normalize_adj",
+              "text": "def normalize_adj(adj):\n    \"\"\"Symmetrically normalize adjacency matrix.\"\"\"\n    adj = sp.coo_matrix(adj)\n    rowsum = np.array(adj.sum(1))\n    d_inv_sqrt = np.power(rowsum, -0.5).flatten()\n    d_inv_sqrt[np.isinf(d_inv_sqrt)] = 0.\n    d_mat_inv_sqrt = sp.diags(d_inv_sqrt)\n    return adj.dot(d_mat_inv_sqrt).transpose().dot(d_mat_inv_sqrt).tocoo()"
+            },
+            {
+              "chunk_id": "c00065:L132-135",
+              "path": "gcn/utils.py",
+              "start_line": 132,
+              "end_line": 135,
+              "symbol": "preprocess_adj",
+              "text": "def preprocess_adj(adj):\n    \"\"\"Preprocessing of adjacency matrix for simple GCN model and conversion to tuple representation.\"\"\"\n    adj_normalized = normalize_adj(adj + sp.eye(adj.shape[0]))\n    return sparse_to_tuple(adj_normalized)"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  },
+  {
+    "id": "missing_optimizer_recipe",
+    "paper": "mae",
+    "expected": false,
+    "provenance": "reviewed-findings.jsonl:mae-linprobe:2:finding0",
+    "reason": "The cited prose refers to a recipe but does not identify the optimizer.",
+    "answer": {
+      "question": "Frozen finding review",
+      "answer": "Not sent to reviewer",
+      "scope": "joint",
+      "status": "ANSWERED",
+      "selected_code": null,
+      "paper_citations": [],
+      "code_citations": [],
+      "relation": null,
+      "findings": [
+        {
+          "text": "线性探测使用的优化器：论文称训练遵循既有 linear-classifier recipe；代码明确以 LARS 优化分类头参数。",
+          "verdict": "CONSISTENT",
+          "paper_citations": [
+            {
+              "chunk_id": "p11_b7",
+              "page": 11,
+              "text": "Linear probing. Our linear classiﬁer training follows [9].\nSee Table 10. We observe that linear probing requires a very\ndifferent recipe than end-to-end ﬁne-tuning. In particular,\nregularization is in general harmful for linear probing. Fol-\nlowing [9], we disable many common regularization strate-\ngies: we do not use mixup [69], cutmix [68], drop path [30],\nor color jittering, and we set weight decay as zero.",
+              "quote": "Linear probing. Our linear classiﬁer training follows [9]. See Table 10.",
+              "locator": null,
+              "context_text": null,
+              "source_context": [],
+              "rects": [
+                {
+                  "x0": 50.11198425292969,
+                  "y0": 432.1855163574219,
+                  "x1": 286.3606872558594,
+                  "y1": 442.23907470703125
+                },
+                {
+                  "x0": 50.11198425292969,
+                  "y0": 444.2314453125,
+                  "x1": 286.3650817871094,
+                  "y1": 454.1940612792969
+                }
+              ]
+            }
+          ],
+          "code_citations": [
+            {
+              "chunk_id": "c00036:L252-253",
+              "path": "main_linprobe.py",
+              "start_line": 252,
+              "end_line": 253,
+              "symbol": "main",
+              "text": "    optimizer = LARS(model_without_ddp.head.parameters(), lr=args.lr, weight_decay=args.weight_decay)\n    print(optimizer)"
+            }
+          ],
+          "verification": {
+            "status": "not_reviewed",
+            "required": false,
+            "reason": "",
+            "paper_statement": "",
+            "code_statement": ""
+          }
+        }
+      ],
+      "investigation": null
+    }
+  }
+]

@@ -84,7 +84,7 @@ class BrowserService(FakeService):
                 for i, topic in enumerate(["训练配置", "评估设置"], 1)])
 
     def check_consistency(self, paper, codebase, checkpoints, plan, *, progress=None):
-        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary, PaperCodeFinding, FindingVerification
+        from paperaudit.models import ConsistencyReport, ConsistencyItem, ConsistencySummary, PaperCodeFinding, FindingVerification, EvidenceContext
         from paperaudit.agents.consistency import summarize
         time.sleep(.4)
         if progress:
@@ -92,6 +92,9 @@ class BrowserService(FakeService):
         items = []
         for c in checkpoints:
             answer = self.answer(paper, codebase, c.question)
+            for anchor in answer.paper_citations:
+                anchor.source_context = [EvidenceContext(chunk_id="fixture-caption", page=1,
+                    text="Table 8. Pre-training setting.")]
             pending = c.checkpoint_id == "K01"
             finding = PaperCodeFinding(text="默认 warmup 配置一致。", verdict="CONSISTENT",
                 paper_citations=answer.paper_citations, code_citations=answer.code_citations,

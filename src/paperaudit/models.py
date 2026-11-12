@@ -93,6 +93,15 @@ class LearningSectionType(str, Enum):
     KEY_TERMS = "key_terms"
 
 
+class EvidenceContext(StrictModel):
+    """Exact source context shown with a passage, with explicit provenance."""
+    chunk_id: str
+    page: int = Field(ge=1)
+    text: str
+    relation: Literal["nearby_table_caption"] = "nearby_table_caption"
+    rects: list[PageRect] = Field(default_factory=list)
+
+
 class EvidenceAnchor(StrictModel):
     chunk_id: str
     page: int | None = Field(default=None, ge=1)
@@ -100,6 +109,7 @@ class EvidenceAnchor(StrictModel):
     quote: str | None = None
     locator: str | None = None
     context_text: str | None = None
+    source_context: list[EvidenceContext] = Field(default_factory=list)
     rects: list[PageRect] = Field(default_factory=list)
 
 

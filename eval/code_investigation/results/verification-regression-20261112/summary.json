@@ -1,0 +1,54 @@
+{
+  "v1": {
+    "correct": 29,
+    "n": 36,
+    "unsupported_rejected": 15,
+    "unsupported_n": 18,
+    "supported_passed": 14,
+    "supported_n": 18,
+    "false_rejections": 4,
+    "missed_errors": 3,
+    "unreviewed": 0,
+    "requests": 36,
+    "tokens": 49131
+  },
+  "captions_only": {
+    "correct": 33,
+    "n": 36,
+    "unsupported_rejected": 18,
+    "unsupported_n": 18,
+    "supported_passed": 15,
+    "supported_n": 18,
+    "false_rejections": 3,
+    "missed_errors": 0,
+    "unreviewed": 0,
+    "requests": 36,
+    "tokens": 51265
+  },
+  "scope_only": {
+    "correct": 32,
+    "n": 36,
+    "unsupported_rejected": 18,
+    "unsupported_n": 18,
+    "supported_passed": 14,
+    "supported_n": 18,
+    "false_rejections": 4,
+    "missed_errors": 0,
+    "unreviewed": 0,
+    "requests": 36,
+    "tokens": 67528
+  },
+  "v2": {
+    "correct": 32,
+    "n": 36,
+    "unsupported_rejected": 18,
+    "unsupported_n": 18,
+    "supported_passed": 14,
+    "supported_n": 18,
+    "false_rejections": 4,
+    "missed_errors": 0,
+    "unreviewed": 0,
+    "requests": 36,
+    "tokens": 69283
+  }
+}

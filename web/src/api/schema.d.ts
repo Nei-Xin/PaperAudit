@@ -1639,6 +1639,8 @@ export interface components {
             locator: string | null;
             /** Context Text */
             context_text: string | null;
+            /** Source Context */
+            source_context: components["schemas"]["EvidenceContext"][];
             /** Rects */
             rects: components["schemas"]["PageRect"][];
         };
@@ -1654,6 +1656,26 @@ export interface components {
             text: string;
             /** Score */
             score: number;
+        };
+        /**
+         * EvidenceContext
+         * @description Exact source context shown with a passage, with explicit provenance.
+         */
+        EvidenceContext: {
+            /** Chunk Id */
+            chunk_id: string;
+            /** Page */
+            page: number;
+            /** Text */
+            text: string;
+            /**
+             * Relation
+             * @default nearby_table_caption
+             * @constant
+             */
+            relation: "nearby_table_caption";
+            /** Rects */
+            rects: components["schemas"]["PageRect"][];
         };
         /**
          * EvidenceErrorType

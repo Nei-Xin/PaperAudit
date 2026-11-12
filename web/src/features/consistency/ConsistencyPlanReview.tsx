@@ -4,7 +4,7 @@ import { READ_ONLY } from "@/api/client";
 import { useExecuteConsistency } from "@/api/queries";
 import type { ConsistencyItem, ConsistencyPlan } from "@/api/types";
 import { ErrorState } from "@/components/States";
-import { AgentSteps } from "@/features/reader/investigation";
+import { AgentSteps, PaperSourceContext } from "@/features/reader/investigation";
 
 export const CATEGORY: Record<ConsistencyItem["checkpoint"]["category"], string> = {
   hyperparameter: "超参数", architecture: "结构", training: "训练",
@@ -65,6 +65,7 @@ export function ConsistencyPlanReview({ projectId, plan, busy, onExecute }: {
           {c.paper_anchor.quote}
           <Link className="ml-2 whitespace-nowrap text-xs text-accent" to={`/p/${projectId}/read?pdfPage=${c.paper_anchor.page}`}>论文第 {c.paper_anchor.page} 页 ↗</Link>
         </blockquote>}
+        {c.paper_anchor && <PaperSourceContext anchor={c.paper_anchor} />}
         <p className="mt-2 break-words text-sm text-ink-2">{c.question}</p>
       </article>)}
       <label className="flex flex-col gap-2 text-sm">补充问题（每行一个，最多 10 个，每个不超过 300 字）

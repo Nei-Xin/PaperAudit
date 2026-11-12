@@ -16,7 +16,7 @@ import type {
 import { EmptyState, ErrorState, Loading, MockNote } from "@/components/States";
 import { Modal } from "@/components/Modal";
 import { anchorLabel } from "@/lib/labels";
-import { FindingLabel, VerificationDetails, InvestigationTrace } from "./investigation";
+import { FindingLabel, VerificationDetails, PaperSourceContext, InvestigationTrace } from "./investigation";
 
 export function QaView({
   projectId,
@@ -179,6 +179,7 @@ export function QaView({
                         <FindingLabel finding={f} />
                         {f.text}
                         <VerificationDetails finding={f} />
+                        {(f.paper_citations ?? []).map(a => <PaperSourceContext key={a.chunk_id} anchor={a} />)}
                         <div className="mt-1.5 flex flex-wrap gap-1.5">
                           {(f.paper_citations ?? []).map((a, k) => (
                             <button
