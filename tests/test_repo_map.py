@@ -145,3 +145,14 @@ def test_background_execution_persists_map_and_reuses_it_after_restart(tmp_path)
         report=http.get(f"/api/projects/{pid}/consistency-reports/{job['report_id']}").json()
         assert report['repo_map_reused'] and report['repo_map_requests']==0
         assert len(client.mapper.requests)==2
+
+
+def test_followup_uses_cached_map_only_when_enabled_and_still_reads_evidence():
+    from paperaudit.code_service import CodeLearningService
+    for enabled in (False,True):
+        client=ScriptedClient([call('read_page',page=2),call('read_file',path='configs/base.yaml',start_line=1,end_line=3)], [submit()])
+        result=CodeLearningService(replace(SETTINGS,repo_map=enabled),client).answer(
+            paper(),codebase(),'论文的 dropout 与代码一致吗？',investigate=True,repo_map=memory())
+        assert result.investigation.repo_map_used==enabled
+        assert result.findings and result.investigation.requests==2
+        assert ('<untrusted_repo_map>' in client.requests[0]['messages'][1]['content'])==enabled
