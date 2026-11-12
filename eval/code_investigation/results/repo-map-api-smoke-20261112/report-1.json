@@ -1,0 +1,492 @@
+{
+  "schema_version": 1,
+  "report_id": "consistency-20261112T023923Z-8abf36",
+  "created_at": "2026-11-12T02:39:23.270048+00:00",
+  "strategy_version": "consistency-orchestrator-v2-verified",
+  "model": "configured-model",
+  "paper_title": "Masked Autoencoders Are Scalable Vision Learners",
+  "codebase_name": "mae",
+  "items": [
+    {
+      "checkpoint": {
+        "checkpoint_id": "K01",
+        "topic": "预训练 warmup",
+        "category": "training",
+        "question": "预训练 warmup 的默认值与论文是否一致？请检查表格所属实验设置。",
+        "paper_anchor": null,
+        "source": "user"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "预训练 warmup 的默认值与论文是否一致？请检查表格所属实验设置。",
+        "answer": "预训练 warmup 默认值一致：代码 `main_pretrain.py` 将 `--warmup_epochs` 默认设为 40；论文 Table 8 的设置是 Pre-training，warmup epochs 也为 40。注意论文 Table 11 的 20 属于从头进行的监督训练，不是这里比较的预训练设置。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p11_b10",
+            "page": 11,
+            "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+            "quote": "warmup epochs [20] 40",
+            "locator": null,
+            "context_text": null,
+            "source_context": [
+              {
+                "chunk_id": "p11_b11",
+                "page": 11,
+                "text": "Table 8. Pre-training setting.",
+                "relation": "nearby_table_caption",
+                "rects": [
+                  {
+                    "x0": 372.81298828125,
+                    "y0": 153.42713928222656,
+                    "x1": 481.16278076171875,
+                    "y1": 162.47540283203125
+                  }
+                ]
+              }
+            ],
+            "rects": [
+              {
+                "x0": 338.2449951171875,
+                "y0": 130.30514526367188,
+                "x1": 395.49993896484375,
+                "y1": 137.27894592285156
+              },
+              {
+                "x0": 446.239990234375,
+                "y0": 130.30514526367188,
+                "x1": 453.21380615234375,
+                "y1": 137.27894592285156
+              }
+            ]
+          },
+          {
+            "chunk_id": "p11_b11",
+            "page": 11,
+            "text": "Table 8. Pre-training setting.",
+            "quote": "Table 8. Pre-training setting.",
+            "locator": null,
+            "context_text": null,
+            "source_context": [],
+            "rects": [
+              {
+                "x0": 372.81298828125,
+                "y0": 153.42713928222656,
+                "x1": 481.16278076171875,
+                "y1": 162.47540283203125
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00039:L71-72",
+            "path": "main_pretrain.py",
+            "start_line": 71,
+            "end_line": 72,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+          }
+        ],
+        "relation": "IMPLEMENTS",
+        "findings": [
+          {
+            "text": "预训练 warmup epoch 默认值：代码为 40，论文 Table 8 的 Pre-training 设置也为 40，二者一致；Table 11 的 20 属于监督训练 from scratch，不适用于本项比较。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p11_b10",
+                "page": 11,
+                "text": "conﬁg\nvalue\noptimizer\nAdamW [39]\nbase learning rate\n1.5e-4\nweight decay\n0.05\noptimizer momentum\nβ1, β2=0.9, 0.95 [6]\nbatch size\n4096\nlearning rate schedule\ncosine decay [38]\nwarmup epochs [20]\n40\naugmentation\nRandomResizedCrop",
+                "quote": "warmup epochs [20] 40",
+                "locator": null,
+                "context_text": null,
+                "source_context": [
+                  {
+                    "chunk_id": "p11_b11",
+                    "page": 11,
+                    "text": "Table 8. Pre-training setting.",
+                    "relation": "nearby_table_caption",
+                    "rects": [
+                      {
+                        "x0": 372.81298828125,
+                        "y0": 153.42713928222656,
+                        "x1": 481.16278076171875,
+                        "y1": 162.47540283203125
+                      }
+                    ]
+                  }
+                ],
+                "rects": [
+                  {
+                    "x0": 338.2449951171875,
+                    "y0": 130.30514526367188,
+                    "x1": 395.49993896484375,
+                    "y1": 137.27894592285156
+                  },
+                  {
+                    "x0": 446.239990234375,
+                    "y0": 130.30514526367188,
+                    "x1": 453.21380615234375,
+                    "y1": 137.27894592285156
+                  }
+                ]
+              },
+              {
+                "chunk_id": "p11_b11",
+                "page": 11,
+                "text": "Table 8. Pre-training setting.",
+                "quote": "Table 8. Pre-training setting.",
+                "locator": null,
+                "context_text": null,
+                "source_context": [],
+                "rects": [
+                  {
+                    "x0": 372.81298828125,
+                    "y0": 153.42713928222656,
+                    "x1": 481.16278076171875,
+                    "y1": 162.47540283203125
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00039:L71-72",
+                "path": "main_pretrain.py",
+                "start_line": 71,
+                "end_line": 72,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--warmup_epochs', type=int, default=40, metavar='N',\n                        help='epochs to warmup LR')"
+              }
+            ],
+            "verification": {
+              "status": "passed",
+              "required": true,
+              "reason": "论文预训练设置与代码命令行默认值均为 40，支持该项一致性比较。",
+              "paper_statement": "Table 8 的预训练设置将 warmup epochs 列为 40。",
+              "code_statement": "命令行参数 --warmup_epochs 的默认值为 40。"
+            }
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v2-verified",
+          "model": "configured-model",
+          "max_requests": 12,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "list_dir",
+              "arguments": {
+                "path": ""
+              },
+              "outcome": "列出 16 项",
+              "ok": true
+            },
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "warmup_epochs"
+              },
+              "outcome": "匹配 7 行",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_pretrain.py",
+                "start_line": 60,
+                "end_line": 78
+              },
+              "outcome": "读取 main_pretrain.py L60–78",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "PRETRAIN.md",
+                "start_line": 1,
+                "end_line": 24
+              },
+              "outcome": "读取 PRETRAIN.md L1–24",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "40"
+              },
+              "outcome": "匹配 14 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "pre-training warmup epochs default value experimental settings table"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            },
+            {
+              "tool": "verify_findings",
+              "arguments": {},
+              "outcome": "复核 1 条发现，0 条待人工核对。",
+              "ok": true
+            }
+          ],
+          "stop_reason": "answered",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 5,
+          "tokens": 12712,
+          "elapsed_seconds": 16.795,
+          "fallback": false,
+          "repo_map_used": true
+        }
+      }
+    }
+  ],
+  "summary": {
+    "checkpoints": 1,
+    "checked": 1,
+    "not_checked": 0,
+    "failed": 0,
+    "unresolved": 0,
+    "consistent": 1,
+    "inconsistent": 0,
+    "partial": 0,
+    "not_located": 0,
+    "pending_review": 0
+  },
+  "plan_id": "consistency-plan-20261112T023852Z-863ac0",
+  "planned": 0,
+  "plan_rejected": 0,
+  "plan_over_limit": 0,
+  "plan_unselected": 2,
+  "max_checkpoints": 1,
+  "max_requests": 40,
+  "concurrency": 4,
+  "plan_requests": 0,
+  "repo_map": {
+    "version": "repo-map-v1",
+    "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b",
+    "model": "configured-model",
+    "entries": [
+      {
+        "path": "main_pretrain.py",
+        "start_line": 33,
+        "end_line": 38,
+        "role": "MAE预训练入口，导入模型和训练轮函数。"
+      },
+      {
+        "path": "main_pretrain.py",
+        "start_line": 38,
+        "end_line": 58,
+        "role": "预训练参数解析定义。"
+      },
+      {
+        "path": "models_mae.py",
+        "start_line": 22,
+        "end_line": 63,
+        "role": "MAE视觉Transformer编码器与解码器模块。"
+      },
+      {
+        "path": "engine_pretrain.py",
+        "start_line": 21,
+        "end_line": 48,
+        "role": "预训练单轮训练流程及模型前向调用。"
+      },
+      {
+        "path": "main_finetune.py",
+        "start_line": 31,
+        "end_line": 43,
+        "role": "微调入口依赖、模型及训练评估函数导入。"
+      },
+      {
+        "path": "engine_finetune.py",
+        "start_line": 25,
+        "end_line": 57,
+        "role": "分类微调单轮训练流程。"
+      },
+      {
+        "path": "models_vit.py",
+        "start_line": 20,
+        "end_line": 53,
+        "role": "分类Vision Transformer模块，支持全局池化特征。"
+      },
+      {
+        "path": "main_linprobe.py",
+        "start_line": 31,
+        "end_line": 43,
+        "role": "线性探测入口依赖及参数解析起始位置。"
+      }
+    ],
+    "steps": [
+      {
+        "tool": "list_dir",
+        "arguments": {
+          "path": ""
+        },
+        "outcome": "列出 16 项",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "main_pretrain.py",
+          "start_line": 1,
+          "end_line": 100
+        },
+        "outcome": "读取 main_pretrain.py L1–100",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "models_mae.py",
+          "start_line": 1,
+          "end_line": 120
+        },
+        "outcome": "读取 models_mae.py L1–120",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "engine_pretrain.py",
+          "start_line": 1,
+          "end_line": 82
+        },
+        "outcome": "读取 engine_pretrain.py L1–82",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "main_finetune.py",
+          "start_line": 1,
+          "end_line": 90
+        },
+        "outcome": "读取 main_finetune.py L1–90",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "models_vit.py",
+          "start_line": 1,
+          "end_line": 74
+        },
+        "outcome": "读取 models_vit.py L1–74",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "engine_finetune.py",
+          "start_line": 1,
+          "end_line": 100
+        },
+        "outcome": "读取 engine_finetune.py L1–100",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "main_linprobe.py",
+          "start_line": 20,
+          "end_line": 65
+        },
+        "outcome": "读取 main_linprobe.py L20–65",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "util/",
+          "start_line": 1,
+          "end_line": 1
+        },
+        "outcome": "REJECTED: No such file: util/. Use list_dir or grep_code to find real paths.",
+        "ok": false
+      },
+      {
+        "tool": "submit_repo_map",
+        "arguments": {
+          "entries": [
+            {
+              "path": "main_pretrain.py",
+              "start_line": 33,
+              "end_line": 38,
+              "role": "MAE预训练入口，导入模型和训练轮函数。"
+            },
+            {
+              "path": "main_pretrain.py",
+              "start_line": 38,
+              "end_line": 58,
+              "role": "预训练参数解析定义。"
+            },
+            {
+              "path": "models_mae.py",
+              "start_line": 22,
+              "end_line": 63,
+              "role": "MAE视觉Transformer编码器与解码器模块。"
+            },
+            {
+              "path": "engine_pretrain.py",
+              "start_line": 21,
+              "end_line": 48,
+              "role": "预训练单轮训练流程及模型前向调用。"
+            },
+            {
+              "path": "main_finetune.py",
+              "start_line": 31,
+              "end_line": 43,
+              "role": "微调入口依赖、模型及训练评估函数导入。"
+            },
+            {
+              "path": "engine_finetune.py",
+              "start_line": 25,
+              "end_line": 57,
+              "role": "分类微调单轮训练流程。"
+            },
+            {
+              "path": "models_vit.py",
+              "start_line": 20,
+              "end_line": 53,
+              "role": "分类Vision Transformer模块，支持全局池化特征。"
+            },
+            {
+              "path": "main_linprobe.py",
+              "start_line": 31,
+              "end_line": 43,
+              "role": "线性探测入口依赖及参数解析起始位置。"
+            }
+          ]
+        },
+        "outcome": "Accepted 8 map entries.",
+        "ok": true
+      }
+    ],
+    "stop_reason": "finished",
+    "requests": 4,
+    "tokens": 17028,
+    "elapsed_seconds": 13.866
+  },
+  "repo_map_reused": false,
+  "repo_map_requests": 4,
+  "repo_map_tokens": 17028,
+  "requests": 9,
+  "tokens": 29740,
+  "elapsed_seconds": 30.7
+}

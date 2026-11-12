@@ -1,0 +1,34 @@
+{
+  "project_id": "1b490443925c72a2",
+  "requests": 15,
+  "tokens": 44109,
+  "first_map_requests": 4,
+  "reused_map_requests": 0,
+  "restart_reuse": true,
+  "replacement_invalidates_map": true,
+  "stale_plan_http_status": 409,
+  "production_store_modified": false,
+  "implementation_commit": "186048e",
+  "deployed_commit": "c02816dcbca2956f2dfc34f84f5b539d449acc43",
+  "default_enabled": false,
+  "validation": {
+    "linux_release_tests": 627,
+    "browser_workflow_tests": 6,
+    "frontend_build": "passed",
+    "legacy_projects": 7,
+    "legacy_audits": 11,
+    "exports_roundtrip": true,
+    "actual_report_render": {
+      "widths": [
+        1440,
+        390
+      ],
+      "method": "Playwright substitutes the saved real smoke report response in deployed UI; live project reports unchanged.",
+      "horizontal_overflow": false,
+      "runtime_errors": 0
+    }
+  },
+  "limitations": [
+    "Warmup passed review; mask finding withheld because the quoted paper text only says e.g. 75%. This is not evidence of a map accuracy benefit."
+  ]
+}

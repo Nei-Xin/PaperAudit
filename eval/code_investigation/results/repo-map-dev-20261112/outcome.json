@@ -1,0 +1,34 @@
+{
+  "implementation_commit": "186048e",
+  "deployed_commit": "c02816dcbca2956f2dfc34f84f5b539d449acc43",
+  "frozen_source_hashes_verified": true,
+  "dispatch_count": 250,
+  "completed_maps": 16,
+  "completed_investigations": 234,
+  "default_enabled": false,
+  "decision": "Frozen criterion not met: label agreement 99/117 vs 95/117, but including map generation requests only decrease 2.15%, below the required 5%.",
+  "investigation_request_reduction_percent": 11.318,
+  "including_generation_request_reduction_percent": 2.149,
+  "including_generation_token_increase_percent": 5.687,
+  "eval_usage": {
+    "requests": 1381,
+    "tokens": 4945951
+  },
+  "smoke_usage": {
+    "requests": 15,
+    "tokens": 44109
+  },
+  "total_new_usage": {
+    "requests": 1396,
+    "tokens": 4990060
+  },
+  "limitations": [
+    "Previously seen development set, not an independent holdout. Labels are not finding-level semantic support judgments.",
+    "One generated map per variant; no map-generation variance estimate. Three repeats per question are correlated.",
+    "24 map-arm investigations had no usable map. They still used 23 fewer requests than matched baseline runs, indicating sampling/provider variance.",
+    "Map arm changed 11 baseline misses to matches and 7 baseline matches to misses; small net improvement is not proof of general accuracy gain.",
+    "No semantic verifier in this comparison; production audits still verify findings.",
+    "Empty maps are not cached in production, so repeated future audit failures may pay generation again."
+  ],
+  "next_step": "Keep repository memory opt-in; continue with persisted events and SSE progress rather than tune on these same cases."
+}

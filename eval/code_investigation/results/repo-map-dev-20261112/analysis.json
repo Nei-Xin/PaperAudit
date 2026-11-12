@@ -1,0 +1,1090 @@
+{
+  "overall": {
+    "baseline": {
+      "n": 117,
+      "correct": 95,
+      "requests": 698,
+      "tokens": 2404597,
+      "mean_requests": 5.966,
+      "mean_tokens": 20552.1,
+      "mean_seconds": 19.83,
+      "predictions": {
+        "CONSISTENT": 63,
+        "INCONSISTENT": 38,
+        "ERROR": 3,
+        "MIXED": 6,
+        "ABSTAIN": 4,
+        "NOT_LOCATED": 3
+      },
+      "map_used": 0,
+      "list_dir": 121,
+      "read_file": 166
+    },
+    "map": {
+      "n": 117,
+      "correct": 99,
+      "requests": 619,
+      "tokens": 2323056,
+      "mean_requests": 5.291,
+      "mean_tokens": 19855.2,
+      "mean_seconds": 17.15,
+      "predictions": {
+        "INCONSISTENT": 43,
+        "CONSISTENT": 66,
+        "MIXED": 3,
+        "NOT_LOCATED": 2,
+        "ABSTAIN": 1,
+        "ERROR": 2
+      },
+      "map_used": 93,
+      "list_dir": 68,
+      "read_file": 164
+    }
+  },
+  "by_paper": {
+    "gcn": {
+      "baseline": {
+        "n": 30,
+        "correct": 27,
+        "requests": 196,
+        "tokens": 659755,
+        "mean_requests": 6.533,
+        "mean_tokens": 21991.8,
+        "mean_seconds": 19.5,
+        "predictions": {
+          "CONSISTENT": 18,
+          "INCONSISTENT": 12
+        },
+        "map_used": 0,
+        "list_dir": 46,
+        "read_file": 43
+      },
+      "map": {
+        "n": 30,
+        "correct": 25,
+        "requests": 169,
+        "tokens": 628325,
+        "mean_requests": 5.633,
+        "mean_tokens": 20944.2,
+        "mean_seconds": 17.95,
+        "predictions": {
+          "CONSISTENT": 16,
+          "INCONSISTENT": 12,
+          "ERROR": 2
+        },
+        "map_used": 6,
+        "list_dir": 34,
+        "read_file": 32
+      }
+    },
+    "lora": {
+      "baseline": {
+        "n": 18,
+        "correct": 12,
+        "requests": 123,
+        "tokens": 513604,
+        "mean_requests": 6.833,
+        "mean_tokens": 28533.6,
+        "mean_seconds": 20.62,
+        "predictions": {
+          "CONSISTENT": 7,
+          "INCONSISTENT": 4,
+          "MIXED": 2,
+          "NOT_LOCATED": 2,
+          "ABSTAIN": 3
+        },
+        "map_used": 0,
+        "list_dir": 21,
+        "read_file": 24
+      },
+      "map": {
+        "n": 18,
+        "correct": 15,
+        "requests": 113,
+        "tokens": 489266,
+        "mean_requests": 6.278,
+        "mean_tokens": 27181.4,
+        "mean_seconds": 19.77,
+        "predictions": {
+          "CONSISTENT": 9,
+          "ABSTAIN": 1,
+          "INCONSISTENT": 7,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 18,
+        "list_dir": 15,
+        "read_file": 26
+      }
+    },
+    "mae": {
+      "baseline": {
+        "n": 33,
+        "correct": 26,
+        "requests": 169,
+        "tokens": 582629,
+        "mean_requests": 5.121,
+        "mean_tokens": 17655.4,
+        "mean_seconds": 15.57,
+        "predictions": {
+          "CONSISTENT": 18,
+          "INCONSISTENT": 9,
+          "MIXED": 4,
+          "ABSTAIN": 1,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 0,
+        "list_dir": 26,
+        "read_file": 38
+      },
+      "map": {
+        "n": 33,
+        "correct": 26,
+        "requests": 155,
+        "tokens": 521185,
+        "mean_requests": 4.697,
+        "mean_tokens": 15793.5,
+        "mean_seconds": 15.0,
+        "predictions": {
+          "CONSISTENT": 20,
+          "INCONSISTENT": 9,
+          "MIXED": 3,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 33,
+        "list_dir": 10,
+        "read_file": 40
+      }
+    },
+    "moco": {
+      "baseline": {
+        "n": 36,
+        "correct": 30,
+        "requests": 210,
+        "tokens": 648609,
+        "mean_requests": 5.833,
+        "mean_tokens": 18016.9,
+        "mean_seconds": 23.6,
+        "predictions": {
+          "CONSISTENT": 20,
+          "INCONSISTENT": 13,
+          "ERROR": 3
+        },
+        "map_used": 0,
+        "list_dir": 28,
+        "read_file": 61
+      },
+      "map": {
+        "n": 36,
+        "correct": 33,
+        "requests": 182,
+        "tokens": 684280,
+        "mean_requests": 5.056,
+        "mean_tokens": 19007.8,
+        "mean_seconds": 17.15,
+        "predictions": {
+          "INCONSISTENT": 15,
+          "CONSISTENT": 21
+        },
+        "map_used": 36,
+        "list_dir": 9,
+        "read_file": 66
+      }
+    }
+  },
+  "by_repeat": {
+    "0": {
+      "baseline": {
+        "n": 39,
+        "correct": 32,
+        "requests": 235,
+        "tokens": 820183,
+        "mean_requests": 6.026,
+        "mean_tokens": 21030.3,
+        "mean_seconds": 20.87,
+        "predictions": {
+          "CONSISTENT": 20,
+          "INCONSISTENT": 13,
+          "ERROR": 1,
+          "MIXED": 3,
+          "ABSTAIN": 1,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 0,
+        "list_dir": 41,
+        "read_file": 57
+      },
+      "map": {
+        "n": 39,
+        "correct": 34,
+        "requests": 208,
+        "tokens": 764483,
+        "mean_requests": 5.333,
+        "mean_tokens": 19602.1,
+        "mean_seconds": 17.82,
+        "predictions": {
+          "INCONSISTENT": 14,
+          "CONSISTENT": 22,
+          "MIXED": 1,
+          "NOT_LOCATED": 1,
+          "ABSTAIN": 1
+        },
+        "map_used": 31,
+        "list_dir": 21,
+        "read_file": 52
+      }
+    },
+    "1": {
+      "baseline": {
+        "n": 39,
+        "correct": 31,
+        "requests": 228,
+        "tokens": 803414,
+        "mean_requests": 5.846,
+        "mean_tokens": 20600.4,
+        "mean_seconds": 20.82,
+        "predictions": {
+          "INCONSISTENT": 13,
+          "CONSISTENT": 21,
+          "ERROR": 1,
+          "MIXED": 1,
+          "ABSTAIN": 2,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 0,
+        "list_dir": 41,
+        "read_file": 53
+      },
+      "map": {
+        "n": 39,
+        "correct": 32,
+        "requests": 214,
+        "tokens": 789641,
+        "mean_requests": 5.487,
+        "mean_tokens": 20247.2,
+        "mean_seconds": 17.83,
+        "predictions": {
+          "CONSISTENT": 22,
+          "INCONSISTENT": 15,
+          "ERROR": 1,
+          "MIXED": 1
+        },
+        "map_used": 31,
+        "list_dir": 27,
+        "read_file": 56
+      }
+    },
+    "2": {
+      "baseline": {
+        "n": 39,
+        "correct": 32,
+        "requests": 235,
+        "tokens": 781000,
+        "mean_requests": 6.026,
+        "mean_tokens": 20025.6,
+        "mean_seconds": 17.79,
+        "predictions": {
+          "CONSISTENT": 22,
+          "INCONSISTENT": 12,
+          "ERROR": 1,
+          "MIXED": 2,
+          "NOT_LOCATED": 1,
+          "ABSTAIN": 1
+        },
+        "map_used": 0,
+        "list_dir": 39,
+        "read_file": 56
+      },
+      "map": {
+        "n": 39,
+        "correct": 33,
+        "requests": 197,
+        "tokens": 768932,
+        "mean_requests": 5.051,
+        "mean_tokens": 19716.2,
+        "mean_seconds": 15.8,
+        "predictions": {
+          "CONSISTENT": 22,
+          "INCONSISTENT": 14,
+          "ERROR": 1,
+          "MIXED": 1,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 31,
+        "list_dir": 20,
+        "read_file": 56
+      }
+    }
+  },
+  "by_variant": {
+    "gcn:gcn_dropout": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 18,
+        "tokens": 57163,
+        "mean_requests": 6.0,
+        "mean_tokens": 19054.3,
+        "mean_seconds": 17.72,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 6,
+        "read_file": 4
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 16,
+        "tokens": 64722,
+        "mean_requests": 5.333,
+        "mean_tokens": 21574.0,
+        "mean_seconds": 16.13,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 2,
+        "read_file": 4
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 9774,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 20,
+        "tokens": 74496
+      }
+    },
+    "gcn:gcn_hidden": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 21,
+        "tokens": 76836,
+        "mean_requests": 7.0,
+        "mean_tokens": 25612.0,
+        "mean_seconds": 17.79,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 5,
+        "read_file": 4
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 19,
+        "tokens": 81195,
+        "mean_requests": 6.333,
+        "mean_tokens": 27065.0,
+        "mean_seconds": 18.69,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 2,
+        "read_file": 5
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 9079,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 23,
+        "tokens": 90274
+      }
+    },
+    "gcn:gcn_wd": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 14,
+        "tokens": 42572,
+        "mean_requests": 4.667,
+        "mean_tokens": 14190.7,
+        "mean_seconds": 15.49,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 3,
+        "read_file": 1
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 16,
+        "tokens": 50955,
+        "mean_requests": 5.333,
+        "mean_tokens": 16985.0,
+        "mean_seconds": 15.64,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 2,
+        "read_file": 1
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 7237,
+        "stop_reason": "request_limit"
+      },
+      "map_including_generation": {
+        "requests": 20,
+        "tokens": 58192
+      }
+    },
+    "gcn:original": {
+      "baseline": {
+        "n": 21,
+        "correct": 18,
+        "requests": 143,
+        "tokens": 483184,
+        "mean_requests": 6.81,
+        "mean_tokens": 23008.8,
+        "mean_seconds": 20.57,
+        "predictions": {
+          "CONSISTENT": 18,
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 32,
+        "read_file": 34
+      },
+      "map": {
+        "n": 21,
+        "correct": 16,
+        "requests": 118,
+        "tokens": 431453,
+        "mean_requests": 5.619,
+        "mean_tokens": 20545.4,
+        "mean_seconds": 18.44,
+        "predictions": {
+          "CONSISTENT": 16,
+          "INCONSISTENT": 3,
+          "ERROR": 2
+        },
+        "map_used": 0,
+        "list_dir": 28,
+        "read_file": 22
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 9124,
+        "stop_reason": "request_limit"
+      },
+      "map_including_generation": {
+        "requests": 122,
+        "tokens": 440577
+      }
+    },
+    "lora:lora_scaling": {
+      "baseline": {
+        "n": 3,
+        "correct": 1,
+        "requests": 28,
+        "tokens": 126458,
+        "mean_requests": 9.333,
+        "mean_tokens": 42152.7,
+        "mean_seconds": 26.56,
+        "predictions": {
+          "INCONSISTENT": 1,
+          "ABSTAIN": 2
+        },
+        "map_used": 0,
+        "list_dir": 5,
+        "read_file": 6
+      },
+      "map": {
+        "n": 3,
+        "correct": 2,
+        "requests": 23,
+        "tokens": 120167,
+        "mean_requests": 7.667,
+        "mean_tokens": 40055.7,
+        "mean_seconds": 20.75,
+        "predictions": {
+          "ABSTAIN": 1,
+          "INCONSISTENT": 2
+        },
+        "map_used": 3,
+        "list_dir": 1,
+        "read_file": 7
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 12728,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 27,
+        "tokens": 132895
+      }
+    },
+    "lora:original": {
+      "baseline": {
+        "n": 15,
+        "correct": 11,
+        "requests": 95,
+        "tokens": 387146,
+        "mean_requests": 6.333,
+        "mean_tokens": 25809.7,
+        "mean_seconds": 19.44,
+        "predictions": {
+          "CONSISTENT": 7,
+          "MIXED": 2,
+          "INCONSISTENT": 3,
+          "NOT_LOCATED": 2,
+          "ABSTAIN": 1
+        },
+        "map_used": 0,
+        "list_dir": 16,
+        "read_file": 18
+      },
+      "map": {
+        "n": 15,
+        "correct": 13,
+        "requests": 90,
+        "tokens": 369099,
+        "mean_requests": 6.0,
+        "mean_tokens": 24606.6,
+        "mean_seconds": 19.57,
+        "predictions": {
+          "CONSISTENT": 9,
+          "INCONSISTENT": 5,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 15,
+        "list_dir": 14,
+        "read_file": 19
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 11679,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 94,
+        "tokens": 380778
+      }
+    },
+    "mae:mae_betas": {
+      "baseline": {
+        "n": 3,
+        "correct": 0,
+        "requests": 14,
+        "tokens": 54804,
+        "mean_requests": 4.667,
+        "mean_tokens": 18268.0,
+        "mean_seconds": 16.72,
+        "predictions": {
+          "MIXED": 3
+        },
+        "map_used": 0,
+        "list_dir": 2,
+        "read_file": 4
+      },
+      "map": {
+        "n": 3,
+        "correct": 0,
+        "requests": 15,
+        "tokens": 44768,
+        "mean_requests": 5.0,
+        "mean_tokens": 14922.7,
+        "mean_seconds": 15.06,
+        "predictions": {
+          "MIXED": 3
+        },
+        "map_used": 3,
+        "list_dir": 2,
+        "read_file": 3
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 11636,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 19,
+        "tokens": 56404
+      }
+    },
+    "mae:mae_mask": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 16,
+        "tokens": 49814,
+        "mean_requests": 5.333,
+        "mean_tokens": 16604.7,
+        "mean_seconds": 15.81,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 2,
+        "read_file": 4
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 15,
+        "tokens": 44922,
+        "mean_requests": 5.0,
+        "mean_tokens": 14974.0,
+        "mean_seconds": 16.75,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 0,
+        "read_file": 4
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 17787,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 19,
+        "tokens": 62709
+      }
+    },
+    "mae:mae_warmup": {
+      "baseline": {
+        "n": 3,
+        "correct": 2,
+        "requests": 13,
+        "tokens": 36271,
+        "mean_requests": 4.333,
+        "mean_tokens": 12090.3,
+        "mean_seconds": 12.18,
+        "predictions": {
+          "INCONSISTENT": 2,
+          "CONSISTENT": 1
+        },
+        "map_used": 0,
+        "list_dir": 3,
+        "read_file": 3
+      },
+      "map": {
+        "n": 3,
+        "correct": 1,
+        "requests": 12,
+        "tokens": 36758,
+        "mean_requests": 4.0,
+        "mean_tokens": 12252.7,
+        "mean_seconds": 11.69,
+        "predictions": {
+          "INCONSISTENT": 1,
+          "CONSISTENT": 2
+        },
+        "map_used": 3,
+        "list_dir": 0,
+        "read_file": 3
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 15110,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 16,
+        "tokens": 51868
+      }
+    },
+    "mae:mae_wd": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 17,
+        "tokens": 52885,
+        "mean_requests": 5.667,
+        "mean_tokens": 17628.3,
+        "mean_seconds": 18.58,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 3,
+        "read_file": 6
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 16,
+        "tokens": 53239,
+        "mean_requests": 5.333,
+        "mean_tokens": 17746.3,
+        "mean_seconds": 12.16,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 2,
+        "read_file": 3
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 18924,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 20,
+        "tokens": 72163
+      }
+    },
+    "mae:original": {
+      "baseline": {
+        "n": 21,
+        "correct": 18,
+        "requests": 109,
+        "tokens": 388855,
+        "mean_requests": 5.19,
+        "mean_tokens": 18516.9,
+        "mean_seconds": 15.43,
+        "predictions": {
+          "CONSISTENT": 17,
+          "ABSTAIN": 1,
+          "MIXED": 1,
+          "INCONSISTENT": 1,
+          "NOT_LOCATED": 1
+        },
+        "map_used": 0,
+        "list_dir": 16,
+        "read_file": 21
+      },
+      "map": {
+        "n": 21,
+        "correct": 19,
+        "requests": 97,
+        "tokens": 341498,
+        "mean_requests": 4.619,
+        "mean_tokens": 16261.8,
+        "mean_seconds": 15.62,
+        "predictions": {
+          "CONSISTENT": 18,
+          "NOT_LOCATED": 1,
+          "INCONSISTENT": 2
+        },
+        "map_used": 21,
+        "list_dir": 6,
+        "read_file": 27
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 14407,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 101,
+        "tokens": 355905
+      }
+    },
+    "moco:moco_k": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 15,
+        "tokens": 58047,
+        "mean_requests": 5.0,
+        "mean_tokens": 19349.0,
+        "mean_seconds": 16.06,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 2,
+        "read_file": 3
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 21,
+        "tokens": 93235,
+        "mean_requests": 7.0,
+        "mean_tokens": 31078.3,
+        "mean_seconds": 24.27,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 1,
+        "read_file": 6
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 14000,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 25,
+        "tokens": 107235
+      }
+    },
+    "moco:moco_m": {
+      "baseline": {
+        "n": 3,
+        "correct": 3,
+        "requests": 15,
+        "tokens": 36160,
+        "mean_requests": 5.0,
+        "mean_tokens": 12053.3,
+        "mean_seconds": 14.43,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 0,
+        "list_dir": 2,
+        "read_file": 4
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 14,
+        "tokens": 36606,
+        "mean_requests": 4.667,
+        "mean_tokens": 12202.0,
+        "mean_seconds": 14.36,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 0,
+        "read_file": 5
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 16107,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 18,
+        "tokens": 52713
+      }
+    },
+    "moco:moco_schedule": {
+      "baseline": {
+        "n": 3,
+        "correct": 2,
+        "requests": 17,
+        "tokens": 57033,
+        "mean_requests": 5.667,
+        "mean_tokens": 19011.0,
+        "mean_seconds": 56.26,
+        "predictions": {
+          "ERROR": 1,
+          "INCONSISTENT": 2
+        },
+        "map_used": 0,
+        "list_dir": 3,
+        "read_file": 8
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 15,
+        "tokens": 65877,
+        "mean_requests": 5.0,
+        "mean_tokens": 21959.0,
+        "mean_seconds": 19.35,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 0,
+        "read_file": 6
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 13629,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 19,
+        "tokens": 79506
+      }
+    },
+    "moco:moco_t": {
+      "baseline": {
+        "n": 3,
+        "correct": 2,
+        "requests": 16,
+        "tokens": 42958,
+        "mean_requests": 5.333,
+        "mean_tokens": 14319.3,
+        "mean_seconds": 13.6,
+        "predictions": {
+          "INCONSISTENT": 2,
+          "ERROR": 1
+        },
+        "map_used": 0,
+        "list_dir": 2,
+        "read_file": 4
+      },
+      "map": {
+        "n": 3,
+        "correct": 3,
+        "requests": 15,
+        "tokens": 34751,
+        "mean_requests": 5.0,
+        "mean_tokens": 11583.7,
+        "mean_seconds": 12.72,
+        "predictions": {
+          "INCONSISTENT": 3
+        },
+        "map_used": 3,
+        "list_dir": 0,
+        "read_file": 4
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 17054,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 19,
+        "tokens": 51805
+      }
+    },
+    "moco:original": {
+      "baseline": {
+        "n": 24,
+        "correct": 20,
+        "requests": 147,
+        "tokens": 454411,
+        "mean_requests": 6.125,
+        "mean_tokens": 18933.8,
+        "mean_seconds": 22.86,
+        "predictions": {
+          "CONSISTENT": 20,
+          "INCONSISTENT": 3,
+          "ERROR": 1
+        },
+        "map_used": 0,
+        "list_dir": 19,
+        "read_file": 42
+      },
+      "map": {
+        "n": 24,
+        "correct": 21,
+        "requests": 117,
+        "tokens": 453811,
+        "mean_requests": 4.875,
+        "mean_tokens": 18908.8,
+        "mean_seconds": 16.88,
+        "predictions": {
+          "CONSISTENT": 21,
+          "INCONSISTENT": 3
+        },
+        "map_used": 24,
+        "list_dir": 8,
+        "read_file": 45
+      },
+      "map_generation": {
+        "requests": 4,
+        "tokens": 20023,
+        "stop_reason": "finished"
+      },
+      "map_including_generation": {
+        "requests": 121,
+        "tokens": 473834
+      }
+    }
+  },
+  "paired_outcomes": {
+    "baseline_True_map_True": 88,
+    "baseline_False_map_True": 11,
+    "baseline_False_map_False": 11,
+    "baseline_True_map_False": 7
+  },
+  "notes": [
+    "Pairs share question and repeat index, not a common model random seed.",
+    "Map costs allocated once per exact variant. Empty maps are still charged.",
+    "Correctness is reference-label agreement, not independent evidence-support judgment.",
+    "Availability subgroup is post-run descriptive analysis, not the decision metric."
+  ],
+  "exploratory_by_map_available": {
+    "True": {
+      "baseline": {
+        "n": 93,
+        "correct": 74,
+        "requests": 541,
+        "tokens": 1878841,
+        "mean_requests": 5.817,
+        "mean_tokens": 20202.6,
+        "mean_seconds": 19.8,
+        "predictions": {
+          "CONSISTENT": 45,
+          "INCONSISTENT": 32,
+          "ERROR": 3,
+          "MIXED": 6,
+          "ABSTAIN": 4,
+          "NOT_LOCATED": 3
+        },
+        "map_used": 0,
+        "list_dir": 86,
+        "read_file": 131
+      },
+      "map": {
+        "n": 93,
+        "correct": 80,
+        "requests": 485,
+        "tokens": 1840648,
+        "mean_requests": 5.215,
+        "mean_tokens": 19791.9,
+        "mean_seconds": 16.91,
+        "predictions": {
+          "INCONSISTENT": 37,
+          "CONSISTENT": 50,
+          "MIXED": 3,
+          "NOT_LOCATED": 2,
+          "ABSTAIN": 1
+        },
+        "map_used": 93,
+        "list_dir": 38,
+        "read_file": 141
+      }
+    },
+    "False": {
+      "baseline": {
+        "n": 24,
+        "correct": 21,
+        "requests": 157,
+        "tokens": 525756,
+        "mean_requests": 6.542,
+        "mean_tokens": 21906.5,
+        "mean_seconds": 19.93,
+        "predictions": {
+          "CONSISTENT": 18,
+          "INCONSISTENT": 6
+        },
+        "map_used": 0,
+        "list_dir": 35,
+        "read_file": 35
+      },
+      "map": {
+        "n": 24,
+        "correct": 19,
+        "requests": 134,
+        "tokens": 482408,
+        "mean_requests": 5.583,
+        "mean_tokens": 20100.3,
+        "mean_seconds": 18.09,
+        "predictions": {
+          "CONSISTENT": 16,
+          "INCONSISTENT": 6,
+          "ERROR": 2
+        },
+        "map_used": 0,
+        "list_dir": 30,
+        "read_file": 23
+      }
+    }
+  }
+}

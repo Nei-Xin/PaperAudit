@@ -1,0 +1,37 @@
+{
+  "baseline": {
+    "n": 117,
+    "correct": 95,
+    "requests": 698,
+    "tokens": 2404597,
+    "seconds_sum": 2319.83,
+    "errors": 3,
+    "map_used": 0,
+    "list_dir_calls": 121,
+    "citation_repair_investigations": 8
+  },
+  "map": {
+    "n": 117,
+    "correct": 99,
+    "requests": 619,
+    "tokens": 2323056,
+    "seconds_sum": 2006.53,
+    "errors": 2,
+    "map_used": 93,
+    "list_dir_calls": 68,
+    "citation_repair_investigations": 11
+  },
+  "generation": {
+    "maps": 16,
+    "usable": 14,
+    "requests": 64,
+    "tokens": 218298,
+    "seconds_sum": 210.26
+  },
+  "map_including_generation": {
+    "requests": 683,
+    "tokens": 2541354,
+    "seconds_sum": 2216.79
+  },
+  "enable_by_rule": false
+}

@@ -1,0 +1,220 @@
+{
+  "split": "previously seen development set; no independent holdout",
+  "model": "configured-model",
+  "temperature": 0.2,
+  "reasoning_effort": "",
+  "items": [
+    "moco-m",
+    "moco-mx",
+    "moco-k",
+    "moco-kx",
+    "moco-t",
+    "moco-tx",
+    "moco-schedule",
+    "moco-schedulex",
+    "moco-sgd",
+    "moco-lincls",
+    "moco-shufflebn",
+    "moco-ig1b",
+    "gcn-dropout",
+    "gcn-dropoutx",
+    "gcn-hidden",
+    "gcn-hiddenx",
+    "gcn-wd",
+    "gcn-wdx",
+    "gcn-optim",
+    "gcn-renorm",
+    "gcn-glorot",
+    "gcn-nell",
+    "mae-mask",
+    "mae-maskx",
+    "mae-betas",
+    "mae-betasx",
+    "mae-wd",
+    "mae-wdx",
+    "mae-warmup",
+    "mae-warmupx",
+    "mae-linprobe",
+    "mae-layerdecay",
+    "mae-blockmask",
+    "lora-scaling",
+    "lora-scalingx",
+    "lora-b-init",
+    "lora-a-init",
+    "lora-merge",
+    "lora-gpt3"
+  ],
+  "repeats": 3,
+  "arms": [
+    "baseline",
+    "map"
+  ],
+  "workers": 3,
+  "inputs": {
+    "gcn:original": {
+      "pdf_sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+      "archive_sha256": "46a901f9daba983cbcb9128ece8d173df5681301f3a34bbd22c8b1efad860c4d",
+      "code_hash": "95cf8c82d12308a27b594a65b1eb8e5c4e91f46246754c9009274aaf97797b5f"
+    },
+    "gcn:gcn_dropout": {
+      "pdf_sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+      "archive_sha256": "318a3b1650481444e0208989e66bde478db2324f7813c7d55dc594afc13916f5",
+      "code_hash": "a8a3362c08671a537b679be6c6f85eb67a1af8032302aaefb1759e067e322450"
+    },
+    "gcn:gcn_hidden": {
+      "pdf_sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+      "archive_sha256": "e9cf5f9179a8f66f18316bebcc93fd2bfef82ef141225f3377bb84437276519d",
+      "code_hash": "0238ae8ce2a45af5d97f5065f2be8e22b4064ffd877f928b4ba012ef61bd2b31"
+    },
+    "gcn:gcn_wd": {
+      "pdf_sha256": "a654f884db04a317b0f2414a83f2ba32a9f8442d29bcf1cb5f73f7af78a98070",
+      "archive_sha256": "77e135f3f15394aed266f4dc4bba15ac0f139634df5c929828879234be216e8c",
+      "code_hash": "a3223f50d99b8f0f9f8a2290c8e273b50acb5248a4480d54c060ee44de577c73"
+    },
+    "lora:original": {
+      "pdf_sha256": "e9a0d3128767db616085dc0f4e6e455e672e89af823e8ed1282793682787395a",
+      "archive_sha256": "ddf5e3eb8f224e858202a67dd51eabffd278961446138a22d4be74285edff48b",
+      "code_hash": "95569b674b33fe833c8a1ec4d5349cdbae33172d525cbbc4d3f27e5a34eb4024"
+    },
+    "lora:lora_scaling": {
+      "pdf_sha256": "e9a0d3128767db616085dc0f4e6e455e672e89af823e8ed1282793682787395a",
+      "archive_sha256": "1e470972ff2c33b9aab8578315082697f426a716b0db0f6e3378e392d54d9b63",
+      "code_hash": "6f967e857738c3c124b742f72746c2c537117850abfb67095432cc1de796de81"
+    },
+    "mae:original": {
+      "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+      "archive_sha256": "0d7cee01d8ba63c1bea6041cebb9e54044d0f057ca58d961cd3c1376c98e52ff",
+      "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b"
+    },
+    "mae:mae_betas": {
+      "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+      "archive_sha256": "3e0f876a6126caa03e030e768ee4108d68bc37950627a65fa4e4f8b2f4cb1c3d",
+      "code_hash": "2e11bd5fbc891a11f91cef0f17175f1d3f7a1588e22e54ca6e48db2031ebfd61"
+    },
+    "mae:mae_mask": {
+      "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+      "archive_sha256": "337da5acb2387a8515855518d316f4758e91d6bae61a9291bc1762514f04c9a9",
+      "code_hash": "0bda752d8c56ac663e52d3fc522a622da0556ac67c74eb80ade633300981022e"
+    },
+    "mae:mae_warmup": {
+      "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+      "archive_sha256": "780cc3f7a60b0c4c77c6d4c392e99dac8587da96c2d894bf172612af822abebb",
+      "code_hash": "3865664117506111925a06d7b89386eabe870687a21aa8cdea9b3716a647b991"
+    },
+    "mae:mae_wd": {
+      "pdf_sha256": "1b490443925c72a2b7c770f90dd797e248729ae34a57e1abfe9ed36751c4cc5b",
+      "archive_sha256": "1dbd4b111331d30683fe85c5ae8a31f745df917b5cbca75bbdb7ce6ba7544784",
+      "code_hash": "f722baab80017f196f5e26d39aad07d87124545b7b7dac57026bbfe23a4b1dda"
+    },
+    "moco:original": {
+      "pdf_sha256": "ad31ea26ed2d9ba3e2f767a2dcb0961a5b70ff505b1c3fb18d07201140e4e1fe",
+      "archive_sha256": "c393895108e7bd61b57bee4e4ab081e34a7d107063d948f1c84384e934cdfe23",
+      "code_hash": "c8e42f328ee026b9e0c826ef98578a13f76423a3e18728ba771f63968765985f"
+    },
+    "moco:moco_k": {
+      "pdf_sha256": "ad31ea26ed2d9ba3e2f767a2dcb0961a5b70ff505b1c3fb18d07201140e4e1fe",
+      "archive_sha256": "6452af37c58464cc31db009ec1b9a2e1290bc93ddb8038a996a354f751abf1aa",
+      "code_hash": "713817c71b558e7d8e10ce71af11e8b5c002cbfbd2345ebf9884162bb42ec391"
+    },
+    "moco:moco_m": {
+      "pdf_sha256": "ad31ea26ed2d9ba3e2f767a2dcb0961a5b70ff505b1c3fb18d07201140e4e1fe",
+      "archive_sha256": "4b5eb098dedf3654466cfaa8adbbb44635a531caaaf5b22b59efff283623042f",
+      "code_hash": "d9e6dae59fb4696f9970ec35e3079a7b1bb499877c050193a3a020133e5c6823"
+    },
+    "moco:moco_schedule": {
+      "pdf_sha256": "ad31ea26ed2d9ba3e2f767a2dcb0961a5b70ff505b1c3fb18d07201140e4e1fe",
+      "archive_sha256": "d538e94eea2067cbb8ccec6ba2a779db8b5c0a79dbb7d35745431e1a349ede6c",
+      "code_hash": "f12d1ac27bf093636caf1efb137417a4edbd9cfb0336a23c24dc122dfe328fa4"
+    },
+    "moco:moco_t": {
+      "pdf_sha256": "ad31ea26ed2d9ba3e2f767a2dcb0961a5b70ff505b1c3fb18d07201140e4e1fe",
+      "archive_sha256": "3f20a0b76e1fe0706010417947f55c5c35ae9d156e00c0c10e03b71e2299b6ac",
+      "code_hash": "9824abaae6103ced5caedf71845538cf269ca0008a7b6dee064aba5befdb4c86"
+    }
+  },
+  "sources": {
+    "src/paperaudit/workflows.py": "85de44eb5ae9fef765a0b9ebe475e963bd13c705d0e7327901d90f6f3dc51f12",
+    "src/paperaudit/consistency_inputs.py": "6c8821a6faa87e62a306671d70cafdd0f6a921785d94ba9ef463a4690186addd",
+    "src/paperaudit/consistency_jobs.py": "df6579b5bc4d037ae9bb5e046915f76bb9bb15dde3b08b9a4db9ec6dac4d5d60",
+    "src/paperaudit/peer_review_revision.py": "28c243003a13db0a3a6bab2448ed3cf39a26bc44a145f239a114faa348da0a99",
+    "src/paperaudit/audit_view.py": "1c125d6584b2d5baf75876079062a85b91090f984e6ae564a3acffe23c4bf8ee",
+    "src/paperaudit/review_reporting.py": "7d454f7e39a7499b60ce14ee6c15c8129af5c55986e092bc3d328dac1a332d98",
+    "src/paperaudit/scoring.py": "220d68684475694c1309e73ff33ccd6caa85056a42b9715bbec8ec729593e209",
+    "src/paperaudit/claim_extraction.py": "af8ebc15593749a3af504b5188628ee1f1783f28c4c9acde7cd7a990bf9a04d7",
+    "src/paperaudit/storage.py": "c962afed8e3e28cf29b82dfb9553c2e0b531bbfed0b2e58544f0cc5c8c10dda2",
+    "src/paperaudit/evidence_gap.py": "1ba0e7bbc88600aba00d7d2ea6fc1f094989a04dd17ec171a137a67bb00fa851",
+    "src/paperaudit/report_input.py": "aab2816c84563ae3e2b4467488e7c176fd3a9c7ac922ce148f94fdb880618539",
+    "src/paperaudit/learning_facts.py": "6dffed069a20d93bef06d756ec18b79d8e42c01b97e2b2e84c765b240c614b17",
+    "src/paperaudit/job_runner.py": "6c82dc5f1096004986c25099e610ff3e3c52b7d96158494abf4dd5f18afea8d4",
+    "src/paperaudit/pdf_parser.py": "fdcc365c46dc7b9356db4d52108d79094c28aebd7f2664c5d4f53303972c3190",
+    "src/paperaudit/hy3_client.py": "7ae31697b269a686b4e4df1fc2e04b940f30e5f537852f5ef474b880846610b4",
+    "src/paperaudit/evidence.py": "7a4f041e783c3b152dc35a0b2ea139a945a9842a6ebf7e2422eb6cc420c05bd3",
+    "src/paperaudit/paper_context.py": "d96676a5781928d1a4a2a667fed1aac1e22f340ec9338fb5f50f0d378ed6a0a9",
+    "src/paperaudit/learning_generation.py": "70cd6fcc9aab42dfe7d2adac0a4fcfecb1caf7168187a724d0e68c53bccd9a85",
+    "src/paperaudit/request_budget.py": "b86806ab554005a5b33878067fda710f3d87dd2f9c0580716a65de69800b7832",
+    "src/paperaudit/peer_review_service.py": "911ddb54094102a194124cb622a1c2bcef793260dd5f387254d629d123f223d8",
+    "src/paperaudit/config.py": "edf1d4ff7e367d29f21540c0f7ca3574469e641e0c073fa346f21b2d1496375c",
+    "src/paperaudit/models.py": "dc51b0e2600f82c4329887a4722a9a67f0077b33d72f85db0177df33033770e2",
+    "src/paperaudit/citation_review.py": "51592c36bd714dd58ca37d383ec3ac01060c8d0278fd4c191b8415c917bc8e2b",
+    "src/paperaudit/code_service.py": "a3b3b345a58462e49d60a2fc3de8826968b24212c05b2394527e851b330db351",
+    "src/paperaudit/review_progress.py": "01d853d1b42743304b07cb45ea2c0de52498c76e14e686802cf84cd8c4bc8aac",
+    "src/paperaudit/learning_jobs.py": "6fa66fc99639cebd2e4913d89c162bfc6325f584eac376bef6022cc280617ab9",
+    "src/paperaudit/retrieval.py": "c32dce8112329952cd7e41bb7ea3c05706f1f5a939a66cd1476bf6e79c7e6663",
+    "src/paperaudit/__init__.py": "8df01b7e92930dd8d5376d9f1b462cc914e33c5eed77546f52706441949d8e5c",
+    "src/paperaudit/display.py": "5b44bd27bfdbda32f0415cb8c2d717ed5a74dbd13461b92f0083fbde63275da5",
+    "src/paperaudit/code_retrieval.py": "ece1873c5025902b4342b76ef2c0644a5baca038184f6d60c14f50be3c9e462a",
+    "src/paperaudit/code_parser.py": "013cedfed39b7bba29c66b306cc49882ba3d03cffb5217e69b7509a85214bbea",
+    "src/paperaudit/reporting.py": "b1f0259e4d7279e61c74cbfbd01eeac71b421b639a2dbcb86d0fe13042966658",
+    "src/paperaudit/audit_rules.py": "548d5cff82356395e373d3260fb81138bce751eb5719ce72bc37f3bc55f4908b",
+    "src/paperaudit/peer_review_rules.py": "f66ae403b5a47eaac4f69f8da434594f21a8b16a12ea04eccfc206d256975832",
+    "src/paperaudit/peer_review_jobs.py": "de7898f5a6d85b0682f076a5cc8040d3654d209abf87a083d481a72e1bd5d20f",
+    "src/paperaudit/audit_jobs.py": "bc92fe252ef4fbb9bd4e3875dc23a8b7fca8f4842c9921003983e71f608b6548",
+    "src/paperaudit/service.py": "b48b69992e47986e5bbab7e1150f21a7110ff324176cdb87660d0c680bc1cbab",
+    "src/paperaudit/api/schemas.py": "69583bd5b8ccc49ce7f6614561d11506f4c1c37da6ed96f4771e937d4c438cdc",
+    "src/paperaudit/api/views.py": "2d5f9388560b54c144f2e6f6ce7ac1d00adc35abf3acaf87635e3ea661ef2449",
+    "src/paperaudit/api/main.py": "08a47e1f19122760839ed2abc59940c29fedc91107ec34717436904f6c9c8cca",
+    "src/paperaudit/api/project_routes.py": "b64994b74042e88deedfca6b2f6dde2846b379e0bdb704ebe124a0e4d43d48c6",
+    "src/paperaudit/api/review_routes.py": "7a1126322c815c5f1655be37718dcca85be362217cda618bb72e13ad0ac6f597",
+    "src/paperaudit/api/audit_routes.py": "55c23c1b430b35f966cea8ada9bd1c4a0890fc65e4bb445d3852e8dec64c6ec7",
+    "src/paperaudit/api/consistency_routes.py": "3a40d476f5f9ee4f47dc4d611b361134c5192e096b851ce3a0f73f9e26ba7539",
+    "src/paperaudit/api/__init__.py": "3f60176b76a3be98402a9ce7b216fa0d2900fb9be4321d0ddebbec911b73cf75",
+    "src/paperaudit/agents/finding_verifier.py": "6971e4996a1728618ab9e25b8ceede17c07ffee6c6964842a0380e5e2a2cb293",
+    "src/paperaudit/agents/consistency.py": "f1af7be2a259f334d7c00e01bc93c8f993379086f33a8e93eab38644a330bc25",
+    "src/paperaudit/agents/code_tools.py": "b84ada409be121fc97f58bb1530499ebb22a77d75942bbc4e1c8bfa19d4bc866",
+    "src/paperaudit/agents/repo_mapper.py": "01f3e377f06f75cbe5ddfd032fc6110dac63f47b47e498caca474d4e0b40fe65",
+    "src/paperaudit/agents/tools.py": "fabe94b6973d60633b406d228945f01cea1e6f83f9e4efdd9bdb6541e71dff46",
+    "src/paperaudit/agents/code_investigator.py": "0255c6f2b7b6b1bd4903d22648a360f1d028f0854533261fca8cff7c157745a2",
+    "src/paperaudit/agents/consistency_planner.py": "ca9e9146885a3e6c15f9e27e8b6069144d379fec6b1e45c33ffc2d75bfd67bc7",
+    "src/paperaudit/agents/models.py": "acd9bd6e699e1449edd71ed9c97b34970fd04c9b4f84be00d22877c6d403763b",
+    "src/paperaudit/agents/investigator.py": "a1eb1c5d222ed42a944baa2e1cef7bbe46fc6058133b0a7a8937dbc84f654044",
+    "src/paperaudit/agents/__init__.py": "22d53f9baaada4484ad044981e661cc795c445208fa30dfa503a6e07f521658c",
+    "eval/code_investigation/repo_memory.py": "5fbd695acc2e4786f4382f108178e9c68b1ce327e9a3b14b159658470c057880",
+    "eval/code_investigation/run.py": "4718cdead96858268fc69f9b93442fcc4090d549625e2af09a955d6758761f35",
+    "eval/code_investigation/score.py": "a170da593c31e32f34b8fd7d57eee219d62a98f4271ca1a9ed1116dd2ec399c8",
+    "eval/code_investigation/cases.json": "25004420e8f9160ffff228fb40037811d48c09f7faeefb8b3cf119f55e4d3c52",
+    "uv.lock": "819f0c6f414dbd0d80e1aac7c0e96442e6c79577e27a298a71718f4b8a3ecca7"
+  },
+  "max_requests": 2638,
+  "investigation": {
+    "requests": 11,
+    "seconds": 180,
+    "verifier": false,
+    "fallback": false
+  },
+  "maps": {
+    "one_per_exact_code_variant": true,
+    "variant_count": 16,
+    "requests_each": 4,
+    "seconds_each": 120,
+    "question_or_labels_visible": false,
+    "persisted_before_investigations": true
+  },
+  "scoring": "Unchanged score.predict. Errors, missing answers, abstentions stay in all denominators. No independent finding-level annotation.",
+  "decision": "Enable by default only if map arm matches at least baseline reference accuracy and reduces total requests INCLUDING map generation by >=5%. Otherwise retain opt-in.",
+  "limits": [
+    "One generated map per code variant, reused across repeats: map-generation variance not measured.",
+    "Equal investigation budgets; cold-start and warm-cache costs reported separately.",
+    "This isolates navigation in unverified investigations; not a test of planning or semantic review.",
+    "Per-item repeats are correlated; no statistical-significance or generalization claim."
+  ]
+}

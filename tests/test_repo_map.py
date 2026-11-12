@@ -156,3 +156,14 @@ def test_followup_uses_cached_map_only_when_enabled_and_still_reads_evidence():
         assert result.investigation.repo_map_used==enabled
         assert result.findings and result.investigation.requests==2
         assert ('<untrusted_repo_map>' in client.requests[0]['messages'][1]['content'])==enabled
+
+
+def test_mapper_cannot_claim_clipped_lines_as_read():
+    original=codebase();file=original.files[0]
+    clipped=original.model_copy(update={'files':[file.model_copy(update={'content':'x'*301+'\n','line_count':1})]})
+    entry=dict(path=file.path,start_line=1,end_line=1,role='配置入口')
+    client=ScriptedClient([call('read_file',path=file.path,start_line=1,end_line=1)],
+        [call('submit_repo_map',entries=[entry])])
+    result=build_repo_map(client,clipped,'fake',budget=RequestBudget(max_requests=2))
+    assert not result.entries and result.requests==2
+    assert 'Unread source location' in result.steps[-1].outcome

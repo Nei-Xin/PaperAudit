@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "report_id": "consistency-20261112T023942Z-b0ec6a",
+  "created_at": "2026-11-12T02:39:42.788844+00:00",
+  "strategy_version": "consistency-orchestrator-v2-verified",
+  "model": "configured-model",
+  "paper_title": "Masked Autoencoders Are Scalable Vision Learners",
+  "codebase_name": "mae",
+  "items": [
+    {
+      "checkpoint": {
+        "checkpoint_id": "K02",
+        "topic": "掩码比例",
+        "category": "training",
+        "question": "预训练默认掩码比例与论文一致吗？",
+        "paper_anchor": null,
+        "source": "user"
+      },
+      "status": "checked",
+      "note": null,
+      "answer": {
+        "question": "预训练默认掩码比例与论文一致吗？",
+        "answer": "证据复核后，以下发现需要按标记阅读：\n\n- 待核对（原判定：一致）：预训练掩码比例：论文采用 75%；`main_pretrain.py` 将 `--mask_ratio` 默认设为 `0.75`，两者一致。；复核说明：论文将 75% 表述为示例而非固定采用值，因此证据不足以证明论文与代码的默认值一致。",
+        "scope": "joint",
+        "status": "ANSWERED",
+        "selected_code": null,
+        "paper_citations": [
+          {
+            "chunk_id": "p1_b26",
+            "page": 1,
+            "text": "Figure 1. Our MAE architecture. During pre-training, a large\nrandom subset of image patches (e.g., 75%) is masked out. The\nencoder is applied to the small subset of visible patches. Mask\ntokens are introduced after the encoder, and the full set of en-\ncoded patches and mask tokens is processed by a small decoder\nthat reconstructs the original image in pixels. After pre-training,\nthe decoder is discarded and the encoder is applied to uncorrupted\nimages (full sets of patches) for recognition tasks.",
+            "quote": "During pre-training, a large random subset of image patches (e.g., 75%) is masked out.",
+            "locator": null,
+            "context_text": null,
+            "source_context": [],
+            "rects": [
+              {
+                "x0": 308.86199951171875,
+                "y0": 341.4111022949219,
+                "x1": 545.1126098632812,
+                "y1": 350.4593811035156
+              },
+              {
+                "x0": 308.86199951171875,
+                "y0": 352.2931823730469,
+                "x1": 545.1155395507812,
+                "y1": 361.41839599609375
+              }
+            ]
+          },
+          {
+            "chunk_id": "p1_b6",
+            "page": 1,
+            "text": "This paper shows that masked autoencoders (MAE) are\nscalable self-supervised learners for computer vision. Our\nMAE approach is simple: we mask random patches of the\ninput image and reconstruct the missing pixels. It is based\non two core designs.\nFirst, we develop an asymmetric\nencoder-decoder architecture, with an encoder that oper-\nates only on the visible subset of patches (without mask to-\nkens), along with a lightweight decoder that reconstructs\nthe original image from the latent representation and mask\ntokens. Second, we ﬁnd that masking a high proportion\nof the input image, e.g., 75%, yields a nontrivial and\nmeaningful self-supervisory task. Coupling these two de-\nsigns enables us to train large models efﬁciently and ef-\nfectively: we accelerate training (by 3× or more) and im-\nprove accuracy. Our scalable approach allows for learning\nhigh-capacity models that generalize well: e.g., a vanilla\nViT-Huge model achieves the best accuracy (87.8%) among\nmethods that use only ImageNet-1K data.\nTransfer per-\nformance in downstream tasks outperforms supervised pre-\ntraining and shows promising scaling behavior.",
+            "quote": "we mask random patches of the input image and reconstruct the missing pixels. It is based on two core designs.",
+            "locator": null,
+            "context_text": null,
+            "source_context": [],
+            "rects": [
+              {
+                "x0": 50.111976623535156,
+                "y0": 252.69207763671875,
+                "x1": 286.3650207519531,
+                "y1": 262.6546630859375
+              },
+              {
+                "x0": 50.111976623535156,
+                "y0": 264.6480712890625,
+                "x1": 286.3651428222656,
+                "y1": 274.61065673828125
+              },
+              {
+                "x0": 50.111976623535156,
+                "y0": 276.6030578613281,
+                "x1": 138.09169006347656,
+                "y1": 286.5656433105469
+              }
+            ]
+          }
+        ],
+        "code_citations": [
+          {
+            "chunk_id": "c00039:L53-54",
+            "path": "main_pretrain.py",
+            "start_line": 53,
+            "end_line": 54,
+            "symbol": "get_args_parser",
+            "text": "    parser.add_argument('--mask_ratio', default=0.75, type=float,\n                        help='Masking ratio (percentage of removed patches).')"
+          }
+        ],
+        "relation": null,
+        "findings": [
+          {
+            "text": "预训练掩码比例：论文采用 75%；`main_pretrain.py` 将 `--mask_ratio` 默认设为 `0.75`，两者一致。",
+            "verdict": "CONSISTENT",
+            "paper_citations": [
+              {
+                "chunk_id": "p1_b6",
+                "page": 1,
+                "text": "This paper shows that masked autoencoders (MAE) are\nscalable self-supervised learners for computer vision. Our\nMAE approach is simple: we mask random patches of the\ninput image and reconstruct the missing pixels. It is based\non two core designs.\nFirst, we develop an asymmetric\nencoder-decoder architecture, with an encoder that oper-\nates only on the visible subset of patches (without mask to-\nkens), along with a lightweight decoder that reconstructs\nthe original image from the latent representation and mask\ntokens. Second, we ﬁnd that masking a high proportion\nof the input image, e.g., 75%, yields a nontrivial and\nmeaningful self-supervisory task. Coupling these two de-\nsigns enables us to train large models efﬁciently and ef-\nfectively: we accelerate training (by 3× or more) and im-\nprove accuracy. Our scalable approach allows for learning\nhigh-capacity models that generalize well: e.g., a vanilla\nViT-Huge model achieves the best accuracy (87.8%) among\nmethods that use only ImageNet-1K data.\nTransfer per-\nformance in downstream tasks outperforms supervised pre-\ntraining and shows promising scaling behavior.",
+                "quote": "we mask random patches of the input image and reconstruct the missing pixels. It is based on two core designs.",
+                "locator": null,
+                "context_text": null,
+                "source_context": [],
+                "rects": [
+                  {
+                    "x0": 50.111976623535156,
+                    "y0": 252.69207763671875,
+                    "x1": 286.3650207519531,
+                    "y1": 262.6546630859375
+                  },
+                  {
+                    "x0": 50.111976623535156,
+                    "y0": 264.6480712890625,
+                    "x1": 286.3651428222656,
+                    "y1": 274.61065673828125
+                  },
+                  {
+                    "x0": 50.111976623535156,
+                    "y0": 276.6030578613281,
+                    "x1": 138.09169006347656,
+                    "y1": 286.5656433105469
+                  }
+                ]
+              },
+              {
+                "chunk_id": "p1_b26",
+                "page": 1,
+                "text": "Figure 1. Our MAE architecture. During pre-training, a large\nrandom subset of image patches (e.g., 75%) is masked out. The\nencoder is applied to the small subset of visible patches. Mask\ntokens are introduced after the encoder, and the full set of en-\ncoded patches and mask tokens is processed by a small decoder\nthat reconstructs the original image in pixels. After pre-training,\nthe decoder is discarded and the encoder is applied to uncorrupted\nimages (full sets of patches) for recognition tasks.",
+                "quote": "During pre-training, a large random subset of image patches (e.g., 75%) is masked out.",
+                "locator": null,
+                "context_text": null,
+                "source_context": [],
+                "rects": [
+                  {
+                    "x0": 308.86199951171875,
+                    "y0": 341.4111022949219,
+                    "x1": 545.1126098632812,
+                    "y1": 350.4593811035156
+                  },
+                  {
+                    "x0": 308.86199951171875,
+                    "y0": 352.2931823730469,
+                    "x1": 545.1155395507812,
+                    "y1": 361.41839599609375
+                  }
+                ]
+              }
+            ],
+            "code_citations": [
+              {
+                "chunk_id": "c00039:L53-54",
+                "path": "main_pretrain.py",
+                "start_line": 53,
+                "end_line": 54,
+                "symbol": "get_args_parser",
+                "text": "    parser.add_argument('--mask_ratio', default=0.75, type=float,\n                        help='Masking ratio (percentage of removed patches).')"
+              }
+            ],
+            "verification": {
+              "status": "failed",
+              "required": true,
+              "reason": "论文将 75% 表述为示例而非固定采用值，因此证据不足以证明论文与代码的默认值一致。",
+              "paper_statement": "论文称 MAE 掩蔽输入图像的较高比例（例如 75%）可形成有意义的自监督任务；图 1 也将预训练时掩蔽大部分图像块（例如 75%）作为示例，并未将 75% 明确规定为所有实验的固定值。",
+              "code_statement": "`main_pretrain.py` 将 `--mask_ratio` 的默认值设为 0.75，帮助文本说明该参数表示移除图像块的掩蔽比例。"
+            }
+          }
+        ],
+        "investigation": {
+          "strategy_version": "code-investigation-v2-verified",
+          "model": "configured-model",
+          "max_requests": 12,
+          "max_seconds": 180.0,
+          "max_tool_calls": 16,
+          "steps": [
+            {
+              "tool": "grep_code",
+              "arguments": {
+                "text": "mask_ratio"
+              },
+              "outcome": "匹配 10 行",
+              "ok": true
+            },
+            {
+              "tool": "read_file",
+              "arguments": {
+                "path": "main_pretrain.py",
+                "start_line": 47,
+                "end_line": 57
+              },
+              "outcome": "读取 main_pretrain.py L47–57",
+              "ok": true
+            },
+            {
+              "tool": "grep_paper",
+              "arguments": {
+                "text": "0.75"
+              },
+              "outcome": "匹配 1 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "search_paper",
+              "arguments": {
+                "query": "MAE pre-training masking ratio random masking 75 percent patches masking ratio pretraining setup"
+              },
+              "outcome": "返回 6 个论文片段",
+              "ok": true
+            },
+            {
+              "tool": "submit_answer",
+              "arguments": {},
+              "outcome": "结论通过引用校验。",
+              "ok": true
+            },
+            {
+              "tool": "verify_findings",
+              "arguments": {},
+              "outcome": "复核 1 条发现，1 条待人工核对。",
+              "ok": false
+            }
+          ],
+          "stop_reason": "verification_pending",
+          "first_rejections": [],
+          "rejected_citations": [],
+          "requests": 6,
+          "tokens": 14369,
+          "elapsed_seconds": 19.049,
+          "fallback": false,
+          "repo_map_used": true
+        }
+      }
+    }
+  ],
+  "summary": {
+    "checkpoints": 1,
+    "checked": 1,
+    "not_checked": 0,
+    "failed": 0,
+    "unresolved": 0,
+    "consistent": 0,
+    "inconsistent": 0,
+    "partial": 0,
+    "not_located": 0,
+    "pending_review": 1
+  },
+  "plan_id": "consistency-plan-20261112T023852Z-863ac0",
+  "planned": 0,
+  "plan_rejected": 0,
+  "plan_over_limit": 0,
+  "plan_unselected": 2,
+  "max_checkpoints": 1,
+  "max_requests": 40,
+  "concurrency": 4,
+  "plan_requests": 0,
+  "repo_map": {
+    "version": "repo-map-v1",
+    "code_hash": "3b851eb631dcbf5d15863451b38ca8dbff91742d8dc606f763e73148cb66079b",
+    "model": "configured-model",
+    "entries": [
+      {
+        "path": "main_pretrain.py",
+        "start_line": 33,
+        "end_line": 38,
+        "role": "MAE预训练入口，导入模型和训练轮函数。"
+      },
+      {
+        "path": "main_pretrain.py",
+        "start_line": 38,
+        "end_line": 58,
+        "role": "预训练参数解析定义。"
+      },
+      {
+        "path": "models_mae.py",
+        "start_line": 22,
+        "end_line": 63,
+        "role": "MAE视觉Transformer编码器与解码器模块。"
+      },
+      {
+        "path": "engine_pretrain.py",
+        "start_line": 21,
+        "end_line": 48,
+        "role": "预训练单轮训练流程及模型前向调用。"
+      },
+      {
+        "path": "main_finetune.py",
+        "start_line": 31,
+        "end_line": 43,
+        "role": "微调入口依赖、模型及训练评估函数导入。"
+      },
+      {
+        "path": "engine_finetune.py",
+        "start_line": 25,
+        "end_line": 57,
+        "role": "分类微调单轮训练流程。"
+      },
+      {
+        "path": "models_vit.py",
+        "start_line": 20,
+        "end_line": 53,
+        "role": "分类Vision Transformer模块，支持全局池化特征。"
+      },
+      {
+        "path": "main_linprobe.py",
+        "start_line": 31,
+        "end_line": 43,
+        "role": "线性探测入口依赖及参数解析起始位置。"
+      }
+    ],
+    "steps": [
+      {
+        "tool": "list_dir",
+        "arguments": {
+          "path": ""
+        },
+        "outcome": "列出 16 项",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "main_pretrain.py",
+          "start_line": 1,
+          "end_line": 100
+        },
+        "outcome": "读取 main_pretrain.py L1–100",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "models_mae.py",
+          "start_line": 1,
+          "end_line": 120
+        },
+        "outcome": "读取 models_mae.py L1–120",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "engine_pretrain.py",
+          "start_line": 1,
+          "end_line": 82
+        },
+        "outcome": "读取 engine_pretrain.py L1–82",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "main_finetune.py",
+          "start_line": 1,
+          "end_line": 90
+        },
+        "outcome": "读取 main_finetune.py L1–90",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "models_vit.py",
+          "start_line": 1,
+          "end_line": 74
+        },
+        "outcome": "读取 models_vit.py L1–74",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "engine_finetune.py",
+          "start_line": 1,
+          "end_line": 100
+        },
+        "outcome": "读取 engine_finetune.py L1–100",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "main_linprobe.py",
+          "start_line": 20,
+          "end_line": 65
+        },
+        "outcome": "读取 main_linprobe.py L20–65",
+        "ok": true
+      },
+      {
+        "tool": "read_file",
+        "arguments": {
+          "path": "util/",
+          "start_line": 1,
+          "end_line": 1
+        },
+        "outcome": "REJECTED: No such file: util/. Use list_dir or grep_code to find real paths.",
+        "ok": false
+      },
+      {
+        "tool": "submit_repo_map",
+        "arguments": {
+          "entries": [
+            {
+              "path": "main_pretrain.py",
+              "start_line": 33,
+              "end_line": 38,
+              "role": "MAE预训练入口，导入模型和训练轮函数。"
+            },
+            {
+              "path": "main_pretrain.py",
+              "start_line": 38,
+              "end_line": 58,
+              "role": "预训练参数解析定义。"
+            },
+            {
+              "path": "models_mae.py",
+              "start_line": 22,
+              "end_line": 63,
+              "role": "MAE视觉Transformer编码器与解码器模块。"
+            },
+            {
+              "path": "engine_pretrain.py",
+              "start_line": 21,
+              "end_line": 48,
+              "role": "预训练单轮训练流程及模型前向调用。"
+            },
+            {
+              "path": "main_finetune.py",
+              "start_line": 31,
+              "end_line": 43,
+              "role": "微调入口依赖、模型及训练评估函数导入。"
+            },
+            {
+              "path": "engine_finetune.py",
+              "start_line": 25,
+              "end_line": 57,
+              "role": "分类微调单轮训练流程。"
+            },
+            {
+              "path": "models_vit.py",
+              "start_line": 20,
+              "end_line": 53,
+              "role": "分类Vision Transformer模块，支持全局池化特征。"
+            },
+            {
+              "path": "main_linprobe.py",
+              "start_line": 31,
+              "end_line": 43,
+              "role": "线性探测入口依赖及参数解析起始位置。"
+            }
+          ]
+        },
+        "outcome": "Accepted 8 map entries.",
+        "ok": true
+      }
+    ],
+    "stop_reason": "finished",
+    "requests": 4,
+    "tokens": 17028,
+    "elapsed_seconds": 13.866
+  },
+  "repo_map_reused": true,
+  "repo_map_requests": 0,
+  "repo_map_tokens": 0,
+  "requests": 6,
+  "tokens": 14369,
+  "elapsed_seconds": 19.1
+}
